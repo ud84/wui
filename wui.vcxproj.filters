@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\WUI">
+      <UniqueIdentifier>{cb88aa55-e108-4b48-b73f-c28fa2c1314c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WUI">
+      <UniqueIdentifier>{0f36009b-71cb-4eb3-bc73-b9204a6ca7c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WUI\Window">
+      <UniqueIdentifier>{91f6adae-6d9c-42ed-b07c-6fbf44c7ec55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WUI\Window">
+      <UniqueIdentifier>{8779893f-6793-4dc9-ac1a-96e795eb3470}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WUI\Control">
+      <UniqueIdentifier>{e297763e-5759-4d2a-ae69-08428dcfe28b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WUI\Control">
+      <UniqueIdentifier>{702ee417-2930-4704-8ff0-aae697d7d625}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WUI\Common">
+      <UniqueIdentifier>{62cbb09b-3334-4adb-ba65-ccc0a8cb43c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WUI\Event">
+      <UniqueIdentifier>{163cb05b-1a3f-4e76-a9b7-59f7e5b7d033}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WUI\Graphic">
+      <UniqueIdentifier>{97f28e4e-6218-4b22-bae9-25dc74aaf183}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WUI\Common">
+      <UniqueIdentifier>{8201c19a-a5e4-4608-b108-7df857b81304}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WUI\Event">
+      <UniqueIdentifier>{9d587071-1e45-488c-a76b-611a8d1e3a99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WUI\Graphic">
+      <UniqueIdentifier>{fdf56e24-84c6-43f3-aac5-ddeca88ed2d4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Window\Window.h">
+      <Filter>Header Files\WUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Window\Type.h">
+      <Filter>Header Files\WUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Common\Rect.h">
+      <Filter>Header Files\WUI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Control\IControl.h">
+      <Filter>Header Files\WUI\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Event\Event.h">
+      <Filter>Header Files\WUI\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Window\IWindow.h">
+      <Filter>Header Files\WUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Graphic\Graphic.h">
+      <Filter>Header Files\WUI\Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Control\Button.h">
+      <Filter>Header Files\WUI\Control</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="wui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WUI\Window\Window.cpp">
+      <Filter>Source Files\WUI\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="WUI\Control\Button.cpp">
+      <Filter>Source Files\WUI\Control</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="wui.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wui.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
