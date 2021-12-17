@@ -15,6 +15,7 @@ class Button : public IControl
 {
 public:
 	Button();
+	Button(const std::string &caption, std::function<void(void)> clickCallback);
 	~Button();
 
 	virtual void Draw(Graphic &gr);
@@ -27,7 +28,10 @@ public:
 	void SetCallback(std::function<void(void)> clickCallback);
 
 private:
+	std::string caption;
 	std::function<void(void)> clickCallback;
+
+	Window *parent;
 };
 
 }

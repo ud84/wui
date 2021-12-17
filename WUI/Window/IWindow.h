@@ -10,7 +10,7 @@ namespace WUI
 class IWindow
 {
 public:
-	virtual void AddControl(IControl &control, Rect &position) = 0;
+	virtual void AddControl(IControl &control, const Rect &position) = 0;
 	virtual void RemoveControl(IControl &control) = 0;
 
 	virtual void ReceiveEvent(Event &ev) = 0; /// <- Events from child controls

@@ -5,7 +5,7 @@ namespace WUI
 
 struct Event;
 struct Rect;
-class Graphic;
+struct Graphic;
 class Window;
 
 class IControl

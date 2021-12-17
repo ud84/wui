@@ -4,6 +4,9 @@
 #include "framework.h"
 #include "wui.h"
 
+#include <WUI/Window/Window.h>
+#include <WUI/Control/Button.h>
+
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -26,6 +29,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: Place code here.
+
+	WUI::Window window(WUI::WindowType::Dialog, WUI::Rect(100, 100, 500, 500));
+
+	WUI::Button okButton("OK", []() { MessageBox(NULL, L"Ok is clicked!", L"Yes", MB_ICONEXCLAMATION); });
+
+	window.AddControl(okButton, WUI::Rect(10, 10, 110, 35));
+
+	window.Show();
+
+
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
