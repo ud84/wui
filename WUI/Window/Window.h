@@ -21,7 +21,7 @@ public:
 	Window();
 	~Window();
 
-	virtual void Init(WindowType type, const Rect &position, const std::string &caption);
+	virtual bool Init(WindowType type, const Rect &position, const std::string &caption);
 
 	virtual void AddControl(IControl &control, const Rect &position);
 	virtual void RemoveControl(IControl &control);
@@ -37,7 +37,6 @@ private:
 #ifdef _WIN32
 	HWND hWnd;
 
-	void MyRegisterClass();
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 #endif
 };

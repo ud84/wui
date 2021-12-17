@@ -12,7 +12,7 @@ namespace WUI
 class IWindow
 {
 public:
-	virtual void Init(WindowType type, const Rect &position, const std::string &caption) = 0;
+	virtual bool Init(WindowType type, const Rect &position, const std::string &caption) = 0;
 
 	virtual void AddControl(IControl &control, const Rect &position) = 0;
 	virtual void RemoveControl(IControl &control) = 0;
