@@ -88,6 +88,7 @@ bool Window::Init(WindowType type, const Rect &position, const std::string &capt
 	wcex.hInstance = GetModuleHandle(NULL);
 	wcex.hbrBackground = backgroundBrush;
 	wcex.lpszClassName = L"WUI Window";
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 
 	RegisterClassExW(&wcex);
 

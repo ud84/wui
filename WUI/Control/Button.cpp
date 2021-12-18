@@ -42,8 +42,20 @@ void Button::Draw(Graphic &gr)
 #ifdef _WIN32
 	SelectObject(gr.dc, active ? activePen : calmPen);
 	SelectObject(gr.dc, active ? activeBrush : calmBrush);
+	SelectObject(gr.dc, font);
 
 	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, 5, 5);
+
+	SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text));
+	SetBkColor(gr.dc, active ? ThemeColor(ThemeValue::Button_Active) : ThemeColor(ThemeValue::Button_Calm));
+
+	RECT textRect = { 0 };
+	DrawTextA(gr.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &textRect, DT_CALCRECT);
+	
+	auto top = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
+	auto left = position.left + ((position.right - position.left - textRect.right) / 2);
+	TextOutA(gr.dc, left, top, caption.c_str(), (int32_t)caption.size());
+	RGB(10, 0, 0);
 #endif
 }
 

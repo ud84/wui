@@ -7,7 +7,7 @@ typedef unsigned long Color;
 
 static inline Color MakeColor(unsigned char red, unsigned char green, unsigned char blue)
 {
-	return static_cast<Color>((red | (static_cast<unsigned short>(green) << 8)) | ((static_cast<unsigned long>(blue) << 16)));
+	return ((red) | (static_cast<unsigned short>(green) << 8)) | (static_cast<unsigned long>(blue) << 16);
 }
 
 }

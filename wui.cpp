@@ -20,8 +20,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	WUI::Window window;
 
 	WUI::Button okButton("OK", []() { MessageBox(NULL, L"OK was clicked!", L"Yes", MB_ICONEXCLAMATION); });
+	WUI::Button cancelButton("Cancel", []() { MessageBox(NULL, L"Cancel was clicked!", L"Yes", MB_ICONEXCLAMATION); });
 
-	window.AddControl(okButton, WUI::Rect(10, 10, 110, 35));
+	window.AddControl(okButton, WUI::Rect(240, 450, 350, 475));
+	window.AddControl(cancelButton, WUI::Rect(370, 450, 480, 475));
 
 	window.Init(WUI::WindowType::Dialog, WUI::Rect(100, 100, 500, 500), "Welcome to WUI!");
 	
