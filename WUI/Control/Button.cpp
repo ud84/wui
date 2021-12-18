@@ -6,17 +6,16 @@
 namespace WUI
 {
 
-Button::Button()
-	: caption(),
-	clickCallback(),
-	parent(nullptr)
-{
-}
-
 Button::Button(const std::string &caption_, std::function<void(void)> clickCallback_)
 	: caption(caption_),
 	clickCallback(clickCallback_),
+	position(),
 	parent(nullptr)
+#ifdef _WIN32
+	,calmBrush(CreateSolidBrush()), activeBrush(0),
+	calmPen(0), activePen(0),
+	font(0)
+#endif
 {
 }
 
@@ -36,13 +35,14 @@ void Button::ReceiveEvent(Event &ev)
 {
 }
 
-void Button::SetPosition(const Rect &rect)
+void Button::SetPosition(const Rect &position_)
 {
+	position = position_;
 }
 
-void Button::SetParent(Window &window)
+void Button::SetParent(Window *window)
 {
-	parent = &window;
+	parent = window;
 }
 
 void Button::SetCaption(const std::string &caption_)

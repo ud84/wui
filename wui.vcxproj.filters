@@ -49,6 +49,12 @@
     <Filter Include="Source Files\WUI\Graphic">
       <UniqueIdentifier>{fdf56e24-84c6-43f3-aac5-ddeca88ed2d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\WUI\Theme">
+      <UniqueIdentifier>{6857d731-1cf6-4b01-99b4-7426347c5885}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WUI\Theme">
+      <UniqueIdentifier>{b5cc505e-adf0-4fa0-bc8b-3604c3f0e00c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -84,6 +90,12 @@
     <ClInclude Include="WUI\Control\Button.h">
       <Filter>Header Files\WUI\Control</Filter>
     </ClInclude>
+    <ClInclude Include="WUI\Theme\Theme.h">
+      <Filter>Header Files\WUI\Theme</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Common\Color.h">
+      <Filter>Header Files\WUI\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wui.cpp">
@@ -94,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="WUI\Control\Button.cpp">
       <Filter>Source Files\WUI\Control</Filter>
+    </ClCompile>
+    <ClCompile Include="WUI\Theme\Theme.cpp">
+      <Filter>Source Files\WUI\Theme</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

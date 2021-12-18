@@ -20,7 +20,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	window.AddControl(okButton, WUI::Rect(10, 10, 110, 35));
 
-	window.Init(WUI::WindowType::Dialog, WUI::Rect(100, 100, 500, 500), "test");
+	window.Init(WUI::WindowType::Dialog, WUI::Rect(100, 100, 500, 500), "Welcome to WUI!");
 	
 	// Main message loop:
 	MSG msg;

@@ -15,9 +15,9 @@ public:
 
 	virtual void ReceiveEvent(Event &ev) = 0; /// <- Events from parent window
 
-	virtual void SetPosition(const Rect &rect) = 0;
+	virtual void SetPosition(const Rect &position) = 0;
 
-	virtual void SetParent(Window &window) = 0;
+	virtual void SetParent(Window *window) = 0;
 
 protected:
 	~IControl() {}

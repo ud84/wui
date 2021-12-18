@@ -23,6 +23,8 @@ void Window::AddControl(IControl &control, const Rect &position)
 {
 	if (std::find(controls.begin(), controls.end(), &control) == controls.end())
 	{
+		control.SetPosition(position);
+		control.SetParent(this);
 		controls.emplace_back(&control);
 	}
 }
@@ -32,6 +34,7 @@ void Window::RemoveControl(IControl &control)
 	auto exist = std::find(controls.begin(), controls.end(), &control);
 	if (exist != controls.end())
 	{
+		(*exist)->SetParent(nullptr);
 		controls.erase(exist);
 	}
 }
@@ -83,7 +86,6 @@ bool Window::Init(WindowType type, const Rect &position, const std::string &capt
 
 	return true;
 }
-
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
