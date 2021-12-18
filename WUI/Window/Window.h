@@ -26,8 +26,6 @@ public:
 	virtual void AddControl(IControl &control, const Rect &position);
 	virtual void RemoveControl(IControl &control);
 
-	virtual void ReceiveEvent(Event &ev);
-
 	virtual void UpdateTheme();
 
 	virtual void Show();

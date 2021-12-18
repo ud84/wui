@@ -55,7 +55,6 @@ void Button::Draw(Graphic &gr)
 	auto top = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
 	auto left = position.left + ((position.right - position.left - textRect.right) / 2);
 	TextOutA(gr.dc, left, top, caption.c_str(), (int32_t)caption.size());
-	RGB(10, 0, 0);
 #endif
 }
 

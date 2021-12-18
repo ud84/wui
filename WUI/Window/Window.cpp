@@ -49,11 +49,6 @@ void Window::RemoveControl(IControl &control)
 	}
 }
 
-void Window::ReceiveEvent(Event &ev)
-{
-
-}
-
 void Window::UpdateTheme()
 {
 #ifdef _WIN32

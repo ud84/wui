@@ -111,6 +111,9 @@
     <ClInclude Include="WUI\Theme\impl\White.h">
       <Filter>Header Files\WUI\Theme\impl</Filter>
     </ClInclude>
+    <ClInclude Include="WUI\Event\MouseEvent.h">
+      <Filter>Header Files\WUI\Event</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wui.cpp">
