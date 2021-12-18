@@ -162,6 +162,9 @@
     <ClInclude Include="WUI\Control\IControl.h" />
     <ClInclude Include="WUI\Event\Event.h" />
     <ClInclude Include="WUI\Graphic\Graphic.h" />
+    <ClInclude Include="WUI\Theme\impl\Dark.h" />
+    <ClInclude Include="WUI\Theme\impl\ITheme.h" />
+    <ClInclude Include="WUI\Theme\impl\White.h" />
     <ClInclude Include="WUI\Theme\Theme.h" />
     <ClInclude Include="WUI\Window\IWindow.h" />
     <ClInclude Include="WUI\Window\Type.h" />
@@ -170,6 +173,8 @@
   <ItemGroup>
     <ClCompile Include="wui.cpp" />
     <ClCompile Include="WUI\Control\Button.cpp" />
+    <ClCompile Include="WUI\Theme\impl\Dark.cpp" />
+    <ClCompile Include="WUI\Theme\impl\White.cpp" />
     <ClCompile Include="WUI\Theme\Theme.cpp" />
     <ClCompile Include="WUI\Window\Window.cpp" />
   </ItemGroup>

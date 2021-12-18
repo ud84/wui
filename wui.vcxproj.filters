@@ -55,6 +55,12 @@
     <Filter Include="Source Files\WUI\Theme">
       <UniqueIdentifier>{b5cc505e-adf0-4fa0-bc8b-3604c3f0e00c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\WUI\Theme\impl">
+      <UniqueIdentifier>{cea449c6-bb08-47a5-b1f8-c7225a52b842}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WUI\Theme\impl">
+      <UniqueIdentifier>{beb28a9a-8d10-458f-8a8b-00c627c819ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -96,6 +102,15 @@
     <ClInclude Include="WUI\Common\Color.h">
       <Filter>Header Files\WUI\Common</Filter>
     </ClInclude>
+    <ClInclude Include="WUI\Theme\impl\Dark.h">
+      <Filter>Header Files\WUI\Theme\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Theme\impl\ITheme.h">
+      <Filter>Header Files\WUI\Theme\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Theme\impl\White.h">
+      <Filter>Header Files\WUI\Theme\impl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wui.cpp">
@@ -109,6 +124,12 @@
     </ClCompile>
     <ClCompile Include="WUI\Theme\Theme.cpp">
       <Filter>Source Files\WUI\Theme</Filter>
+    </ClCompile>
+    <ClCompile Include="WUI\Theme\impl\Dark.cpp">
+      <Filter>Source Files\WUI\Theme\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="WUI\Theme\impl\White.cpp">
+      <Filter>Source Files\WUI\Theme\impl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

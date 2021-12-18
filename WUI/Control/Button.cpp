@@ -14,7 +14,7 @@ Button::Button(const std::string &caption_, std::function<void(void)> clickCallb
 	position(),
 	parent(nullptr)
 #ifdef _WIN32
-	,calmBrush(CreateSolidBrush(ThemeColor(Button_Calm_Color))), activeBrush(0),
+	,calmBrush(CreateSolidBrush(ThemeColor(ThemeValue::Button_Calm))), activeBrush(0),
 	calmPen(0), activePen(0),
 	font(0)
 #endif
