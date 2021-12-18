@@ -3,6 +3,8 @@
 
 #include <WUI/Window/Window.h>
 
+#include <WUI/Theme/Theme.h>
+
 namespace WUI
 {
 
@@ -12,7 +14,7 @@ Button::Button(const std::string &caption_, std::function<void(void)> clickCallb
 	position(),
 	parent(nullptr)
 #ifdef _WIN32
-	,calmBrush(CreateSolidBrush()), activeBrush(0),
+	,calmBrush(CreateSolidBrush(ThemeColor(Button_Calm_Color))), activeBrush(0),
 	calmPen(0), activePen(0),
 	font(0)
 #endif

@@ -19,6 +19,12 @@ namespace WUI
 class Button : public IControl
 {
 public:
+	/// Theme's constants
+	const uint32_t Button_Calm_Color   = 10000;
+	const uint32_t Button_Active_Color = 10001;
+	const uint32_t Button_Border_Color = 10002;
+	const uint32_t Button_Text_Color   = 10003;
+
 	Button(const std::string &caption, std::function<void(void)> clickCallback);
 	~Button();
 
