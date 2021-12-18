@@ -38,7 +38,7 @@ private:
 	HWND hWnd;
 
 	HBRUSH backgroundBrush;
-	HFONT captionFont;
+	HFONT font;
 
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

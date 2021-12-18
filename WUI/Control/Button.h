@@ -45,7 +45,6 @@ private:
 #ifdef _WIN32
 	HBRUSH calmBrush, activeBrush;
 	HPEN calmPen, activePen;
-	HFONT font;
 
 	void MakePrimitives();
 	void DestroyPrimitives();

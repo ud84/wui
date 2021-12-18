@@ -16,8 +16,7 @@ Button::Button(const std::string &caption_, std::function<void(void)> clickCallb
 	active(false)
 #ifdef _WIN32
 	,calmBrush(0), activeBrush(0),
-	calmPen(0), activePen(0),
-	font(0)
+	calmPen(0), activePen(0)
 #endif
 {
 #ifdef _WIN32
@@ -42,7 +41,6 @@ void Button::Draw(Graphic &gr)
 #ifdef _WIN32
 	SelectObject(gr.dc, active ? activePen : calmPen);
 	SelectObject(gr.dc, active ? activeBrush : calmBrush);
-	SelectObject(gr.dc, font);
 
 	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, 5, 5);
 
@@ -97,9 +95,6 @@ void Button::MakePrimitives()
 	activeBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Active));
 	calmPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Calm));
 	activePen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Active));
-	font = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-		OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-		DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
 }
 
 void Button::DestroyPrimitives()
@@ -108,7 +103,6 @@ void Button::DestroyPrimitives()
 	DeleteObject(activeBrush);
 	DeleteObject(calmPen);
 	DeleteObject(activePen);
-	DeleteObject(font);
 }
 #endif
 

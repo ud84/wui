@@ -14,7 +14,7 @@ Window::Window()
 #ifdef _WIN32
 	, hWnd(0),
 	backgroundBrush(0),
-	captionFont(0)
+	font(0)
 #endif
 {
 #ifdef _WIN32
@@ -118,6 +118,8 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			HDC hdc = BeginPaint(hWnd, &ps);
 
 			Graphic gr{ hdc };
+
+			SelectObject(hdc, wnd->font);
 		
 			for (auto &control : wnd->controls)
 			{
@@ -139,7 +141,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 void Window::MakePrimitives()
 {
 	backgroundBrush = CreateSolidBrush(ThemeColor(ThemeValue::Window_Background));
-	captionFont = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
+	font = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
 		OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
 }
@@ -147,7 +149,7 @@ void Window::MakePrimitives()
 void Window::DestroyPrimitives()
 {
 	DeleteObject(backgroundBrush);
-	DeleteObject(captionFont);
+	DeleteObject(font);
 }
 
 #endif
