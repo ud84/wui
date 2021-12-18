@@ -19,6 +19,8 @@ public:
 
 	virtual void SetParent(Window *window) = 0;
 
+	virtual void UpdateTheme() = 0;
+
 protected:
 	~IControl() {}
 

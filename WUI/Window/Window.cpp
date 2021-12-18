@@ -2,6 +2,8 @@
 
 #include <WUI/Graphic/Graphic.h>
 
+#include <WUI/Theme/Theme.h>
+
 #include <algorithm>
 
 namespace WUI
@@ -10,13 +12,21 @@ namespace WUI
 Window::Window()
 	: controls()
 #ifdef _WIN32
-	, hWnd(0)
+	, hWnd(0),
+	backgroundBrush(0),
+	captionFont(0)
 #endif
 {
+#ifdef _WIN32
+	MakePrimitives();
+#endif
 }
 
 Window::~Window()
 {
+#ifdef _WIN32
+	DestroyPrimitives();
+#endif
 }
 
 void Window::AddControl(IControl &control, const Rect &position)
@@ -44,6 +54,14 @@ void Window::ReceiveEvent(Event &ev)
 
 }
 
+void Window::UpdateTheme()
+{
+#ifdef _WIN32
+	DestroyPrimitives();
+	MakePrimitives();
+#endif
+}
+
 /// Windows specified code
 #ifdef _WIN32
 
@@ -68,7 +86,7 @@ bool Window::Init(WindowType type, const Rect &position, const std::string &capt
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = sizeof(this);
 	wcex.hInstance = GetModuleHandle(NULL);
-	wcex.hbrBackground = (HBRUSH)(COLOR_BACKGROUND + 1);
+	wcex.hbrBackground = backgroundBrush;
 	wcex.lpszClassName = L"WUI Window";
 
 	RegisterClassExW(&wcex);
@@ -120,6 +138,20 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
+}
+
+void Window::MakePrimitives()
+{
+	backgroundBrush = CreateSolidBrush(ThemeColor(ThemeValue::Window_Background));
+	captionFont = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
+		OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
+}
+
+void Window::DestroyPrimitives()
+{
+	DeleteObject(backgroundBrush);
+	DeleteObject(captionFont);
 }
 
 #endif

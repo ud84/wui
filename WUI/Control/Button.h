@@ -26,6 +26,7 @@ public:
 	virtual void ReceiveEvent(Event &ev);
 	virtual void SetPosition(const Rect &position);
 	virtual void SetParent(Window *window);
+	virtual void UpdateTheme();
 
 	void SetCaption(const std::string &caption);
 
@@ -39,10 +40,15 @@ private:
 
 	Window *parent;
 
+	bool active;
+
 #ifdef _WIN32
 	HBRUSH calmBrush, activeBrush;
 	HPEN calmPen, activePen;
 	HFONT font;
+
+	void MakePrimitives();
+	void DestroyPrimitives();
 #endif
 };
 

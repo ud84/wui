@@ -3,6 +3,7 @@
 
 #include "wui.h"
 
+#include <WUI/Theme/Theme.h>
 #include <WUI/Window/Window.h>
 #include <WUI/Control/Button.h>
 
@@ -13,6 +14,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
+
+	WUI::SetTheme(WUI::Theme::Dark);
 
 	WUI::Window window;
 

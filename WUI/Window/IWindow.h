@@ -19,6 +19,8 @@ public:
 
 	virtual void ReceiveEvent(Event &ev) = 0; /// <- Events from child controls
 
+	virtual void UpdateTheme() = 0;
+
 	virtual void Show() = 0;
 	virtual void Hide() = 0;
 

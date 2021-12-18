@@ -28,6 +28,8 @@ public:
 
 	virtual void ReceiveEvent(Event &ev);
 
+	virtual void UpdateTheme();
+
 	virtual void Show();
 	virtual void Hide();
 
@@ -37,7 +39,13 @@ private:
 #ifdef _WIN32
 	HWND hWnd;
 
+	HBRUSH backgroundBrush;
+	HFONT captionFont;
+
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+	void MakePrimitives();
+	void DestroyPrimitives();
 #endif
 };
 
