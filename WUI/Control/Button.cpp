@@ -13,7 +13,7 @@ Button::Button(const std::string &caption_, std::function<void(void)> clickCallb
 	clickCallback(clickCallback_),
 	position(),
 	parent(),
-	active(false)
+	showed(true), active(false)
 #ifdef _WIN32
 	,calmBrush(0), activeBrush(0),
 	calmPen(0), activePen(0)
@@ -38,17 +38,27 @@ Button::~Button()
 
 void Button::Draw(Graphic &gr)
 {
-#ifdef _WIN32
-	SelectObject(gr.dc, active ? activePen : calmPen);
-	SelectObject(gr.dc, active ? activeBrush : calmBrush);
+	if (!showed)
+	{
+		return;
+	}
 
-	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, 5, 5);
+#ifdef _WIN32
+	RECT textRect = { 0 };
+	DrawTextA(gr.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &textRect, DT_CALCRECT);
+
+	if (textRect.right > position.width())
+	{
+		position.right = position.left + textRect.right + 10;
+	}
 
 	SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text));
 	SetBkColor(gr.dc, active ? ThemeColor(ThemeValue::Button_Active) : ThemeColor(ThemeValue::Button_Calm));
 
-	RECT textRect = { 0 };
-	DrawTextA(gr.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &textRect, DT_CALCRECT);
+	SelectObject(gr.dc, active ? activePen : calmPen);
+	SelectObject(gr.dc, active ? activeBrush : calmBrush);
+
+	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, 5, 5);
 	
 	auto top = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
 	auto left = position.left + ((position.right - position.left - textRect.right) / 2);
@@ -58,7 +68,7 @@ void Button::Draw(Graphic &gr)
 
 void Button::ReceiveEvent(const Event &ev)
 {
-	if (ev.type == EventType::Mouse)
+	if (ev.type == EventType::Mouse && parent.lock() && showed)
 	{
 		switch (ev.mouseEvent.type)
 		{
@@ -103,6 +113,24 @@ void Button::UpdateTheme()
 	DestroyPrimitives();
 	MakePrimitives();
 #endif
+}
+
+void Button::Show()
+{
+	showed = true;
+	if (parent.lock())
+	{
+		parent.lock()->Redraw(position);
+	}
+}
+
+void Button::Hide()
+{
+	showed = false;
+	if (parent.lock())
+	{
+		parent.lock()->Redraw(position);
+	}
 }
 
 void Button::SetCaption(const std::string &caption_)

@@ -25,6 +25,9 @@ public:
 
 	virtual void UpdateTheme() = 0;
 
+	virtual void Show() = 0;
+	virtual void Hide() = 0;
+
 protected:
 	~IControl() {}
 

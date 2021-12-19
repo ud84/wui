@@ -15,7 +15,11 @@ namespace WUI
 
 Window::Window()
 	: controls(),
-	activeControl()
+	activeControl(),
+	position(),
+	caption(),
+	showed(true),
+	parent()
 #ifdef _WIN32
 	, hWnd(0),
 	backgroundBrush(0),
@@ -35,11 +39,11 @@ Window::~Window()
 #endif
 }
 
-void Window::AddControl(std::shared_ptr<IControl> control, const Rect &position)
+void Window::AddControl(std::shared_ptr<IControl> control, const Rect &controlPosition)
 {
 	if (std::find(controls.begin(), controls.end(), control) == controls.end())
 	{
-		control->SetPosition(position);
+		control->SetPosition(position + controlPosition);
 		control->SetParent(shared_from_this());
 		controls.emplace_back(control);
 	}
@@ -51,6 +55,11 @@ void Window::RemoveControl(std::shared_ptr<IControl> control)
 	if (exist != controls.end())
 	{
 		(*exist)->ClearParent();
+		
+#ifdef _WIN32
+		RECT invalidatingRect = { (*exist)->GetPosition().left, (*exist)->GetPosition().top, (*exist)->GetPosition().right, (*exist)->GetPosition().bottom };
+		InvalidateRect(hWnd, &invalidatingRect, TRUE);
+#endif
 		controls.erase(exist);
 	}
 }
@@ -63,11 +72,91 @@ void Window::Redraw(const Rect &position)
 #endif
 }
 
+void Window::Draw(Graphic &gr)
+{
+	if (!showed)
+	{
+		return;
+	}
+
+	for (auto &control : controls)
+	{
+		control->Draw(gr);
+	}
+}
+
+void Window::ReceiveEvent(const Event &ev)
+{
+	if (!showed)
+	{
+		return;
+	}
+
+	if (ev.type == EventType::Mouse)
+	{
+		SendMouseEvent(ev.mouseEvent);
+	}
+}
+
+void Window::SetPosition(const Rect &position_)
+{
+	position = position_;
+}
+
+Rect Window::GetPosition() const
+{
+	return position;
+}
+
+void Window::SetParent(std::shared_ptr<Window> window)
+{
+	parent = window;
+}
+
+void Window::ClearParent()
+{
+	parent.reset();
+}
+
 void Window::UpdateTheme()
 {
 #ifdef _WIN32
 	DestroyPrimitives();
 	MakePrimitives();
+#endif
+}
+
+void Window::Show()
+{
+	showed = true;
+
+	if (parent)
+	{
+		parent->Redraw(position);
+	}
+
+#ifdef _WIN32
+	if (!parent)
+	{
+		ShowWindow(hWnd, SW_SHOW);
+	}
+#endif
+}
+
+void Window::Hide()
+{
+	showed = false;
+
+	if (parent)
+	{
+		parent->Redraw(position);
+	}
+
+#ifdef _WIN32
+	if (!parent)
+	{
+		ShowWindow(hWnd, SW_HIDE);
+	}
 #endif
 }
 
@@ -107,18 +196,19 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 /// Windows specified code
 #ifdef _WIN32
 
-void Window::Show()
+bool Window::Init(WindowType type, const Rect &position_, const std::string &caption_)
 {
-	ShowWindow(hWnd, SW_SHOW);
-}
+	position = position_;
+	caption = caption_;
 
-void Window::Hide()
-{
-	ShowWindow(hWnd, SW_HIDE);
-}
+	if (parent)
+	{
+		showed = true;
+		parent->Redraw(position);
 
-bool Window::Init(WindowType type, const Rect &position, const std::string &caption)
-{
+		return true;
+	}
+
 	WNDCLASSEXW wcex = { 0 };
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -150,6 +240,13 @@ bool Window::Init(WindowType type, const Rect &position, const std::string &capt
 
 void Window::Destroy()
 {
+	if (parent)
+	{
+		showed = false;
+		parent->Redraw(position);
+
+		return;
+	}
 	DestroyWindow(hWnd);
 }
 
@@ -172,6 +269,10 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			Graphic gr{ hdc };
 
 			SelectObject(hdc, wnd->font);
+
+			SetTextColor(hdc, ThemeColor(ThemeValue::Window_Text));
+			SetBkColor(hdc, ThemeColor(ThemeValue::Window_Background));
+			TextOutA(hdc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
 		
 			for (auto &control : wnd->controls)
 			{

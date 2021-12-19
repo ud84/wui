@@ -30,6 +30,8 @@ public:
 	virtual void SetParent(std::shared_ptr<Window> window);
 	virtual void ClearParent();
 	virtual void UpdateTheme();
+	virtual void Show();
+	virtual void Hide();
 
 	void SetCaption(const std::string &caption);
 
@@ -43,7 +45,7 @@ private:
 
 	std::weak_ptr<Window> parent;
 
-	bool active;
+	bool showed, active;
 
 #ifdef _WIN32
 	HBRUSH calmBrush, activeBrush;

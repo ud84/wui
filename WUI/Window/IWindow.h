@@ -19,11 +19,6 @@ public:
 	virtual void RemoveControl(std::shared_ptr<IControl> control) = 0;
 	virtual void Redraw(const Rect &position) = 0;
 
-	virtual void UpdateTheme() = 0;
-
-	virtual void Show() = 0;
-	virtual void Hide() = 0;
-
 protected:
 	~IWindow() {}
 

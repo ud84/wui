@@ -7,7 +7,7 @@ Dark::Dark()
 	: tv
 	{
 		{ ThemeValue::Window_Background, MakeColor(19, 21, 25) },
-		{ ThemeValue::Window_Caption, MakeColor(245, 245, 240) },
+		{ ThemeValue::Window_Text, MakeColor(245, 245, 240) },
 		{ ThemeValue::Button_Calm, MakeColor(6, 165, 223) },
 		{ ThemeValue::Button_Active, MakeColor(26, 175, 233) },
 		{ ThemeValue::Button_Border, MakeColor(0, 160, 210) },

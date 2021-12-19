@@ -15,7 +15,7 @@ enum class Theme
 enum class ThemeValue
 {
 	Window_Background,
-	Window_Caption,
+	Window_Text,
 
 	Button_Calm,
 	Button_Active,
