@@ -13,9 +13,10 @@ class IWindow
 {
 public:
 	virtual bool Init(WindowType type, const Rect &position, const std::string &caption) = 0;
+	virtual void Destroy() = 0;
 
-	virtual void AddControl(IControl &control, const Rect &position) = 0;
-	virtual void RemoveControl(IControl &control) = 0;
+	virtual void AddControl(std::shared_ptr<IControl> control, const Rect &position) = 0;
+	virtual void RemoveControl(std::shared_ptr<IControl> control) = 0;
 	virtual void Redraw(const Rect &position) = 0;
 
 	virtual void UpdateTheme() = 0;

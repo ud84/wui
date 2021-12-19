@@ -15,16 +15,17 @@
 namespace WUI
 {
 
-class Window : public IWindow
+class Window : public IWindow, public std::enable_shared_from_this<Window>
 {
 public:
 	Window();
 	~Window();
 
 	virtual bool Init(WindowType type, const Rect &position, const std::string &caption);
+	virtual void Destroy();
 
-	virtual void AddControl(IControl &control, const Rect &position);
-	virtual void RemoveControl(IControl &control);
+	virtual void AddControl(std::shared_ptr<IControl> control, const Rect &position);
+	virtual void RemoveControl(std::shared_ptr<IControl> control);
 	virtual void Redraw(const Rect &position);
 
 	virtual void UpdateTheme();
@@ -33,7 +34,8 @@ public:
 	virtual void Hide();
 
 private:
-	std::vector<IControl*> controls, activeControls;
+	std::vector<std::shared_ptr<IControl>> controls;
+	std::shared_ptr<IControl> activeControl;
 
 #ifdef _WIN32
 	HWND hWnd;

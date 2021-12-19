@@ -8,6 +8,7 @@
 
 #include <string>
 #include <functional>
+#include <memory>
 
 #ifdef _WIN32
 
@@ -16,7 +17,7 @@
 namespace WUI
 {
 
-class Button : public IControl
+class Button : public IControl, public std::enable_shared_from_this<Button>
 {
 public:
 	Button(const std::string &caption, std::function<void(void)> clickCallback);
@@ -26,7 +27,8 @@ public:
 	virtual void ReceiveEvent(const Event &ev);
 	virtual void SetPosition(const Rect &position);
 	virtual Rect GetPosition() const;
-	virtual void SetParent(Window *window);
+	virtual void SetParent(std::shared_ptr<Window> window);
+	virtual void ClearParent();
 	virtual void UpdateTheme();
 
 	void SetCaption(const std::string &caption);
@@ -39,7 +41,7 @@ private:
 
 	Rect position;
 
-	Window *parent;
+	std::weak_ptr<Window> parent;
 
 	bool active;
 

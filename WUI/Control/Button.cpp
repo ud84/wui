@@ -12,7 +12,7 @@ Button::Button(const std::string &caption_, std::function<void(void)> clickCallb
 	: caption(caption_),
 	clickCallback(clickCallback_),
 	position(),
-	parent(nullptr),
+	parent(),
 	active(false)
 #ifdef _WIN32
 	,calmBrush(0), activeBrush(0),
@@ -30,9 +30,9 @@ Button::~Button()
 	DestroyPrimitives();
 #endif
 
-	if (parent)
+	if (parent.lock())
 	{
-		parent->RemoveControl(*this);
+		parent.lock()->RemoveControl(shared_from_this());
 	}
 }
 
@@ -64,11 +64,11 @@ void Button::ReceiveEvent(const Event &ev)
 		{
 			case MouseEventType::Enter:
 				active = true;
-				parent->Redraw(position);
+				parent.lock()->Redraw(position);
 			break;
 			case MouseEventType::Leave:
 				active = false;
-				parent->Redraw(position);
+				parent.lock()->Redraw(position);
 			break;
 			case MouseEventType::LeftUp:
 				clickCallback();
@@ -87,9 +87,14 @@ Rect Button::GetPosition() const
 	return position;
 }
 
-void Button::SetParent(Window *window)
+void Button::SetParent(std::shared_ptr<Window> window)
 {
 	parent = window;
+}
+
+void Button::ClearParent()
+{
+	parent.reset();
 }
 
 void Button::UpdateTheme()

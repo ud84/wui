@@ -14,7 +14,8 @@ namespace WUI
 {
 
 Window::Window()
-	: controls(), activeControls()
+	: controls(),
+	activeControl()
 #ifdef _WIN32
 	, hWnd(0),
 	backgroundBrush(0),
@@ -34,22 +35,22 @@ Window::~Window()
 #endif
 }
 
-void Window::AddControl(IControl &control, const Rect &position)
+void Window::AddControl(std::shared_ptr<IControl> control, const Rect &position)
 {
-	if (std::find(controls.begin(), controls.end(), &control) == controls.end())
+	if (std::find(controls.begin(), controls.end(), control) == controls.end())
 	{
-		control.SetPosition(position);
-		control.SetParent(this);
-		controls.emplace_back(&control);
+		control->SetPosition(position);
+		control->SetParent(shared_from_this());
+		controls.emplace_back(control);
 	}
 }
 
-void Window::RemoveControl(IControl &control)
+void Window::RemoveControl(std::shared_ptr<IControl> control)
 {
-	auto exist = std::find(controls.begin(), controls.end(), &control);
+	auto exist = std::find(controls.begin(), controls.end(), control);
 	if (exist != controls.end())
 	{
-		(*exist)->SetParent(nullptr);
+		(*exist)->ClearParent();
 		controls.erase(exist);
 	}
 }
@@ -76,13 +77,13 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 	{
 		if (control->GetPosition().In(ev.x, ev.y))
 		{
-			if (std::find(activeControls.begin(), activeControls.end(), control) != activeControls.end())
+			if (activeControl == control)
 			{
 				control->ReceiveEvent({ EventType::Mouse, ev });
 			}
 			else
 			{
-				activeControls.emplace_back(control);
+				activeControl = control;
 
 				MouseEvent me{ MouseEventType::Enter, 0, 0 };
 				control->ReceiveEvent({ EventType::Mouse, me });
@@ -92,10 +93,9 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 		}
 		else
 		{
-			auto activeControl = std::find(activeControls.begin(), activeControls.end(), control);
-			if (activeControl != activeControls.end())
+			if (activeControl == control)
 			{
-				activeControls.erase(activeControl);
+				activeControl.reset();
 
 				MouseEvent me{ MouseEventType::Leave, 0, 0 };
 				control->ReceiveEvent({ EventType::Mouse, me });
@@ -146,6 +146,11 @@ bool Window::Init(WindowType type, const Rect &position, const std::string &capt
 	UpdateWindow(hWnd);
 
 	return true;
+}
+
+void Window::Destroy()
+{
+	DestroyWindow(hWnd);
 }
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

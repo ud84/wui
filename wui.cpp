@@ -17,15 +17,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	WUI::SetTheme(WUI::Theme::Dark);
 
-	WUI::Window window;
+	std::shared_ptr<WUI::Window> window(new WUI::Window());
+	
+	{
+		std::shared_ptr<WUI::Button> okButton(new WUI::Button("OK", []() { MessageBox(NULL, L"OK was clicked!", L"Yes", MB_ICONEXCLAMATION); }));
+		std::shared_ptr<WUI::Button> cancelButton(new WUI::Button("Cancel", [window]() { window->Destroy(); }));
 
-	WUI::Button okButton("OK", []() { MessageBox(NULL, L"OK was clicked!", L"Yes", MB_ICONEXCLAMATION); });
-	WUI::Button cancelButton("Cancel", []() { MessageBox(NULL, L"Cancel was clicked!", L"Yes", MB_ICONEXCLAMATION); });
+		window->AddControl(okButton, WUI::Rect(240, 450, 350, 475));
+		window->AddControl(cancelButton, WUI::Rect(370, 450, 480, 475));
+	}
 
-	window.AddControl(okButton, WUI::Rect(240, 450, 350, 475));
-	window.AddControl(cancelButton, WUI::Rect(370, 450, 480, 475));
-
-	window.Init(WUI::WindowType::Dialog, WUI::Rect(100, 100, 500, 500), "Welcome to WUI!");
+	window->Init(WUI::WindowType::Dialog, WUI::Rect(100, 100, 500, 500), "Welcome to WUI!");
 	
 	// Main message loop:
 	MSG msg;

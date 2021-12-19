@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 namespace WUI
 {
 
@@ -18,7 +20,8 @@ public:
 	virtual void SetPosition(const Rect &position) = 0;
 	virtual Rect GetPosition() const = 0;
 
-	virtual void SetParent(Window *window) = 0;
+	virtual void SetParent(std::shared_ptr<Window> window) = 0;
+	virtual void ClearParent() = 0;
 
 	virtual void UpdateTheme() = 0;
 
