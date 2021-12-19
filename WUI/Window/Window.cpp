@@ -150,17 +150,17 @@ bool Window::Init(WindowType type, const Rect &position, const std::string &capt
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static Window *wnd = nullptr;
 	switch (message)
 	{
 		case WM_CREATE:
 		{
-			auto *cs = reinterpret_cast<CREATESTRUCT*>(lParam);
-			wnd = reinterpret_cast<Window*>(cs->lpCreateParams);
+			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams));
 		}
 		break;
 		case WM_PAINT:
 		{
+			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hWnd, &ps);
 
@@ -177,10 +177,12 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		}
 		break;
 		case WM_MOUSEMOVE:
-			if (GetCapture() == wnd->hWnd)
+		{
+			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			if (GetCapture() == hWnd)
 			{
 				RECT rcWindow;
-				GetWindowRect(wnd->hWnd, &rcWindow);
+				GetWindowRect(hWnd, &rcWindow);
 
 				int16_t xMouse = GET_X_LPARAM(lParam);
 				int16_t yMouse = GET_Y_LPARAM(lParam);
@@ -188,21 +190,31 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 				int32_t xWindow = rcWindow.left + xMouse - wnd->xClick;
 				int32_t yWindow = rcWindow.top + yMouse - wnd->yClick;
 
-				SetWindowPos(wnd->hWnd, NULL, xWindow, yWindow, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+				SetWindowPos(hWnd, NULL, xWindow, yWindow, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 			}
+			
 			wnd->SendMouseEvent({ MouseEventType::Move, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) });
+		}
 		break;
 		case WM_LBUTTONDOWN:
-			SetCapture(wnd->hWnd);
+		{
+			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+			SetCapture(hWnd);
 			wnd->xClick = GET_X_LPARAM(lParam);
 			wnd->yClick = GET_Y_LPARAM(lParam);
 
 			wnd->SendMouseEvent({ MouseEventType::LeftDown, wnd->xClick, wnd->yClick });
+		}
 		break;
 		case WM_LBUTTONUP:
+		{
 			ReleaseCapture();
 
+			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
 			wnd->SendMouseEvent({ MouseEventType::LeftUp, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) });
+		}
 		break;
 		case WM_DESTROY:
 			PostQuitMessage(0);
