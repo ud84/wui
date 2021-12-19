@@ -23,8 +23,9 @@ public:
 	~Button();
 
 	virtual void Draw(Graphic &gr);
-	virtual void ReceiveEvent(Event &ev);
+	virtual void ReceiveEvent(const Event &ev);
 	virtual void SetPosition(const Rect &position);
+	virtual Rect GetPosition() const;
 	virtual void SetParent(Window *window);
 	virtual void UpdateTheme();
 

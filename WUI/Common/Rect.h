@@ -17,7 +17,15 @@ struct Rect
 		: left(left_), top(top_), right(right_), bottom(bottom_)
 	{}
 
-	//bool operator==()
+	inline bool operator==(const Rect &lv)
+	{
+		return left == lv.left && top == lv.top && right == lv.right && bottom == lv.bottom;
+	}
+
+	inline bool In(int32_t x, int32_t y)
+	{
+		return x >= left && x <= right && y >= top && y <= bottom;
+	}
 };
 
 }

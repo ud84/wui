@@ -16,6 +16,7 @@ public:
 
 	virtual void AddControl(IControl &control, const Rect &position) = 0;
 	virtual void RemoveControl(IControl &control) = 0;
+	virtual void Redraw(const Rect &position) = 0;
 
 	virtual void UpdateTheme() = 0;
 

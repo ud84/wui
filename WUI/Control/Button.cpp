@@ -56,13 +56,35 @@ void Button::Draw(Graphic &gr)
 #endif
 }
 
-void Button::ReceiveEvent(Event &ev)
+void Button::ReceiveEvent(const Event &ev)
 {
+	if (ev.type == EventType::Mouse)
+	{
+		switch (ev.mouseEvent.type)
+		{
+			case MouseEventType::Enter:
+				active = true;
+				parent->Redraw(position);
+			break;
+			case MouseEventType::Leave:
+				active = false;
+				parent->Redraw(position);
+			break;
+			case MouseEventType::LeftUp:
+				clickCallback();
+			break;
+		}
+	}
 }
 
 void Button::SetPosition(const Rect &position_)
 {
 	position = position_;
+}
+
+Rect Button::GetPosition() const
+{
+	return position;
 }
 
 void Button::SetParent(Window *window)

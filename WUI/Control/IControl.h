@@ -13,9 +13,10 @@ class IControl
 public:
 	virtual void Draw(Graphic &gr) = 0;
 
-	virtual void ReceiveEvent(Event &ev) = 0; /// <- Events from parent window
+	virtual void ReceiveEvent(const Event &ev) = 0; /// <- Events from parent window
 
 	virtual void SetPosition(const Rect &position) = 0;
+	virtual Rect GetPosition() const = 0;
 
 	virtual void SetParent(Window *window) = 0;
 

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <WUI/Event/MouseEvent.h>
+#include <WUI/Event/KeyboardEvent.h>
+
 namespace WUI
 {
 
@@ -17,13 +20,13 @@ struct Event
 {
 	EventType type;
 	
-	IControl &author;
+	//IControl &author;
 
-	void *data;
-
-	Event(EventType type_, IControl &author_, void *data_)
-		: type(type_), author(author_), data(data_)
-	{}
+	union
+	{
+		MouseEvent mouseEvent;
+		KeyboardEvent keyboardEvent;
+	};
 };
 
 }

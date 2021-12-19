@@ -161,6 +161,7 @@
     <ClInclude Include="WUI\Control\Button.h" />
     <ClInclude Include="WUI\Control\IControl.h" />
     <ClInclude Include="WUI\Event\Event.h" />
+    <ClInclude Include="WUI\Event\KeyboardEvent.h" />
     <ClInclude Include="WUI\Event\MouseEvent.h" />
     <ClInclude Include="WUI\Graphic\Graphic.h" />
     <ClInclude Include="WUI\Theme\impl\Dark.h" />

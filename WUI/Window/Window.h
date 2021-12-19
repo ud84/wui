@@ -25,6 +25,7 @@ public:
 
 	virtual void AddControl(IControl &control, const Rect &position);
 	virtual void RemoveControl(IControl &control);
+	virtual void Redraw(const Rect &position);
 
 	virtual void UpdateTheme();
 
@@ -32,7 +33,7 @@ public:
 	virtual void Hide();
 
 private:
-	std::vector<IControl*> controls;
+	std::vector<IControl*> controls, activeControls;
 
 #ifdef _WIN32
 	HWND hWnd;
@@ -40,11 +41,15 @@ private:
 	HBRUSH backgroundBrush;
 	HFONT font;
 
+	int16_t xClick, yClick;
+
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void MakePrimitives();
 	void DestroyPrimitives();
 #endif
+
+	void SendMouseEvent(const MouseEvent &ev);
 };
 
 }
