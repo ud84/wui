@@ -16,7 +16,7 @@ Button::Button(const std::string &caption_, std::function<void(void)> clickCallb
 	showed(true), enabled(true), active(false)
 #ifdef _WIN32
 	,calmBrush(0), activeBrush(0), disabledBrush(0),
-	calmPen(0), activePen(0), disabledPen(0)
+	borderPen(0)
 #endif
 {
 #ifdef _WIN32
@@ -55,7 +55,7 @@ void Button::Draw(Graphic &gr)
 	SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text));
 	SetBkColor(gr.dc, enabled ? (active ? ThemeColor(ThemeValue::Button_Active) : ThemeColor(ThemeValue::Button_Calm)) : ThemeColor(ThemeValue::Button_Disabled));
 
-	SelectObject(gr.dc, enabled ? (active ? activePen : calmPen) : disabledPen);
+	SelectObject(gr.dc, borderPen);
 	SelectObject(gr.dc, enabled ? (active ? activeBrush : calmBrush) : disabledBrush);
 
 	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, 5, 5);
@@ -177,9 +177,7 @@ void Button::MakePrimitives()
 	calmBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Calm));
 	activeBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Active));
 	disabledBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Disabled));
-	calmPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Calm));
-	activePen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Active));
-	disabledPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Disabled));
+	borderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Border));
 }
 
 void Button::DestroyPrimitives()
@@ -187,9 +185,7 @@ void Button::DestroyPrimitives()
 	DeleteObject(calmBrush);
 	DeleteObject(activeBrush);
 	DeleteObject(disabledBrush);
-	DeleteObject(calmPen);
-	DeleteObject(activePen);
-	DeleteObject(disabledPen);
+	DeleteObject(borderPen);
 }
 #endif
 

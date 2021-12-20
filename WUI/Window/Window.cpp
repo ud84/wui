@@ -126,15 +126,21 @@ void Window::ClearParent()
 
 void Window::UpdateTheme()
 {
-	for (auto &control : controls)
-	{
-		control->UpdateTheme();
-	}
-
 #ifdef _WIN32
 	DestroyPrimitives();
 	MakePrimitives();
 #endif
+	if (!parent)
+	{
+		RECT clientRect;
+		GetClientRect(hWnd, &clientRect);
+		InvalidateRect(hWnd, &clientRect, TRUE);
+	}
+
+	for (auto &control : controls)
+	{
+		control->UpdateTheme();
+	}
 }
 
 void Window::Show()
@@ -320,6 +326,17 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			}
 
 			EndPaint(hWnd, &ps);
+		}
+		break;
+		case WM_ERASEBKGND:
+		{
+			HDC hdc = (HDC)wParam;
+			RECT clientRect;
+			GetClientRect(hWnd, &clientRect);
+			SetMapMode(hdc, MM_ANISOTROPIC);
+
+			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			FillRect(hdc, &clientRect, wnd->backgroundBrush);
 		}
 		break;
 		case WM_MOUSEMOVE:
