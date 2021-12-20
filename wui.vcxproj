@@ -169,7 +169,6 @@
     <ClInclude Include="WUI\Theme\impl\White.h" />
     <ClInclude Include="WUI\Theme\Theme.h" />
     <ClInclude Include="WUI\Window\IWindow.h" />
-    <ClInclude Include="WUI\Window\Type.h" />
     <ClInclude Include="WUI\Window\Window.h" />
   </ItemGroup>
   <ItemGroup>

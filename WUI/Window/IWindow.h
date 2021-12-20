@@ -1,7 +1,5 @@
 #pragma once
 
-#include <WUI/Window/Type.h>
-#include <WUI/Event/Event.h>
 #include <WUI/Control/IControl.h>
 
 #include <functional>
@@ -10,6 +8,12 @@
 
 namespace WUI
 {
+
+enum class WindowType
+{
+	Frame,
+	Dialog
+};
 
 class IWindow
 {

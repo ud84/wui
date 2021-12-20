@@ -1,8 +1,10 @@
-#include <WUI/Window/Window.h>
+﻿#include <WUI/Window/Window.h>
 
 #include <WUI/Graphic/Graphic.h>
 
 #include <WUI/Theme/Theme.h>
+
+#include <WUI/Control/Button.h>
 
 #include <algorithm>
 
@@ -205,6 +207,16 @@ bool Window::Enabled() const
 	return enabled;
 }
 
+void Window::Minimize()
+{
+
+}
+
+void Window::Expand()
+{
+
+}
+
 void Window::SendMouseEvent(const MouseEvent &ev)
 {
 	for (auto &control : controls)
@@ -255,6 +267,16 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 		return true;
 	}
 
+	if (type == WindowType::Frame)
+	{
+		std::shared_ptr<Button> minimizeButton(new Button(L"🗕", std::bind(&Window::Minimize, this), ButtonType::WindowControl));
+		AddControl(minimizeButton, { position.right - 78, 2, position.right - 54, 26 });
+		std::shared_ptr<Button> expandButton(new Button(L"🗖", std::bind(&Window::Expand, this), ButtonType::WindowControl));
+		AddControl(expandButton, { position.right - 52, 2, position.right - 28, 26 });
+	}
+	std::shared_ptr<Button> closeButton(new Button(L"🗙", std::bind(&Window::Destroy, this), ButtonType::WindowControl));
+	AddControl(closeButton, { position.right - 26, 2, position.right - 2, 26 });
+
 	WNDCLASSEXW wcex = { 0 };
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -290,6 +312,8 @@ void Window::Destroy()
 	{
 		showed = false;
 		parent->Redraw(position);
+
+		closeCallback();
 
 		return;
 	}

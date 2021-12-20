@@ -75,9 +75,6 @@
     <ClInclude Include="WUI\Window\Window.h">
       <Filter>Header Files\WUI\Window</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Window\Type.h">
-      <Filter>Header Files\WUI\Window</Filter>
-    </ClInclude>
     <ClInclude Include="WUI\Common\Rect.h">
       <Filter>Header Files\WUI\Common</Filter>
     </ClInclude>

@@ -12,7 +12,9 @@ White::White()
 		{ ThemeValue::Button_Active, MakeColor(26, 175, 233) },
 		{ ThemeValue::Button_Border, MakeColor(0, 160, 210) },
 		{ ThemeValue::Button_Text, MakeColor(24, 24, 24) },
-		{ ThemeValue::Button_Disabled, MakeColor(205, 205, 200) }
+		{ ThemeValue::Button_Disabled, MakeColor(205, 205, 200) },
+		{ ThemeValue::WC_Button_Calm, MakeColor(240, 240, 240) },
+		{ ThemeValue::WC_Button_Active, MakeColor(210, 210, 210) }
 	}
 {
 }

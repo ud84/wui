@@ -21,7 +21,10 @@ enum class ThemeValue
 	Button_Active,
 	Button_Border,
 	Button_Text,
-	Button_Disabled
+	Button_Disabled,
+
+	WC_Button_Calm,
+	WC_Button_Active
 };
 
 /// Set and get the current theme

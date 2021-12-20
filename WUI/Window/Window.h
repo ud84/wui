@@ -1,9 +1,9 @@
 #pragma once
 
-#include <WUI/Window/Type.h>
 #include <WUI/Window/IWindow.h>
 #include <WUI/Common/Rect.h>
 #include <WUI/Control/IControl.h>
+#include <WUI/Event/Event.h>
 
 #include <vector>
 #include <memory>
@@ -49,6 +49,10 @@ public:
 	virtual void Enable();
 	virtual void Disable();
 	virtual bool Enabled() const;
+
+	/// Window methods
+	void Minimize();
+	void Expand();
 
 private:
 	std::vector<std::shared_ptr<IControl>> controls;

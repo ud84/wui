@@ -36,12 +36,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	window->AddControl(whiteThemeButton, WUI::Rect{ 270, 350, 380, 375 });
 
 	std::shared_ptr<WUI::Button> okButton(new WUI::Button(L"OK", []() { MessageBox(NULL, L"OK was clicked!", L"Yes", MB_ICONEXCLAMATION); }));
-	std::shared_ptr<WUI::Button> cancelButton(new WUI::Button(L"🗕 🗖 🗙 Cancel", [window]() { window->Destroy(); }));
+	std::shared_ptr<WUI::Button> cancelButton(new WUI::Button(L"Cancel", [window]() { window->Destroy(); }));
 
 	window->AddControl(okButton, WUI::Rect{ 240, 450, 350, 475 });
 	window->AddControl(cancelButton, WUI::Rect{ 370, 450, 480, 475 });
 
-	window->Init(WUI::WindowType::Dialog, WUI::Rect{ 100, 100, 500, 500 }, L"Welcome to WUI!", []() { PostQuitMessage(IDCANCEL); });
+	window->Init(WUI::WindowType::Frame, WUI::Rect{ 100, 100, 500, 500 }, L"Welcome to WUI!", []() { PostQuitMessage(IDCANCEL); });
 	
 	// Main message loop:
 	MSG msg;

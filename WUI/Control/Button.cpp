@@ -8,15 +8,17 @@
 namespace WUI
 {
 
-Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_)
+Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_, ButtonType type_)
 	: caption(caption_),
 	clickCallback(clickCallback_),
+	type(type_),
 	position(),
 	parent(),
 	showed(true), enabled(true), active(false)
 #ifdef _WIN32
 	,calmBrush(0), activeBrush(0), disabledBrush(0),
-	borderPen(0)
+	wcCalmBrush(0), wcActiveBrush(0),
+	borderPen(0), wcBorderPen(0)
 #endif
 {
 #ifdef _WIN32
@@ -53,12 +55,12 @@ void Button::Draw(Graphic &gr)
 	}
 
 	SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text));
-	SetBkColor(gr.dc, enabled ? (active ? ThemeColor(ThemeValue::Button_Active) : ThemeColor(ThemeValue::Button_Calm)) : ThemeColor(ThemeValue::Button_Disabled));
+	SetBkColor(gr.dc, enabled ? (active ? (type == ButtonType::Normal ? ThemeColor(ThemeValue::Button_Active) : ThemeColor(ThemeValue::WC_Button_Active)) : (type == ButtonType::Normal ? ThemeColor(ThemeValue::Button_Calm) : ThemeColor(ThemeValue::WC_Button_Calm))) : ThemeColor(ThemeValue::Button_Disabled));
 
-	SelectObject(gr.dc, borderPen);
-	SelectObject(gr.dc, enabled ? (active ? activeBrush : calmBrush) : disabledBrush);
+	SelectObject(gr.dc, type == ButtonType::Normal ? borderPen : wcBorderPen);
+	SelectObject(gr.dc, enabled ? (active ? (type == ButtonType::Normal ? activeBrush : wcActiveBrush) : (type == ButtonType::Normal ? calmBrush : wcCalmBrush)) : disabledBrush);
 
-	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, 5, 5);
+	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, type == ButtonType::Normal ? 5 : 0, type == ButtonType::Normal ? 5 : 0);
 	
 	auto top = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
 	auto left = position.left + ((position.right - position.left - textRect.right) / 2);
@@ -177,7 +179,10 @@ void Button::MakePrimitives()
 	calmBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Calm));
 	activeBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Active));
 	disabledBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Disabled));
+	wcCalmBrush = CreateSolidBrush(ThemeColor(ThemeValue::WC_Button_Calm));
+	wcActiveBrush = CreateSolidBrush(ThemeColor(ThemeValue::WC_Button_Active));
 	borderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Border));
+	wcBorderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::WC_Button_Calm));
 }
 
 void Button::DestroyPrimitives()
@@ -185,7 +190,10 @@ void Button::DestroyPrimitives()
 	DeleteObject(calmBrush);
 	DeleteObject(activeBrush);
 	DeleteObject(disabledBrush);
+	DeleteObject(wcCalmBrush);
+	DeleteObject(wcActiveBrush);
 	DeleteObject(borderPen);
+	DeleteObject(wcBorderPen);
 }
 #endif
 
