@@ -44,6 +44,11 @@ public:
 
 	virtual void Show();
 	virtual void Hide();
+	virtual bool Showed() const;
+
+	virtual void Enable();
+	virtual void Disable();
+	virtual bool Enabled() const;
 
 private:
 	std::vector<std::shared_ptr<IControl>> controls;
@@ -53,7 +58,7 @@ private:
 	std::string caption;
 	std::function<void(void)> closeCallback;
 
-	bool showed;
+	bool showed, enabled;
 
 	std::shared_ptr<Window> parent;
 

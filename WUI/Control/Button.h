@@ -25,13 +25,22 @@ public:
 
 	virtual void Draw(Graphic &gr);
 	virtual void ReceiveEvent(const Event &ev);
+	
 	virtual void SetPosition(const Rect &position);
 	virtual Rect GetPosition() const;
+	
 	virtual void SetParent(std::shared_ptr<Window> window);
 	virtual void ClearParent();
+	
 	virtual void UpdateTheme();
+
 	virtual void Show();
 	virtual void Hide();
+	virtual bool Showed() const;
+
+	virtual void Enable();
+	virtual void Disable();
+	virtual bool Enabled() const;
 
 	void SetCaption(const std::string &caption);
 
@@ -45,11 +54,11 @@ private:
 
 	std::weak_ptr<Window> parent;
 
-	bool showed, active;
+	bool showed, enabled, active;
 
 #ifdef _WIN32
-	HBRUSH calmBrush, activeBrush;
-	HPEN calmPen, activePen;
+	HBRUSH calmBrush, activeBrush, disabledBrush;
+	HPEN calmPen, activePen, disabledPen;
 
 	void MakePrimitives();
 	void DestroyPrimitives();

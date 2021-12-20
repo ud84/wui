@@ -19,7 +19,7 @@ Window::Window()
 	position(),
 	caption(),
 	closeCallback(),
-	showed(true),
+	showed(true), enabled(true),
 	parent()
 #ifdef _WIN32
 	, hWnd(0),
@@ -141,9 +141,9 @@ void Window::Show()
 {
 	showed = true;
 
-	if (parent)
+	for (auto &control : controls)
 	{
-		parent->Redraw(position);
+		control->Show();
 	}
 
 #ifdef _WIN32
@@ -158,9 +158,9 @@ void Window::Hide()
 {
 	showed = false;
 
-	if (parent)
+	for (auto &control : controls)
 	{
-		parent->Redraw(position);
+		control->Hide();
 	}
 
 #ifdef _WIN32
@@ -169,6 +169,34 @@ void Window::Hide()
 		ShowWindow(hWnd, SW_HIDE);
 	}
 #endif
+}
+
+bool Window::Showed() const
+{
+	return showed;
+}
+
+void Window::Enable()
+{
+	enabled = true;
+	for (auto &control : controls)
+	{
+		control->Enable();
+	}
+}
+
+void Window::Disable()
+{
+	enabled = false;
+	for (auto &control : controls)
+	{
+		control->Disable();
+	}
+}
+
+bool Window::Enabled() const
+{
+	return enabled;
 }
 
 void Window::SendMouseEvent(const MouseEvent &ev)

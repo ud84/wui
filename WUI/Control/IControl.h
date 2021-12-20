@@ -27,6 +27,11 @@ public:
 
 	virtual void Show() = 0;
 	virtual void Hide() = 0;
+	virtual bool Showed() const = 0;
+
+	virtual void Enable() = 0;
+	virtual void Disable() = 0;
+	virtual bool Enabled() const = 0;
 
 protected:
 	~IControl() {}

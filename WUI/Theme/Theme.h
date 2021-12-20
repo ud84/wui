@@ -20,7 +20,8 @@ enum class ThemeValue
 	Button_Calm,
 	Button_Active,
 	Button_Border,
-	Button_Text
+	Button_Text,
+	Button_Disabled
 };
 
 /// Set and get the current theme
