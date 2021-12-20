@@ -18,6 +18,7 @@ Window::Window()
 	activeControl(),
 	position(),
 	caption(),
+	closeCallback(),
 	showed(true),
 	parent()
 #ifdef _WIN32
@@ -46,6 +47,8 @@ void Window::AddControl(std::shared_ptr<IControl> control, const Rect &controlPo
 		control->SetPosition(position + controlPosition);
 		control->SetParent(shared_from_this());
 		controls.emplace_back(control);
+
+		Redraw(position + controlPosition);
 	}
 }
 
@@ -62,10 +65,17 @@ void Window::RemoveControl(std::shared_ptr<IControl> control)
 
 void Window::Redraw(const Rect &position)
 {
+	if (parent)
+	{
+		parent->Redraw(position);
+	}
+	else
+	{
 #ifdef _WIN32
-	RECT invalidatingRect = { position.left, position.top, position.right, position.bottom };
-	InvalidateRect(hWnd, &invalidatingRect, TRUE);
+		RECT invalidatingRect = { position.left, position.top, position.right, position.bottom };
+		InvalidateRect(hWnd, &invalidatingRect, TRUE);
 #endif
+	}
 }
 
 void Window::Draw(Graphic &gr)
@@ -192,10 +202,11 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 /// Windows specified code
 #ifdef _WIN32
 
-bool Window::Init(WindowType type, const Rect &position_, const std::string &caption_)
+bool Window::Init(WindowType type, const Rect &position_, const std::string &caption_, std::function<void(void)> closeCallback_)
 {
 	position = position_;
 	caption = caption_;
+	closeCallback = closeCallback_;
 
 	if (parent)
 	{
@@ -319,7 +330,10 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		}
 		break;
 		case WM_DESTROY:
-			PostQuitMessage(0);
+		{
+			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			wnd->closeCallback();
+		}
 		break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
