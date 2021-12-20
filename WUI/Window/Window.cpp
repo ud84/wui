@@ -126,6 +126,11 @@ void Window::ClearParent()
 
 void Window::UpdateTheme()
 {
+	for (auto &control : controls)
+	{
+		control->UpdateTheme();
+	}
+
 #ifdef _WIN32
 	DestroyPrimitives();
 	MakePrimitives();
