@@ -241,7 +241,7 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 /// Windows specified code
 #ifdef _WIN32
 
-bool Window::Init(WindowType type, const Rect &position_, const std::string &caption_, std::function<void(void)> closeCallback_)
+bool Window::Init(WindowType type, const Rect &position_, const std::wstring &caption_, std::function<void(void)> closeCallback_)
 {
 	position = position_;
 	caption = caption_;
@@ -270,7 +270,7 @@ bool Window::Init(WindowType type, const Rect &position_, const std::string &cap
 
 	RegisterClassExW(&wcex);
 
-	hWnd = CreateWindow(wcex.lpszClassName, L"", WS_POPUP,
+	hWnd = CreateWindowW(wcex.lpszClassName, L"", WS_POPUP,
 		position.left, position.top, position.right, position.bottom, nullptr, nullptr, GetModuleHandle(NULL), this);
 
 	if (!hWnd)
@@ -318,7 +318,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 			SetTextColor(hdc, ThemeColor(ThemeValue::Window_Text));
 			SetBkColor(hdc, ThemeColor(ThemeValue::Window_Background));
-			TextOutA(hdc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
+			TextOutW(hdc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
 		
 			for (auto &control : wnd->controls)
 			{

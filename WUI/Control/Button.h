@@ -20,7 +20,7 @@ namespace WUI
 class Button : public IControl, public std::enable_shared_from_this<Button>
 {
 public:
-	Button(const std::string &caption, std::function<void(void)> clickCallback);
+	Button(const std::wstring &caption, std::function<void(void)> clickCallback);
 	~Button();
 
 	virtual void Draw(Graphic &gr);
@@ -42,12 +42,12 @@ public:
 	virtual void Disable();
 	virtual bool Enabled() const;
 
-	void SetCaption(const std::string &caption);
+	void SetCaption(const std::wstring &caption);
 
 	void SetCallback(std::function<void(void)> clickCallback);
 
 private:
-	std::string caption;
+	std::wstring caption;
 	std::function<void(void)> clickCallback;
 
 	Rect position;

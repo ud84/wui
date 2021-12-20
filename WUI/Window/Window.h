@@ -22,7 +22,7 @@ public:
 	~Window();
 
 	/// IWindow
-	virtual bool Init(WindowType type, const Rect &position, const std::string &caption, std::function<void(void)> closeCallback);
+	virtual bool Init(WindowType type, const Rect &position, const std::wstring &caption, std::function<void(void)> closeCallback);
 	virtual void Destroy();
 
 	virtual void AddControl(std::shared_ptr<IControl> control, const Rect &position);
@@ -55,7 +55,7 @@ private:
 	std::shared_ptr<IControl> activeControl;
 
 	Rect position;
-	std::string caption;
+	std::wstring caption;
 	std::function<void(void)> closeCallback;
 
 	bool showed, enabled;

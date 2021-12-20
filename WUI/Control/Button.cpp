@@ -8,7 +8,7 @@
 namespace WUI
 {
 
-Button::Button(const std::string &caption_, std::function<void(void)> clickCallback_)
+Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_)
 	: caption(caption_),
 	clickCallback(clickCallback_),
 	position(),
@@ -45,7 +45,7 @@ void Button::Draw(Graphic &gr)
 
 #ifdef _WIN32
 	RECT textRect = { 0 };
-	DrawTextA(gr.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &textRect, DT_CALCRECT);
+	DrawTextW(gr.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &textRect, DT_CALCRECT);
 
 	if (textRect.right > position.width())
 	{
@@ -62,7 +62,7 @@ void Button::Draw(Graphic &gr)
 	
 	auto top = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
 	auto left = position.left + ((position.right - position.left - textRect.right) / 2);
-	TextOutA(gr.dc, left, top, caption.c_str(), (int32_t)caption.size());
+	TextOutW(gr.dc, left, top, caption.c_str(), (int32_t)caption.size());
 #endif
 }
 
@@ -161,7 +161,7 @@ bool Button::Enabled() const
 	return enabled;
 }
 
-void Button::SetCaption(const std::string &caption_)
+void Button::SetCaption(const std::wstring &caption_)
 {
 	caption = caption_;
 }
