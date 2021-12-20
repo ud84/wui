@@ -27,7 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	std::shared_ptr<WUI::Window> parentWindow(new WUI::Window());
-	parentWindow->SetPosition(WUI::Rect{ 50, 50, 250, 250 });
+	window->AddControl(parentWindow, WUI::Rect{ 50, 50, 250, 250 });
 	{
 		std::shared_ptr<WUI::Button> unplugButton(new WUI::Button("Unplug window", [window, parentWindow]() { window->RemoveControl(parentWindow); parentWindow->Init(WUI::WindowType::Dialog, WUI::Rect{ 50, 50, 250, 250 }, "Child window unplugged!", []() {}); }));
 		std::shared_ptr<WUI::Button> plugButton(new WUI::Button("Plug window", [window, parentWindow]() { parentWindow->Destroy(); window->AddControl(parentWindow, WUI::Rect{ 50, 50, 250, 250 }); }));
@@ -35,7 +35,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		parentWindow->AddControl(unplugButton, WUI::Rect{ 10, 10, 110, 35 });
 		parentWindow->AddControl(plugButton, WUI::Rect{ 10, 55, 110, 80 });
 	}
-	window->AddControl(parentWindow, WUI::Rect{ 50, 50, 250, 250 });
 
 	window->Init(WUI::WindowType::Dialog, WUI::Rect{ 100, 100, 500, 500 }, "Welcome to WUI!", []() { PostQuitMessage(IDCANCEL); });
 	

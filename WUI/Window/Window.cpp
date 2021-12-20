@@ -44,11 +44,11 @@ void Window::AddControl(std::shared_ptr<IControl> control, const Rect &controlPo
 {
 	if (std::find(controls.begin(), controls.end(), control) == controls.end())
 	{
-		control->SetPosition(position + controlPosition);
+		control->SetPosition(!parent ? controlPosition : position + controlPosition);
 		control->SetParent(shared_from_this());
 		controls.emplace_back(control);
 
-		Redraw(position + controlPosition);
+		Redraw(controlPosition);
 	}
 }
 
@@ -63,16 +63,16 @@ void Window::RemoveControl(std::shared_ptr<IControl> control)
 	}
 }
 
-void Window::Redraw(const Rect &position)
+void Window::Redraw(const Rect &redrawPosition)
 {
 	if (parent)
 	{
-		parent->Redraw(position);
+		parent->Redraw(redrawPosition);
 	}
 	else
 	{
 #ifdef _WIN32
-		RECT invalidatingRect = { position.left, position.top, position.right, position.bottom };
+		RECT invalidatingRect = { redrawPosition.left, redrawPosition.top, redrawPosition.right, redrawPosition.bottom };
 		InvalidateRect(hWnd, &invalidatingRect, TRUE);
 #endif
 	}
