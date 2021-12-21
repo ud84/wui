@@ -83,7 +83,10 @@ void Button::ReceiveEvent(const Event &ev)
 				parent.lock()->Redraw(position);
 			break;
 			case MouseEventType::LeftUp:
-				clickCallback();
+				if (clickCallback)
+				{
+					clickCallback();
+				}
 			break;
 		}
 	}

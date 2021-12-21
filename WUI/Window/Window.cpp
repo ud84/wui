@@ -18,11 +18,13 @@ namespace WUI
 Window::Window()
 	: controls(),
 	activeControl(),
+	windowType(WindowType::Frame),
 	position(),
 	caption(),
 	closeCallback(),
 	showed(true), enabled(true),
-	parent()
+	parent(),
+	movingMode(MovingMode::Move)
 #ifdef _WIN32
 	, hWnd(0),
 	backgroundBrush(0),
@@ -255,6 +257,7 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 
 bool Window::Init(WindowType type, const Rect &position_, const std::wstring &caption_, std::function<void(void)> closeCallback_)
 {
+	windowType = type;
 	position = position_;
 	caption = caption_;
 	closeCallback = closeCallback_;
@@ -274,7 +277,7 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 		std::shared_ptr<Button> expandButton(new Button(L"🗖", std::bind(&Window::Expand, this), ButtonType::WindowControl));
 		AddControl(expandButton, { position.right - 52, 2, position.right - 28, 26 });
 	}
-	std::shared_ptr<Button> closeButton(new Button(L"🗙", std::bind(&Window::Destroy, this), ButtonType::WindowControl));
+	std::shared_ptr<Button> closeButton(new Button(L"✕", std::bind(&Window::Destroy, this), ButtonType::WindowControl));
 	AddControl(closeButton, { position.right - 26, 2, position.right - 2, 26 });
 
 	WNDCLASSEXW wcex = { 0 };
@@ -313,7 +316,10 @@ void Window::Destroy()
 		showed = false;
 		parent->Redraw(position);
 
-		closeCallback();
+		if (closeCallback)
+		{
+			closeCallback();
+		}
 
 		return;
 	}
@@ -366,21 +372,124 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		case WM_MOUSEMOVE:
 		{
 			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+			RECT windowRect;
+			GetWindowRect(hWnd, &windowRect);
+
+			int16_t xMouse = GET_X_LPARAM(lParam);
+			int16_t yMouse = GET_Y_LPARAM(lParam);
+
+			if (wnd->windowType == WindowType::Frame)
+			{
+				if ((xMouse > windowRect.right - windowRect.left - 5 && yMouse > windowRect.bottom - windowRect.top - 5) ||
+					(xMouse < 5 && yMouse < 5))
+				{
+					SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
+				}
+				else if ((xMouse > windowRect.right - windowRect.left - 5 && yMouse < 5) ||
+					(xMouse < 5 && yMouse > windowRect.bottom - windowRect.top - 5))
+				{
+					SetCursor(LoadCursor(NULL, IDC_SIZENESW));
+				}
+				else if (xMouse > windowRect.right - windowRect.left - 5 || xMouse < 5)
+				{
+					SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+				}
+				else if (yMouse > windowRect.bottom - windowRect.top - 5 || yMouse < 5)
+				{
+					SetCursor(LoadCursor(NULL, IDC_SIZENS));
+				}
+			}
+
 			if (GetCapture() == hWnd)
 			{
-				RECT rcWindow;
-				GetWindowRect(hWnd, &rcWindow);
+				switch (wnd->movingMode)
+				{
+					case MovingMode::Move:
+					{
+						int32_t xWindow = windowRect.left + xMouse - wnd->xClick;
+						int32_t yWindow = windowRect.top + yMouse - wnd->yClick;
 
-				int16_t xMouse = GET_X_LPARAM(lParam);
-				int16_t yMouse = GET_Y_LPARAM(lParam);
+						SetWindowPos(hWnd, NULL, xWindow, yWindow, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+					}
+					break;
+					case MovingMode::SizeWELeft:
+					{
+						POINT scrMouse = { 0 };
+						GetCursorPos(&scrMouse);
 
-				int32_t xWindow = rcWindow.left + xMouse - wnd->xClick;
-				int32_t yWindow = rcWindow.top + yMouse - wnd->yClick;
+						int32_t width = windowRect.right - windowRect.left - xMouse;
+						int32_t height = windowRect.bottom - windowRect.top;
+						SetWindowPos(hWnd, NULL, scrMouse.x, windowRect.top, width, height, SWP_NOZORDER);
+					}
+					break;
+					case MovingMode::SizeWERight:
+					{
+						int32_t width = xMouse;
+						int32_t height = windowRect.bottom - windowRect.top;
+						SetWindowPos(hWnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+					}
+					break;
+					case MovingMode::SizeNSTop:
+					{
+						POINT scrMouse = { 0 };
+						GetCursorPos(&scrMouse);
 
-				SetWindowPos(hWnd, NULL, xWindow, yWindow, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+						int32_t width = windowRect.right - windowRect.left;
+						int32_t height = windowRect.bottom - windowRect.top - yMouse;
+						SetWindowPos(hWnd, NULL, windowRect.left, scrMouse.y, width, height, SWP_NOZORDER);
+					}
+					break;
+					case MovingMode::SizeNSBottom:
+					{
+						int32_t width = windowRect.right - windowRect.left;
+						int32_t height = yMouse;
+						SetWindowPos(hWnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+					}
+					break;
+					case MovingMode::SizeNESWTop:
+					{
+						POINT scrMouse = { 0 };
+						GetCursorPos(&scrMouse);
+
+						int32_t width = xMouse;
+						int32_t height = windowRect.bottom - windowRect.top - yMouse;
+						SetWindowPos(hWnd, NULL, windowRect.left, scrMouse.y, width, height, SWP_NOZORDER);
+					}
+					break;
+					case MovingMode::SizeNWSEBottom:
+					{
+						int32_t width = xMouse;
+						int32_t height = yMouse;
+						SetWindowPos(hWnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+					}
+					break;
+					case MovingMode::SizeNWSETop:
+					{
+						POINT scrMouse = { 0 };
+						GetCursorPos(&scrMouse);
+
+						int32_t width = windowRect.right - windowRect.left - xMouse;
+						int32_t height = windowRect.bottom - windowRect.top - yMouse;
+						SetWindowPos(hWnd, NULL, scrMouse.x, scrMouse.y, width, height, SWP_NOZORDER);
+					}
+					break;
+					case MovingMode::SizeNESWBottom:
+					{
+						POINT scrMouse = { 0 };
+						GetCursorPos(&scrMouse);
+
+						int32_t width = windowRect.right - windowRect.left - xMouse;
+						int32_t height = yMouse;
+						SetWindowPos(hWnd, NULL, scrMouse.x, windowRect.top, width, height, SWP_NOZORDER);
+					}
+					break;
+				}
 			}
-			
-			wnd->SendMouseEvent({ MouseEventType::Move, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) });
+			else
+			{
+				wnd->SendMouseEvent({ MouseEventType::Move, xMouse, yMouse });
+			}
 		}
 		break;
 		case WM_LBUTTONDOWN:
@@ -388,8 +497,48 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
 			SetCapture(hWnd);
+
+			RECT windowRect;
+			GetWindowRect(hWnd, &windowRect);
+
 			wnd->xClick = GET_X_LPARAM(lParam);
 			wnd->yClick = GET_Y_LPARAM(lParam);
+
+			if (wnd->windowType == WindowType::Frame)
+			{
+				if (wnd->xClick > windowRect.right - windowRect.left - 5 && wnd->yClick > windowRect.bottom - windowRect.top - 5)
+				{
+					wnd->movingMode = MovingMode::SizeNWSEBottom;
+				}
+				else if (wnd->xClick < 5 && wnd->yClick < 5)
+				{
+					wnd->movingMode = MovingMode::SizeNWSETop;
+				}
+				else if (wnd->xClick > windowRect.right - windowRect.left - 5 && wnd->yClick < 5)
+				{
+					wnd->movingMode = MovingMode::SizeNESWTop;
+				}
+				else if (wnd->xClick < 5 && wnd->yClick > windowRect.bottom - windowRect.top - 5)
+				{
+					wnd->movingMode = MovingMode::SizeNESWBottom;
+				}
+				else if (wnd->xClick > windowRect.right - windowRect.left - 5)
+				{
+					wnd->movingMode = MovingMode::SizeWERight;
+				}
+				else if(wnd->xClick < 5)
+				{
+					wnd->movingMode = MovingMode::SizeWELeft;
+				}
+				else if (wnd->yClick > windowRect.bottom - windowRect.top - 5)
+				{
+					wnd->movingMode = MovingMode::SizeNSBottom;
+				}
+				else if (wnd->yClick < 5)
+				{
+					wnd->movingMode = MovingMode::SizeNSTop;
+				}
+			}
 
 			wnd->SendMouseEvent({ MouseEventType::LeftDown, wnd->xClick, wnd->yClick });
 		}
@@ -400,13 +549,18 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
+			wnd->movingMode = MovingMode::Move;
+
 			wnd->SendMouseEvent({ MouseEventType::LeftUp, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) });
 		}
 		break;
 		case WM_DESTROY:
 		{
 			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			wnd->closeCallback();
+			if (wnd->closeCallback)
+			{
+				wnd->closeCallback();
+			}
 		}
 		break;
 		default:

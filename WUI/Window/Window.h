@@ -58,6 +58,7 @@ private:
 	std::vector<std::shared_ptr<IControl>> controls;
 	std::shared_ptr<IControl> activeControl;
 
+	WindowType windowType;
 	Rect position;
 	std::wstring caption;
 	std::function<void(void)> closeCallback;
@@ -65,6 +66,20 @@ private:
 	bool showed, enabled;
 
 	std::shared_ptr<Window> parent;
+
+	enum class MovingMode
+	{
+		Move,
+		SizeWELeft,
+		SizeWERight,
+		SizeNSTop,
+		SizeNSBottom,
+		SizeNWSETop,
+		SizeNWSEBottom,
+		SizeNESWTop,
+		SizeNESWBottom
+	};
+	MovingMode movingMode;
 
 #ifdef _WIN32
 	HWND hWnd;
