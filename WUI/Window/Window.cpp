@@ -221,6 +221,14 @@ void Window::Expand()
 
 void Window::SendMouseEvent(const MouseEvent &ev)
 {
+	if (activeControl && !activeControl->GetPosition().In(ev.x, ev.y))
+	{
+		MouseEvent me{ MouseEventType::Leave, 0, 0 };
+		activeControl->ReceiveEvent({ EventType::Mouse, me });
+
+		activeControl.reset();
+	}
+
 	for (auto &control : controls)
 	{
 		if (control->GetPosition().In(ev.x, ev.y))
@@ -238,16 +246,6 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 			}
 
 			break;
-		}
-		else
-		{
-			if (activeControl == control)
-			{
-				activeControl.reset();
-
-				MouseEvent me{ MouseEventType::Leave, 0, 0 };
-				control->ReceiveEvent({ EventType::Mouse, me });
-			}
 		}
 	}
 }
@@ -277,7 +275,7 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 		std::shared_ptr<Button> expandButton(new Button(L"🗖", std::bind(&Window::Expand, this), ButtonType::WindowControl));
 		AddControl(expandButton, { position.right - 52, 2, position.right - 28, 26 });
 	}
-	std::shared_ptr<Button> closeButton(new Button(L"✕", std::bind(&Window::Destroy, this), ButtonType::WindowControl));
+	std::shared_ptr<Button> closeButton(new Button(L"❌", std::bind(&Window::Destroy, this), ButtonType::WindowControl));
 	AddControl(closeButton, { position.right - 26, 2, position.right - 2, 26 });
 
 	WNDCLASSEXW wcex = { 0 };
