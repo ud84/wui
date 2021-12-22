@@ -55,8 +55,6 @@ void Window::AddControl(std::shared_ptr<IControl> control, const Rect &controlPo
 		control->SetPosition(!parent ? controlPosition : position + controlPosition);
 		control->SetParent(shared_from_this());
 		controls.emplace_back(control);
-
-		//Redraw(controlPosition);
 	}
 }
 
@@ -602,10 +600,10 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 			if (wnd->windowType == WindowType::Frame)
 			{
-				wnd->minimizeButton->SetPosition({ wnd->position.right - 78, 2, wnd->position.right - 54, 26 });
-				wnd->expandButton->SetPosition({ wnd->position.right - 52, 2, wnd->position.right - 28, 26 });
+				wnd->minimizeButton->SetPosition({ width - 78, 2, width - 54, 26 });
+				wnd->expandButton->SetPosition({ width - 52, 2, width - 28, 26 });
 			}
-			wnd->closeButton->SetPosition({ wnd->position.right - 26, 2, wnd->position.right - 2, 26 });
+			wnd->closeButton->SetPosition({ width - 26, 2, width - 2, 26 });
 
 			if (wnd->sizeChangeCallback)
 			{
