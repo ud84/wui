@@ -27,9 +27,9 @@ Window::Window()
 	movingMode(MovingMode::Move),
 	closeCallback(),
 	sizeChangeCallback(),
-	minimizeButton(new Button(L"🗕", std::bind(&Window::Minimize, this), ButtonType::WindowControl)),
-	expandButton(new Button(L"🗖", std::bind(&Window::Expand, this), ButtonType::WindowControl)),
-	closeButton(new Button(L"❌", std::bind(&Window::Destroy, this), ButtonType::WindowControl))
+	minimizeButton(new Button(L"🗕", std::bind(&Window::Minimize, this))),
+	expandButton(new Button(L"🗖", std::bind(&Window::Expand, this))),
+	closeButton(new Button(L"❌", std::bind(&Window::Destroy, this)))
 #ifdef _WIN32
 	, hWnd(0),
 	backgroundBrush(0),

@@ -59,7 +59,9 @@ void Button::Draw(Graphic &gr)
 	SelectObject(gr.dc, borderPen);
 	SelectObject(gr.dc, enabled ? (active ? activeBrush : calmBrush) : disabledBrush);
 
-	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, type == ButtonType::Normal ? 5 : 0, type == ButtonType::Normal ? 5 : 0);
+	auto rnd = ThemeDimension(ThemeValue::Button_Round, theme);
+
+	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, rnd, rnd);
 	
 	auto top = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
 	auto left = position.left + ((position.right - position.left - textRect.right) / 2);
@@ -195,10 +197,7 @@ void Button::DestroyPrimitives()
 	DeleteObject(calmBrush);
 	DeleteObject(activeBrush);
 	DeleteObject(disabledBrush);
-	DeleteObject(wcCalmBrush);
-	DeleteObject(wcActiveBrush);
 	DeleteObject(borderPen);
-	DeleteObject(wcBorderPen);
 }
 #endif
 
