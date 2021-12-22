@@ -213,12 +213,21 @@ bool Window::Enabled() const
 
 void Window::Minimize()
 {
-
+#ifdef _WIN32
+	ShowWindow(hWnd, SW_MINIMIZE);
+#endif
 }
 
 void Window::Expand()
 {
+#ifdef _WIN32
+	RECT workArea;
+	SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
 
+	SetWindowPos(hWnd, NULL, workArea.left, workArea.top, workArea.right, workArea.bottom, NULL);
+
+	//ShowWindow(hWnd, SW_MAXIMIZE);
+#endif
 }
 
 void Window::Block()
@@ -310,7 +319,7 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 
 	RegisterClassExW(&wcex);
 
-	hWnd = CreateWindowW(wcex.lpszClassName, L"", WS_POPUP,
+	hWnd = CreateWindowW(wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP,
 		position.left, position.top, position.right, position.bottom, nullptr, nullptr, GetModuleHandle(NULL), this);
 
 	if (!hWnd)
@@ -318,7 +327,6 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 		return false;
 	}
 
-	ShowWindow(hWnd, SW_SHOW);
 	UpdateWindow(hWnd);
 
 	return true;
@@ -326,6 +334,13 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 
 void Window::Destroy()
 {
+	for (auto &control : controls)
+	{
+		control->ClearParent();
+	}
+	activeControl.reset();
+	controls.clear();
+
 	if (parent)
 	{
 		showed = false;
@@ -338,6 +353,7 @@ void Window::Destroy()
 
 		return;
 	}
+
 	DestroyWindow(hWnd);
 }
 
