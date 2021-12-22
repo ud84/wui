@@ -1,31 +1,32 @@
 #include <WUI/Theme/Theme.h>
 
-#include <WUI/Theme/impl/Dark.h>
-#include <WUI/Theme/impl/White.h>
+#include <WUI/Theme/impl/DarkTheme.h>
+#include <WUI/Theme/impl/WhiteTheme.h>
+#include <WUI/Theme/impl/CustomTheme.h>
 
 namespace WUI
 {
 
-static ITheme* instance = nullptr;
+static std::shared_ptr<ITheme> instance = nullptr;
 
 /// Interface
 
-void SetTheme(Theme theme)
+void SetDefaultTheme(Theme theme)
 {
-	delete instance;
+	instance.reset();
 
 	switch (theme)
 	{
 		case Theme::Dark:
-			instance = new Dark();
+			instance = std::shared_ptr<ITheme>(new DarkTheme());
 		break;
 		case Theme::White:
-			instance = new White();
+			instance = std::shared_ptr<ITheme>(new WhiteTheme());
 		break;
 	}
 }
 
-Theme GetTheme()
+Theme GetDefaultTheme()
 {
 	if (instance)
 	{
@@ -34,11 +35,33 @@ Theme GetTheme()
 	return Theme::Dark;
 }
 
-Color ThemeColor(ThemeValue valueID)
+std::shared_ptr<ITheme> MakeCustomTheme()
 {
-	if (instance)
+	return std::shared_ptr<CustomTheme>(new CustomTheme());
+}
+
+Color ThemeColor(ThemeValue valueID, std::shared_ptr<ITheme> theme)
+{
+	if (theme)
+	{
+		return theme->GetColor(valueID);
+	}
+	else if (instance)
 	{
 		return instance->GetColor(valueID);
+	}
+	return 0;
+}
+
+int32_t ThemeDimension(ThemeValue valueID, std::shared_ptr<ITheme> theme)
+{
+	if (theme)
+	{
+		return theme->GetDimension(valueID);
+	}
+	else if (instance)
+	{
+		return instance->GetDimension(valueID);
 	}
 	return 0;
 }

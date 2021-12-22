@@ -24,7 +24,7 @@ public:
 	~Window();
 
 	/// IWindow
-	virtual bool Init(WindowType type, const Rect &position, const std::wstring &caption, std::function<void(void)> closeCallback);
+	virtual bool Init(WindowType type, const Rect &position, const std::wstring &caption, std::function<void(void)> closeCallback, std::shared_ptr<ITheme> theme = nullptr);
 	virtual void Destroy();
 
 	virtual void AddControl(std::shared_ptr<IControl> control, const Rect &position);
@@ -42,7 +42,7 @@ public:
 	virtual void SetParent(std::shared_ptr<Window> window);
 	virtual void ClearParent();
 
-	virtual void UpdateTheme();
+	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr);
 
 	virtual void Show();
 	virtual void Hide();
@@ -70,6 +70,7 @@ private:
 	WindowType windowType;
 	Rect position;
 	std::wstring caption;
+	std::shared_ptr<ITheme> theme;
 
 	bool showed, enabled;
 

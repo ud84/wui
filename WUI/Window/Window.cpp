@@ -21,6 +21,7 @@ Window::Window()
 	windowType(WindowType::Frame),
 	position(),
 	caption(),
+	theme(),
 	showed(true), enabled(true),
 	parent(),
 	movingMode(MovingMode::Move),
@@ -130,8 +131,10 @@ void Window::ClearParent()
 	parent.reset();
 }
 
-void Window::UpdateTheme()
+void Window::UpdateTheme(std::shared_ptr<ITheme> theme_)
 {
+	theme = theme_;
+
 #ifdef _WIN32
 	DestroyPrimitives();
 	MakePrimitives();
@@ -145,7 +148,7 @@ void Window::UpdateTheme()
 
 	for (auto &control : controls)
 	{
-		control->UpdateTheme();
+		control->UpdateTheme(theme);
 	}
 }
 
@@ -286,12 +289,13 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 /// Windows specified code
 #ifdef _WIN32
 
-bool Window::Init(WindowType type, const Rect &position_, const std::wstring &caption_, std::function<void(void)> closeCallback_)
+bool Window::Init(WindowType type, const Rect &position_, const std::wstring &caption_, std::function<void(void)> closeCallback_, std::shared_ptr<ITheme> theme_)
 {
 	windowType = type;
 	position = position_;
 	caption = caption_;
 	closeCallback = closeCallback_;
+	theme = theme_;
 
 	if (parent)
 	{
@@ -381,8 +385,8 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 			SelectObject(hdc, wnd->font);
 
-			SetTextColor(hdc, ThemeColor(ThemeValue::Window_Text));
-			SetBkColor(hdc, ThemeColor(ThemeValue::Window_Background));
+			SetTextColor(hdc, ThemeColor(ThemeValue::Window_Text, wnd->theme));
+			SetBkColor(hdc, ThemeColor(ThemeValue::Window_Background, wnd->theme));
 			TextOutW(hdc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
 		
 			for (auto &control : wnd->controls)
@@ -628,7 +632,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 void Window::MakePrimitives()
 {
-	backgroundBrush = CreateSolidBrush(ThemeColor(ThemeValue::Window_Background));
+	backgroundBrush = CreateSolidBrush(ThemeColor(ThemeValue::Window_Background, theme));
 	font = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
 		OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");

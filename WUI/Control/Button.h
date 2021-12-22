@@ -10,19 +10,13 @@
 #include <functional>
 #include <memory>
 
-enum class ButtonType
-{
-	Normal,
-	WindowControl
-};
-
 namespace WUI
 {
 
 class Button : public IControl, public std::enable_shared_from_this<Button>
 {
 public:
-	Button(const std::wstring &caption, std::function<void(void)> clickCallback, ButtonType type = ButtonType::Normal);
+	Button(const std::wstring &caption, std::function<void(void)> clickCallback, std::shared_ptr<ITheme> theme = nullptr);
 	~Button();
 
 	virtual void Draw(Graphic &gr);
@@ -34,7 +28,7 @@ public:
 	virtual void SetParent(std::shared_ptr<Window> window);
 	virtual void ClearParent();
 	
-	virtual void UpdateTheme();
+	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr);
 
 	virtual void Show();
 	virtual void Hide();
@@ -51,7 +45,7 @@ public:
 private:
 	std::wstring caption;
 	std::function<void(void)> clickCallback;
-	ButtonType type;
+	std::shared_ptr<ITheme> theme;
 
 	Rect position;
 
@@ -61,8 +55,7 @@ private:
 
 #ifdef _WIN32
 	HBRUSH calmBrush, activeBrush, disabledBrush;
-	HBRUSH wcCalmBrush, wcActiveBrush;
-	HPEN borderPen, wcBorderPen;
+	HPEN borderPen;
 
 	void MakePrimitives();
 	void DestroyPrimitives();

@@ -9,6 +9,7 @@ struct Event;
 struct Rect;
 struct Graphic;
 class Window;
+class ITheme;
 
 class IControl
 {
@@ -23,7 +24,7 @@ public:
 	virtual void SetParent(std::shared_ptr<Window> window) = 0;
 	virtual void ClearParent() = 0;
 
-	virtual void UpdateTheme() = 0;
+	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr) = 0;
 
 	virtual void Show() = 0;
 	virtual void Hide() = 0;

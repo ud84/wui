@@ -8,17 +8,16 @@
 namespace WUI
 {
 
-Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_, ButtonType type_)
+Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_, std::shared_ptr<ITheme> theme_)
 	: caption(caption_),
 	clickCallback(clickCallback_),
-	type(type_),
+	theme(theme_),
 	position(),
 	parent(),
 	showed(true), enabled(true), active(false)
 #ifdef _WIN32
 	,calmBrush(0), activeBrush(0), disabledBrush(0),
-	wcCalmBrush(0), wcActiveBrush(0),
-	borderPen(0), wcBorderPen(0)
+	borderPen(0)
 #endif
 {
 #ifdef _WIN32
@@ -54,11 +53,11 @@ void Button::Draw(Graphic &gr)
 		position.right = position.left + textRect.right + 10;
 	}
 
-	SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text));
-	SetBkColor(gr.dc, enabled ? (active ? (type == ButtonType::Normal ? ThemeColor(ThemeValue::Button_Active) : ThemeColor(ThemeValue::WC_Button_Active)) : (type == ButtonType::Normal ? ThemeColor(ThemeValue::Button_Calm) : ThemeColor(ThemeValue::WC_Button_Calm))) : (type == ButtonType::Normal ? ThemeColor(ThemeValue::Button_Disabled) : ThemeColor(ThemeValue::WC_Button_Calm)));
+	SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text, theme));
+	SetBkColor(gr.dc, enabled ? (active ? ThemeColor(ThemeValue::Button_Active, theme) : ThemeColor(ThemeValue::Button_Calm, theme)) : ThemeColor(ThemeValue::Button_Disabled, theme));
 
-	SelectObject(gr.dc, type == ButtonType::Normal ? borderPen : wcBorderPen);
-	SelectObject(gr.dc, enabled ? (active ? (type == ButtonType::Normal ? activeBrush : wcActiveBrush) : (type == ButtonType::Normal ? calmBrush : wcCalmBrush)) : (type == ButtonType::Normal ? disabledBrush : wcCalmBrush));
+	SelectObject(gr.dc, borderPen);
+	SelectObject(gr.dc, enabled ? (active ? activeBrush : calmBrush) : disabledBrush);
 
 	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, type == ButtonType::Normal ? 5 : 0, type == ButtonType::Normal ? 5 : 0);
 	
@@ -120,8 +119,10 @@ void Button::ClearParent()
 	parent.reset();
 }
 
-void Button::UpdateTheme()
+void Button::UpdateTheme(std::shared_ptr<ITheme> theme_)
 {
+	theme = theme_;
+
 #ifdef _WIN32
 	DestroyPrimitives();
 	MakePrimitives();
@@ -183,13 +184,10 @@ void Button::Redraw()
 #ifdef _WIN32
 void Button::MakePrimitives()
 {
-	calmBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Calm));
-	activeBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Active));
-	disabledBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Disabled));
-	wcCalmBrush = CreateSolidBrush(ThemeColor(ThemeValue::WC_Button_Calm));
-	wcActiveBrush = CreateSolidBrush(ThemeColor(ThemeValue::WC_Button_Active));
-	borderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Border));
-	wcBorderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::WC_Button_Calm));
+	calmBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Calm, theme));
+	activeBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Active, theme));
+	disabledBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Disabled, theme));
+	borderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Border, theme));
 }
 
 void Button::DestroyPrimitives()

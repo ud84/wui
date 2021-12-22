@@ -1,6 +1,7 @@
 #pragma once
 
 #include <WUI/Control/IControl.h>
+#include <WUI/Theme/ITheme.h>
 
 #include <functional>
 
@@ -18,7 +19,7 @@ enum class WindowType
 class IWindow
 {
 public:
-	virtual bool Init(WindowType type, const Rect &position, const std::wstring &caption, std::function<void(void)> closeCallback) = 0;
+	virtual bool Init(WindowType type, const Rect &position, const std::wstring &caption, std::function<void(void)> closeCallback, std::shared_ptr<ITheme> theme = nullptr) = 0;
 	virtual void Destroy() = 0;
 
 	virtual void AddControl(std::shared_ptr<IControl> control, const Rect &position) = 0;

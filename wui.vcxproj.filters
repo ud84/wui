@@ -99,20 +99,23 @@
     <ClInclude Include="WUI\Common\Color.h">
       <Filter>Header Files\WUI\Common</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Theme\impl\Dark.h">
-      <Filter>Header Files\WUI\Theme\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="WUI\Theme\impl\ITheme.h">
-      <Filter>Header Files\WUI\Theme\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="WUI\Theme\impl\White.h">
-      <Filter>Header Files\WUI\Theme\impl</Filter>
-    </ClInclude>
     <ClInclude Include="WUI\Event\MouseEvent.h">
       <Filter>Header Files\WUI\Event</Filter>
     </ClInclude>
     <ClInclude Include="WUI\Event\KeyboardEvent.h">
       <Filter>Header Files\WUI\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Theme\ITheme.h">
+      <Filter>Header Files\WUI\Theme</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Theme\impl\CustomTheme.h">
+      <Filter>Header Files\WUI\Theme\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Theme\impl\DarkTheme.h">
+      <Filter>Header Files\WUI\Theme\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="WUI\Theme\impl\WhiteTheme.h">
+      <Filter>Header Files\WUI\Theme\impl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -128,10 +131,13 @@
     <ClCompile Include="WUI\Theme\Theme.cpp">
       <Filter>Source Files\WUI\Theme</Filter>
     </ClCompile>
-    <ClCompile Include="WUI\Theme\impl\Dark.cpp">
+    <ClCompile Include="WUI\Theme\impl\CustomTheme.cpp">
       <Filter>Source Files\WUI\Theme\impl</Filter>
     </ClCompile>
-    <ClCompile Include="WUI\Theme\impl\White.cpp">
+    <ClCompile Include="WUI\Theme\impl\DarkTheme.cpp">
+      <Filter>Source Files\WUI\Theme\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="WUI\Theme\impl\WhiteTheme.cpp">
       <Filter>Source Files\WUI\Theme\impl</Filter>
     </ClCompile>
   </ItemGroup>

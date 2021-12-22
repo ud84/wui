@@ -1,37 +1,23 @@
 #pragma once
 
+#include <WUI/Theme/ITheme.h>
+
 #include <cstdint>
-#include <WUI/Common/Color.h>
+
+#include <memory>
 
 namespace WUI
 {
 
-enum class Theme
-{
-	Dark,
-	White
-};
-
-enum class ThemeValue
-{
-	Window_Background,
-	Window_Text,
-
-	Button_Calm,
-	Button_Active,
-	Button_Border,
-	Button_Text,
-	Button_Disabled,
-
-	WC_Button_Calm,
-	WC_Button_Active
-};
-
 /// Set and get the current theme
-void SetTheme(Theme theme);
-Theme GetTheme();
+void SetDefaultTheme(Theme theme);
+Theme GetDefaultTheme();
+
+std::shared_ptr<ITheme> MakeCustomTheme();
 
 /// Return the item's color by current color theme
-Color ThemeColor(ThemeValue valueID);
+Color ThemeColor(ThemeValue valueID, std::shared_ptr<ITheme> theme = nullptr);
+
+int32_t ThemeDimension(ThemeValue valueID, std::shared_ptr<ITheme> theme = nullptr);
 
 }
