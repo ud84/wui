@@ -15,6 +15,8 @@
 namespace WUI
 {
 
+class Button;
+
 class Window : public IWindow, public IControl, public std::enable_shared_from_this<Window>
 {
 public:
@@ -58,6 +60,9 @@ public:
 	void Block();
 	void Unlock();
 
+	/// Callbacks
+	void SetSizeChangeCallback(std::function<void(int32_t, int32_t)> sizeChangeCallback);
+
 private:
 	std::vector<std::shared_ptr<IControl>> controls;
 	std::shared_ptr<IControl> activeControl;
@@ -65,7 +70,6 @@ private:
 	WindowType windowType;
 	Rect position;
 	std::wstring caption;
-	std::function<void(void)> closeCallback;
 
 	bool showed, enabled;
 
@@ -84,6 +88,11 @@ private:
 		SizeNESWBottom
 	};
 	MovingMode movingMode;
+
+	std::function<void(void)> closeCallback;
+	std::function<void(int32_t, int32_t)> sizeChangeCallback;
+
+	std::shared_ptr<Button> minimizeButton, expandButton, closeButton;
 
 #ifdef _WIN32
 	HWND hWnd;

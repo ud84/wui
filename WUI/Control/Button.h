@@ -67,6 +67,8 @@ private:
 	void MakePrimitives();
 	void DestroyPrimitives();
 #endif
+
+	void Redraw();
 };
 
 }

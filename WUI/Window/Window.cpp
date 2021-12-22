@@ -21,10 +21,14 @@ Window::Window()
 	windowType(WindowType::Frame),
 	position(),
 	caption(),
-	closeCallback(),
 	showed(true), enabled(true),
 	parent(),
-	movingMode(MovingMode::Move)
+	movingMode(MovingMode::Move),
+	closeCallback(),
+	sizeChangeCallback(),
+	minimizeButton(new Button(L"🗕", std::bind(&Window::Minimize, this), ButtonType::WindowControl)),
+	expandButton(new Button(L"🗖", std::bind(&Window::Expand, this), ButtonType::WindowControl)),
+	closeButton(new Button(L"❌", std::bind(&Window::Destroy, this), ButtonType::WindowControl))
 #ifdef _WIN32
 	, hWnd(0),
 	backgroundBrush(0),
@@ -52,7 +56,7 @@ void Window::AddControl(std::shared_ptr<IControl> control, const Rect &controlPo
 		control->SetParent(shared_from_this());
 		controls.emplace_back(control);
 
-		Redraw(controlPosition);
+		//Redraw(controlPosition);
 	}
 }
 
@@ -245,6 +249,11 @@ void Window::Unlock()
 #endif
 }
 
+void Window::SetSizeChangeCallback(std::function<void(int32_t, int32_t)> sizeChangeCallback_)
+{
+	sizeChangeCallback = sizeChangeCallback_;
+}
+
 void Window::SendMouseEvent(const MouseEvent &ev)
 {
 	if (activeControl && !activeControl->GetPosition().In(ev.x, ev.y))
@@ -296,12 +305,9 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 
 	if (type == WindowType::Frame)
 	{
-		std::shared_ptr<Button> minimizeButton(new Button(L"🗕", std::bind(&Window::Minimize, this), ButtonType::WindowControl));
 		AddControl(minimizeButton, { position.right - 78, 2, position.right - 54, 26 });
-		std::shared_ptr<Button> expandButton(new Button(L"🗖", std::bind(&Window::Expand, this), ButtonType::WindowControl));
 		AddControl(expandButton, { position.right - 52, 2, position.right - 28, 26 });
 	}
-	std::shared_ptr<Button> closeButton(new Button(L"❌", std::bind(&Window::Destroy, this), ButtonType::WindowControl));
 	AddControl(closeButton, { position.right - 26, 2, position.right - 2, 26 });
 
 	WNDCLASSEXW wcex = { 0 };
@@ -583,6 +589,28 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			wnd->movingMode = MovingMode::Move;
 
 			wnd->SendMouseEvent({ MouseEventType::LeftUp, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) });
+		}
+		break;
+		case WM_SIZE:
+		{
+			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+			auto width = LOWORD(lParam), height = HIWORD(lParam);
+
+			wnd->position.right = wnd->position.left + width;
+			wnd->position.bottom = wnd->position.top + height;
+
+			if (wnd->windowType == WindowType::Frame)
+			{
+				wnd->minimizeButton->SetPosition({ wnd->position.right - 78, 2, wnd->position.right - 54, 26 });
+				wnd->expandButton->SetPosition({ wnd->position.right - 52, 2, wnd->position.right - 28, 26 });
+			}
+			wnd->closeButton->SetPosition({ wnd->position.right - 26, 2, wnd->position.right - 2, 26 });
+
+			if (wnd->sizeChangeCallback)
+			{
+				wnd->sizeChangeCallback(LOWORD(lParam), HIWORD(lParam));
+			}
 		}
 		break;
 		case WM_DESTROY:

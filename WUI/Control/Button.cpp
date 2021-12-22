@@ -76,11 +76,11 @@ void Button::ReceiveEvent(const Event &ev)
 		{
 			case MouseEventType::Enter:
 				active = true;
-				parent.lock()->Redraw(position);
+				Redraw();
 			break;
 			case MouseEventType::Leave:
 				active = false;
-				parent.lock()->Redraw(position);
+				Redraw();
 			break;
 			case MouseEventType::LeftUp:
 				if (clickCallback)
@@ -94,7 +94,15 @@ void Button::ReceiveEvent(const Event &ev)
 
 void Button::SetPosition(const Rect &position_)
 {
+	auto prevPosition = position;
 	position = position_;
+
+	if (parent.lock())
+	{
+		parent.lock()->Redraw(prevPosition);
+	}
+	
+	Redraw();
 }
 
 Rect Button::GetPosition() const
@@ -123,19 +131,13 @@ void Button::UpdateTheme()
 void Button::Show()
 {
 	showed = true;
-	if (parent.lock())
-	{
-		parent.lock()->Redraw(position);
-	}
+	Redraw();
 }
 
 void Button::Hide()
 {
 	showed = false;
-	if (parent.lock())
-	{
-		parent.lock()->Redraw(position);
-	}
+	Redraw();
 }
 
 bool Button::Showed() const
@@ -146,19 +148,13 @@ bool Button::Showed() const
 void Button::Enable()
 {
 	enabled = true;
-	if (parent.lock())
-	{
-		parent.lock()->Redraw(position);
-	}
+	Redraw();
 }
 
 void Button::Disable()
 {
 	enabled = false;
-	if (parent.lock())
-	{
-		parent.lock()->Redraw(position);
-	}
+	Redraw();
 }
 
 bool Button::Enabled() const
@@ -174,6 +170,14 @@ void Button::SetCaption(const std::wstring &caption_)
 void Button::SetCallback(std::function<void(void)> clickCallback_)
 {
 	clickCallback = clickCallback_;
+}
+
+void Button::Redraw()
+{
+	if (parent.lock())
+	{
+		parent.lock()->Redraw(position);
+	}
 }
 
 #ifdef _WIN32
