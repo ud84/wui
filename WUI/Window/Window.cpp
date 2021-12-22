@@ -189,6 +189,7 @@ bool Window::Showed() const
 void Window::Enable()
 {
 	enabled = true;
+
 	for (auto &control : controls)
 	{
 		control->Enable();
@@ -198,6 +199,7 @@ void Window::Enable()
 void Window::Disable()
 {
 	enabled = false;
+
 	for (auto &control : controls)
 	{
 		control->Disable();
@@ -217,6 +219,21 @@ void Window::Minimize()
 void Window::Expand()
 {
 
+}
+
+void Window::Block()
+{
+#ifdef _WIN32
+	EnableWindow(hWnd, FALSE);
+#endif
+}
+
+void Window::Unlock()
+{
+#ifdef _WIN32
+	EnableWindow(hWnd, TRUE);
+	SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+#endif
 }
 
 void Window::SendMouseEvent(const MouseEvent &ev)

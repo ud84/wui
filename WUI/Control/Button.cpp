@@ -55,10 +55,10 @@ void Button::Draw(Graphic &gr)
 	}
 
 	SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text));
-	SetBkColor(gr.dc, enabled ? (active ? (type == ButtonType::Normal ? ThemeColor(ThemeValue::Button_Active) : ThemeColor(ThemeValue::WC_Button_Active)) : (type == ButtonType::Normal ? ThemeColor(ThemeValue::Button_Calm) : ThemeColor(ThemeValue::WC_Button_Calm))) : ThemeColor(ThemeValue::Button_Disabled));
+	SetBkColor(gr.dc, enabled ? (active ? (type == ButtonType::Normal ? ThemeColor(ThemeValue::Button_Active) : ThemeColor(ThemeValue::WC_Button_Active)) : (type == ButtonType::Normal ? ThemeColor(ThemeValue::Button_Calm) : ThemeColor(ThemeValue::WC_Button_Calm))) : (type == ButtonType::Normal ? ThemeColor(ThemeValue::Button_Disabled) : ThemeColor(ThemeValue::WC_Button_Calm)));
 
 	SelectObject(gr.dc, type == ButtonType::Normal ? borderPen : wcBorderPen);
-	SelectObject(gr.dc, enabled ? (active ? (type == ButtonType::Normal ? activeBrush : wcActiveBrush) : (type == ButtonType::Normal ? calmBrush : wcCalmBrush)) : disabledBrush);
+	SelectObject(gr.dc, enabled ? (active ? (type == ButtonType::Normal ? activeBrush : wcActiveBrush) : (type == ButtonType::Normal ? calmBrush : wcCalmBrush)) : (type == ButtonType::Normal ? disabledBrush : wcCalmBrush));
 
 	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, type == ButtonType::Normal ? 5 : 0, type == ButtonType::Normal ? 5 : 0);
 	

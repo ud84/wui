@@ -54,6 +54,10 @@ public:
 	void Minimize();
 	void Expand();
 
+	/// Methods used to block the window while a modal dialog is displayed
+	void Block();
+	void Unlock();
+
 private:
 	std::vector<std::shared_ptr<IControl>> controls;
 	std::shared_ptr<IControl> activeControl;
