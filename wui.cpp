@@ -60,25 +60,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	PluggedWindow pluggedWindow(window);
 	pluggedWindow.Plug();
 
-	std::shared_ptr<WUI::Button> darkThemeButton(new WUI::Button(L"Set the dark theme", [window, pluggedWindow]() { WUI::SetTheme(WUI::Theme::Dark); window->UpdateTheme(); pluggedWindow.window->UpdateTheme(); }));
-	std::shared_ptr<WUI::Button> whiteThemeButton(new WUI::Button(L"Set the white theme", [window, pluggedWindow]() { WUI::SetTheme(WUI::Theme::White); window->UpdateTheme(); pluggedWindow.window->UpdateTheme(); }));
-
-	window->AddControl(darkThemeButton, WUI::Rect{ 140, 350, 150, 375 });
-	window->AddControl(whiteThemeButton, WUI::Rect{ 270, 350, 380, 375 });
-
 	std::shared_ptr<WUI::Window> dialog(new WUI::Window());
 
 	std::shared_ptr<WUI::Button> okButton(new WUI::Button(L"OK", [window, &dialog]() 
 	{ 
 		window->Block();
-		//MessageBox(NULL, L"OK was clicked!", L"Yes", MB_ICONEXCLAMATION);
 
 		std::shared_ptr<WUI::Button> dialogButton(new WUI::Button(L"Close", [&dialog]() { dialog->Destroy(); }));
-		dialog->AddControl(dialogButton, WUI::Rect{ 10, 30, 70, 65 });
+		dialog->AddControl(dialogButton, WUI::Rect{ 10, 200, 100, 235 });
 
-		dialog->Init(WUI::WindowType::Dialog, WUI::Rect{ 10, 10, 100, 100 }, L"modal dialog", [window, &dialog]() { window->Unlock(); /*dialog.reset();*/ });
+		dialog->Init(WUI::WindowType::Dialog, WUI::Rect{ 50, 50, 250, 250 }, L"Modal dialog", [window, &dialog]() { window->Unlock(); /*dialog.reset();*/ });
 	}));
 	std::shared_ptr<WUI::Button> cancelButton(new WUI::Button(L"Cancel", [window]() { window->Destroy(); }));
+
+	std::shared_ptr<WUI::Button> darkThemeButton(new WUI::Button(L"Set the dark theme", [window, pluggedWindow, dialog]() { WUI::SetTheme(WUI::Theme::Dark); window->UpdateTheme(); pluggedWindow.window->UpdateTheme(); dialog->UpdateTheme(); }));
+	std::shared_ptr<WUI::Button> whiteThemeButton(new WUI::Button(L"Set the white theme", [window, pluggedWindow, dialog]() { WUI::SetTheme(WUI::Theme::White); window->UpdateTheme(); pluggedWindow.window->UpdateTheme(); dialog->UpdateTheme(); }));
+
+	window->AddControl(darkThemeButton, WUI::Rect{ 140, 350, 150, 375 });
+	window->AddControl(whiteThemeButton, WUI::Rect{ 270, 350, 380, 375 });
 
 	window->AddControl(okButton, WUI::Rect{ 240, 450, 350, 475 });
 	window->AddControl(cancelButton, WUI::Rect{ 370, 450, 480, 475 });
