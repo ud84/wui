@@ -103,6 +103,7 @@ private:
 	HFONT font;
 
 	int16_t xClick, yClick;
+	bool mouseTracked;
 
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

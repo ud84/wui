@@ -35,7 +35,8 @@ Window::Window()
 	, hWnd(0),
 	backgroundBrush(0),
 	font(0),
-	xClick(0), yClick(0)
+	xClick(0), yClick(0),
+	mouseTracked(false)
 #endif
 {
 #ifdef _WIN32
@@ -282,6 +283,12 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 			}
 			else
 			{
+				if (activeControl)
+				{
+					MouseEvent me{ MouseEventType::Leave, 0, 0 };
+					activeControl->ReceiveEvent({ EventType::Mouse, me });
+				}
+
 				activeControl = control;
 
 				MouseEvent me{ MouseEventType::Enter, 0, 0 };
@@ -476,6 +483,19 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 				}
 			}
 
+			if (!wnd->mouseTracked)
+			{
+				TRACKMOUSEEVENT trackMouseEvent;
+
+				trackMouseEvent.cbSize = sizeof(trackMouseEvent);
+				trackMouseEvent.dwFlags = TME_LEAVE;
+				trackMouseEvent.hwndTrack = hWnd;
+
+				TrackMouseEvent(&trackMouseEvent);
+
+				wnd->mouseTracked = true;
+			}
+
 			if (GetCapture() == hWnd)
 			{
 				switch (wnd->movingMode)
@@ -627,6 +647,13 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			wnd->movingMode = MovingMode::Move;
 
 			wnd->SendMouseEvent({ MouseEventType::LeftUp, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) });
+		}
+		break;
+		case WM_MOUSELEAVE:
+		{
+			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			wnd->mouseTracked = false;
+			wnd->SendMouseEvent({ MouseEventType::Leave, -1, -1 });
 		}
 		break;
 		case WM_SIZE:
