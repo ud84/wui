@@ -343,10 +343,10 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 
 	if (type == WindowType::Frame)
 	{
-		AddControl(minimizeButton, { position.right - 78, 2, position.right - 54, 26 });
-		AddControl(expandButton, { position.right - 52, 2, position.right - 28, 26 });
+		AddControl(minimizeButton, { position.right - 78, 0, position.right - 52, 26 });
+		AddControl(expandButton, { position.right - 52, 0, position.right - 26, 26 });
 	}
-	AddControl(closeButton, { position.right - 26, 2, position.right - 2, 26 });
+	AddControl(closeButton, { position.right - 26, 0, position.right, 26 });
 
 	WNDCLASSEXW wcex = { 0 };
 
@@ -640,10 +640,10 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 			if (wnd->windowType == WindowType::Frame)
 			{
-				wnd->minimizeButton->SetPosition({ width - 78, 2, width - 54, 26 });
-				wnd->expandButton->SetPosition({ width - 52, 2, width - 28, 26 });
+				wnd->minimizeButton->SetPosition({ width - 78, 0, width - 52, 26 });
+				wnd->expandButton->SetPosition({ width - 52, 0, width - 26, 26 });
 			}
-			wnd->closeButton->SetPosition({ width - 26, 2, width - 2, 26 });
+			wnd->closeButton->SetPosition({ width - 26, 0, width, 26 });
 
 			if (wnd->sizeChangeCallback)
 			{
