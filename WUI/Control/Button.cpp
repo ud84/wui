@@ -123,6 +123,10 @@ void Button::ClearParent()
 
 void Button::UpdateTheme(std::shared_ptr<ITheme> theme_)
 {
+	if (theme && !theme_)
+	{
+		return;
+	}
 	theme = theme_;
 
 #ifdef _WIN32

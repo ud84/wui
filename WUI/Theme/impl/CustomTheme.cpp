@@ -10,11 +10,7 @@ CustomTheme::CustomTheme()
 
 void CustomTheme::SetColor(ThemeValue valueID, Color color)
 {
-	auto it = colors.find(valueID);
-	if (it != colors.end())
-	{
-		it->second = color;
-	}
+	colors[valueID] = color;
 }
 
 Color CustomTheme::GetColor(ThemeValue valueID) const
@@ -34,11 +30,7 @@ Theme CustomTheme::GetTheme() const
 
 void CustomTheme::SetDimension(ThemeValue valueID, int32_t dimension)
 {
-	auto it = dimensions.find(valueID);
-	if (it != dimensions.end())
-	{
-		it->second = dimension;
-	}
+	dimensions[valueID] = dimension;
 }
 
 int32_t CustomTheme::GetDimension(ThemeValue valueID) const

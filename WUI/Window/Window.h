@@ -93,6 +93,7 @@ private:
 	std::function<void(void)> closeCallback;
 	std::function<void(int32_t, int32_t)> sizeChangeCallback;
 
+	std::shared_ptr<ITheme> buttonsTheme, closeButtonTheme;
 	std::shared_ptr<Button> minimizeButton, expandButton, closeButton;
 
 #ifdef _WIN32
@@ -110,6 +111,8 @@ private:
 #endif
 
 	void SendMouseEvent(const MouseEvent &ev);
+
+	void UpdateControlButtonsTheme();
 };
 
 }

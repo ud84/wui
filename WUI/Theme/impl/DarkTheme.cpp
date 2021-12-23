@@ -8,6 +8,8 @@ DarkTheme::DarkTheme()
 	{
 		{ ThemeValue::Window_Background, MakeColor(19, 21, 25) },
 		{ ThemeValue::Window_Text, MakeColor(245, 245, 240) },
+		{ ThemeValue::Window_ActiveButton, MakeColor(39, 41, 45) },
+
 		{ ThemeValue::Button_Calm, MakeColor(6, 165, 223) },
 		{ ThemeValue::Button_Active, MakeColor(26, 175, 233) },
 		{ ThemeValue::Button_Border, MakeColor(0, 160, 210) },
@@ -23,11 +25,7 @@ DarkTheme::DarkTheme()
 
 void DarkTheme::SetColor(ThemeValue valueID, Color color)
 {
-	auto it = colors.find(valueID);
-	if (it != colors.end())
-	{
-		it->second = color;
-	}
+	colors[valueID] = color;
 }
 
 Color DarkTheme::GetColor(ThemeValue valueID) const
@@ -47,11 +45,7 @@ Theme DarkTheme::GetTheme() const
 
 void DarkTheme::SetDimension(ThemeValue valueID, int32_t dimension)
 {
-	auto it = dimensions.find(valueID);
-	if (it != dimensions.end())
-	{
-		it->second = dimension;
-	}
+	dimensions[valueID] = dimension;
 }
 
 int32_t DarkTheme::GetDimension(ThemeValue valueID) const

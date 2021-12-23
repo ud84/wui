@@ -27,6 +27,7 @@ Window::Window()
 	movingMode(MovingMode::Move),
 	closeCallback(),
 	sizeChangeCallback(),
+	buttonsTheme(MakeCustomTheme()), closeButtonTheme(MakeCustomTheme()),
 	minimizeButton(new Button(L"🗕", std::bind(&Window::Minimize, this))),
 	expandButton(new Button(L"🗖", std::bind(&Window::Expand, this))),
 	closeButton(new Button(L"❌", std::bind(&Window::Destroy, this)))
@@ -133,6 +134,10 @@ void Window::ClearParent()
 
 void Window::UpdateTheme(std::shared_ptr<ITheme> theme_)
 {
+	if (theme && !theme_)
+	{
+		return;
+	}
 	theme = theme_;
 
 #ifdef _WIN32
@@ -150,6 +155,8 @@ void Window::UpdateTheme(std::shared_ptr<ITheme> theme_)
 	{
 		control->UpdateTheme(theme);
 	}
+
+	UpdateControlButtonsTheme();
 }
 
 void Window::Show()
@@ -286,6 +293,33 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 	}
 }
 
+void Window::UpdateControlButtonsTheme()
+{
+	auto backgroundColor = ThemeColor(ThemeValue::Window_Background, theme);
+
+	if (windowType == WindowType::Frame)
+	{
+		buttonsTheme->SetColor(WUI::ThemeValue::Button_Calm, backgroundColor);
+		buttonsTheme->SetColor(WUI::ThemeValue::Button_Active, ThemeColor(ThemeValue::Window_ActiveButton, theme));
+		buttonsTheme->SetColor(WUI::ThemeValue::Button_Border, backgroundColor);
+		buttonsTheme->SetColor(WUI::ThemeValue::Button_Text, ThemeColor(ThemeValue::Window_Text, theme));
+		buttonsTheme->SetColor(WUI::ThemeValue::Button_Disabled, backgroundColor);
+		buttonsTheme->SetDimension(WUI::ThemeValue::Button_Round, 0);
+
+		minimizeButton->UpdateTheme(buttonsTheme);
+		expandButton->UpdateTheme(buttonsTheme);
+	}
+
+	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Calm, backgroundColor);
+	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Active, WUI::MakeColor(235, 15, 20));
+	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Border, backgroundColor);
+	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Text, ThemeColor(ThemeValue::Window_Text, theme));
+	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Disabled, backgroundColor);
+	closeButtonTheme->SetDimension(WUI::ThemeValue::Button_Round, 0);
+
+	closeButton->UpdateTheme(closeButtonTheme);
+}
+
 /// Windows specified code
 #ifdef _WIN32
 
@@ -304,6 +338,8 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 
 		return true;
 	}
+
+	UpdateControlButtonsTheme();
 
 	if (type == WindowType::Frame)
 	{
