@@ -136,7 +136,7 @@ void Button::ClearParent()
 
 bool Button::SetFocus()
 {
-	if (!receiveFocus)
+	if (!receiveFocus || !enabled || !showed)
 	{
 		return false;
 	}

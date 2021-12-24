@@ -352,9 +352,12 @@ void Window::ChangeFocus()
 		++index;
 	}
 
-	while (!controls[focusedIndex]->SetFocus())
+	size_t counted = 0;
+	while (!controls[focusedIndex]->SetFocus() && counted != controls.size())
 	{
 		++focusedIndex;
+
+		++counted;
 
 		if (focusedIndex >= controls.size())
 		{
