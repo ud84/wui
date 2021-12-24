@@ -134,18 +134,14 @@ void Button::ClearParent()
 	parent.reset();
 }
 
-bool Button::SetFocus()
+void Button::SetFocus()
 {
-	if (!receiveFocus || !enabled || !showed)
+	if (receiveFocus && enabled && showed)
 	{
-		return false;
+		focused = true;
+
+		Redraw();
 	}
-
-	focused = true;
-
-	Redraw();
-
-	return true;
 }
 
 bool Button::RemoveFocus()

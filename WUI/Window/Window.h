@@ -42,7 +42,7 @@ public:
 	virtual void SetParent(std::shared_ptr<Window> window);
 	virtual void ClearParent();
 
-	virtual bool SetFocus();
+	virtual void SetFocus();
 	virtual bool RemoveFocus();
 	virtual bool Focused() const;
 	virtual bool Focusing() const;
@@ -78,6 +78,8 @@ private:
 	std::shared_ptr<ITheme> theme;
 
 	bool showed, enabled;
+
+	size_t focusedIndex;
 
 	std::shared_ptr<Window> parent;
 

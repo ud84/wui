@@ -23,6 +23,7 @@ Window::Window()
 	caption(),
 	theme(),
 	showed(true), enabled(true),
+	focusedIndex(0),
 	parent(),
 	movingMode(MovingMode::Move),
 	closeCallback(),
@@ -137,11 +138,9 @@ void Window::ClearParent()
 	parent.reset();
 }
 
-bool Window::SetFocus()
+void Window::SetFocus()
 {
 	ChangeFocus();
-
-	return Focused();
 }
 
 bool Window::RemoveFocus()
@@ -162,7 +161,7 @@ bool Window::RemoveFocus()
 
 		++index;
 	}
-	return focusedIndex + 1 == focusingControls;
+	return focusedIndex == focusingControls;
 }
 
 bool Window::Focused() const
@@ -378,35 +377,44 @@ void Window::ChangeFocus()
 		return;
 	}
 
-	size_t focusedIndex = 0;
-	size_t index = 0;
+	size_t focusingControls = 0;
+	for (const auto &control : controls)
+	{
+		if (control->Focusing())
+		{
+			++focusingControls;
+		}
+	}
+
 	for (auto &control : controls)
 	{
 		if (control->Focused())
 		{
-			if (control->RemoveFocus())
+			if (control->RemoveFocus()) // Need to change the focus inside the internal elements of the control
 			{
-				focusedIndex = controls.size() > index + 1 ? index + 1 : 0;
-			}
-			else
-			{
-				focusedIndex = index; // Need to change the focus inside the internal elements of the control
+				++focusedIndex;
 			}
 			break;
 		}
-		++index;
 	}
 
-	size_t counted = 0;
-	while (!controls[focusedIndex]->SetFocus() && counted != controls.size())
+	if (focusedIndex == focusingControls)
 	{
-		++focusedIndex;
+		focusedIndex = 0;
+	}
 
-		++counted;
-
-		if (focusedIndex >= controls.size())
+	size_t index = 0;
+	for (auto &control : controls)
+	{
+		if (control->Focusing())
 		{
-			focusedIndex = 0;
+			if (index == focusedIndex)
+			{
+				control->SetFocus();
+				break;
+			}
+
+			++index;
 		}
 	}
 }
