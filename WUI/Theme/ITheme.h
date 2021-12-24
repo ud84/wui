@@ -23,6 +23,7 @@ enum class ThemeValue
 	Button_Calm,
 	Button_Active,
 	Button_Border,
+	Button_FocusedBorder,
 	Button_Text,
 	Button_Disabled,
 	Button_Round

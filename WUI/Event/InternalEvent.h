@@ -1,14 +1,11 @@
 #pragma once
 
-#include <cstdint>
-
 namespace WUI
 {
 
 enum class InternalEventType
 {
-	SetFocus,
-	RemoveFocus
+	ExecuteFocused
 };
 
 struct InternalEvent

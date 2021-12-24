@@ -26,7 +26,7 @@ public:
 
 	virtual bool SetFocus() = 0; /// Returns false if the control does not support focusing
 	virtual void RemoveFocus() = 0;
-	virtual bool Focused() = 0;
+	virtual bool Focused() const = 0;
 
 	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr) = 0;
 

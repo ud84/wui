@@ -39,6 +39,10 @@ Window::Window()
 	mouseTracked(false)
 #endif
 {
+	minimizeButton->SetReceiveFocus(false);
+	expandButton->SetReceiveFocus(false);
+	closeButton->SetReceiveFocus(false);
+
 #ifdef _WIN32
 	MakePrimitives();
 #endif
@@ -143,7 +147,7 @@ void Window::RemoveFocus()
 
 }
 
-bool Window::Focused()
+bool Window::Focused() const
 {
 	return false;
 }
@@ -294,6 +298,19 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 		{
 			if (activeControl == control)
 			{
+				if (ev.type == MouseEventType::LeftUp)
+				{
+					for (auto &c : controls)
+					{
+						if (c->Focused())
+						{
+							c->RemoveFocus();
+							break;
+						}
+					}
+					control->SetFocus();
+				}
+
 				control->ReceiveEvent({ EventType::Mouse, ev });
 			}
 			else
@@ -329,20 +346,36 @@ void Window::ChangeFocus()
 		if (control->Focused())
 		{
 			control->RemoveFocus();
-			focusedIndex = index + 1;
+			focusedIndex = controls.size() > index + 1 ? index + 1 : 0;
 			break;
 		}
 		++index;
 	}
 
-	if (focusedIndex >= controls.size())
+	while (!controls[focusedIndex]->SetFocus())
 	{
-		focusedIndex = 0;
+		++focusedIndex;
+
+		if (focusedIndex >= controls.size())
+		{
+			focusedIndex = 0;
+		}
 	}
+}
 
-	//if (!controls[focusedIndex]->SetFocus())
+void Window::ExecuteFocused()
+{
+	for (auto &control : controls)
 	{
+		if (control->Focused())
+		{
+			Event ev;
+			ev.type = EventType::Internal;
+			ev.internalEvent = InternalEvent{ InternalEventType::ExecuteFocused };;
 
+			control->ReceiveEvent(ev);
+			break;
+		}
 	}
 }
 
@@ -725,10 +758,20 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		}
 		break;
 		case WM_KEYUP:
-			if (wParam == VK_TAB)
+			switch (wParam)
 			{
-				Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-				wnd->ChangeFocus();
+				case VK_TAB:
+				{
+					Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+					wnd->ChangeFocus();
+				}
+				break;
+				case VK_RETURN:
+				{
+					Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+					wnd->ExecuteFocused();
+				}
+				break;
 			}
 		break;
 		case WM_DESTROY:

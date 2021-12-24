@@ -23,7 +23,7 @@ struct MouseEvent
 {
 	MouseEventType type;
 
-	int32_t x = 0, y = 0;
+	int32_t x, y;
 };
 
 }

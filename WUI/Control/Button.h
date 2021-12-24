@@ -30,7 +30,7 @@ public:
 
 	virtual bool SetFocus();
 	virtual void RemoveFocus();
-	virtual bool Focused();
+	virtual bool Focused() const;
 	
 	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr);
 
@@ -44,6 +44,8 @@ public:
 
 	void SetCaption(const std::wstring &caption);
 
+	void SetReceiveFocus(bool yes); /// Allows the button to receive focus
+
 	void SetCallback(std::function<void(void)> clickCallback);
 
 private:
@@ -55,11 +57,12 @@ private:
 
 	std::weak_ptr<Window> parent;
 
-	bool showed, enabled, active;
+	bool showed, enabled, active, focused;
+	bool receiveFocus;
 
 #ifdef _WIN32
 	HBRUSH calmBrush, activeBrush, disabledBrush;
-	HPEN borderPen;
+	HPEN borderPen, focusedBorderPen;
 
 	void MakePrimitives();
 	void DestroyPrimitives();

@@ -14,10 +14,11 @@ Button::Button(const std::wstring &caption_, std::function<void(void)> clickCall
 	theme(theme_),
 	position(),
 	parent(),
-	showed(true), enabled(true), active(false)
+	showed(true), enabled(true), active(false), focused(false),
+	receiveFocus(true)
 #ifdef _WIN32
 	,calmBrush(0), activeBrush(0), disabledBrush(0),
-	borderPen(0)
+	borderPen(0), focusedBorderPen(0)
 #endif
 {
 #ifdef _WIN32
@@ -56,7 +57,7 @@ void Button::Draw(Graphic &gr)
 	SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text, theme));
 	SetBkColor(gr.dc, enabled ? (active ? ThemeColor(ThemeValue::Button_Active, theme) : ThemeColor(ThemeValue::Button_Calm, theme)) : ThemeColor(ThemeValue::Button_Disabled, theme));
 
-	SelectObject(gr.dc, borderPen);
+	SelectObject(gr.dc, !focused ? borderPen : focusedBorderPen);
 	SelectObject(gr.dc, enabled ? (active ? activeBrush : calmBrush) : disabledBrush);
 
 	auto rnd = ThemeDimension(ThemeValue::Button_Round, theme);
@@ -71,7 +72,12 @@ void Button::Draw(Graphic &gr)
 
 void Button::ReceiveEvent(const Event &ev)
 {
-	if (ev.type == EventType::Mouse && parent.lock() && showed && enabled)
+	if (!showed || !enabled)
+	{
+		return;
+	}
+
+	if (ev.type == EventType::Mouse)
 	{
 		switch (ev.mouseEvent.type)
 		{
@@ -89,6 +95,13 @@ void Button::ReceiveEvent(const Event &ev)
 					clickCallback();
 				}
 			break;
+		}
+	}
+	else if (ev.type == EventType::Internal)
+	{
+		if (ev.internalEvent.type == InternalEventType::ExecuteFocused && clickCallback)
+		{
+			clickCallback();
 		}
 	}
 }
@@ -123,22 +136,35 @@ void Button::ClearParent()
 
 bool Button::SetFocus()
 {
+	if (!receiveFocus)
+	{
+		return false;
+	}
+
+	focused = true;
+
+	Redraw();
+
 	OutputDebugStringW(L"Button ");
 	OutputDebugStringW(caption.c_str());
-	OutputDebugStringW(L"Focused\n");
+	OutputDebugStringW(L" Focused\n");
 	return true;
 }
 
 void Button::RemoveFocus()
 {
+	focused = false;
+
+	Redraw();
+
 	OutputDebugStringW(L"Button ");
 	OutputDebugStringW(caption.c_str());
-	OutputDebugStringW(L"Unfocused\n");
+	OutputDebugStringW(L" Unfocused\n");
 }
 
-bool Button::Focused()
+bool Button::Focused() const
 {
-	return false;
+	return focused;
 }
 
 void Button::UpdateTheme(std::shared_ptr<ITheme> theme_)
@@ -194,6 +220,11 @@ void Button::SetCaption(const std::wstring &caption_)
 	caption = caption_;
 }
 
+void Button::SetReceiveFocus(bool yes)
+{
+	receiveFocus = yes;
+}
+
 void Button::SetCallback(std::function<void(void)> clickCallback_)
 {
 	clickCallback = clickCallback_;
@@ -214,6 +245,7 @@ void Button::MakePrimitives()
 	activeBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Active, theme));
 	disabledBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Disabled, theme));
 	borderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Border, theme));
+	focusedBorderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_FocusedBorder, theme));
 }
 
 void Button::DestroyPrimitives()
@@ -222,6 +254,7 @@ void Button::DestroyPrimitives()
 	DeleteObject(activeBrush);
 	DeleteObject(disabledBrush);
 	DeleteObject(borderPen);
+	DeleteObject(focusedBorderPen);
 }
 #endif
 

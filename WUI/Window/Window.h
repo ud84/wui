@@ -44,7 +44,7 @@ public:
 
 	virtual bool SetFocus();
 	virtual void RemoveFocus();
-	virtual bool Focused();
+	virtual bool Focused() const;
 
 	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr);
 
@@ -117,6 +117,7 @@ private:
 
 	void SendMouseEvent(const MouseEvent &ev);
 	void ChangeFocus();
+	void ExecuteFocused();
 
 	void UpdateControlButtonsTheme();
 };

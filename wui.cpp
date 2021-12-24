@@ -76,6 +76,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	redButtonTheme->SetColor(WUI::ThemeValue::Button_Calm, WUI::MakeColor(205, 15, 20));
 	redButtonTheme->SetColor(WUI::ThemeValue::Button_Active, WUI::MakeColor(235, 15, 20));
 	redButtonTheme->SetColor(WUI::ThemeValue::Button_Border, WUI::MakeColor(200, 215, 200));
+	redButtonTheme->SetColor(WUI::ThemeValue::Button_FocusedBorder, WUI::MakeColor(20, 215, 20));
 	redButtonTheme->SetColor(WUI::ThemeValue::Button_Text, WUI::MakeColor(190, 205, 190));
 	redButtonTheme->SetColor(WUI::ThemeValue::Button_Disabled, WUI::MakeColor(180, 190, 180));
 	redButtonTheme->SetDimension(WUI::ThemeValue::Button_Round, 5);
