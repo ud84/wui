@@ -121,6 +121,26 @@ void Button::ClearParent()
 	parent.reset();
 }
 
+bool Button::SetFocus()
+{
+	OutputDebugStringW(L"Button ");
+	OutputDebugStringW(caption.c_str());
+	OutputDebugStringW(L"Focused\n");
+	return true;
+}
+
+void Button::RemoveFocus()
+{
+	OutputDebugStringW(L"Button ");
+	OutputDebugStringW(caption.c_str());
+	OutputDebugStringW(L"Unfocused\n");
+}
+
+bool Button::Focused()
+{
+	return false;
+}
+
 void Button::UpdateTheme(std::shared_ptr<ITheme> theme_)
 {
 	if (theme && !theme_)

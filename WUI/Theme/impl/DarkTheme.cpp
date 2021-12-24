@@ -8,7 +8,7 @@ DarkTheme::DarkTheme()
 	{
 		{ ThemeValue::Window_Background, MakeColor(19, 21, 25) },
 		{ ThemeValue::Window_Text, MakeColor(245, 245, 240) },
-		{ ThemeValue::Window_ActiveButton, MakeColor(39, 41, 45) },
+		{ ThemeValue::Window_ActiveButton, MakeColor(59, 61, 65) },
 
 		{ ThemeValue::Button_Calm, MakeColor(6, 165, 223) },
 		{ ThemeValue::Button_Active, MakeColor(26, 175, 233) },

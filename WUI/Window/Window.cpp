@@ -133,6 +133,21 @@ void Window::ClearParent()
 	parent.reset();
 }
 
+bool Window::SetFocus()
+{
+	return false;
+}
+
+void Window::RemoveFocus()
+{
+
+}
+
+bool Window::Focused()
+{
+	return false;
+}
+
 void Window::UpdateTheme(std::shared_ptr<ITheme> theme_)
 {
 	if (theme && !theme_)
@@ -297,6 +312,37 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 
 			break;
 		}
+	}
+}
+
+void Window::ChangeFocus()
+{
+	if (controls.empty())
+	{
+		return;
+	}
+
+	size_t focusedIndex = 0;
+	size_t index = 0;
+	for (auto &control : controls)
+	{
+		if (control->Focused())
+		{
+			control->RemoveFocus();
+			focusedIndex = index + 1;
+			break;
+		}
+		++index;
+	}
+
+	if (focusedIndex >= controls.size())
+	{
+		focusedIndex = 0;
+	}
+
+	//if (!controls[focusedIndex]->SetFocus())
+	{
+
 	}
 }
 
@@ -677,6 +723,13 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 				wnd->sizeChangeCallback(LOWORD(lParam), HIWORD(lParam));
 			}
 		}
+		break;
+		case WM_KEYUP:
+			if (wParam == VK_TAB)
+			{
+				Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+				wnd->ChangeFocus();
+			}
 		break;
 		case WM_DESTROY:
 		{

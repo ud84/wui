@@ -42,6 +42,10 @@ public:
 	virtual void SetParent(std::shared_ptr<Window> window);
 	virtual void ClearParent();
 
+	virtual bool SetFocus();
+	virtual void RemoveFocus();
+	virtual bool Focused();
+
 	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr);
 
 	virtual void Show();
@@ -112,6 +116,7 @@ private:
 #endif
 
 	void SendMouseEvent(const MouseEvent &ev);
+	void ChangeFocus();
 
 	void UpdateControlButtonsTheme();
 };

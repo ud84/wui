@@ -2,6 +2,7 @@
 
 #include <WUI/Event/MouseEvent.h>
 #include <WUI/Event/KeyboardEvent.h>
+#include <WUI/Event/InternalEvent.h>
 
 namespace WUI
 {
@@ -20,12 +21,11 @@ struct Event
 {
 	EventType type;
 	
-	//IControl &author;
-
 	union
 	{
 		MouseEvent mouseEvent;
 		KeyboardEvent keyboardEvent;
+		InternalEvent internalEvent;
 	};
 };
 

@@ -16,13 +16,17 @@ class IControl
 public:
 	virtual void Draw(Graphic &gr) = 0;
 
-	virtual void ReceiveEvent(const Event &ev) = 0; /// <- Events from parent window
+	virtual void ReceiveEvent(const Event &ev) = 0; /// Events from parent window
 
 	virtual void SetPosition(const Rect &position) = 0;
 	virtual Rect GetPosition() const = 0;
 
 	virtual void SetParent(std::shared_ptr<Window> window) = 0;
 	virtual void ClearParent() = 0;
+
+	virtual bool SetFocus() = 0; /// Returns false if the control does not support focusing
+	virtual void RemoveFocus() = 0;
+	virtual bool Focused() = 0;
 
 	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr) = 0;
 
