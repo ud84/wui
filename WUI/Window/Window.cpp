@@ -63,6 +63,8 @@ void Window::AddControl(std::shared_ptr<IControl> control, const Rect &controlPo
 		control->SetPosition(!parent ? controlPosition : position + controlPosition);
 		control->SetParent(shared_from_this());
 		controls.emplace_back(control);
+
+		Redraw(control->GetPosition());
 	}
 }
 
