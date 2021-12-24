@@ -145,26 +145,26 @@ bool Button::SetFocus()
 
 	Redraw();
 
-	OutputDebugStringW(L"Button ");
-	OutputDebugStringW(caption.c_str());
-	OutputDebugStringW(L" Focused\n");
 	return true;
 }
 
-void Button::RemoveFocus()
+bool Button::RemoveFocus()
 {
 	focused = false;
 
 	Redraw();
 
-	OutputDebugStringW(L"Button ");
-	OutputDebugStringW(caption.c_str());
-	OutputDebugStringW(L" Unfocused\n");
+	return true;
 }
 
 bool Button::Focused() const
 {
 	return focused;
+}
+
+bool Button::Focusing() const
+{
+	return enabled && showed && receiveFocus;
 }
 
 void Button::UpdateTheme(std::shared_ptr<ITheme> theme_)

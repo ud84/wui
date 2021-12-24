@@ -29,8 +29,9 @@ public:
 	virtual void ClearParent();
 
 	virtual bool SetFocus();
-	virtual void RemoveFocus();
+	virtual bool RemoveFocus();
 	virtual bool Focused() const;
+	virtual bool Focusing() const;
 	
 	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr);
 
@@ -57,7 +58,8 @@ private:
 
 	std::weak_ptr<Window> parent;
 
-	bool showed, enabled, active, focused;
+	bool showed, enabled;
+	bool active, focused;
 	bool receiveFocus;
 
 #ifdef _WIN32

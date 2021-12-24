@@ -139,16 +139,55 @@ void Window::ClearParent()
 
 bool Window::SetFocus()
 {
-	return false;
+	ChangeFocus();
+
+	return Focused();
 }
 
-void Window::RemoveFocus()
+bool Window::RemoveFocus()
 {
+	size_t index = 0, focusedIndex = 0, focusingControls = 0;
+	for (const auto &control : controls)
+	{
+		if (control->Focused())
+		{
+			control->RemoveFocus();
+			focusedIndex = index;
+		}
 
+		if (control->Focusing())
+		{
+			++focusingControls;
+		}
+
+		++index;
+	}
+	return focusedIndex + 1 == focusingControls;
 }
 
 bool Window::Focused() const
 {
+	for (const auto &control : controls)
+	{
+		if (control->Focused())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool Window::Focusing() const
+{
+	for (const auto &control : controls)
+	{
+		if (control->Focusing())
+		{
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -345,8 +384,14 @@ void Window::ChangeFocus()
 	{
 		if (control->Focused())
 		{
-			control->RemoveFocus();
-			focusedIndex = controls.size() > index + 1 ? index + 1 : 0;
+			if (control->RemoveFocus())
+			{
+				focusedIndex = controls.size() > index + 1 ? index + 1 : 0;
+			}
+			else
+			{
+				focusedIndex = index; // Need to change the focus inside the internal elements of the control
+			}
 			break;
 		}
 		++index;
