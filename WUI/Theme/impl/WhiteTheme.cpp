@@ -20,6 +20,10 @@ WhiteTheme::WhiteTheme()
 	dimensions
 	{
 		{ThemeValue::Button_Round, 5}
+	},
+	strings
+	{
+		{ ThemeValue::Images_Path, L"IMAGES_WHITE" }
 	}
 {
 }
@@ -57,6 +61,21 @@ int32_t WhiteTheme::GetDimension(ThemeValue valueID) const
 		return it->second;
 	}
 	return 0;
+}
+
+void WhiteTheme::SetStringValue(ThemeValue valueID, const std::wstring &value)
+{
+	strings[valueID] = value;
+}
+
+std::wstring WhiteTheme::GetStringValue(ThemeValue valueID) const
+{
+	auto it = strings.find(valueID);
+	if (it != strings.end())
+	{
+		return it->second;
+	}
+	return L"";
 }
 
 }

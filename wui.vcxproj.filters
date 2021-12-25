@@ -120,6 +120,9 @@
     <ClInclude Include="WUI\Event\InternalEvent.h">
       <Filter>Header Files\WUI\Event</Filter>
     </ClInclude>
+    <ClInclude Include="WUI\Control\Image.h">
+      <Filter>Header Files\WUI\Control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wui.cpp">
@@ -142,6 +145,9 @@
     </ClCompile>
     <ClCompile Include="WUI\Theme\impl\WhiteTheme.cpp">
       <Filter>Source Files\WUI\Theme\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="WUI\Control\Image.cpp">
+      <Filter>Source Files\WUI\Control</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

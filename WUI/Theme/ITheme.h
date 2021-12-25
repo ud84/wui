@@ -3,6 +3,7 @@
 #include <WUI/Common/Color.h>
 
 #include <cstdint>
+#include <string>
 
 namespace WUI
 {
@@ -19,6 +20,8 @@ enum class ThemeValue
 	Window_Background,
 	Window_Text,
 	Window_ActiveButton,
+
+	Images_Path,
 
 	Button_Calm,
 	Button_Active,
@@ -39,6 +42,9 @@ public:
 
 	virtual void SetDimension(ThemeValue valueID, int32_t dimension) = 0;
 	virtual int32_t GetDimension(ThemeValue valueID) const = 0;
+
+	virtual void SetStringValue(ThemeValue valueID, const std::wstring &value) = 0;
+	virtual std::wstring GetStringValue(ThemeValue valueID) const = 0;
 
 	virtual ~ITheme() {}
 };

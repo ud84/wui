@@ -4,7 +4,7 @@ namespace WUI
 {
 
 CustomTheme::CustomTheme()
-	: colors(), dimensions()
+	: colors(), dimensions(), strings()
 {
 }
 
@@ -41,6 +41,21 @@ int32_t CustomTheme::GetDimension(ThemeValue valueID) const
 		return it->second;
 	}
 	return 0;
+}
+
+void CustomTheme::SetStringValue(ThemeValue valueID, const std::wstring &value)
+{
+	strings[valueID] = value;
+}
+
+std::wstring CustomTheme::GetStringValue(ThemeValue valueID) const
+{
+	auto it = strings.find(valueID);
+	if (it != strings.end())
+	{
+		return it->second;
+	}
+	return L"";
 }
 
 }

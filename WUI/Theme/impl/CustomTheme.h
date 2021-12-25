@@ -20,9 +20,13 @@ public:
 	virtual void SetDimension(ThemeValue valueID, int32_t dimension);
 	virtual int32_t GetDimension(ThemeValue valueID) const;
 
+	virtual void SetStringValue(ThemeValue valueID, const std::wstring &value);
+	virtual std::wstring GetStringValue(ThemeValue valueID) const;
+
 private:
 	std::map<ThemeValue, Color> colors;
 	std::map<ThemeValue, int32_t> dimensions;
+	std::map<ThemeValue, std::wstring> strings;
 };
 
 }
