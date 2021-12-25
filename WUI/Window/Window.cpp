@@ -114,9 +114,17 @@ void Window::ReceiveEvent(const Event &ev)
 		return;
 	}
 
-	if (ev.type == EventType::Mouse)
+	switch (ev.type)
 	{
-		SendMouseEvent(ev.mouseEvent);
+		case EventType::Mouse:
+			SendMouseEvent(ev.mouseEvent);
+		break;
+		case EventType::Internal:
+			if (ev.internalEvent.type == InternalEventType::ExecuteFocused)
+			{
+				ExecuteFocused();
+			}
+		break;
 	}
 }
 
@@ -147,23 +155,30 @@ void Window::SetFocus()
 
 bool Window::RemoveFocus()
 {
-	size_t index = 0, focusedIndex = 0, focusingControls = 0;
+	size_t focusingControls = 0;
 	for (const auto &control : controls)
 	{
 		if (control->Focused())
 		{
 			control->RemoveFocus();
-			focusedIndex = index;
+			++focusedIndex;
 		}
 
 		if (control->Focusing())
 		{
 			++focusingControls;
 		}
-
-		++index;
 	}
-	return focusedIndex == focusingControls;
+
+	if (focusedIndex == focusingControls)
+	{
+		focusedIndex = 0;
+		return true;
+	}
+
+	controls[focusedIndex]->SetFocus();
+
+	return false;
 }
 
 bool Window::Focused() const
@@ -340,15 +355,7 @@ void Window::SendMouseEvent(const MouseEvent &ev)
 			{
 				if (ev.type == MouseEventType::LeftUp)
 				{
-					for (auto &c : controls)
-					{
-						if (c->Focused())
-						{
-							c->RemoveFocus();
-							break;
-						}
-					}
-					control->SetFocus();
+					SetFocused(control);
 				}
 
 				control->ReceiveEvent({ EventType::Mouse, ev });
@@ -379,15 +386,6 @@ void Window::ChangeFocus()
 		return;
 	}
 
-	size_t focusingControls = 0;
-	for (const auto &control : controls)
-	{
-		if (control->Focusing())
-		{
-			++focusingControls;
-		}
-	}
-
 	for (auto &control : controls)
 	{
 		if (control->Focused())
@@ -396,7 +394,20 @@ void Window::ChangeFocus()
 			{
 				++focusedIndex;
 			}
+			else
+			{
+				return;
+			}
 			break;
+		}
+	}
+
+	size_t focusingControls = 0;
+	for (const auto &control : controls)
+	{
+		if (control->Focusing())
+		{
+			++focusingControls;
 		}
 	}
 
@@ -415,7 +426,7 @@ void Window::ChangeFocus()
 				control->SetFocus();
 				break;
 			}
-
+			
 			++index;
 		}
 	}
@@ -435,6 +446,27 @@ void Window::ExecuteFocused()
 			break;
 		}
 	}
+}
+
+void Window::SetFocused(std::shared_ptr<IControl> &control)
+{
+	size_t index = 0;
+	for (auto &c : controls)
+	{
+		if (c->Focused())
+		{
+			c->RemoveFocus();
+		}
+
+		if (c == control)
+		{
+			focusedIndex = index;
+		}
+
+		++index;
+	}
+
+	control->SetFocus();
 }
 
 void Window::UpdateControlButtonsTheme()
@@ -464,9 +496,6 @@ void Window::UpdateControlButtonsTheme()
 	closeButton->UpdateTheme(closeButtonTheme);
 }
 
-/// Windows specified code
-#ifdef _WIN32
-
 bool Window::Init(WindowType type, const Rect &position_, const std::wstring &caption_, std::function<void(void)> closeCallback_, std::shared_ptr<ITheme> theme_)
 {
 	windowType = type;
@@ -492,6 +521,7 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 	}
 	AddControl(closeButton, { position.right - 26, 0, position.right, 26 });
 
+#ifdef _WIN32
 	WNDCLASSEXW wcex = { 0 };
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -516,6 +546,7 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 	}
 
 	UpdateWindow(hWnd);
+#endif
 
 	return true;
 }
@@ -542,8 +573,13 @@ void Window::Destroy()
 		return;
 	}
 
+#ifdef _WIN32
 	DestroyWindow(hWnd);
+#endif
 }
+
+/// Windows specified code
+#ifdef _WIN32
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -815,7 +851,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			}
 		}
 		break;
-		case WM_KEYUP:
+		case WM_CHAR:
 			switch (wParam)
 			{
 				case VK_TAB:

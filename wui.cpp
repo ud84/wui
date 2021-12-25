@@ -23,8 +23,8 @@ struct PluggedWindow
 		window->AddControl(unplugButton, WUI::Rect{ 10, 10, 110, 35 });
 		window->AddControl(plugButton, WUI::Rect{ 10, 55, 110, 80 });
 
-		//plugButton->Disable();
-		//unplugButton->Enable();
+		plugButton->Disable();
+		unplugButton->Enable();
 	}
 
 	void Unplug()
@@ -32,8 +32,8 @@ struct PluggedWindow
 		parentWindow->RemoveControl(window);
 		window->Init(WUI::WindowType::Dialog, WUI::Rect{ 50, 50, 250, 250 }, L"Child window unplugged!", []() {});
 
-		//plugButton->Enable();
-		//unplugButton->Disable();
+		plugButton->Enable();
+		unplugButton->Disable();
 	}
 
 	PluggedWindow(std::shared_ptr<WUI::Window> &parentWindow_)

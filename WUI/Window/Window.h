@@ -121,6 +121,7 @@ private:
 	void SendMouseEvent(const MouseEvent &ev);
 	void ChangeFocus();
 	void ExecuteFocused();
+	void SetFocused(std::shared_ptr<IControl> &control);
 
 	void UpdateControlButtonsTheme();
 };
