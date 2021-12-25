@@ -170,7 +170,7 @@ bool Window::RemoveFocus()
 		}
 	}
 
-	if (focusedIndex == focusingControls)
+	if (focusedIndex >= focusingControls)
 	{
 		focusedIndex = 0;
 		return true;
@@ -411,7 +411,7 @@ void Window::ChangeFocus()
 		}
 	}
 
-	if (focusedIndex == focusingControls)
+	if (focusedIndex >= focusingControls)
 	{
 		focusedIndex = 0;
 	}
