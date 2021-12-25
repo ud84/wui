@@ -6,6 +6,11 @@
 #include <WUI/Theme/Theme.h>
 #include <WUI/Window/Window.h>
 #include <WUI/Control/Button.h>
+#include <WUI/Control/Image.h>
+
+#ifdef _WIN32
+#include <gdiplus.h>
+#endif
 
 struct PluggedWindow
 {
@@ -53,6 +58,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
+#ifdef _WIN32
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	ULONG_PTR gdiplusToken;
+	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+#endif
+
 	WUI::SetDefaultTheme(WUI::Theme::Dark);
 
 	std::shared_ptr<WUI::Window> window(new WUI::Window());
@@ -83,16 +94,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	std::shared_ptr<WUI::Button> cancelButton(new WUI::Button(L"Cancel", [window]() { window->Destroy(); }, redButtonTheme));
 
 	std::shared_ptr<WUI::Button> darkThemeButton(new WUI::Button(L"Set the dark theme", [window, pluggedWindow, dialog]() { WUI::SetDefaultTheme(WUI::Theme::Dark); window->UpdateTheme(); pluggedWindow.window->UpdateTheme(); dialog->UpdateTheme(); }));
-	std::shared_ptr<WUI::Button> whiteThemeButton(new WUI::Button(L"Set the white theme", [window, pluggedWindow, dialog]() { WUI::SetDefaultTheme(WUI::Theme::White); window->UpdateTheme(); pluggedWindow.window->UpdateTheme(); dialog->UpdateTheme(); }));
-
 	window->AddControl(darkThemeButton, WUI::Rect{ 140, 350, 150, 375 });
+	
+	std::shared_ptr<WUI::Button> whiteThemeButton(new WUI::Button(L"Set the white theme", [window, pluggedWindow, dialog]() { WUI::SetDefaultTheme(WUI::Theme::White); window->UpdateTheme(); pluggedWindow.window->UpdateTheme(); dialog->UpdateTheme(); }));
 	window->AddControl(whiteThemeButton, WUI::Rect{ 270, 350, 380, 375 });
 
 	window->AddControl(okButton, WUI::Rect{ 240, 450, 350, 475 });
 	window->AddControl(cancelButton, WUI::Rect{ 370, 450, 480, 475 });
 
+	std::shared_ptr<WUI::Image> accountImage(new WUI::Image(IDB_ACCOUNT));
+	window->AddControl(accountImage, WUI::Rect{ 200, 100, 264, 164 });
+
 	window->Init(WUI::WindowType::Frame, WUI::Rect{ 100, 100, 500, 500 }, L"Welcome to WUI!", []() { PostQuitMessage(IDCANCEL); });
 	
+#ifdef _WIN32
 	// Main message loop:
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0))
@@ -100,6 +115,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	
+
+	//Gdiplus::GdiplusShutdown(gdiplusToken);
 	return (int) msg.wParam;
+#endif
+	return 0;
 }

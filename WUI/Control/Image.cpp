@@ -64,14 +64,16 @@ namespace WUI
 {
 
 #ifdef _WIN32
-Image::Image(int32_t resourceIndex, std::shared_ptr<ITheme> theme_)
+Image::Image(int32_t resourceIndex_, std::shared_ptr<ITheme> theme_)
 	: theme(theme_),
 	position(),
 	parent(),
 	showed(true),
+	resourceIndex(0),
 	imageBuffer(nullptr),
 	img(nullptr)
 {
+	resourceIndex = resourceIndex_;
 	LoadImageFromResource(resourceIndex, ThemeStringValue(ThemeValue::Images_Path, theme), imageBuffer, &img);
 }
 #endif
@@ -82,7 +84,8 @@ Image::Image(const std::string &fileName, std::shared_ptr<ITheme> theme_)
 	parent(),
 	showed(true)
 #ifdef _WIN32
-	, imageBuffer(nullptr),
+	, resourceIndex(0),
+	imageBuffer(nullptr),
 	img(nullptr)
 #endif
 {
@@ -109,7 +112,21 @@ void Image::Draw(Graphic &gr)
 	}
 
 #ifdef _WIN32
-	
+	if (img)
+	{
+		Gdiplus::ImageAttributes attr;
+		attr.SetColorKey(ThemeColor(ThemeValue::Window_Background, theme), ThemeColor(ThemeValue::Window_Background, theme),
+			Gdiplus::ColorAdjustTypeBitmap);
+
+		Gdiplus::Graphics gr(gr.dc);
+
+		gr.DrawImage(
+			img->Clone(),
+			Gdiplus::Rect(position.left, position.top, position.width(), position.height()),
+			0, 0, img->GetWidth(), img->GetHeight(),
+			Gdiplus::UnitPixel,
+			&attr);
+	}
 #endif
 }
 
@@ -172,9 +189,11 @@ void Image::UpdateTheme(std::shared_ptr<ITheme> theme_)
 	}
 	theme = theme_;
 
-#ifdef _WIN32
-	
-#endif
+	if (resourceIndex)
+	{
+		ChangeImage(resourceIndex);
+	}
+	// else if fileName...
 }
 
 void Image::Show()
@@ -208,8 +227,10 @@ bool Image::Enabled() const
 }
 
 #ifdef _WIN32
-void Image::ChangeImage(int32_t resourceIndex)
+void Image::ChangeImage(int32_t resourceIndex_)
 {
+	resourceIndex = resourceIndex_;
+
 	FreeImage(imageBuffer, &img);
 	LoadImageFromResource(resourceIndex, ThemeStringValue(ThemeValue::Images_Path, theme), imageBuffer, &img);
 	Redraw();
