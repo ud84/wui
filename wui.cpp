@@ -73,8 +73,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	std::shared_ptr<WUI::Window> dialog(new WUI::Window());
 
-	std::shared_ptr<WUI::Button> okButton(new WUI::Button(L"OK", [window, &dialog]() 
-	{ 
+	std::shared_ptr<WUI::Button> okButton(new WUI::Button(L"OK", [window, &dialog]()
+	{
 		window->Block();
 
 		std::shared_ptr<WUI::Button> dialogButton(new WUI::Button(L"Close", [&dialog]() { dialog->Destroy(); }));

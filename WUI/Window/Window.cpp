@@ -51,6 +51,10 @@ Window::Window()
 
 Window::~Window()
 {
+	if (parent)
+	{
+		parent->RemoveControl(shared_from_this());
+	}
 #ifdef _WIN32
 	DestroyPrimitives();
 #endif
@@ -562,20 +566,19 @@ void Window::Destroy()
 
 	if (parent)
 	{
-		showed = false;
-		parent->Redraw(position);
-
-		if (closeCallback)
-		{
-			closeCallback();
-		}
-
-		return;
+		parent->RemoveControl(shared_from_this());
+	}
+	else
+	{
+#ifdef _WIN32
+		DestroyWindow(hWnd);
+#endif
 	}
 
-#ifdef _WIN32
-	DestroyWindow(hWnd);
-#endif
+	if (closeCallback)
+	{
+		closeCallback();
+	}
 }
 
 /// Windows specified code
