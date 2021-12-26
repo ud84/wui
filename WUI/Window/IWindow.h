@@ -24,6 +24,7 @@ public:
 
 	virtual void AddControl(std::shared_ptr<IControl> control, const Rect &position) = 0;
 	virtual void RemoveControl(std::shared_ptr<IControl> control) = 0;
+
 	virtual void Redraw(const Rect &position) = 0;
 
 protected:
