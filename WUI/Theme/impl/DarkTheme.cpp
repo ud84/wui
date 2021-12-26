@@ -63,12 +63,12 @@ int32_t DarkTheme::GetDimension(ThemeValue valueID) const
 	return 0;
 }
 
-void DarkTheme::SetStringValue(ThemeValue valueID, const std::wstring &value)
+void DarkTheme::SetString(ThemeValue valueID, const std::wstring &value)
 {
 	strings[valueID] = value;
 }
 
-std::wstring DarkTheme::GetStringValue(ThemeValue valueID) const
+std::wstring DarkTheme::GetString(ThemeValue valueID) const
 {
 	auto it = strings.find(valueID);
 	if (it != strings.end())

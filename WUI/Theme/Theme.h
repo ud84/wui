@@ -22,6 +22,6 @@ Color ThemeColor(ThemeValue valueID, std::shared_ptr<ITheme> theme = nullptr);
 int32_t ThemeDimension(ThemeValue valueID, std::shared_ptr<ITheme> theme = nullptr);
 
 /// Return the item's string value by current color theme
-std::wstring ThemeStringValue(ThemeValue valueID, std::shared_ptr<ITheme> theme = nullptr);
+std::wstring ThemeString(ThemeValue valueID, std::shared_ptr<ITheme> theme = nullptr);
 
 }

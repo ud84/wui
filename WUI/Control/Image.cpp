@@ -74,7 +74,7 @@ Image::Image(int32_t resourceIndex_, std::shared_ptr<ITheme> theme_)
 	img(nullptr)
 {
 	resourceIndex = resourceIndex_;
-	LoadImageFromResource(resourceIndex, ThemeStringValue(ThemeValue::Images_Path, theme), imageBuffer, &img);
+	LoadImageFromResource(resourceIndex, ThemeString(ThemeValue::Images_Path, theme), imageBuffer, &img);
 }
 #endif
 
@@ -232,7 +232,7 @@ void Image::ChangeImage(int32_t resourceIndex_)
 	resourceIndex = resourceIndex_;
 
 	FreeImage(imageBuffer, &img);
-	LoadImageFromResource(resourceIndex, ThemeStringValue(ThemeValue::Images_Path, theme), imageBuffer, &img);
+	LoadImageFromResource(resourceIndex, ThemeString(ThemeValue::Images_Path, theme), imageBuffer, &img);
 	Redraw();
 }
 #endif

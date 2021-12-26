@@ -63,12 +63,12 @@ int32_t WhiteTheme::GetDimension(ThemeValue valueID) const
 	return 0;
 }
 
-void WhiteTheme::SetStringValue(ThemeValue valueID, const std::wstring &value)
+void WhiteTheme::SetString(ThemeValue valueID, const std::wstring &value)
 {
 	strings[valueID] = value;
 }
 
-std::wstring WhiteTheme::GetStringValue(ThemeValue valueID) const
+std::wstring WhiteTheme::GetString(ThemeValue valueID) const
 {
 	auto it = strings.find(valueID);
 	if (it != strings.end())

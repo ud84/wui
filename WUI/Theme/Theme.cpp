@@ -66,15 +66,15 @@ int32_t ThemeDimension(ThemeValue valueID, std::shared_ptr<ITheme> theme)
 	return 0;
 }
 
-std::wstring ThemeStringValue(ThemeValue valueID, std::shared_ptr<ITheme> theme)
+std::wstring ThemeString(ThemeValue valueID, std::shared_ptr<ITheme> theme)
 {
 	if (theme)
 	{
-		return theme->GetStringValue(valueID);
+		return theme->GetString(valueID);
 	}
 	else if (instance)
 	{
-		return instance->GetStringValue(valueID);
+		return instance->GetString(valueID);
 	}
 	return 0;
 }

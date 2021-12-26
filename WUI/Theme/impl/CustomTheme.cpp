@@ -43,12 +43,12 @@ int32_t CustomTheme::GetDimension(ThemeValue valueID) const
 	return 0;
 }
 
-void CustomTheme::SetStringValue(ThemeValue valueID, const std::wstring &value)
+void CustomTheme::SetString(ThemeValue valueID, const std::wstring &value)
 {
 	strings[valueID] = value;
 }
 
-std::wstring CustomTheme::GetStringValue(ThemeValue valueID) const
+std::wstring CustomTheme::GetString(ThemeValue valueID) const
 {
 	auto it = strings.find(valueID);
 	if (it != strings.end())
