@@ -78,7 +78,14 @@ void Window::RemoveControl(std::shared_ptr<IControl> control)
 	if (exist != controls.end())
 	{
 		(*exist)->ClearParent();
+		
 		Redraw((*exist)->GetPosition());
+
+#ifdef _WIN32
+		RECT invalidatingRect = { (*exist)->GetPosition().left, (*exist)->GetPosition().top, (*exist)->GetPosition().right, (*exist)->GetPosition().bottom };
+		InvalidateRect(hWnd, &invalidatingRect, TRUE);
+#endif
+
 		controls.erase(exist);
 	}
 }
@@ -93,7 +100,7 @@ void Window::Redraw(const Rect &redrawPosition)
 	{
 #ifdef _WIN32
 		RECT invalidatingRect = { redrawPosition.left, redrawPosition.top, redrawPosition.right, redrawPosition.bottom };
-		InvalidateRect(hWnd, &invalidatingRect, TRUE);
+		InvalidateRect(hWnd, &invalidatingRect, FALSE);
 #endif
 	}
 }
