@@ -42,6 +42,11 @@ void LoadImageFromResource(WORD imageID, const std::wstring &resourceSection, HG
 	}
 }
 
+void LoadImageFromFile(const std::wstring &fileName, const std::wstring &imagesPath, HGLOBAL &hBuffer, Gdiplus::Image **pImg)
+{
+	*pImg = Gdiplus::Image::FromFile(std::wstring(imagesPath + L"\\" + fileName).c_str());
+}
+
 void FreeImage(HGLOBAL &hBuffer, Gdiplus::Image **pImg)
 {
 	if (*pImg)
@@ -69,27 +74,28 @@ Image::Image(int32_t resourceIndex_, std::shared_ptr<ITheme> theme_)
 	position(),
 	parent(),
 	showed(true),
-	resourceIndex(0),
+	fileName(),
+	resourceIndex(resourceIndex_),
 	imageBuffer(nullptr),
 	img(nullptr)
 {
-	resourceIndex = resourceIndex_;
 	LoadImageFromResource(resourceIndex, ThemeString(ThemeValue::Images_Path, theme), imageBuffer, &img);
 }
 #endif
 
-Image::Image(const std::string &fileName, std::shared_ptr<ITheme> theme_)
+Image::Image(const std::wstring &fileName_, std::shared_ptr<ITheme> theme_)
 	: theme(theme_),
 	position(),
 	parent(),
-	showed(true)
+	showed(true),
+	fileName(fileName_)
 #ifdef _WIN32
 	, resourceIndex(0),
 	imageBuffer(nullptr),
 	img(nullptr)
 #endif
 {
-
+	LoadImageFromFile(fileName, ThemeString(ThemeValue::Images_Path, theme), imageBuffer, &img);
 }
 
 Image::~Image()
@@ -193,7 +199,10 @@ void Image::UpdateTheme(std::shared_ptr<ITheme> theme_)
 	{
 		ChangeImage(resourceIndex);
 	}
-	// else if fileName...
+	else if (!fileName.empty())
+	{
+		ChangeImage(fileName);
+	}
 }
 
 void Image::Show()
@@ -237,9 +246,13 @@ void Image::ChangeImage(int32_t resourceIndex_)
 }
 #endif
 
-void Image::ChangeImage(const std::string &fileName)
+void Image::ChangeImage(const std::wstring &fileName_)
 {
-	
+	fileName = fileName_;
+
+	FreeImage(imageBuffer, &img);
+	LoadImageFromFile(fileName, ThemeString(ThemeValue::Images_Path, theme), imageBuffer, &img);
+	Redraw();
 }
 
 void Image::Redraw()
