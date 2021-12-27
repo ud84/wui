@@ -100,8 +100,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	std::shared_ptr<WUI::Button> whiteThemeButton(new WUI::Button(L"Set the white theme", [window, pluggedWindow, dialog]() { WUI::SetDefaultTheme(WUI::Theme::White); window->UpdateTheme(); pluggedWindow.window->UpdateTheme(); dialog->UpdateTheme(); }));
 	window->AddControl(whiteThemeButton, WUI::Rect{ 270, 350, 380, 375 });
 
-	window->AddControl(okButton, WUI::Rect{ 240, 450, 350, 475 });
-	window->AddControl(cancelButton, WUI::Rect{ 370, 450, 480, 475 });
+	window->AddControl(okButton, WUI::Rect{ 240, 450, 350, 480 });
+	window->AddControl(cancelButton, WUI::Rect{ 370, 450, 480, 480 });
 
 	std::shared_ptr<WUI::Image> accountImage(new WUI::Image(IDB_ACCOUNT));
 	window->AddControl(accountImage, WUI::Rect{ 200, 100, 264, 164 });
