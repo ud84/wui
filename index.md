@@ -8,4 +8,4 @@ A window can contain controls, also window itself is a control. Control is any v
 
 The library also has auxiliary tools for work - structures Common (containing such basic types as Rect, Color), Event (Mouse, Keyboard, Internal and system events), Graphic (for physical rendering on the system graphical context) and Theme (a system of constants for convenient support of visual themes).
 
-To view more information go to the wiki: https://github.com/ud84/WUI/wiki
+To view more information go to the: [Wiki](https://github.com/ud84/WUI/wiki)
