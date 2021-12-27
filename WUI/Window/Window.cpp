@@ -926,14 +926,14 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			wnd->UpdatePosition();
 		}
 		break;
-		/*case WM_SYSCOMMAND:
+		case WM_SYSCOMMAND:
 			if (wParam == SC_RESTORE)
 			{
 				Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 				wnd->windowState = WindowState::Normal;
-				return FALSE;
 			}
-		break;*/
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		break;
 		case WM_CHAR:
 			switch (wParam)
 			{
