@@ -9,7 +9,7 @@
 
 #pragma comment( lib, "gdiplus.lib" )
 
-void LoadImageFromResource(WORD imageID, const std::wstring &resourceSection, HGLOBAL &hBuffer, Gdiplus::Image **pImg)
+void LoadImageFromResource(WORD imageID, const std::wstring &resourceSection, Gdiplus::Image **pImg)
 {
 	HINSTANCE hInst = GetModuleHandle(NULL);
 	HRSRC hResource = FindResource(hInst, MAKEINTRESOURCE(imageID), resourceSection.c_str());
@@ -24,7 +24,7 @@ void LoadImageFromResource(WORD imageID, const std::wstring &resourceSection, HG
 	if (!pResourceData)
 		return;
 
-	hBuffer = ::GlobalAlloc(GMEM_MOVEABLE, imageSize);
+	HGLOBAL hBuffer = ::GlobalAlloc(GMEM_MOVEABLE, imageSize);
 	if (hBuffer)
 	{
 		void* pBuffer = ::GlobalLock(hBuffer);
@@ -39,27 +39,24 @@ void LoadImageFromResource(WORD imageID, const std::wstring &resourceSection, HG
 				pStream->Release();
 			}
 		}
+
+		::GlobalUnlock(hBuffer);
+		::GlobalFree(hBuffer);
+		hBuffer = nullptr;
 	}
 }
 
-void LoadImageFromFile(const std::wstring &fileName, const std::wstring &imagesPath, HGLOBAL &hBuffer, Gdiplus::Image **pImg)
+void LoadImageFromFile(const std::wstring &fileName, const std::wstring &imagesPath, Gdiplus::Image **pImg)
 {
 	*pImg = Gdiplus::Image::FromFile(std::wstring(imagesPath + L"\\" + fileName).c_str());
 }
 
-void FreeImage(HGLOBAL &hBuffer, Gdiplus::Image **pImg)
+void FreeImage(Gdiplus::Image **pImg)
 {
 	if (*pImg)
 	{
 		delete *pImg;
 		*pImg = nullptr;
-	}
-
-	if (hBuffer)
-	{
-		::GlobalUnlock(hBuffer);
-		::GlobalFree(hBuffer);
-		hBuffer = nullptr;
 	}
 }
 
@@ -76,10 +73,9 @@ Image::Image(int32_t resourceIndex_, std::shared_ptr<ITheme> theme_)
 	showed(true),
 	fileName(),
 	resourceIndex(resourceIndex_),
-	imageBuffer(nullptr),
 	img(nullptr)
 {
-	LoadImageFromResource(resourceIndex, ThemeString(ThemeValue::Images_Path, theme), imageBuffer, &img);
+	LoadImageFromResource(resourceIndex, ThemeString(ThemeValue::Images_Path, theme), &img);
 }
 #endif
 
@@ -91,17 +87,16 @@ Image::Image(const std::wstring &fileName_, std::shared_ptr<ITheme> theme_)
 	fileName(fileName_)
 #ifdef _WIN32
 	, resourceIndex(0),
-	imageBuffer(nullptr),
 	img(nullptr)
 #endif
 {
-	LoadImageFromFile(fileName, ThemeString(ThemeValue::Images_Path, theme), imageBuffer, &img);
+	LoadImageFromFile(fileName, ThemeString(ThemeValue::Images_Path, theme), &img);
 }
 
 Image::~Image()
 {
 #ifdef _WIN32
-	FreeImage(imageBuffer, &img);
+	FreeImage(&img);
 #endif
 
 	if (parent.lock())
@@ -240,8 +235,8 @@ void Image::ChangeImage(int32_t resourceIndex_)
 {
 	resourceIndex = resourceIndex_;
 
-	FreeImage(imageBuffer, &img);
-	LoadImageFromResource(resourceIndex, ThemeString(ThemeValue::Images_Path, theme), imageBuffer, &img);
+	FreeImage(&img);
+	LoadImageFromResource(resourceIndex, ThemeString(ThemeValue::Images_Path, theme), &img);
 	Redraw();
 }
 #endif
@@ -250,8 +245,8 @@ void Image::ChangeImage(const std::wstring &fileName_)
 {
 	fileName = fileName_;
 
-	FreeImage(imageBuffer, &img);
-	LoadImageFromFile(fileName, ThemeString(ThemeValue::Images_Path, theme), imageBuffer, &img);
+	FreeImage(&img);
+	LoadImageFromFile(fileName, ThemeString(ThemeValue::Images_Path, theme), &img);
 	Redraw();
 }
 

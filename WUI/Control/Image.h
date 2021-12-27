@@ -68,7 +68,6 @@ private:
 	
 #ifdef _WIN32
 	int32_t resourceIndex;
-	HGLOBAL imageBuffer;
 	Gdiplus::Image *img;
 #endif
 
