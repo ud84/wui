@@ -147,7 +147,7 @@ void Image::SetPosition(const Rect &position_)
 
 	if (parent.lock())
 	{
-		parent.lock()->Redraw(prevPosition);
+		parent.lock()->Redraw(prevPosition, true);
 	}
 	
 	Redraw();
@@ -262,9 +262,5 @@ void Image::Redraw()
 		parent.lock()->Redraw(position);
 	}
 }
-
-#ifdef _WIN32
-
-#endif
 
 }

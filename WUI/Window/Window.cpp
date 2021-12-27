@@ -22,7 +22,7 @@ Window::Window()
 	position(),
 	caption(),
 	theme(),
-	showed(true), enabled(true),
+	showed(true), enabled(true), titleShowed(true),
 	focusedIndex(0),
 	parent(),
 	movingMode(MovingMode::Move),
@@ -79,28 +79,23 @@ void Window::RemoveControl(std::shared_ptr<IControl> control)
 	{
 		(*exist)->ClearParent();
 		
-		Redraw((*exist)->GetPosition());
-
-#ifdef _WIN32
-		RECT invalidatingRect = { (*exist)->GetPosition().left, (*exist)->GetPosition().top, (*exist)->GetPosition().right, (*exist)->GetPosition().bottom };
-		InvalidateRect(hWnd, &invalidatingRect, TRUE);
-#endif
+		Redraw((*exist)->GetPosition(), true);
 
 		controls.erase(exist);
 	}
 }
 
-void Window::Redraw(const Rect &redrawPosition)
+void Window::Redraw(const Rect &redrawPosition, bool clear)
 {
 	if (parent)
 	{
-		parent->Redraw(redrawPosition);
+		parent->Redraw(redrawPosition, clear);
 	}
 	else
 	{
 #ifdef _WIN32
 		RECT invalidatingRect = { redrawPosition.left, redrawPosition.top, redrawPosition.right, redrawPosition.bottom };
-		InvalidateRect(hWnd, &invalidatingRect, FALSE);
+		InvalidateRect(hWnd, &invalidatingRect, clear ? TRUE : FALSE);
 #endif
 	}
 }
@@ -229,13 +224,14 @@ void Window::UpdateTheme(std::shared_ptr<ITheme> theme_)
 #ifdef _WIN32
 	DestroyPrimitives();
 	MakePrimitives();
-#endif
+
 	if (!parent)
 	{
 		RECT clientRect;
 		GetClientRect(hWnd, &clientRect);
 		InvalidateRect(hWnd, &clientRect, TRUE);
 	}
+#endif
 
 	for (auto &control : controls)
 	{
@@ -326,6 +322,28 @@ void Window::Expand()
 
 	//ShowWindow(hWnd, SW_MAXIMIZE);
 #endif
+}
+
+void Window::ShowTitle()
+{
+	titleShowed = true;
+
+	minimizeButton->Show();
+	expandButton->Show();
+	closeButton->Show();
+
+	Redraw({ 0, 0, position.width(), 30 }, false);
+}
+
+void Window::HideTitle()
+{
+	titleShowed = false;
+
+	minimizeButton->Hide();
+	expandButton->Hide();
+	closeButton->Hide();
+
+	Redraw({ 0, 0, position.width(), 30 }, true);
 }
 
 void Window::Block()
@@ -613,7 +631,11 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 			SetTextColor(hdc, ThemeColor(ThemeValue::Window_Text, wnd->theme));
 			SetBkColor(hdc, ThemeColor(ThemeValue::Window_Background, wnd->theme));
-			TextOutW(hdc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
+
+			if (wnd->titleShowed)
+			{
+				TextOutW(hdc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
+			}
 		
 			for (auto &control : wnd->controls)
 			{

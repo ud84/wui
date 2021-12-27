@@ -113,7 +113,7 @@ void Button::SetPosition(const Rect &position_)
 
 	if (parent.lock())
 	{
-		parent.lock()->Redraw(prevPosition);
+		parent.lock()->Redraw(prevPosition, true);
 	}
 	
 	Redraw();
@@ -186,7 +186,10 @@ void Button::Show()
 void Button::Hide()
 {
 	showed = false;
-	Redraw();
+	if (parent.lock())
+	{
+		parent.lock()->Redraw(position, true);
+	}
 }
 
 bool Button::Showed() const

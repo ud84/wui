@@ -30,7 +30,7 @@ public:
 	virtual void AddControl(std::shared_ptr<IControl> control, const Rect &position);
 	virtual void RemoveControl(std::shared_ptr<IControl> control);
 
-	virtual void Redraw(const Rect &position);
+	virtual void Redraw(const Rect &position, bool clear = false);
 
 	/// IControl
 	virtual void Draw(Graphic &gr);
@@ -62,6 +62,10 @@ public:
 	void Minimize();
 	void Expand();
 
+	/// Show/hide window caption and button
+	void ShowTitle();
+	void HideTitle();
+
 	/// Methods used to block the window while a modal dialog is displayed
 	void Block();
 	void Unlock();
@@ -78,7 +82,7 @@ private:
 	std::wstring caption;
 	std::shared_ptr<ITheme> theme;
 
-	bool showed, enabled;
+	bool showed, enabled, titleShowed;
 
 	size_t focusedIndex;
 
