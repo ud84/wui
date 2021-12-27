@@ -926,6 +926,14 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			wnd->UpdatePosition();
 		}
 		break;
+		/*case WM_SYSCOMMAND:
+			if (wParam == SC_RESTORE)
+			{
+				Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+				wnd->windowState = WindowState::Normal;
+				return FALSE;
+			}
+		break;*/
 		case WM_CHAR:
 			switch (wParam)
 			{
@@ -974,12 +982,15 @@ void Window::DestroyPrimitives()
 
 void Window::UpdatePosition()
 {
-	RECT windowRect;
+	RECT windowRect = { 0 };
 	GetWindowRect(hWnd, &windowRect);
-	position = { windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top };
-	if (windowState != WindowState::Maximized)
+	if (windowRect.left > 0 && windowRect.top > 0 && windowRect.left != windowRect.right && windowRect.top != windowRect.bottom)
 	{
-		normalPosition = position;
+		position = { windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top };
+		if (windowState != WindowState::Maximized)
+		{
+			normalPosition = position;
+		}
 	}
 }
 
