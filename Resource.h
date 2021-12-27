@@ -4,7 +4,11 @@
 
 #define IDI_WUI			        107
 #define IDI_SMALL				108
-#define IDB_ACCOUNT				110
+#define IDB_ACCOUNT				109
+#define IDB_WINDOW_CLOSE		110
+#define IDB_WINDOW_EXPAND		111
+#define IDB_WINDOW_NORMAL		112
+#define IDB_WINDOW_MINIMIZE		113
 
 // Next default values for new objects
 //

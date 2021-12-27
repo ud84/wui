@@ -110,13 +110,13 @@ void Button::Draw(Graphic &gr)
 		case ButtonView::OnlyImage:
 			if (image)
 			{
-				if (imageSize + 10 > position.width())
+				if (imageSize > position.width())
 				{
-					position.right = position.left + imageSize + 10;
+					position.right = position.left + imageSize;
 				}
-				if (imageSize + 10 > position.height())
+				if (imageSize > position.height())
 				{
-					position.bottom = position.top + imageSize + 10;
+					position.bottom = position.top + imageSize;
 				}
 
 				imageTop = position.top + ((position.bottom - position.top - imageSize) / 2);
@@ -126,13 +126,13 @@ void Button::Draw(Graphic &gr)
 		case ButtonView::ImageRightText: case ButtonView::ImageRightTextWithoutFrame:
 			if (image)
 			{
-				if (imageSize + textRect.right + 10 > position.width())
+				if (imageSize + textRect.right + 6 > position.width())
 				{
-					position.right = position.left + textRect.right + imageSize + 10;
+					position.right = position.left + textRect.right + imageSize + 6;
 				}
-				if (imageSize + 10 > position.height())
+				if (imageSize + 6 > position.height())
 				{
-					position.bottom = position.top + imageSize + 10;
+					position.bottom = position.top + imageSize + 6;
 				}
 
 				textTop = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
@@ -144,13 +144,13 @@ void Button::Draw(Graphic &gr)
 		case ButtonView::ImageBottomText:
 			if (image)
 			{
-				if (imageSize + 10 > position.width())
+				if (imageSize + 6 > position.width())
 				{
-					position.right = position.left + imageSize + 10;
+					position.right = position.left + imageSize + 6;
 				}
-				if (imageSize + textRect.bottom + 10 > position.height())
+				if (imageSize + textRect.bottom + 6 > position.height())
 				{
-					position.bottom = position.top + textRect.bottom + imageSize + 10;
+					position.bottom = position.top + textRect.bottom + imageSize + 6;
 				}
 
 				imageTop = position.top + ((position.bottom - position.top - textRect.bottom - imageSize - 5) / 2);

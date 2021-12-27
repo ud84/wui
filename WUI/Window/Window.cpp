@@ -10,6 +10,7 @@
 
 #ifdef _WIN32
 #include <windowsx.h>
+#include <resource.h>
 #endif
 
 namespace WUI
@@ -30,15 +31,19 @@ Window::Window()
 	closeCallback(),
 	sizeChangeCallback(),
 	buttonsTheme(MakeCustomTheme()), closeButtonTheme(MakeCustomTheme()),
-	minimizeButton(new Button(L"🗕", std::bind(&Window::Minimize, this))),
-	expandButton(new Button(L"🗖", [this]() { windowState == WindowState::Normal ? Expand() : Normal(); })),
-	closeButton(new Button(L"❌", std::bind(&Window::Destroy, this)))
 #ifdef _WIN32
-	, hWnd(0),
+	minimizeButton(new Button(L"", std::bind(&Window::Minimize, this), ButtonView::OnlyImage, IDB_WINDOW_MINIMIZE, 24)),
+	expandButton(new Button(L"", [this]() { windowState == WindowState::Normal ? Expand() : Normal(); }, ButtonView::OnlyImage, windowState == WindowState::Normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
+	closeButton(new Button(L"", std::bind(&Window::Destroy, this), ButtonView::OnlyImage, IDB_WINDOW_CLOSE, 24)),
+	hWnd(0),
 	backgroundBrush(0),
 	font(0),
 	xClick(0), yClick(0),
 	mouseTracked(false)
+#elif __linux__ 
+	minimizeButton(new Button(L"", std::bind(&Window::Minimize, this), ButtonView::OnlyImage, ImagesConsts::Window_MinimizeButton, 24)),
+	expandButton(new Button(L"", [this]() { windowState == WindowState::Normal ? Expand() : Normal(); }, ButtonView::OnlyImage, windowState == WindowState::Normal ? ImagesConsts::Window_ExpandButton : ImagesConsts::Window_NormalButton, 24)),
+	closeButton(new Button(L"", std::bind(&Window::Destroy, this), ButtonView::OnlyImage, ImagesConsts::Window_CloseButton, 24)),
 #endif
 {
 	minimizeButton->DisableReceiveFocus();
@@ -341,6 +346,8 @@ void Window::Expand()
 	{
 		ShowWindow(hWnd, SW_MAXIMIZE);
 	}
+
+	expandButton->SetImage(IDB_WINDOW_NORMAL);
 #endif
 }
 
@@ -354,6 +361,10 @@ void Window::Normal()
 	SetPosition(normalPosition);
 
 	windowState = WindowState::Normal;
+
+#ifdef _WIN32
+	expandButton->SetImage(IDB_WINDOW_EXPAND);
+#endif
 }
 
 WindowState Window::GetWindowState() const
@@ -547,6 +558,7 @@ void Window::UpdateControlButtonsTheme()
 		buttonsTheme->SetColor(WUI::ThemeValue::Button_Text, ThemeColor(ThemeValue::Window_Text, theme));
 		buttonsTheme->SetColor(WUI::ThemeValue::Button_Disabled, backgroundColor);
 		buttonsTheme->SetDimension(WUI::ThemeValue::Button_Round, 0);
+		buttonsTheme->SetString(ThemeValue::Images_Path, ThemeString(ThemeValue::Images_Path, theme));
 
 		minimizeButton->UpdateTheme(buttonsTheme);
 		expandButton->UpdateTheme(buttonsTheme);
@@ -558,6 +570,7 @@ void Window::UpdateControlButtonsTheme()
 	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Text, ThemeColor(ThemeValue::Window_Text, theme));
 	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Disabled, backgroundColor);
 	closeButtonTheme->SetDimension(WUI::ThemeValue::Button_Round, 0);
+	closeButtonTheme->SetString(ThemeValue::Images_Path, ThemeString(ThemeValue::Images_Path, theme));
 
 	closeButton->UpdateTheme(closeButtonTheme);
 }
