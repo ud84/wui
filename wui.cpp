@@ -91,7 +91,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	redButtonTheme->SetColor(WUI::ThemeValue::Button_Text, WUI::MakeColor(190, 205, 190));
 	redButtonTheme->SetColor(WUI::ThemeValue::Button_Disabled, WUI::MakeColor(180, 190, 180));
 	redButtonTheme->SetDimension(WUI::ThemeValue::Button_Round, 5);
-	std::shared_ptr<WUI::Button> cancelButton(new WUI::Button(L"Cancel", [window]() { window->Destroy(); }, redButtonTheme));
+	redButtonTheme->SetString(WUI::ThemeValue::Images_Path, L"IMAGES_DARK");
+	std::shared_ptr<WUI::Button> cancelButton(new WUI::Button(L"Cancel", [window]() { window->Destroy(); }, WUI::ButtonView::ImageRightText, IDB_ACCOUNT, 24, redButtonTheme));
 
 	std::shared_ptr<WUI::Button> darkThemeButton(new WUI::Button(L"Set the dark theme", [window, pluggedWindow, dialog]() { window->ShowTitle(); WUI::SetDefaultTheme(WUI::Theme::Dark); window->UpdateTheme(); pluggedWindow.window->UpdateTheme(); dialog->UpdateTheme(); }));
 	window->AddControl(darkThemeButton, WUI::Rect{ 140, 350, 150, 375 });

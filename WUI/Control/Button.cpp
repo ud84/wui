@@ -3,13 +3,18 @@
 
 #include <WUI/Window/Window.h>
 
+#include <WUI/Control/Image.h>
+
 #include <WUI/Theme/Theme.h>
 
 namespace WUI
 {
 
 Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_, std::shared_ptr<ITheme> theme_)
-	: caption(caption_),
+	: buttonView(ButtonView::OnlyText),
+	caption(caption_),
+	image(),
+	imageSize(0),
 	clickCallback(clickCallback_),
 	theme(theme_),
 	position(),
@@ -17,7 +22,47 @@ Button::Button(const std::wstring &caption_, std::function<void(void)> clickCall
 	showed(true), enabled(true), active(false), focused(false),
 	receiveFocus(true)
 #ifdef _WIN32
-	,calmBrush(0), activeBrush(0), disabledBrush(0),
+	, calmBrush(0), activeBrush(0), disabledBrush(0),
+	borderPen(0), focusedBorderPen(0)
+#endif
+{
+#ifdef _WIN32
+	MakePrimitives();
+#endif
+}
+
+#ifdef _WIN32
+Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_, ButtonView buttonView_, int32_t imageResourceIndex_, int32_t imageSize_, std::shared_ptr<ITheme> theme_)
+	: buttonView(buttonView_),
+	caption(caption_),
+	image(new Image(imageResourceIndex_, theme_)),
+	imageSize(imageSize_),
+	clickCallback(clickCallback_),
+	theme(theme_),
+	position(),
+	parent(),
+	showed(true), enabled(true), active(false), focused(false),
+	receiveFocus(true),
+	calmBrush(0), activeBrush(0), disabledBrush(0),
+	borderPen(0), focusedBorderPen(0)
+{
+	MakePrimitives();
+}
+#endif
+
+Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_, ButtonView buttonView_, const std::wstring &imageFileName_, int32_t imageSize_, std::shared_ptr<ITheme> theme_)
+	: buttonView(buttonView_),
+	caption(caption_),
+	image(new Image(imageFileName_, theme_)),
+	imageSize(imageSize_),
+	clickCallback(clickCallback_),
+	theme(theme_),
+	position(),
+	parent(),
+	showed(true), enabled(true), active(false), focused(false),
+	receiveFocus(true)
+#ifdef _WIN32
+	, calmBrush(0), activeBrush(0), disabledBrush(0),
 	borderPen(0), focusedBorderPen(0)
 #endif
 {
@@ -49,9 +94,71 @@ void Button::Draw(Graphic &gr)
 	RECT textRect = { 0 };
 	DrawTextW(gr.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &textRect, DT_CALCRECT);
 
-	if (textRect.right > position.width())
+	int32_t textTop = 0, textLeft = 0, imageLeft = 0, imageTop = 0;
+
+	switch (buttonView)
 	{
-		position.right = position.left + textRect.right + 10;
+		case ButtonView::OnlyText:
+			if (textRect.right + 10 > position.width())
+			{
+				position.right = position.left + textRect.right + 10;
+			}
+
+			textTop = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
+			textLeft = position.left + ((position.right - position.left - textRect.right) / 2);
+		break;
+		case ButtonView::OnlyImage:
+			if (image)
+			{
+				if (imageSize + 10 > position.width())
+				{
+					position.right = position.left + imageSize + 10;
+				}
+				if (imageSize + 10 > position.height())
+				{
+					position.bottom = position.top + imageSize + 10;
+				}
+
+				imageTop = position.top + ((position.bottom - position.top - imageSize) / 2);
+				imageLeft = position.left + ((position.right - position.left - imageSize) / 2);
+			}
+		break;
+		case ButtonView::ImageRightText:
+			if (image)
+			{
+				if (imageSize + textRect.right + 10 > position.width())
+				{
+					position.right = position.left + textRect.right + imageSize + 10;
+				}
+				if (imageSize + 10 > position.height())
+				{
+					position.bottom = position.top + imageSize + 10;
+				}
+
+				textTop = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
+				imageLeft = position.left + ((position.right - position.left - textRect.right - imageSize - 5) / 2);
+				imageTop = position.top + ((position.bottom - position.top - imageSize) / 2);
+				textLeft = imageLeft + imageSize + 5;
+			}
+		break;
+		case ButtonView::ImageBottomText:
+			if (image)
+			{
+				if (imageSize + 10 > position.width())
+				{
+					position.right = position.left + imageSize + 10;
+				}
+				if (imageSize + textRect.bottom + 10 > position.height())
+				{
+					position.bottom = position.top + textRect.bottom + imageSize + 10;
+				}
+
+				imageTop = position.top + ((position.bottom - position.top - textRect.bottom - imageSize - 5) / 2);
+				textTop = imageTop + imageSize + 5;
+				textLeft = position.left + ((position.right - position.left - textRect.right) / 2);
+				imageLeft = position.left + ((position.right - position.left - imageSize) / 2);
+			}
+		break;
 	}
 
 	SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text, theme));
@@ -64,9 +171,16 @@ void Button::Draw(Graphic &gr)
 
 	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, rnd, rnd);
 	
-	auto top = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
-	auto left = position.left + ((position.right - position.left - textRect.right) / 2);
-	TextOutW(gr.dc, left, top, caption.c_str(), (int32_t)caption.size());
+	if (buttonView != ButtonView::OnlyText)
+	{
+		image->SetPosition( { imageLeft, imageTop, imageLeft + imageSize, imageTop + imageSize } );
+		image->Draw(gr);
+	}
+
+	if (buttonView != ButtonView::OnlyImage)
+	{
+		TextOutW(gr.dc, textLeft, textTop, caption.c_str(), (int32_t)caption.size());
+	}
 #endif
 }
 
@@ -171,6 +285,11 @@ void Button::UpdateTheme(std::shared_ptr<ITheme> theme_)
 	}
 	theme = theme_;
 
+	if (image)
+	{
+		image->UpdateTheme(theme);
+	}
+
 #ifdef _WIN32
 	DestroyPrimitives();
 	MakePrimitives();
@@ -219,9 +338,48 @@ void Button::SetCaption(const std::wstring &caption_)
 	caption = caption_;
 }
 
-void Button::SetReceiveFocus(bool yes)
+void Button::SetButtonView(ButtonView buttonView_)
 {
-	receiveFocus = yes;
+	buttonView = buttonView_;
+	Redraw();
+}
+
+#ifdef _WIN32
+void Button::SetImage(int32_t resourceIndex)
+{
+	if (image)
+	{
+		image->ChangeImage(resourceIndex);
+	}
+	else
+	{
+		image = std::shared_ptr<Image>(new Image(resourceIndex));
+	}
+	Redraw();
+}
+#endif
+
+void Button::SetImage(const std::wstring &fileName)
+{
+	if (image)
+	{
+		image->ChangeImage(fileName);
+	}
+	else
+	{
+		image = std::shared_ptr<Image>(new Image(fileName));
+	}
+	Redraw();
+}
+
+void Button::EnableReceiveFocus()
+{
+	receiveFocus = true;
+}
+
+void Button::DisableReceiveFocus()
+{
+	receiveFocus = false;
 }
 
 void Button::SetCallback(std::function<void(void)> clickCallback_)

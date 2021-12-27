@@ -55,6 +55,9 @@ public:
 #endif
 	void ChangeImage(const std::wstring &fileName);
 
+	int32_t width() const;
+	int32_t height() const;
+
 private:
 	std::shared_ptr<ITheme> theme;
 

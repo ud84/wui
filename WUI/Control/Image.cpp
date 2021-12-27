@@ -246,6 +246,24 @@ void Image::ChangeImage(const std::wstring &fileName_)
 	Redraw();
 }
 
+int32_t Image::width() const
+{
+	if (img)
+	{
+		return img->GetWidth();
+	}
+	return 0;
+}
+
+int32_t Image::height() const
+{
+	if (img)
+	{
+		return img->GetHeight();
+	}
+	return 0;
+}
+
 void Image::Redraw()
 {
 	if (parent.lock())

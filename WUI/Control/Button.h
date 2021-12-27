@@ -13,10 +13,25 @@
 namespace WUI
 {
 
+class Image;
+
+enum class ButtonView
+{
+	OnlyText,
+	OnlyImage,
+	ImageRightText,
+	ImageBottomText
+};
+
 class Button : public IControl, public std::enable_shared_from_this<Button>
 {
 public:
 	Button(const std::wstring &caption, std::function<void(void)> clickCallback, std::shared_ptr<ITheme> theme = nullptr);
+
+#ifdef _WIN32
+	Button(const std::wstring &caption, std::function<void(void)> clickCallback, ButtonView buttonView, int32_t imageResourceIndex, int32_t imageSize, std::shared_ptr<ITheme> theme = nullptr);
+#endif
+	Button(const std::wstring &caption, std::function<void(void)> clickCallback, ButtonView buttonView, const std::wstring &imageFileName, int32_t imageSize, std::shared_ptr<ITheme> theme = nullptr);
 	~Button();
 
 	virtual void Draw(Graphic &gr);
@@ -45,12 +60,22 @@ public:
 
 	void SetCaption(const std::wstring &caption);
 
-	void SetReceiveFocus(bool yes); /// Allows the button to receive focus
+	void SetButtonView(ButtonView buttonView);
+#ifdef _WIN32
+	void SetImage(int32_t resourceIndex);
+#endif
+	void SetImage(const std::wstring &fileName);
+
+	void EnableReceiveFocus();
+	void DisableReceiveFocus();
 
 	void SetCallback(std::function<void(void)> clickCallback);
 
 private:
+	ButtonView buttonView;
 	std::wstring caption;
+	std::shared_ptr<Image> image;
+	int32_t imageSize;
 	std::function<void(void)> clickCallback;
 	std::shared_ptr<ITheme> theme;
 

@@ -41,9 +41,9 @@ Window::Window()
 	mouseTracked(false)
 #endif
 {
-	minimizeButton->SetReceiveFocus(false);
-	expandButton->SetReceiveFocus(false);
-	closeButton->SetReceiveFocus(false);
+	minimizeButton->DisableReceiveFocus();
+	expandButton->DisableReceiveFocus();
+	closeButton->DisableReceiveFocus();
 
 #ifdef _WIN32
 	MakePrimitives();
