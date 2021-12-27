@@ -123,7 +123,7 @@ void Button::Draw(Graphic &gr)
 				imageLeft = position.left + ((position.right - position.left - imageSize) / 2);
 			}
 		break;
-		case ButtonView::ImageRightText:
+		case ButtonView::ImageRightText: case ButtonView::ImageRightTextWithoutFrame:
 			if (image)
 			{
 				if (imageSize + textRect.right + 10 > position.width())
@@ -161,14 +161,10 @@ void Button::Draw(Graphic &gr)
 		break;
 	}
 
-	SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text, theme));
-	SetBkColor(gr.dc, enabled ? (active ? ThemeColor(ThemeValue::Button_Active, theme) : ThemeColor(ThemeValue::Button_Calm, theme)) : ThemeColor(ThemeValue::Button_Disabled, theme));
-
 	SelectObject(gr.dc, !focused ? borderPen : focusedBorderPen);
 	SelectObject(gr.dc, enabled ? (active ? activeBrush : calmBrush) : disabledBrush);
 
 	auto rnd = ThemeDimension(ThemeValue::Button_Round, theme);
-
 	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, rnd, rnd);
 	
 	if (buttonView != ButtonView::OnlyText)
@@ -179,6 +175,17 @@ void Button::Draw(Graphic &gr)
 
 	if (buttonView != ButtonView::OnlyImage)
 	{
+		if (buttonView != ButtonView::ImageRightTextWithoutFrame)
+		{
+			SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text, theme));
+			SetBkColor(gr.dc, enabled ? (active ? ThemeColor(ThemeValue::Button_Active, theme) : ThemeColor(ThemeValue::Button_Calm, theme)) : ThemeColor(ThemeValue::Button_Disabled, theme));
+		}
+		else
+		{
+			SetTextColor(gr.dc, ThemeColor(ThemeValue::Window_Text, theme));
+			SetBkColor(gr.dc, ThemeColor(ThemeValue::Window_Background, theme));
+		}
+
 		TextOutW(gr.dc, textLeft, textTop, caption.c_str(), (int32_t)caption.size());
 	}
 #endif
@@ -341,6 +348,12 @@ void Button::SetCaption(const std::wstring &caption_)
 void Button::SetButtonView(ButtonView buttonView_)
 {
 	buttonView = buttonView_;
+
+#ifdef _WIN32
+	DestroyPrimitives();
+	MakePrimitives();
+#endif
+
 	Redraw();
 }
 
@@ -398,10 +411,10 @@ void Button::Redraw()
 #ifdef _WIN32
 void Button::MakePrimitives()
 {
-	calmBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Calm, theme));
-	activeBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Active, theme));
-	disabledBrush = CreateSolidBrush(ThemeColor(ThemeValue::Button_Disabled, theme));
-	borderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_Border, theme));
+	calmBrush = CreateSolidBrush(buttonView != ButtonView::ImageRightTextWithoutFrame ? ThemeColor(ThemeValue::Button_Calm, theme) : ThemeColor(ThemeValue::Window_Background, theme));
+	activeBrush = CreateSolidBrush(buttonView != ButtonView::ImageRightTextWithoutFrame ? ThemeColor(ThemeValue::Button_Active, theme) : ThemeColor(ThemeValue::Window_Background, theme));
+	disabledBrush = CreateSolidBrush(buttonView != ButtonView::ImageRightTextWithoutFrame ? ThemeColor(ThemeValue::Button_Disabled, theme) : ThemeColor(ThemeValue::Window_Background, theme));
+	borderPen = CreatePen(PS_SOLID, 1, buttonView != ButtonView::ImageRightTextWithoutFrame ? ThemeColor(ThemeValue::Button_Border, theme) : ThemeColor(ThemeValue::Window_Background, theme));
 	focusedBorderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_FocusedBorder, theme));
 }
 

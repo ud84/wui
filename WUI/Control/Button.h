@@ -20,7 +20,8 @@ enum class ButtonView
 	OnlyText,
 	OnlyImage,
 	ImageRightText,
-	ImageBottomText
+	ImageBottomText,
+	ImageRightTextWithoutFrame
 };
 
 class Button : public IControl, public std::enable_shared_from_this<Button>
