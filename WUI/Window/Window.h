@@ -15,6 +15,13 @@
 namespace WUI
 {
 
+enum class WindowState
+{
+	Normal,
+	Minimized,
+	Maximized
+};
+
 class Button;
 
 class Window : public IWindow, public IControl, public std::enable_shared_from_this<Window>
@@ -58,9 +65,11 @@ public:
 	virtual void Disable();
 	virtual bool Enabled() const;
 
-	/// Window methods
+	/// Window state methods
 	void Minimize();
 	void Expand();
+	void Normal();
+	WindowState GetWindowState() const;
 
 	/// Show/hide window caption and button
 	void ShowTitle();
@@ -78,8 +87,9 @@ private:
 	std::shared_ptr<IControl> activeControl;
 
 	WindowType windowType;
-	Rect position;
+	Rect position, normalPosition;
 	std::wstring caption;
+	WindowState windowState;
 	std::shared_ptr<ITheme> theme;
 
 	bool showed, enabled, titleShowed;
@@ -121,6 +131,8 @@ private:
 
 	void MakePrimitives();
 	void DestroyPrimitives();
+
+	void UpdatePosition();
 #endif
 
 	void SendMouseEvent(const MouseEvent &ev);

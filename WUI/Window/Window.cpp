@@ -19,8 +19,9 @@ Window::Window()
 	: controls(),
 	activeControl(),
 	windowType(WindowType::Frame),
-	position(),
+	position(), normalPosition(),
 	caption(),
+	windowState(WindowState::Normal),
 	theme(),
 	showed(true), enabled(true), titleShowed(true),
 	focusedIndex(0),
@@ -30,7 +31,7 @@ Window::Window()
 	sizeChangeCallback(),
 	buttonsTheme(MakeCustomTheme()), closeButtonTheme(MakeCustomTheme()),
 	minimizeButton(new Button(L"🗕", std::bind(&Window::Minimize, this))),
-	expandButton(new Button(L"🗖", std::bind(&Window::Expand, this))),
+	expandButton(new Button(L"🗖", [this]() { windowState == WindowState::Normal ? Expand() : Normal(); })),
 	closeButton(new Button(L"❌", std::bind(&Window::Destroy, this)))
 #ifdef _WIN32
 	, hWnd(0),
@@ -137,6 +138,11 @@ void Window::ReceiveEvent(const Event &ev)
 void Window::SetPosition(const Rect &position_)
 {
 	position = position_;
+	normalPosition = position;
+
+#ifdef _WIN32
+	SetWindowPos(hWnd, NULL, position.left, position.top, position.right, position.bottom, NULL);
+#endif
 }
 
 Rect Window::GetPosition() const
@@ -307,21 +313,52 @@ bool Window::Enabled() const
 
 void Window::Minimize()
 {
+	if (windowState == WindowState::Minimized)
+	{
+		return;
+	}
+
 #ifdef _WIN32
 	ShowWindow(hWnd, SW_MINIMIZE);
 #endif
+
+	windowState = WindowState::Minimized;
 }
 
 void Window::Expand()
 {
+	windowState = WindowState::Maximized;
+
 #ifdef _WIN32
-	RECT workArea;
-	SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
+	if (titleShowed)
+	{
+		RECT workArea;
+		SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
 
-	SetWindowPos(hWnd, NULL, workArea.left, workArea.top, workArea.right, workArea.bottom, NULL);
-
-	//ShowWindow(hWnd, SW_MAXIMIZE);
+		SetWindowPos(hWnd, NULL, workArea.left, workArea.top, workArea.right, workArea.bottom, NULL);
+	}
+	else
+	{
+		ShowWindow(hWnd, SW_MAXIMIZE);
+	}
 #endif
+}
+
+void Window::Normal()
+{
+	if (windowState == WindowState::Normal)
+	{
+		return;
+	}
+
+	SetPosition(normalPosition);
+
+	windowState = WindowState::Normal;
+}
+
+WindowState Window::GetWindowState() const
+{
+	return windowState;
 }
 
 void Window::ShowTitle()
@@ -529,6 +566,7 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 {
 	windowType = type;
 	position = position_;
+	normalPosition = position;
 	caption = caption_;
 	closeCallback = closeCallback_;
 	theme = theme_;
@@ -666,7 +704,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			int16_t xMouse = GET_X_LPARAM(lParam);
 			int16_t yMouse = GET_Y_LPARAM(lParam);
 
-			if (wnd->windowType == WindowType::Frame)
+			if (wnd->windowType == WindowType::Frame && wnd->windowState == WindowState::Normal)
 			{
 				if ((xMouse > windowRect.right - windowRect.left - 5 && yMouse > windowRect.bottom - windowRect.top - 5) ||
 					(xMouse < 5 && yMouse < 5))
@@ -701,7 +739,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 				wnd->mouseTracked = true;
 			}
 
-			if (GetCapture() == hWnd)
+			if (GetCapture() == hWnd && wnd->windowState == WindowState::Normal)
 			{
 				switch (wnd->movingMode)
 				{
@@ -804,7 +842,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			wnd->xClick = GET_X_LPARAM(lParam);
 			wnd->yClick = GET_Y_LPARAM(lParam);
 
-			if (wnd->windowType == WindowType::Frame)
+			if (wnd->windowType == WindowType::Frame && wnd->windowState == WindowState::Normal)
 			{
 				if (wnd->xClick > windowRect.right - windowRect.left - 5 && wnd->yClick > windowRect.bottom - windowRect.top - 5)
 				{
@@ -867,9 +905,6 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 			auto width = LOWORD(lParam), height = HIWORD(lParam);
 
-			wnd->position.right = wnd->position.left + width;
-			wnd->position.bottom = wnd->position.top + height;
-
 			if (wnd->windowType == WindowType::Frame)
 			{
 				wnd->minimizeButton->SetPosition({ width - 78, 0, width - 52, 26 });
@@ -877,10 +912,18 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			}
 			wnd->closeButton->SetPosition({ width - 26, 0, width, 26 });
 
+			wnd->UpdatePosition();
+			
 			if (wnd->sizeChangeCallback)
 			{
 				wnd->sizeChangeCallback(LOWORD(lParam), HIWORD(lParam));
 			}
+		}
+		break;
+		case WM_MOVE:
+		{
+			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			wnd->UpdatePosition();
 		}
 		break;
 		case WM_CHAR:
@@ -927,6 +970,17 @@ void Window::DestroyPrimitives()
 {
 	DeleteObject(backgroundBrush);
 	DeleteObject(font);
+}
+
+void Window::UpdatePosition()
+{
+	RECT windowRect;
+	GetWindowRect(hWnd, &windowRect);
+	position = { windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top };
+	if (windowState != WindowState::Maximized)
+	{
+		normalPosition = position;
+	}
 }
 
 #endif
