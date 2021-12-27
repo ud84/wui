@@ -42,7 +42,6 @@ void LoadImageFromResource(WORD imageID, const std::wstring &resourceSection, Gd
 
 		::GlobalUnlock(hBuffer);
 		::GlobalFree(hBuffer);
-		hBuffer = nullptr;
 	}
 }
 

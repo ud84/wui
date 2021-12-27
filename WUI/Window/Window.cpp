@@ -625,6 +625,8 @@ bool Window::Init(WindowType type, const Rect &position_, const std::wstring &ca
 		return false;
 	}
 
+	SetWindowText(hWnd, caption.c_str());
+
 	UpdateWindow(hWnd);
 #endif
 
