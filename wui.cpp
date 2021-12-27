@@ -105,10 +105,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	std::shared_ptr<WUI::Image> accountImage(new WUI::Image(IDB_ACCOUNT));
 	window->AddControl(accountImage, WUI::Rect{ 200, 100, 264, 164 });
 
-	/*auto fileImageTheme = WUI::MakeCustomTheme();
+	auto fileImageTheme = WUI::MakeCustomTheme();
 	fileImageTheme->SetString(WUI::ThemeValue::Images_Path, L"F:\\Docs");
 	std::shared_ptr<WUI::Image> fileImage(new WUI::Image(L"kavareiya_1.png", fileImageTheme));
-	window->AddControl(fileImage, WUI::Rect{ 200, 200, 264, 264 });*/
+	window->AddControl(fileImage, WUI::Rect{ 180, 200, 344, 344 });
 
 	window->Init(WUI::WindowType::Frame, WUI::Rect{ 100, 100, 500, 500 }, L"Welcome to WUI!", []() { PostQuitMessage(IDCANCEL); });
 	

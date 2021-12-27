@@ -115,10 +115,6 @@ void Image::Draw(Graphic &gr)
 #ifdef _WIN32
 	if (img)
 	{
-		Gdiplus::ImageAttributes attr;
-		attr.SetColorKey(ThemeColor(ThemeValue::Window_Background, theme), ThemeColor(ThemeValue::Window_Background, theme),
-			Gdiplus::ColorAdjustTypeBitmap);
-
 		Gdiplus::Graphics gr(gr.dc);
 
 		gr.DrawImage(
@@ -126,7 +122,7 @@ void Image::Draw(Graphic &gr)
 			Gdiplus::Rect(position.left, position.top, position.width(), position.height()),
 			0, 0, img->GetWidth(), img->GetHeight(),
 			Gdiplus::UnitPixel,
-			&attr);
+			nullptr);
 	}
 #endif
 }
