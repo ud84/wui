@@ -57,9 +57,6 @@
     <ClInclude Include="include\wui\control\button.hpp">
       <Filter>Header Files\control</Filter>
     </ClInclude>
-    <ClInclude Include="include\wui\control\icontrol.hpp">
-      <Filter>Header Files\control</Filter>
-    </ClInclude>
     <ClInclude Include="include\wui\control\image.hpp">
       <Filter>Header Files\control</Filter>
     </ClInclude>
@@ -78,14 +75,8 @@
     <ClInclude Include="include\wui\graphic\graphic.hpp">
       <Filter>Header Files\graphic</Filter>
     </ClInclude>
-    <ClInclude Include="include\wui\window\iwindow.hpp">
-      <Filter>Header Files\window</Filter>
-    </ClInclude>
     <ClInclude Include="include\wui\window\window.hpp">
       <Filter>Header Files\window</Filter>
-    </ClInclude>
-    <ClInclude Include="include\wui\theme\itheme.hpp">
-      <Filter>Header Files\theme</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\theme\theme.hpp">
       <Filter>Header Files\theme</Filter>
@@ -101,6 +92,15 @@
     </ClInclude>
     <ClInclude Include="res\resource.hpp">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\theme\i_theme.hpp">
+      <Filter>Header Files\theme</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\control\i_control.hpp">
+      <Filter>Header Files\control</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\window\i_window.hpp">
+      <Filter>Header Files\window</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -13,79 +13,79 @@
 #include <wui/theme/impl/white_theme.hpp>
 #include <wui/theme/impl/custom_theme.hpp>
 
-namespace WUI
+namespace wui
 {
 
-static std::shared_ptr<ITheme> instance = nullptr;
+static std::shared_ptr<i_theme> instance = nullptr;
 
 /// Interface
 
-void SetDefaultTheme(Theme theme)
+void set_default_theme(theme theme_)
 {
-	instance.reset();
+    instance.reset();
 
-	switch (theme)
-	{
-		case Theme::Dark:
-			instance = std::shared_ptr<ITheme>(new DarkTheme());
-		break;
-		case Theme::White:
-			instance = std::shared_ptr<ITheme>(new WhiteTheme());
-		break;
-	}
+    switch (theme_)
+    {
+        case theme::dark:
+            instance = std::shared_ptr<i_theme>(new dark_theme());
+        break;
+        case theme::white:
+            instance = std::shared_ptr<i_theme>(new white_theme());
+        break;
+    }
 }
 
-Theme GetDefaultTheme()
+theme get_default_theme()
 {
-	if (instance)
-	{
-		return instance->GetTheme();
-	}
-	return Theme::Dark;
+    if (instance)
+    {
+        return instance->get_theme();
+    }
+    return theme::dark;
 }
 
-std::shared_ptr<ITheme> MakeCustomTheme()
+std::shared_ptr<i_theme> make_custom_theme()
 {
-	return std::shared_ptr<CustomTheme>(new CustomTheme());
+    return std::shared_ptr<custom_theme>(new custom_theme());
 }
 
-Color ThemeColor(ThemeValue valueID, std::shared_ptr<ITheme> theme)
+color theme_color(theme_value value_id, std::shared_ptr<i_theme> theme_)
 {
-	if (theme)
+    if (theme_)
+    {
+        return theme_->get_color(value_id);
+    }
+    else if (instance)
 	{
-		return theme->GetColor(valueID);
-	}
-	else if (instance)
-	{
-		return instance->GetColor(valueID);
-	}
-	return 0;
+        return instance->get_color(value_id);
+    }
+    return 0;
 }
 
-int32_t ThemeDimension(ThemeValue valueID, std::shared_ptr<ITheme> theme)
+int32_t theme_dimension(theme_value value_id, std::shared_ptr<i_theme> theme_)
 {
-	if (theme)
-	{
-		return theme->GetDimension(valueID);
-	}
-	else if (instance)
-	{
-		return instance->GetDimension(valueID);
-	}
-	return 0;
+    if (theme_)
+    {
+        return theme_->get_dimension(value_id);
+    }
+    else if (instance)
+    {
+        return instance->get_dimension(value_id);
+    }
+    return 0;
 }
 
-std::wstring ThemeString(ThemeValue valueID, std::shared_ptr<ITheme> theme)
+std::wstring theme_string(theme_value value_id, std::shared_ptr<i_theme> theme_)
 {
-	if (theme)
-	{
-		return theme->GetString(valueID);
-	}
-	else if (instance)
-	{
-		return instance->GetString(valueID);
-	}
-	return 0;
+    if (theme_)
+    {
+        return theme_->get_string(value_id);
+    }
+    else if (instance)
+    {
+        return instance->get_string(value_id);
+    }
+    return 0;
 }
 
 }

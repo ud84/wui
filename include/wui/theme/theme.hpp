@@ -9,28 +9,28 @@
 
 #pragma once
 
-#include <wui/theme/itheme.hpp>
+#include <wui/theme/i_theme.hpp>
 
 #include <cstdint>
 
 #include <memory>
 
-namespace WUI
+namespace wui
 {
 
 /// Set and get the current theme
-void SetDefaultTheme(Theme theme);
-Theme GetDefaultTheme();
+void set_default_theme(theme theme_);
+theme get_default_theme();
 
-std::shared_ptr<ITheme> MakeCustomTheme();
+std::shared_ptr<i_theme> make_custom_theme();
 
 /// Return the item's color by current color theme
-Color ThemeColor(ThemeValue valueID, std::shared_ptr<ITheme> theme = nullptr);
+color theme_color(theme_value value_id, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's dimension by current color theme
-int32_t ThemeDimension(ThemeValue valueID, std::shared_ptr<ITheme> theme = nullptr);
+int32_t theme_dimension(theme_value value_id, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's string value by current color theme
-std::wstring ThemeString(ThemeValue valueID, std::shared_ptr<ITheme> theme = nullptr);
+std::wstring theme_string(theme_value value_id, std::shared_ptr<i_theme> theme_ = nullptr);
 
 }

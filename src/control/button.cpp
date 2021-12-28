@@ -15,224 +15,224 @@
 
 #include <wui/theme/theme.hpp>
 
-namespace WUI
+namespace wui
 {
 
-Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_, std::shared_ptr<ITheme> theme_)
-	: buttonView(ButtonView::OnlyText),
-	caption(caption_),
-	image(),
-	imageSize(0),
-	clickCallback(clickCallback_),
-	theme(theme_),
-	position(),
-	parent(),
-	showed(true), enabled(true), active(false), focused(false),
-	receiveFocus(true)
+button::button(const std::wstring &caption_, std::function<void(void)> click_callback_, std::shared_ptr<i_theme> theme__)
+    : button_view_(button_view::only_text),
+    caption(caption_),
+    image_(),
+    image_size(0),
+    click_callback(click_callback_),
+    theme_(theme__),
+    position_(),
+    parent(),
+    showed_(true), enabled_(true), active(false), focused_(false),
+    focusing_(true)
 #ifdef _WIN32
-	, calmBrush(0), activeBrush(0), disabledBrush(0),
-	borderPen(0), focusedBorderPen(0)
+    , calm_brush(0), active_brush(0), disabled_brush(0),
+    border_pen(0), focused_border_pen(0)
 #endif
 {
 #ifdef _WIN32
-	MakePrimitives();
-#endif
-}
-
-#ifdef _WIN32
-Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_, ButtonView buttonView_, int32_t imageResourceIndex_, int32_t imageSize_, std::shared_ptr<ITheme> theme_)
-	: buttonView(buttonView_),
-	caption(caption_),
-	image(new Image(imageResourceIndex_, theme_)),
-	imageSize(imageSize_),
-	clickCallback(clickCallback_),
-	theme(theme_),
-	position(),
-	parent(),
-	showed(true), enabled(true), active(false), focused(false),
-	receiveFocus(true),
-	calmBrush(0), activeBrush(0), disabledBrush(0),
-	borderPen(0), focusedBorderPen(0)
-{
-	MakePrimitives();
-}
-#endif
-
-Button::Button(const std::wstring &caption_, std::function<void(void)> clickCallback_, ButtonView buttonView_, const std::wstring &imageFileName_, int32_t imageSize_, std::shared_ptr<ITheme> theme_)
-	: buttonView(buttonView_),
-	caption(caption_),
-	image(new Image(imageFileName_, theme_)),
-	imageSize(imageSize_),
-	clickCallback(clickCallback_),
-	theme(theme_),
-	position(),
-	parent(),
-	showed(true), enabled(true), active(false), focused(false),
-	receiveFocus(true)
-#ifdef _WIN32
-	, calmBrush(0), activeBrush(0), disabledBrush(0),
-	borderPen(0), focusedBorderPen(0)
-#endif
-{
-#ifdef _WIN32
-	MakePrimitives();
+    make_primitives();
 #endif
 }
 
-Button::~Button()
-{
 #ifdef _WIN32
-	DestroyPrimitives();
+button::button(const std::wstring &caption_, std::function<void(void)> click_callback_, button_view button_view__, int32_t image_resource_index_, int32_t image_size_, std::shared_ptr<i_theme> theme__)
+    : button_view_(button_view__),
+    caption(caption_),
+    image_(new image(image_resource_index_, theme_)),
+    image_size(image_size_),
+    click_callback(click_callback_),
+    theme_(theme__),
+    position_(),
+    parent(),
+    showed_(true), enabled_(true), active(false), focused_(false),
+    focusing_(true),
+    calm_brush(0), active_brush(0), disabled_brush(0),
+    border_pen(0), focused_border_pen(0)
+{
+    make_primitives();
+}
 #endif
 
-	if (parent.lock())
-	{
-		parent.lock()->RemoveControl(shared_from_this());
-	}
+button::button(const std::wstring &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::wstring &imageFileName_, int32_t image_size_, std::shared_ptr<i_theme> theme__)
+    : button_view_(button_view__),
+    caption(caption_),
+    image_(new image(imageFileName_, theme_)),
+    image_size(image_size_),
+    click_callback(click_callback_),
+    theme_(theme__),
+    position_(),
+    parent(),
+    showed_(true), enabled_(true), active(false), focused_(false),
+    focusing_(true)
+#ifdef _WIN32
+    , calm_brush(0), active_brush(0), disabled_brush(0),
+    border_pen(0), focused_border_pen(0)
+#endif
+{
+#ifdef _WIN32
+    make_primitives();
+#endif
 }
 
-void Button::Draw(Graphic &gr)
+button::~button()
 {
-	if (!showed)
-	{
-		return;
-	}
+#ifdef _WIN32
+    destroy_primitives();
+#endif
+
+    if (parent.lock())
+    {
+        parent.lock()->remove_control(shared_from_this());
+    }
+}
+
+void button::draw(graphic &gr)
+{
+    if (!showed_)
+    {
+        return;
+    }
 
 #ifdef _WIN32
-	RECT textRect = { 0 };
-	DrawTextW(gr.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &textRect, DT_CALCRECT);
+    RECT text_rect = { 0 };
+    DrawTextW(gr.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &text_rect, DT_CALCRECT);
 
-	int32_t textTop = 0, textLeft = 0, imageLeft = 0, imageTop = 0;
+    int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
 
-	switch (buttonView)
-	{
-		case ButtonView::OnlyText:
-			if (textRect.right + 10 > position.width())
-			{
-				position.right = position.left + textRect.right + 10;
-			}
+    switch (button_view_)
+    {
+        case button_view::only_text:
+            if (text_rect.right + 10 > position_.width())
+            {
+                position_.right = position_.left + text_rect.right + 10;
+            }
 
-			textTop = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
-			textLeft = position.left + ((position.right - position.left - textRect.right) / 2);
-		break;
-		case ButtonView::OnlyImage:
-			if (image)
-			{
-				if (imageSize > position.width())
-				{
-					position.right = position.left + imageSize;
-				}
-				if (imageSize > position.height())
-				{
-					position.bottom = position.top + imageSize;
-				}
+            text_top = position_.top + ((position_.height() - text_rect.bottom) / 2);
+            text_left = position_.left + ((position_.width() - text_rect.right) / 2);
+        break;
+        case button_view::only_image:
+            if (image_)
+	        {
+                if (image_size > position_.width())
+                {
+                    position_.right = position_.left + image_size;
+                }
+                if (image_size > position_.height())
+                {
+                    position_.bottom = position_.top + image_size;
+                }
 
-				imageTop = position.top + ((position.bottom - position.top - imageSize) / 2);
-				imageLeft = position.left + ((position.right - position.left - imageSize) / 2);
-			}
-		break;
-		case ButtonView::ImageRightText: case ButtonView::ImageRightTextWithoutFrame:
-			if (image)
-			{
-				if (imageSize + textRect.right + 6 > position.width())
-				{
-					position.right = position.left + textRect.right + imageSize + 6;
-				}
-				if (imageSize + 6 > position.height())
-				{
-					position.bottom = position.top + imageSize + 6;
-				}
+                image_top = position_.top + ((position_.height() - image_size) / 2);
+                image_left = position_.left + ((position_.width() - image_size) / 2);
+            }
+        break;
+        case button_view::image_right_text: case button_view::image_right_text_no_frame:
+            if (image_)
+            {
+                if (image_size + text_rect.right + 6 > position_.width())
+                {
+                    position_.right = position_.left + text_rect.right + image_size + 6;
+                }
+                if (image_size + 6 > position_.height())
+                {
+                    position_.bottom = position_.top + image_size + 6;
+                }
 
-				textTop = position.top + ((position.bottom - position.top - textRect.bottom) / 2);
-				imageLeft = position.left + ((position.right - position.left - textRect.right - imageSize - 5) / 2);
-				imageTop = position.top + ((position.bottom - position.top - imageSize) / 2);
-				textLeft = imageLeft + imageSize + 5;
-			}
-		break;
-		case ButtonView::ImageBottomText:
-			if (image)
-			{
-				if (imageSize + 6 > position.width())
-				{
-					position.right = position.left + imageSize + 6;
-				}
-				if (imageSize + textRect.bottom + 6 > position.height())
-				{
-					position.bottom = position.top + textRect.bottom + imageSize + 6;
-				}
+                text_top = position_.top + ((position_.height() - text_rect.bottom) / 2);
+                image_left = position_.left + ((position_.width() - text_rect.right - image_size - 5) / 2);
+                image_top = position_.top + ((position_.height() - image_size) / 2);
+                text_left = image_left + image_size + 5;
+            }
+        break;
+        case button_view::image_bottom_text:
+            if (image_)
+            {
+                if (image_size + 6 > position_.width())
+                {
+                    position_.right = position_.left + image_size + 6;
+                }
+                if (image_size + text_rect.bottom + 6 > position_.height())
+                {
+                    position_.bottom = position_.top + text_rect.bottom + image_size + 6;
+                }
 
-				imageTop = position.top + ((position.bottom - position.top - textRect.bottom - imageSize - 5) / 2);
-				textTop = imageTop + imageSize + 5;
-				textLeft = position.left + ((position.right - position.left - textRect.right) / 2);
-				imageLeft = position.left + ((position.right - position.left - imageSize) / 2);
-			}
-		break;
-	}
+                image_top = position_.top + ((position_.height() - text_rect.bottom - image_size - 5) / 2);
+                text_top = image_top + image_size + 5;
+                text_left = position_.left + ((position_.width() - text_rect.right) / 2);
+                image_left = position_.left + ((position_.width() - image_size) / 2);
+            }
+        break;
+    }
 
-	SelectObject(gr.dc, !focused ? borderPen : focusedBorderPen);
-	SelectObject(gr.dc, enabled ? (active ? activeBrush : calmBrush) : disabledBrush);
+    SelectObject(gr.dc, !focused_ ? border_pen : focused_border_pen);
+    SelectObject(gr.dc, enabled_ ? (active ? active_brush : calm_brush) : disabled_brush);
 
-	auto rnd = ThemeDimension(ThemeValue::Button_Round, theme);
-	RoundRect(gr.dc, position.left, position.top, position.right, position.bottom, rnd, rnd);
+    auto rnd = theme_dimension(theme_value::button_round, theme_);
+    RoundRect(gr.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
 	
-	if (buttonView != ButtonView::OnlyText)
-	{
-		image->SetPosition( { imageLeft, imageTop, imageLeft + imageSize, imageTop + imageSize } );
-		image->Draw(gr);
-	}
+    if (button_view_ != button_view::only_text && image_)
+    {
+        image_->set_position( { image_left, image_top, image_left + image_size, image_top + image_size } );
+        image_->draw(gr);
+    }
 
-	if (buttonView != ButtonView::OnlyImage)
-	{
-		if (buttonView != ButtonView::ImageRightTextWithoutFrame)
-		{
-			SetTextColor(gr.dc, ThemeColor(ThemeValue::Button_Text, theme));
-			SetBkColor(gr.dc, enabled ? (active ? ThemeColor(ThemeValue::Button_Active, theme) : ThemeColor(ThemeValue::Button_Calm, theme)) : ThemeColor(ThemeValue::Button_Disabled, theme));
-		}
-		else
-		{
-			SetTextColor(gr.dc, ThemeColor(ThemeValue::Window_Text, theme));
-			SetBkColor(gr.dc, ThemeColor(ThemeValue::Window_Background, theme));
-		}
+    if (button_view_ != button_view::only_image)
+    {
+        if (button_view_ != button_view::image_right_text_no_frame)
+        {
+            SetTextColor(gr.dc, theme_color(theme_value::button_text, theme_));
+            SetBkColor(gr.dc, enabled_ ? (active ? theme_color(theme_value::button_active, theme_) : theme_color(theme_value::button_calm, theme_)) : theme_color(theme_value::button_disabled, theme_));
+        }
+        else
+        {
+            SetTextColor(gr.dc, theme_color(theme_value::window_text, theme_));
+            SetBkColor(gr.dc, theme_color(theme_value::window_background, theme_));
+        }
 
-		TextOutW(gr.dc, textLeft, textTop, caption.c_str(), (int32_t)caption.size());
-	}
+        TextOutW(gr.dc, text_left, text_top, caption.c_str(), (int32_t)caption.size());
+    }
 #endif
 }
 
-void Button::ReceiveEvent(const Event &ev)
+void button::receive_event(const event &ev)
 {
-	if (!showed || !enabled)
-	{
-		return;
-	}
+    if (!showed_ || !enabled_)
+    {
+        return;
+    }
 
-	if (ev.type == EventType::Mouse)
-	{
-		switch (ev.mouseEvent.type)
-		{
-			case MouseEventType::Enter:
-				active = true;
-				Redraw();
-			break;
-			case MouseEventType::Leave:
-				active = false;
-				Redraw();
-			break;
-			case MouseEventType::LeftUp:
-				if (clickCallback)
-				{
-					clickCallback();
-				}
-			break;
-		}
-	}
-	else if (ev.type == EventType::Internal)
-	{
-		if (ev.internalEvent.type == InternalEventType::ExecuteFocused && clickCallback)
-		{
-			clickCallback();
-		}
-	}
+    if (ev.type == event_type::mouse)
+    {
+        switch (ev.mouse_event_.type)
+        {
+            case mouse_event_type::enter:
+                active = true;
+                redraw();
+            break;
+            case mouse_event_type::leave:
+                active = false;
+                redraw();
+            break;
+            case mouse_event_type::left_up:
+                if (click_callback)
+                {
+                    click_callback();
+                }
+            break;
+        }
+    }
+    else if (ev.type == event_type::internal)
+    {
+        if (ev.internal_event_.type == internal_event_type::execute_focused && click_callback)
+        {
+            click_callback();
+        }
+    }
 }
 
 void Button::SetPosition(const Rect &position_)
@@ -380,59 +380,59 @@ void Button::SetImage(int32_t resourceIndex)
 }
 #endif
 
-void Button::SetImage(const std::wstring &fileName)
+void button::set_image(const std::wstring &file_name)
 {
-	if (image)
-	{
-		image->ChangeImage(fileName);
-	}
-	else
-	{
-		image = std::shared_ptr<Image>(new Image(fileName));
-	}
-	Redraw();
+    if (image_)
+    {
+        image_->change_image(file_name);
+    }
+    else
+    {
+        image_ = std::shared_ptr<image>(new image(file_name));
+    }
+    redraw();
 }
 
-void Button::EnableReceiveFocus()
+void button::enable_focusing()
 {
-	receiveFocus = true;
+    focusing_ = true;
 }
 
-void Button::DisableReceiveFocus()
+void button::disable_focusing()
 {
-	receiveFocus = false;
+    focusing_ = false;
 }
 
-void Button::SetCallback(std::function<void(void)> clickCallback_)
+void button::set_callback(std::function<void(void)> click_callback_)
 {
-	clickCallback = clickCallback_;
+    click_callback = click_callback_;
 }
 
-void Button::Redraw()
+void button::redraw()
 {
-	if (parent.lock())
-	{
-		parent.lock()->Redraw(position);
-	}
+    if (parent.lock())
+    {
+        parent.lock()->redraw(position_);
+    }
 }
 
 #ifdef _WIN32
-void Button::MakePrimitives()
+void button::make_primitives()
 {
-	calmBrush = CreateSolidBrush(buttonView != ButtonView::ImageRightTextWithoutFrame ? ThemeColor(ThemeValue::Button_Calm, theme) : ThemeColor(ThemeValue::Window_Background, theme));
-	activeBrush = CreateSolidBrush(buttonView != ButtonView::ImageRightTextWithoutFrame ? ThemeColor(ThemeValue::Button_Active, theme) : ThemeColor(ThemeValue::Window_Background, theme));
-	disabledBrush = CreateSolidBrush(buttonView != ButtonView::ImageRightTextWithoutFrame ? ThemeColor(ThemeValue::Button_Disabled, theme) : ThemeColor(ThemeValue::Window_Background, theme));
-	borderPen = CreatePen(PS_SOLID, 1, buttonView != ButtonView::ImageRightTextWithoutFrame ? ThemeColor(ThemeValue::Button_Border, theme) : ThemeColor(ThemeValue::Window_Background, theme));
-	focusedBorderPen = CreatePen(PS_SOLID, 1, ThemeColor(ThemeValue::Button_FocusedBorder, theme));
+    calm_brush = CreateSolidBrush(button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_calm, theme_) : theme_color(theme_value::window_background, theme_));
+    active_brush = CreateSolidBrush(button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_active, theme_) : theme_color(theme_value::window_background, theme_));
+    disabled_brush = CreateSolidBrush(button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_disabled, theme_) : theme_color(theme_value::window_background, theme_));
+    border_pen = CreatePen(PS_SOLID, 1, button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_border, theme_) : theme_color(theme_value::window_background, theme_));
+    focused_border_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::button_focused_border, theme_));
 }
 
-void Button::DestroyPrimitives()
+void button::destroy_primitives()
 {
-	DeleteObject(calmBrush);
-	DeleteObject(activeBrush);
-	DeleteObject(disabledBrush);
-	DeleteObject(borderPen);
-	DeleteObject(focusedBorderPen);
+    DeleteObject(calm_brush);
+    DeleteObject(active_brush);
+    DeleteObject(disabled_brush);
+    DeleteObject(border_pen);
+    DeleteObject(focused_border_pen);
 }
 #endif
 

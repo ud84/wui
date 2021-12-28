@@ -13,29 +13,27 @@
 #include <wui/event/keyboard_event.hpp>
 #include <wui/event/internal_event.hpp>
 
-namespace WUI
+namespace wui
 {
 
-enum class EventType
+enum class event_type
 {
-	System,
-	Mouse,
-	Keyboard,
-	Internal
+    system,
+    mouse,
+    keyboard,
+    internal
 };
 
-class IControl;
-
-struct Event
+struct event
 {
-	EventType type;
-	
-	union
-	{
-		MouseEvent mouseEvent;
-		KeyboardEvent keyboardEvent;
-		InternalEvent internalEvent;
-	};
+    event_type type;
+
+    union
+    {
+        mouse_event mouse_event_;
+        keyboard_event keyboard_event_;
+        internal_event internal_event_;
+    };
 };
 
 }

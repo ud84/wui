@@ -9,82 +9,82 @@
 
 #include <wui/theme/impl/white_theme.hpp>
 
-namespace WUI
+namespace wui
 {
 
-WhiteTheme::WhiteTheme()
-	: colors
-	{
-		{ ThemeValue::Window_Background, MakeColor(240, 240, 240) },
-		{ ThemeValue::Window_Text, MakeColor(25, 25, 20) },
-		{ ThemeValue::Window_ActiveButton, MakeColor(220, 220, 220) },
+white_theme::white_theme()
+    : colors
+    {
+        { theme_value::window_background, make_color(240, 240, 240) },
+        { theme_value::window_text, make_color(25, 25, 20) },
+        { theme_value::window_active_button, make_color(220, 220, 220) },
 
-		{ ThemeValue::Button_Calm, MakeColor(6, 165, 223) },
-		{ ThemeValue::Button_Active, MakeColor(26, 175, 233) },
-		{ ThemeValue::Button_Border, MakeColor(0, 160, 210) },
-		{ ThemeValue::Button_FocusedBorder, MakeColor(20, 10, 20) },
-		{ ThemeValue::Button_Text, MakeColor(24, 24, 24) },
-		{ ThemeValue::Button_Disabled, MakeColor(205, 205, 200) }
-	},
-	dimensions
-	{
-		{ThemeValue::Button_Round, 5}
-	},
-	strings
-	{
-		{ ThemeValue::Images_Path, L"IMAGES_WHITE" }
-	}
+        { theme_value::button_calm, make_color(6, 165, 223) },
+        { theme_value::button_active, make_color(26, 175, 233) },
+        { theme_value::button_border, make_color(0, 160, 210) },
+        { theme_value::button_focused_border, make_color(20, 10, 20) },
+        { theme_value::button_text, make_color(24, 24, 24) },
+        { theme_value::button_disabled, make_color(205, 205, 200) }
+    },
+    dimensions
+    {
+        { theme_value::button_round, 5}
+    },
+    strings
+    {
+        { theme_value::images_path, L"IMAGES_WHITE" }
+    }
 {
 }
 
-void WhiteTheme::SetColor(ThemeValue valueID, Color color)
+void white_theme::set_color(theme_value value_id, color color_)
 {
-	colors[valueID] = color;
+    colors[value_id] = color_;
 }
 
-Color WhiteTheme::GetColor(ThemeValue valueID) const
+color white_theme::get_color(theme_value value_id) const
 {
-	auto it = colors.find(valueID);
-	if (it != colors.end())
-	{
-		return it->second;
-	}
-	return 0;
+    auto it = colors.find(value_id);
+    if (it != colors.end())
+    {
+        return it->second;
+    }
+    return 0;
 }
 
-Theme WhiteTheme::GetTheme() const
+theme white_theme::get_theme() const
 {
-	return Theme::White;
+    return theme::custom;
 }
 
-void WhiteTheme::SetDimension(ThemeValue valueID, int32_t dimension)
+void white_theme::set_dimension(theme_value value_id, int32_t dimension)
 {
-	dimensions[valueID] = dimension;
+    dimensions[value_id] = dimension;
 }
 
-int32_t WhiteTheme::GetDimension(ThemeValue valueID) const
+int32_t white_theme::get_dimension(theme_value value_id) const
 {
-	auto it = dimensions.find(valueID);
-	if (it != dimensions.end())
-	{
-		return it->second;
-	}
-	return 0;
+    auto it = dimensions.find(value_id);
+    if (it != dimensions.end())
+    {
+        return it->second;
+    }
+    return 0;
 }
 
-void WhiteTheme::SetString(ThemeValue valueID, const std::wstring &value)
+void white_theme::set_string(theme_value value_id, const std::wstring &value)
 {
-	strings[valueID] = value;
+    strings[value_id] = value;
 }
 
-std::wstring WhiteTheme::GetString(ThemeValue valueID) const
+std::wstring white_theme::get_string(theme_value value_id) const
 {
-	auto it = strings.find(valueID);
-	if (it != strings.end())
-	{
-		return it->second;
-	}
-	return L"";
+    auto it = strings.find(value_id);
+    if (it != strings.end())
+    {
+        return it->second;
+    }
+    return L"";
 }
 
 }

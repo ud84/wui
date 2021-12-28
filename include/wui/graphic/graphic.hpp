@@ -13,13 +13,13 @@
 #include <windows.h>
 #endif
 
-namespace WUI
+namespace wui
 {
 
-struct Graphic
+struct graphic
 {
 #ifdef _WIN32
-	HDC dc;
+    HDC dc;
 #endif
 };
 

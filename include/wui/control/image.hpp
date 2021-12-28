@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <wui/control/icontrol.hpp>
+#include <wui/control/i_control.hpp>
 #include <wui/graphic/graphic.hpp>
 #include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
@@ -23,67 +23,68 @@
 #include <gdiplus.h>
 #endif
 
-namespace WUI
+namespace wui
 {
 
-class Image : public IControl, public std::enable_shared_from_this<Image>
+class image : public i_control, public std::enable_shared_from_this<image>
 {
 public:
 #ifdef _WIN32
-	Image(int32_t resourceIndex, std::shared_ptr<ITheme> theme = nullptr);
+    image(int32_t resource_index, std::shared_ptr<i_theme> theme_ = nullptr);
 #endif
-	Image(const std::wstring &fileName, std::shared_ptr<ITheme> theme = nullptr);
-	~Image();
+    image(const std::wstring &fileName, std::shared_ptr<i_theme> theme_ = nullptr);
+    ~image();
 
-	virtual void Draw(Graphic &gr);
-	virtual void ReceiveEvent(const Event &ev);
-	
-	virtual void SetPosition(const Rect &position);
-	virtual Rect GetPosition() const;
-	
-	virtual void SetParent(std::shared_ptr<Window> window);
-	virtual void ClearParent();
+    virtual void draw(graphic &gr);
 
-	virtual void SetFocus();
-	virtual bool RemoveFocus();
-	virtual bool Focused() const;
-	virtual bool Focusing() const;
-	
-	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr);
+    virtual void receive_event(const event &ev);
 
-	virtual void Show();
-	virtual void Hide();
-	virtual bool Showed() const;
+    virtual void set_position(const rect &position);
+    virtual rect position() const;
 
-	virtual void Enable();
-	virtual void Disable();
-	virtual bool Enabled() const;
+    virtual void set_parent(std::shared_ptr<window> window_);
+    virtual void clear_parent();
+
+    virtual void set_focus();
+    virtual bool remove_focus();
+    virtual bool focused() const;
+    virtual bool focusing() const;
+
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+
+    virtual void show();
+    virtual void hide();
+    virtual bool showed() const;
+
+    virtual void enable();
+    virtual void disable();
+    virtual bool enabled() const;
 
 #ifdef _WIN32
-	void ChangeImage(int32_t resourceIndex);
+    void change_image(int32_t resource_index);
 #endif
-	void ChangeImage(const std::wstring &fileName);
+    void change_image(const std::wstring &file_name);
 
-	int32_t width() const;
-	int32_t height() const;
+    int32_t width() const;
+    int32_t height() const;
 
 private:
-	std::shared_ptr<ITheme> theme;
+    std::shared_ptr<i_theme> theme_;
 
-	Rect position;
+    rect position_;
 
-	std::weak_ptr<Window> parent;
+    std::weak_ptr<window> parent;
 
-	bool showed;
+    bool showed_;
 
-	std::wstring fileName;
+    std::wstring file_name;
 	
 #ifdef _WIN32
-	int32_t resourceIndex;
-	Gdiplus::Image *img;
+    int32_t resource_index;
+    Gdiplus::Image *img;
 #endif
 
-	void Redraw();
+    void redraw();
 };
 
 }

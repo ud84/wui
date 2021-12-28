@@ -15,266 +15,272 @@
 
 #ifdef _WIN32
 
-void LoadImageFromResource(WORD imageID, const std::wstring &resourceSection, Gdiplus::Image **pImg)
+void load_image_from_resource(WORD image_id, const std::wstring &resource_section, Gdiplus::Image **img)
 {
-	HINSTANCE hInst = GetModuleHandle(NULL);
-	HRSRC hResource = FindResource(hInst, MAKEINTRESOURCE(imageID), resourceSection.c_str());
-	if (!hResource)
-		return;
+    HINSTANCE h_inst = GetModuleHandle(NULL);
+    HRSRC h_resource = FindResource(h_inst, MAKEINTRESOURCE(image_id), resource_section.c_str());
+    if (!h_resource)
+    {
+        return;
+    }
 
-	DWORD imageSize = ::SizeofResource(hInst, hResource);
-	if (!imageSize)
-		return;
+    DWORD image_size = ::SizeofResource(h_inst, h_resource);
+    if (!image_size)
+    {
+        return;
+    }
 
-	const void* pResourceData = ::LockResource(::LoadResource(hInst, hResource));
-	if (!pResourceData)
-		return;
+    const void* resource_data = ::LockResource(::LoadResource(h_inst, h_resource));
+    if (!resource_data)
+    {
+        return;
+    }
 
-	HGLOBAL hBuffer = ::GlobalAlloc(GMEM_MOVEABLE, imageSize);
-	if (hBuffer)
+    HGLOBAL h_buffer = ::GlobalAlloc(GMEM_MOVEABLE, image_size);
+	if (h_buffer)
 	{
-		void* pBuffer = ::GlobalLock(hBuffer);
-		if (pBuffer)
+		void* p_buffer = ::GlobalLock(h_buffer);
+		if (p_buffer)
 		{
-			CopyMemory(pBuffer, pResourceData, imageSize);
+			CopyMemory(p_buffer, resource_data, image_size);
 
-			IStream* pStream = NULL;
-			if (::CreateStreamOnHGlobal(hBuffer, FALSE, &pStream) == S_OK)
+			IStream* p_stream = NULL;
+			if (::CreateStreamOnHGlobal(h_buffer, FALSE, &p_stream) == S_OK)
 			{
-				*pImg = Gdiplus::Image::FromStream(pStream);
-				pStream->Release();
+				*img = Gdiplus::Image::FromStream(p_stream);
+				p_stream->Release();
 			}
+
+            ::GlobalUnlock(p_buffer);
 		}
-
-		::GlobalUnlock(hBuffer);
-		::GlobalFree(hBuffer);
+		::GlobalFree(h_buffer);
 	}
 }
 
-void LoadImageFromFile(const std::wstring &fileName, const std::wstring &imagesPath, Gdiplus::Image **pImg)
+void load_image_from_file(const std::wstring &file_name, const std::wstring &images_path, Gdiplus::Image **img)
 {
-	*pImg = Gdiplus::Image::FromFile(std::wstring(imagesPath + L"\\" + fileName).c_str());
+    *img = Gdiplus::Image::FromFile(std::wstring(images_path + L"\\" + file_name).c_str());
 }
 
-void FreeImage(Gdiplus::Image **pImg)
+void free_image(Gdiplus::Image **img)
 {
-	if (*pImg)
-	{
-		delete *pImg;
-		*pImg = nullptr;
-	}
+    if (*img)
+    {
+        delete *img;
+        *img = nullptr;
+    }
 }
 
 #endif
 
-namespace WUI
+namespace wui
 {
 
 #ifdef _WIN32
-Image::Image(int32_t resourceIndex_, std::shared_ptr<ITheme> theme_)
-	: theme(theme_),
-	position(),
-	parent(),
-	showed(true),
-	fileName(),
-	resourceIndex(resourceIndex_),
-	img(nullptr)
+image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
+    : theme_(theme__),
+    position_(),
+    parent(),
+    showed_(true),
+    file_name(),
+    resource_index(resource_index_),
+    img(nullptr)
 {
-	LoadImageFromResource(resourceIndex, ThemeString(ThemeValue::Images_Path, theme), &img);
+    load_image_from_resource(resource_index, theme_string(theme_value::images_path, theme_), &img);
 }
 #endif
 
-Image::Image(const std::wstring &fileName_, std::shared_ptr<ITheme> theme_)
-	: theme(theme_),
-	position(),
-	parent(),
-	showed(true),
-	fileName(fileName_)
+image::image(const std::wstring &file_name_, std::shared_ptr<i_theme> theme__)
+    : theme_(theme__),
+    position_(),
+    parent(),
+    showed_(true),
+    file_name(file_name_)
 #ifdef _WIN32
-	, resourceIndex(0),
-	img(nullptr)
+    , resource_index(0),
+    img(nullptr)
 #endif
 {
-	LoadImageFromFile(fileName, ThemeString(ThemeValue::Images_Path, theme), &img);
+    load_image_from_file(file_name_, theme_string(theme_value::images_path, theme_), &img);
 }
 
-Image::~Image()
+image::~image()
 {
 #ifdef _WIN32
-	FreeImage(&img);
+    free_image(&img);
 #endif
 
-	if (parent.lock())
-	{
-		parent.lock()->RemoveControl(shared_from_this());
-	}
+    if (parent.lock())
+    {
+        parent.lock()->remove_control(shared_from_this());
+    }
 }
 
-void Image::Draw(Graphic &gr)
+void image::draw(graphic &gr)
 {
-	if (!showed)
-	{
-		return;
-	}
+    if (!showed_)
+    {
+        return;
+    }
 
 #ifdef _WIN32
-	if (img)
-	{
-		Gdiplus::Graphics gr(gr.dc);
+    if (img)
+    {
+        Gdiplus::Graphics gr(gr.dc);
 
-		gr.DrawImage(
-			img->Clone(),
-			Gdiplus::Rect(position.left, position.top, position.width(), position.height()),
-			0, 0, img->GetWidth(), img->GetHeight(),
-			Gdiplus::UnitPixel,
-			nullptr);
-	}
+        gr.DrawImage(
+            img->Clone(),
+            Gdiplus::Rect(position_.left, position_.top, position_.width(), position_.height()),
+            0, 0, img->GetWidth(), img->GetHeight(),
+            Gdiplus::UnitPixel,
+            nullptr);
+    }
 #endif
 }
 
-void Image::ReceiveEvent(const Event &ev)
+void image::receive_event(const event &)
 {
 }
 
-void Image::SetPosition(const Rect &position_)
+void image::set_position(const rect &position__)
 {
-	auto prevPosition = position;
-	position = position_;
+    auto prev_position = position_;
+    position_ = position__;
 
-	if (parent.lock())
-	{
-		parent.lock()->Redraw(prevPosition, true);
-	}
+    if (parent.lock())
+    {
+        parent.lock()->redraw(prev_position, true);
+    }
 	
-	Redraw();
+    redraw();
 }
 
-Rect Image::GetPosition() const
+rect image::position() const
 {
-	return position;
+	return position_;
 }
 
-void Image::SetParent(std::shared_ptr<Window> window)
+void image::set_parent(std::shared_ptr<window> window)
 {
-	parent = window;
+    parent = window;
 }
 
-void Image::ClearParent()
+void image::clear_parent()
 {
-	parent.reset();
+    parent.reset();
 }
 
-void Image::SetFocus()
+void image::set_focus()
 {
 }
 
-bool Image::RemoveFocus()
+bool image::remove_focus()
 {
-	return true;
+    return true;
 }
 
-bool Image::Focused() const
+bool image::focused() const
 {
-	return false;
+    return false;
 }
 
-bool Image::Focusing() const
+bool image::focusing() const
 {
-	return false;
+    return false;
 }
 
-void Image::UpdateTheme(std::shared_ptr<ITheme> theme_)
+void image::update_theme(std::shared_ptr<i_theme> theme__)
 {
-	if (theme && !theme_)
+	if (theme_ && !theme__)
 	{
 		return;
 	}
-	theme = theme_;
+	theme_ = theme__;
 
-	if (resourceIndex)
-	{
-		ChangeImage(resourceIndex);
-	}
-	else if (!fileName.empty())
-	{
-		ChangeImage(fileName);
-	}
+    if (resource_index)
+    {
+        change_image(resource_index);
+    }
+    else if (!file_name.empty())
+    {
+        change_image(file_name);
+    }
 }
 
-void Image::Show()
+void image::show()
 {
-	showed = true;
-	Redraw();
+    showed_ = true;
+    redraw();
 }
 
-void Image::Hide()
+void image::hide()
 {
-	showed = false;
-	Redraw();
+    showed_ = false;
+    redraw();
 }
 
-bool Image::Showed() const
+bool image::showed() const
 {
-	return showed;
+    return showed_;
 }
 
-void Image::Enable()
-{
-}
-
-void Image::Disable()
+void image::enable()
 {
 }
 
-bool Image::Enabled() const
+void image::disable()
 {
-	return true;
+}
+
+bool image::enabled() const
+{
+    return true;
 }
 
 #ifdef _WIN32
-void Image::ChangeImage(int32_t resourceIndex_)
+void image::change_image(int32_t resource_index_)
 {
-	resourceIndex = resourceIndex_;
+    resource_index = resource_index_;
 
-	FreeImage(&img);
-	LoadImageFromResource(resourceIndex, ThemeString(ThemeValue::Images_Path, theme), &img);
-	Redraw();
+    free_image(&img);
+    load_image_from_resource(resource_index, theme_string(theme_value::images_path, theme_), &img);
+    redraw();
 }
 #endif
 
-void Image::ChangeImage(const std::wstring &fileName_)
+void image::change_image(const std::wstring &file_name_)
 {
-	fileName = fileName_;
+    file_name = file_name_;
 
-	FreeImage(&img);
-	LoadImageFromFile(fileName, ThemeString(ThemeValue::Images_Path, theme), &img);
-	Redraw();
+    free_image(&img);
+    load_image_from_file(file_name, theme_string(theme_value::images_path, theme_), &img);
+    redraw();
 }
 
-int32_t Image::width() const
+int32_t image::width() const
 {
-	if (img)
-	{
-		return img->GetWidth();
-	}
-	return 0;
+    if (img)
+    {
+        return img->GetWidth();
+    }
+    return 0;
 }
 
-int32_t Image::height() const
+int32_t image::height() const
 {
-	if (img)
-	{
-		return img->GetHeight();
-	}
-	return 0;
+    if (img)
+    {
+        return img->GetHeight();
+    }
+    return 0;
 }
 
-void Image::Redraw()
+void image::redraw()
 {
-	if (parent.lock())
-	{
-		parent.lock()->Redraw(position);
-	}
+    if (parent.lock())
+    {
+        parent.lock()->redraw(position_);
+    }
 }
 
 }

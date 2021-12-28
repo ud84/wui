@@ -22,7 +22,7 @@
 #include <resource.hpp>
 #endif
 
-namespace WUI
+namespace wui
 {
 
 Window::Window()

@@ -22,7 +22,7 @@
     <ClInclude Include="include\wui\common\color.hpp" />
     <ClInclude Include="include\wui\common\rect.hpp" />
     <ClInclude Include="include\wui\control\button.hpp" />
-    <ClInclude Include="include\wui\control\icontrol.hpp" />
+    <ClInclude Include="include\wui\control\i_control.hpp" />
     <ClInclude Include="include\wui\control\image.hpp" />
     <ClInclude Include="include\wui\event\event.hpp" />
     <ClInclude Include="include\wui\event\internal_event.hpp" />
@@ -32,9 +32,9 @@
     <ClInclude Include="include\wui\theme\impl\custom_theme.hpp" />
     <ClInclude Include="include\wui\theme\impl\dark_theme.hpp" />
     <ClInclude Include="include\wui\theme\impl\white_theme.hpp" />
-    <ClInclude Include="include\wui\theme\itheme.hpp" />
+    <ClInclude Include="include\wui\theme\i_theme.hpp" />
     <ClInclude Include="include\wui\theme\theme.hpp" />
-    <ClInclude Include="include\wui\window\iwindow.hpp" />
+    <ClInclude Include="include\wui\window\i_window.hpp" />
     <ClInclude Include="include\wui\window\window.hpp" />
     <ClInclude Include="res\resource.hpp" />
   </ItemGroup>

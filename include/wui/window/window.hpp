@@ -9,9 +9,9 @@
 
 #pragma once
 
-#include <wui/window/iwindow.hpp>
+#include <wui/window/i_window.hpp>
 #include <wui/common/rect.hpp>
-#include <wui/control/icontrol.hpp>
+#include <wui/control/i_control.hpp>
 #include <wui/event/event.hpp>
 
 #include <vector>
@@ -21,135 +21,135 @@
 #include <windows.h>
 #endif
 
-namespace WUI
+namespace wui
 {
 
-enum class WindowState
+enum class window_state
 {
-	Normal,
-	Minimized,
-	Maximized
+    normal,
+    minimized,
+    maximized
 };
 
-class Button;
+class button;
 
-class Window : public IWindow, public IControl, public std::enable_shared_from_this<Window>
+class window : public i_window, public i_control, public std::enable_shared_from_this<window>
 {
 public:
-	Window();
-	~Window();
+    window();
+    ~window();
 
-	/// IWindow
-	virtual bool Init(WindowType type, const Rect &position, const std::wstring &caption, std::function<void(void)> closeCallback, std::shared_ptr<ITheme> theme = nullptr);
-	virtual void Destroy();
+    /// IWindow
+    virtual bool init(window_type type, const rect &position, const std::wstring &caption, std::function<void(void)> close_callback, std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual void destroy();
 
-	virtual void AddControl(std::shared_ptr<IControl> control, const Rect &position);
-	virtual void RemoveControl(std::shared_ptr<IControl> control);
+    virtual void addControl(std::shared_ptr<i_control> control, const rect &position);
+    virtual void removeControl(std::shared_ptr<i_control> control);
 
-	virtual void Redraw(const Rect &position, bool clear = false);
+    virtual void redraw(const rect &position, bool clear = false);
 
 	/// IControl
-	virtual void Draw(Graphic &gr);
+    virtual void draw(graphic &gr);
 
-	virtual void ReceiveEvent(const Event &ev); /// <- Events from parent window
+    virtual void receive_event(const event &ev);
 
-	virtual void SetPosition(const Rect &position);
-	virtual Rect GetPosition() const;
+    virtual void set_position(const rect &position);
+    virtual rect position() const;
 
-	virtual void SetParent(std::shared_ptr<Window> window);
-	virtual void ClearParent();
+    virtual void set_parent(std::shared_ptr<window> window_);
+    virtual void clear_parent();
 
-	virtual void SetFocus();
-	virtual bool RemoveFocus();
-	virtual bool Focused() const;
-	virtual bool Focusing() const;
+    virtual void set_focus();
+    virtual bool remove_focus();
+    virtual bool focused() const;
+    virtual bool focusing() const;
 
-	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr);
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
-	virtual void Show();
-	virtual void Hide();
-	virtual bool Showed() const;
+    virtual void show();
+    virtual void hide();
+    virtual bool showed() const;
 
-	virtual void Enable();
-	virtual void Disable();
-	virtual bool Enabled() const;
+    virtual void enable();
+    virtual void disable();
+    virtual bool enabled() const;
 
-	/// Window state methods
-	void Minimize();
-	void Expand();
-	void Normal();
-	WindowState GetWindowState() const;
+    /// Window state methods
+    void minimize();
+    void expand();
+    void normal();
+    window_state window_state() const;
 
-	/// Show/hide window caption and button
-	void ShowTitle();
-	void HideTitle();
+    /// Show/hide window caption and button
+    void show_title();
+    void hide_title();
 
-	/// Methods used to block the window while a modal dialog is displayed
-	void Block();
-	void Unlock();
+    /// Methods used to block the window while a modal dialog is displayed
+    void block();
+    void unlock();
 
-	/// Callbacks
-	void SetSizeChangeCallback(std::function<void(int32_t, int32_t)> sizeChangeCallback);
+    /// Callbacks
+    void set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback);
 
 private:
-	std::vector<std::shared_ptr<IControl>> controls;
-	std::shared_ptr<IControl> activeControl;
+    std::vector<std::shared_ptr<i_control>> controls;
+    std::shared_ptr<i_control> activeControl;
 
-	WindowType windowType;
-	Rect position, normalPosition;
-	std::wstring caption;
-	WindowState windowState;
-	std::shared_ptr<ITheme> theme;
+    window_type window_type_;
+    rect position, normal_position;
+    std::wstring caption;
+    wui::window_state window_state_;
+    std::shared_ptr<i_theme> theme_;
 
-	bool showed, enabled, titleShowed;
+    bool showed, enabled, title_showed;
 
-	size_t focusedIndex;
+    size_t focused_index;
 
-	std::shared_ptr<Window> parent;
+    std::shared_ptr<window> parent;
 
-	enum class MovingMode
-	{
-		Move,
-		SizeWELeft,
-		SizeWERight,
-		SizeNSTop,
-		SizeNSBottom,
-		SizeNWSETop,
-		SizeNWSEBottom,
-		SizeNESWTop,
-		SizeNESWBottom
-	};
-	MovingMode movingMode;
+    enum class moving_mode
+    {
+        move,
+        size_we_left,
+        size_we_right,
+        size_ns_top,
+        size_ns_bottom,
+        size_nswe_top,
+        size_nswe_bottom,
+        size_nesw_top,
+        size_nesw_bottom
+    };
+    moving_mode moving_mode_;
 
-	std::function<void(void)> closeCallback;
-	std::function<void(int32_t, int32_t)> sizeChangeCallback;
+    std::function<void(void)> close_callback;
+    std::function<void(int32_t, int32_t)> size_change_callback;
 
-	std::shared_ptr<ITheme> buttonsTheme, closeButtonTheme;
-	std::shared_ptr<Button> minimizeButton, expandButton, closeButton;
+    std::shared_ptr<i_theme> buttons_theme, close_button_theme;
+    std::shared_ptr<Button> minimize_button, expand_button, close_button;
 
 #ifdef _WIN32
-	HWND hWnd;
+    HWND hwnd;
 
-	HBRUSH backgroundBrush;
-	HFONT font;
+    HBRUSH background_brush;
+    HFONT font;
 
-	int16_t xClick, yClick;
-	bool mouseTracked;
+    int16_t x_click, y_click;
+    bool mouse_tracked;
 
-	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK wnd_proc(HWND hWnd, UINT message, WPARAM w_param, LPARAM l_param);
 
-	void MakePrimitives();
-	void DestroyPrimitives();
+    void make_primitives();
+    void destroy_primitives();
 
-	void UpdatePosition();
+    void update_position();
 #endif
 
-	void SendMouseEvent(const MouseEvent &ev);
-	void ChangeFocus();
-	void ExecuteFocused();
-	void SetFocused(std::shared_ptr<IControl> &control);
+    void send_mouse_event(const mouse_event &ev);
+    void change_focus();
+    void execute_focused();
+    void set_focused(std::shared_ptr<i_control> &control);
 
-	void UpdateControlButtonsTheme();
+    void update_control_buttons_theme();
 };
 
 }

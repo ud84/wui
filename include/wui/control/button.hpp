@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <wui/control/icontrol.hpp>
+#include <wui/control/i_control.hpp>
 #include <wui/graphic/graphic.hpp>
 #include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
@@ -19,93 +19,94 @@
 #include <functional>
 #include <memory>
 
-namespace WUI
+namespace wui
 {
 
-class Image;
+class image;
 
-enum class ButtonView
+enum class button_view
 {
-	OnlyText,
-	OnlyImage,
-	ImageRightText,
-	ImageBottomText,
-	ImageRightTextWithoutFrame
+    only_text,
+    only_image,
+    image_right_text,
+    image_bottom_text,
+    image_right_text_no_frame
 };
 
-class Button : public IControl, public std::enable_shared_from_this<Button>
+class button : public i_control, public std::enable_shared_from_this<button>
 {
 public:
-	Button(const std::wstring &caption, std::function<void(void)> clickCallback, std::shared_ptr<ITheme> theme = nullptr);
+    button(const std::wstring &caption, std::function<void(void)> click_callback, std::shared_ptr<i_theme> theme_ = nullptr);
 
 #ifdef _WIN32
-	Button(const std::wstring &caption, std::function<void(void)> clickCallback, ButtonView buttonView, int32_t imageResourceIndex, int32_t imageSize, std::shared_ptr<ITheme> theme = nullptr);
+    button(const std::wstring &caption, std::function<void(void)> click_callback, button_view button_view_, int32_t image_resource_index, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
 #endif
-	Button(const std::wstring &caption, std::function<void(void)> clickCallback, ButtonView buttonView, const std::wstring &imageFileName, int32_t imageSize, std::shared_ptr<ITheme> theme = nullptr);
-	~Button();
+    button(const std::wstring &caption, std::function<void(void)> click_callback, button_view button_view_, const std::wstring &image_file_name, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
+    ~button();
 
-	virtual void Draw(Graphic &gr);
-	virtual void ReceiveEvent(const Event &ev);
-	
-	virtual void SetPosition(const Rect &position);
-	virtual Rect GetPosition() const;
-	
-	virtual void SetParent(std::shared_ptr<Window> window);
-	virtual void ClearParent();
+    virtual void draw(graphic &gr);
 
-	virtual void SetFocus();
-	virtual bool RemoveFocus();
-	virtual bool Focused() const;
-	virtual bool Focusing() const;
-	
-	virtual void UpdateTheme(std::shared_ptr<ITheme> theme = nullptr);
+    virtual void receive_event(const event &ev);
 
-	virtual void Show();
-	virtual void Hide();
-	virtual bool Showed() const;
+    virtual void set_position(const rect &position);
+    virtual rect position() const;
 
-	virtual void Enable();
-	virtual void Disable();
-	virtual bool Enabled() const;
+    virtual void set_parent(std::shared_ptr<window> window_);
+    virtual void clear_parent();
 
-	void SetCaption(const std::wstring &caption);
+    virtual void set_focus();
+    virtual bool remove_focus();
+    virtual bool focused() const;
+    virtual bool focusing() const;
 
-	void SetButtonView(ButtonView buttonView);
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+
+    virtual void show();
+    virtual void hide();
+    virtual bool showed() const;
+
+    virtual void enable();
+    virtual void disable();
+    virtual bool enabled() const;
+
+    void set_caption(const std::wstring &caption);
+
+    void set_button_view(button_view button_view_);
 #ifdef _WIN32
-	void SetImage(int32_t resourceIndex);
+    void set_image(int32_t resourceIndex);
 #endif
-	void SetImage(const std::wstring &fileName);
+    void set_image(const std::wstring &fileName);
 
-	void EnableReceiveFocus();
-	void DisableReceiveFocus();
+    void enable_focusing();
+    void disable_focusing();
 
-	void SetCallback(std::function<void(void)> clickCallback);
+    void set_callback(std::function<void(void)> click_callback);
 
 private:
-	ButtonView buttonView;
-	std::wstring caption;
-	std::shared_ptr<Image> image;
-	int32_t imageSize;
-	std::function<void(void)> clickCallback;
-	std::shared_ptr<ITheme> theme;
+    button_view button_view_;
+    std::wstring caption;
+    std::shared_ptr<image> image_;
+    int32_t image_size;
+    std::function<void(void)> click_callback;
+    std::shared_ptr<i_theme> theme_;
 
-	Rect position;
+    rect position_;
 
-	std::weak_ptr<Window> parent;
+    std::weak_ptr<window> parent;
 
-	bool showed, enabled;
-	bool active, focused;
-	bool receiveFocus;
+    bool showed_, enabled_;
+    bool active, focused_;
+    bool focusing_;
 
 #ifdef _WIN32
-	HBRUSH calmBrush, activeBrush, disabledBrush;
-	HPEN borderPen, focusedBorderPen;
+    HBRUSH calm_brush, active_brush, disabled_brush;
+    HPEN border_pen, focused_border_pen;
 
-	void MakePrimitives();
-	void DestroyPrimitives();
+    void make_primitives();
+    void destroy_primitives();
 #endif
 
-	void Redraw();
+    void redraw();
 };
 
 }

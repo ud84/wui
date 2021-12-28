@@ -9,62 +9,62 @@
 
 #include <wui/theme/impl/custom_theme.hpp>
 
-namespace WUI
+namespace wui
 {
 
-CustomTheme::CustomTheme()
-	: colors(), dimensions(), strings()
+custom_theme::custom_theme()
+    : colors(), dimensions(), strings()
 {
 }
 
-void CustomTheme::SetColor(ThemeValue valueID, Color color)
+void custom_theme::set_color(theme_value value_id, color color_)
 {
-	colors[valueID] = color;
+    colors[value_id] = color_;
 }
 
-Color CustomTheme::GetColor(ThemeValue valueID) const
+color custom_theme::get_color(theme_value value_id) const
 {
-	auto it = colors.find(valueID);
-	if (it != colors.end())
-	{
-		return it->second;
-	}
-	return 0;
+    auto it = colors.find(value_id);
+    if (it != colors.end())
+    {
+        return it->second;
+    }
+    return 0;
 }
 
-Theme CustomTheme::GetTheme() const
+theme custom_theme::get_theme() const
 {
-	return Theme::Custom;
+    return theme::custom;
 }
 
-void CustomTheme::SetDimension(ThemeValue valueID, int32_t dimension)
+void custom_theme::set_dimension(theme_value value_id, int32_t dimension)
 {
-	dimensions[valueID] = dimension;
+    dimensions[value_id] = dimension;
 }
 
-int32_t CustomTheme::GetDimension(ThemeValue valueID) const
+int32_t custom_theme::get_dimension(theme_value value_id) const
 {
-	auto it = dimensions.find(valueID);
-	if (it != dimensions.end())
-	{
-		return it->second;
-	}
-	return 0;
+    auto it = dimensions.find(value_id);
+    if (it != dimensions.end())
+    {
+        return it->second;
+    }
+    return 0;
 }
 
-void CustomTheme::SetString(ThemeValue valueID, const std::wstring &value)
+void custom_theme::set_string(theme_value value_id, const std::wstring &value)
 {
-	strings[valueID] = value;
+    strings[value_id] = value;
 }
 
-std::wstring CustomTheme::GetString(ThemeValue valueID) const
+std::wstring custom_theme::get_string(theme_value value_id) const
 {
-	auto it = strings.find(valueID);
-	if (it != strings.end())
-	{
-		return it->second;
-	}
-	return L"";
+    auto it = strings.find(value_id);
+    if (it != strings.end())
+    {
+        return it->second;
+    }
+    return L"";
 }
 
 }

@@ -1,29 +1,38 @@
+//
+// Copyright (c) 2021-2022 Anton Golovkov (udattsk at gmail dot com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/ud84/WUI
+//
+
 #pragma once
 
 #include <cstdint>
 
-namespace WUI
+namespace wui
 {
 
-enum class MouseEventType
+enum class mouse_event_type
 {
-	Move,
-	Enter,
-	Leave,
-	RightDown,
-	RightUp,
-	CenterDown,
-	CenterUp,
-	LeftDown,
-	LeftUp,
-	RightDouble
+    move,
+    enter,
+    leave,
+    right_down,
+    right_up,
+    center_down,
+    center_up,
+    left_down,
+    left_up,
+    right_double
 };
 
-struct MouseEvent
+struct mouse_event
 {
-	MouseEventType type;
+    mouse_event_type type;
 
-	int32_t x, y;
+    int32_t x, y;
 };
 
 }
