@@ -49,10 +49,10 @@ window::window()
     font(0),
     x_click(0), y_click(0),
     mouse_tracked(false)
-#elif __linux__ 
-	minimize_button(new button(L"", std::bind(&Window::Minimize, this), ButtonView::OnlyImage, ImagesConsts::Window_MinimizeButton, 24)),
-	expand_button(new button(L"", [this]() { windowState == WindowState::Normal ? Expand() : Normal(); }, ButtonView::OnlyImage, windowState == WindowState::Normal ? ImagesConsts::Window_ExpandButton : ImagesConsts::Window_NormalButton, 24)),
-	close_button(new button(L"", std::bind(&Window::Destroy, this), ButtonView::OnlyImage, ImagesConsts::Window_CloseButton, 24)),
+#elif __linux__
+    minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, ImagesConsts::Window_MinimizeButton, 24)),
+    expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? ImagesConsts::Window_ExpandButton : ImagesConsts::Window_NormalButton, 24)),
+    close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, ImagesConsts::Window_CloseButton, 24))
 #endif
 {
     minimize_button->disable_focusing();
@@ -68,7 +68,7 @@ window::~window()
 {
     if (parent)
     {
-    parent->remove_control(shared_from_this());
+        parent->remove_control(shared_from_this());
     }
 #ifdef _WIN32
     destroy_primitives();
@@ -84,7 +84,7 @@ void window::add_control(std::shared_ptr<i_control> control, const rect &control
         controls.emplace_back(control);
 
         redraw(control->position());
-	}
+    }
 }
 
 void window::remove_control(std::shared_ptr<i_control> control)
@@ -138,7 +138,7 @@ void window::receive_event(const event &ev)
     switch (ev.type)
     {
         case event_type::mouse:
-			send_mouse_event(ev.mouse_event_);
+            send_mouse_event(ev.mouse_event_);
         break;
         case event_type::internal:
             if (ev.internal_event_.type == internal_event_type::execute_focused)
@@ -378,7 +378,7 @@ void window::normal()
 
 window_state window::window_state() const
 {
-	return window_state_;
+    return window_state_;
 }
 
 void window::show_title()
@@ -394,7 +394,7 @@ void window::show_title()
 
 void window::hide_title()
 {
-	title_showed = false;
+    title_showed = false;
 
     minimize_button->hide();
     expand_button->hide();
@@ -452,7 +452,7 @@ void window::send_mouse_event(const mouse_event &ev)
                 {
                     mouse_event me{ mouse_event_type::leave, 0, 0 };
                     active_control->receive_event({ event_type::mouse, me });
-				}
+                }
 
                 active_control = control;
 
@@ -498,7 +498,7 @@ void window::change_focus()
     }
 
     if (focused_index >= focusing_controls)
-	{
+    {
         focused_index = 0;
     }
 
@@ -571,7 +571,7 @@ void window::update_control_buttons_theme()
 
         minimize_button->update_theme(buttons_theme);
         expand_button->update_theme(buttons_theme);
-	}
+    }
 
     close_button_theme->set_color(theme_value::button_calm, background_color);
     close_button_theme->set_color(theme_value::button_active, make_color(235, 15, 20));
@@ -727,8 +727,8 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             RECT window_rect;
             GetWindowRect(hwnd, &window_rect);
 
-			int16_t x_mouse = GET_X_LPARAM(l_param);
-			int16_t y_mouse = GET_Y_LPARAM(l_param);
+            int16_t x_mouse = GET_X_LPARAM(l_param);
+            int16_t y_mouse = GET_Y_LPARAM(l_param);
 
             if (wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal)
             {
@@ -752,17 +752,17 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 }
             }
 
-			if (!wnd->mouse_tracked)
-			{
-				TRACKMOUSEEVENT track_mouse_event;
+            if (!wnd->mouse_tracked)
+            {
+                TRACKMOUSEEVENT track_mouse_event;
 
                 track_mouse_event.cbSize = sizeof(track_mouse_event);
                 track_mouse_event.dwFlags = TME_LEAVE;
                 track_mouse_event.hwndTrack = hwnd;
 
-				TrackMouseEvent(&track_mouse_event);
+                TrackMouseEvent(&track_mouse_event);
 
-				wnd->mouse_tracked = true;
+                wnd->mouse_tracked = true;
             }
 
             if (GetCapture() == hwnd && wnd->window_state_ == window_state::normal)
