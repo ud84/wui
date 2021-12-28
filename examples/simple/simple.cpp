@@ -67,6 +67,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	std::shared_ptr<wui::window> window(new wui::window());
 
+    std::shared_ptr<wui::image> accountImage(new wui::image(IDB_ACCOUNT));
+    window->add_control(accountImage, wui::rect{ 250, 100, 314, 164 });
+
 	PluggedWindow pluggedWindow(window);
 	pluggedWindow.Plug();
 
@@ -101,9 +104,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	window->add_control(okButton, wui::rect{ 240, 450, 350, 480 });
 	window->add_control(cancelButton, wui::rect{ 370, 450, 480, 480 });
-
-	std::shared_ptr<wui::image> accountImage(new wui::image(IDB_ACCOUNT));
-	window->add_control(accountImage, wui::rect{ 250, 100, 314, 164 });
 
 	/*auto fileImageTheme = wui::make_custom_theme();
 	fileImageTheme->set_string(wui::theme_value::images_path, L"F:\\Docs");

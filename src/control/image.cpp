@@ -216,7 +216,10 @@ void image::show()
 void image::hide()
 {
     showed_ = false;
-    redraw();
+    if (parent.lock())
+    {
+        parent.lock()->redraw(position_, true);
+    }
 }
 
 bool image::showed() const
