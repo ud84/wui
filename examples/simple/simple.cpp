@@ -89,7 +89,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	redButtonTheme->set_color(wui::theme_value::button_focused_border, wui::make_color(20, 215, 20));
 	redButtonTheme->set_color(wui::theme_value::button_text, wui::make_color(190, 205, 190));
 	redButtonTheme->set_color(wui::theme_value::button_disabled, wui::make_color(180, 190, 180));
-	redButtonTheme->set_dimension(wui::theme_value::button_round, 5);
+	redButtonTheme->set_dimension(wui::theme_value::button_round, 0);
 	redButtonTheme->set_string(wui::theme_value::images_path, L"IMAGES_DARK");
 	std::shared_ptr<wui::button> cancelButton(new wui::button(L"Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IDB_ACCOUNT, 24, redButtonTheme));
 
@@ -105,10 +105,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	std::shared_ptr<wui::image> accountImage(new wui::image(IDB_ACCOUNT));
 	window->add_control(accountImage, wui::rect{ 250, 100, 314, 164 });
 
-	/*auto fileImageTheme = wui::MakeCustomTheme();
-	fileImageTheme->SetString(wui::ThemeValue::Images_Path, L"F:\\Docs");
-	std::shared_ptr<wui::Image> fileImage(new wui::Image(L"kavareiya_1.png", fileImageTheme));
-	window->AddControl(fileImage, wui::Rect{ 180, 200, 344, 344 });*/
+	/*auto fileImageTheme = wui::make_custom_theme();
+	fileImageTheme->set_string(wui::theme_value::images_path, L"F:\\Docs");
+	std::shared_ptr<wui::image> fileImage(new wui::image(L"kavareiya_1.png", fileImageTheme));
+	window->add_control(fileImage, wui::rect{ 180, 200, 344, 344 });*/
 
 	window->init(wui::window_type::frame, wui::rect{ 100, 100, 500, 500 }, L"Welcome to WUI!", []() { PostQuitMessage(IDCANCEL); });
 	

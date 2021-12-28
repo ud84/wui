@@ -28,7 +28,7 @@ dark_theme::dark_theme()
     },
     dimensions
     {
-        { theme_value::button_round, 5}
+        { theme_value::button_round, 0}
     },
     strings
     {
