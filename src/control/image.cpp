@@ -37,24 +37,24 @@ void load_image_from_resource(WORD image_id, const std::wstring &resource_sectio
     }
 
     HGLOBAL h_buffer = ::GlobalAlloc(GMEM_MOVEABLE, image_size);
-	if (h_buffer)
-	{
-		void* p_buffer = ::GlobalLock(h_buffer);
-		if (p_buffer)
-		{
-			CopyMemory(p_buffer, resource_data, image_size);
+    if (h_buffer)
+    {
+        void* p_buffer = ::GlobalLock(h_buffer);
+        if (p_buffer)
+        {
+            CopyMemory(p_buffer, resource_data, image_size);
 
-			IStream* p_stream = NULL;
-			if (::CreateStreamOnHGlobal(h_buffer, FALSE, &p_stream) == S_OK)
-			{
-				*img = Gdiplus::Image::FromStream(p_stream);
-				p_stream->Release();
-			}
+            IStream* p_stream = NULL;
+            if (::CreateStreamOnHGlobal(h_buffer, FALSE, &p_stream) == S_OK)
+            {
+                *img = Gdiplus::Image::FromStream(p_stream);
+                p_stream->Release();
+            }
 
             ::GlobalUnlock(p_buffer);
-		}
-		::GlobalFree(h_buffer);
-	}
+        }
+        ::GlobalFree(h_buffer);
+    }
 }
 
 void load_image_from_file(const std::wstring &file_name, const std::wstring &images_path, Gdiplus::Image **img)
@@ -191,11 +191,11 @@ bool image::focusing() const
 
 void image::update_theme(std::shared_ptr<i_theme> theme__)
 {
-	if (theme_ && !theme__)
-	{
-		return;
-	}
-	theme_ = theme__;
+    if (theme_ && !theme__)
+    {
+        return;
+    }
+    theme_ = theme__;
 
     if (resource_index)
     {

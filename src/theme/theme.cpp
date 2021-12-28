@@ -56,7 +56,7 @@ color theme_color(theme_value value_id, std::shared_ptr<i_theme> theme_)
         return theme_->get_color(value_id);
     }
     else if (instance)
-	{
+    {
         return instance->get_color(value_id);
     }
     return 0;
