@@ -25,997 +25,999 @@
 namespace wui
 {
 
-Window::Window()
-	: controls(),
-	activeControl(),
-	windowType(WindowType::Frame),
-	position(), normalPosition(),
-	caption(),
-	windowState(WindowState::Normal),
-	theme(),
-	showed(true), enabled(true), titleShowed(true),
-	focusedIndex(0),
-	parent(),
-	movingMode(MovingMode::Move),
-	closeCallback(),
-	sizeChangeCallback(),
-	buttonsTheme(MakeCustomTheme()), closeButtonTheme(MakeCustomTheme()),
+window::window()
+    : controls(),
+    active_control(),
+    window_type_(window_type::frame),
+    position_(), normal_position(),
+    caption(),
+    window_state_(window_state::normal),
+    theme_(),
+    showed_(true), enabled_(true), title_showed(true),
+    focused_index(0),
+    parent(),
+    moving_mode_(moving_mode::move),
+    close_callback(),
+    size_change_callback(),
+    buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
 #ifdef _WIN32
-	minimizeButton(new Button(L"", std::bind(&Window::Minimize, this), ButtonView::OnlyImage, IDB_WINDOW_MINIMIZE, 24)),
-	expandButton(new Button(L"", [this]() { windowState == WindowState::Normal ? Expand() : Normal(); }, ButtonView::OnlyImage, windowState == WindowState::Normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
-	closeButton(new Button(L"", std::bind(&Window::Destroy, this), ButtonView::OnlyImage, IDB_WINDOW_CLOSE, 24)),
-	hWnd(0),
-	backgroundBrush(0),
-	font(0),
-	xClick(0), yClick(0),
-	mouseTracked(false)
+    minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
+    expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
+    close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
+    hwnd(0),
+    background_brush(0),
+    font(0),
+    x_click(0), y_click(0),
+    mouse_tracked(false)
 #elif __linux__ 
-	minimizeButton(new Button(L"", std::bind(&Window::Minimize, this), ButtonView::OnlyImage, ImagesConsts::Window_MinimizeButton, 24)),
-	expandButton(new Button(L"", [this]() { windowState == WindowState::Normal ? Expand() : Normal(); }, ButtonView::OnlyImage, windowState == WindowState::Normal ? ImagesConsts::Window_ExpandButton : ImagesConsts::Window_NormalButton, 24)),
-	closeButton(new Button(L"", std::bind(&Window::Destroy, this), ButtonView::OnlyImage, ImagesConsts::Window_CloseButton, 24)),
+	minimize_button(new button(L"", std::bind(&Window::Minimize, this), ButtonView::OnlyImage, ImagesConsts::Window_MinimizeButton, 24)),
+	expand_button(new button(L"", [this]() { windowState == WindowState::Normal ? Expand() : Normal(); }, ButtonView::OnlyImage, windowState == WindowState::Normal ? ImagesConsts::Window_ExpandButton : ImagesConsts::Window_NormalButton, 24)),
+	close_button(new button(L"", std::bind(&Window::Destroy, this), ButtonView::OnlyImage, ImagesConsts::Window_CloseButton, 24)),
 #endif
 {
-	minimizeButton->DisableReceiveFocus();
-	expandButton->DisableReceiveFocus();
-	closeButton->DisableReceiveFocus();
+    minimize_button->disable_focusing();
+    expand_button->disable_focusing();
+    close_button->disable_focusing();
 
 #ifdef _WIN32
-	MakePrimitives();
+    make_primitives();
 #endif
 }
 
-Window::~Window()
+window::~window()
 {
-	if (parent)
-	{
-		parent->RemoveControl(shared_from_this());
-	}
+    if (parent)
+    {
+    parent->remove_control(shared_from_this());
+    }
 #ifdef _WIN32
-	DestroyPrimitives();
+    destroy_primitives();
 #endif
 }
 
-void Window::AddControl(std::shared_ptr<IControl> control, const Rect &controlPosition)
+void window::add_control(std::shared_ptr<i_control> control, const rect &control_position)
 {
-	if (std::find(controls.begin(), controls.end(), control) == controls.end())
-	{
-		control->SetPosition(!parent ? controlPosition : position + controlPosition);
-		control->SetParent(shared_from_this());
-		controls.emplace_back(control);
+    if (std::find(controls.begin(), controls.end(), control) == controls.end())
+    {
+        control->set_position(!parent ? control_position : position_ + control_position);
+        control->set_parent(shared_from_this());
+        controls.emplace_back(control);
 
-		Redraw(control->GetPosition());
+        redraw(control->position());
 	}
 }
 
-void Window::RemoveControl(std::shared_ptr<IControl> control)
+void window::remove_control(std::shared_ptr<i_control> control)
 {
-	auto exist = std::find(controls.begin(), controls.end(), control);
-	if (exist != controls.end())
-	{
-		(*exist)->ClearParent();
+    auto exist = std::find(controls.begin(), controls.end(), control);
+    if (exist != controls.end())
+    {
+        (*exist)->clear_parent();
 		
-		Redraw((*exist)->GetPosition(), true);
+        redraw((*exist)->position(), true);
 
-		controls.erase(exist);
-	}
+        controls.erase(exist);
+    }
 }
 
-void Window::Redraw(const Rect &redrawPosition, bool clear)
+void window::redraw(const rect &redraw_position, bool clear)
 {
-	if (parent)
-	{
-		parent->Redraw(redrawPosition, clear);
-	}
-	else
-	{
+    if (parent)
+    {
+        parent->redraw(redraw_position, clear);
+    }
+    else
+    {
 #ifdef _WIN32
-		RECT invalidatingRect = { redrawPosition.left, redrawPosition.top, redrawPosition.right, redrawPosition.bottom };
-		InvalidateRect(hWnd, &invalidatingRect, clear ? TRUE : FALSE);
+        RECT invalidatingRect = { redraw_position.left, redraw_position.top, redraw_position.right, redraw_position.bottom };
+        InvalidateRect(hwnd, &invalidatingRect, clear ? TRUE : FALSE);
 #endif
-	}
+    }
 }
 
-void Window::Draw(Graphic &gr)
+void window::draw(graphic &gr)
 {
-	if (!showed)
-	{
-		return;
-	}
+    if (!showed_)
+    {
+        return;
+    }
 
-	for (auto &control : controls)
-	{
-		control->Draw(gr);
-	}
+    for (auto &control : controls)
+    {
+        control->draw(gr);
+    }
 }
 
-void Window::ReceiveEvent(const Event &ev)
+void window::receive_event(const event &ev)
 {
-	if (!showed)
-	{
-		return;
-	}
+    if (!showed_)
+    {
+        return;
+    }
 
-	switch (ev.type)
-	{
-		case EventType::Mouse:
-			SendMouseEvent(ev.mouseEvent);
-		break;
-		case EventType::Internal:
-			if (ev.internalEvent.type == InternalEventType::ExecuteFocused)
-			{
-				ExecuteFocused();
-			}
-		break;
-	}
+    switch (ev.type)
+    {
+        case event_type::mouse:
+			send_mouse_event(ev.mouse_event_);
+        break;
+        case event_type::internal:
+            if (ev.internal_event_.type == internal_event_type::execute_focused)
+            {
+                execute_focused();
+            }
+        break;
+    }
 }
 
-void Window::SetPosition(const Rect &position_)
+void window::set_position(const rect &position__)
 {
-	position = position_;
-	normalPosition = position;
+    position_ = position__;
+    normal_position = position_;
 
 #ifdef _WIN32
-	SetWindowPos(hWnd, NULL, position.left, position.top, position.right, position.bottom, NULL);
-#endif
-}
-
-Rect Window::GetPosition() const
-{
-	return position;
-}
-
-void Window::SetParent(std::shared_ptr<Window> window)
-{
-	parent = window;
-}
-
-void Window::ClearParent()
-{
-	parent.reset();
-}
-
-void Window::SetFocus()
-{
-	ChangeFocus();
-}
-
-bool Window::RemoveFocus()
-{
-	size_t focusingControls = 0;
-	for (const auto &control : controls)
-	{
-		if (control->Focused())
-		{
-			control->RemoveFocus();
-			++focusedIndex;
-		}
-
-		if (control->Focusing())
-		{
-			++focusingControls;
-		}
-	}
-
-	if (focusedIndex >= focusingControls)
-	{
-		focusedIndex = 0;
-		return true;
-	}
-
-	controls[focusedIndex]->SetFocus();
-
-	return false;
-}
-
-bool Window::Focused() const
-{
-	for (const auto &control : controls)
-	{
-		if (control->Focused())
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool Window::Focusing() const
-{
-	for (const auto &control : controls)
-	{
-		if (control->Focusing())
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-void Window::UpdateTheme(std::shared_ptr<ITheme> theme_)
-{
-	if (theme && !theme_)
-	{
-		return;
-	}
-	theme = theme_;
-
-#ifdef _WIN32
-	DestroyPrimitives();
-	MakePrimitives();
-
-	if (!parent)
-	{
-		RECT clientRect;
-		GetClientRect(hWnd, &clientRect);
-		InvalidateRect(hWnd, &clientRect, TRUE);
-	}
-#endif
-
-	for (auto &control : controls)
-	{
-		control->UpdateTheme(theme);
-	}
-
-	UpdateControlButtonsTheme();
-}
-
-void Window::Show()
-{
-	showed = true;
-
-	for (auto &control : controls)
-	{
-		control->Show();
-	}
-
-#ifdef _WIN32
-	if (!parent)
-	{
-		ShowWindow(hWnd, SW_SHOW);
-	}
+    SetWindowPos(hwnd, NULL, position_.left, position_.top, position_.right, position_.bottom, NULL);
 #endif
 }
 
-void Window::Hide()
+rect window::position() const
 {
-	showed = false;
+    return position_;
+}
 
-	for (auto &control : controls)
-	{
-		control->Hide();
-	}
+void window::set_parent(std::shared_ptr<window> window)
+{
+    parent = window;
+}
+
+void window::clear_parent()
+{
+    parent.reset();
+}
+
+void window::set_focus()
+{
+    change_focus();
+}
+
+bool window::remove_focus()
+{
+    size_t focusing_controls = 0;
+    for (const auto &control : controls)
+    {
+        if (control->focused())
+        {
+            control->remove_focus();
+            ++focused_index;
+        }
+
+        if (control->focusing())
+        {
+            ++focusing_controls;
+        }
+    }
+
+    if (focused_index >= focusing_controls)
+    {
+        focused_index = 0;
+        return true;
+    }
+
+    controls[focused_index]->set_focus();
+
+    return false;
+}
+
+bool window::focused() const
+{
+    for (const auto &control : controls)
+    {
+        if (control->focused())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool window::focusing() const
+{
+    for (const auto &control : controls)
+    {
+        if (control->focusing())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void window::update_theme(std::shared_ptr<i_theme> theme__)
+{
+    if (theme_ && !theme__)
+    {
+        return;
+    }
+    theme_ = theme__;
 
 #ifdef _WIN32
-	if (!parent)
-	{
-		ShowWindow(hWnd, SW_HIDE);
-	}
+    destroy_primitives();
+    make_primitives();
+
+    if (!parent)
+    {
+        RECT client_rect;
+        GetClientRect(hwnd, &client_rect);
+        InvalidateRect(hwnd, &client_rect, TRUE);
+    }
+#endif
+
+    for (auto &control : controls)
+    {
+        control->update_theme(theme_);
+    }
+
+    update_control_buttons_theme();
+}
+
+void window::show()
+{
+    showed_ = true;
+
+    for (auto &control : controls)
+    {
+        control->show();
+    }
+
+#ifdef _WIN32
+    if (!parent)
+    {
+        ShowWindow(hwnd, SW_SHOW);
+    }
 #endif
 }
 
-bool Window::Showed() const
+void window::hide()
 {
-	return showed;
-}
+    showed_ = false;
 
-void Window::Enable()
-{
-	enabled = true;
-
-	for (auto &control : controls)
-	{
-		control->Enable();
-	}
-}
-
-void Window::Disable()
-{
-	enabled = false;
-
-	for (auto &control : controls)
-	{
-		control->Disable();
-	}
-}
-
-bool Window::Enabled() const
-{
-	return enabled;
-}
-
-void Window::Minimize()
-{
-	if (windowState == WindowState::Minimized)
-	{
-		return;
-	}
+    for (auto &control : controls)
+    {
+        control->hide();
+    }
 
 #ifdef _WIN32
-	ShowWindow(hWnd, SW_MINIMIZE);
-#endif
-
-	windowState = WindowState::Minimized;
-}
-
-void Window::Expand()
-{
-	windowState = WindowState::Maximized;
-
-#ifdef _WIN32
-	if (titleShowed)
-	{
-		RECT workArea;
-		SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
-
-		SetWindowPos(hWnd, NULL, workArea.left, workArea.top, workArea.right, workArea.bottom, NULL);
-	}
-	else
-	{
-		ShowWindow(hWnd, SW_MAXIMIZE);
-	}
-
-	expandButton->SetImage(IDB_WINDOW_NORMAL);
+    if (!parent)
+    {
+        ShowWindow(hwnd, SW_HIDE);
+    }
 #endif
 }
 
-void Window::Normal()
+bool window::showed() const
 {
-	if (windowState == WindowState::Normal)
-	{
-		return;
-	}
+    return showed_;
+}
 
-	SetPosition(normalPosition);
+void window::enable()
+{
+    enabled_ = true;
 
-	windowState = WindowState::Normal;
+    for (auto &control : controls)
+    {
+        control->enable();
+    }
+}
+
+void window::disable()
+{
+    enabled_ = false;
+
+    for (auto &control : controls)
+    {
+        control->disable();
+    }
+}
+
+bool window::enabled() const
+{
+    return enabled_;
+}
+
+void window::minimize()
+{
+    if (window_state_ == window_state::minimized)
+    {
+        return;
+    }
 
 #ifdef _WIN32
-	expandButton->SetImage(IDB_WINDOW_EXPAND);
+    ShowWindow(hwnd, SW_MINIMIZE);
+#endif
+
+    window_state_ = window_state::minimized;
+}
+
+void window::expand()
+{
+    window_state_ = window_state::maximized;
+
+#ifdef _WIN32
+    if (title_showed)
+    {
+        RECT work_area;
+        SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
+
+        SetWindowPos(hwnd, NULL, work_area.left, work_area.top, work_area.right, work_area.bottom, NULL);
+    }
+    else
+    {
+        ShowWindow(hwnd, SW_MAXIMIZE);
+    }
+
+    expand_button->set_image(IDB_WINDOW_NORMAL);
 #endif
 }
 
-WindowState Window::GetWindowState() const
+void window::normal()
 {
-	return windowState;
-}
+    if (window_state_ == window_state::normal)
+    {
+        return;
+    }
 
-void Window::ShowTitle()
-{
-	titleShowed = true;
+    set_position(normal_position);
 
-	minimizeButton->Show();
-	expandButton->Show();
-	closeButton->Show();
+    window_state_ = window_state::normal;
 
-	Redraw({ 0, 0, position.width(), 30 }, false);
-}
-
-void Window::HideTitle()
-{
-	titleShowed = false;
-
-	minimizeButton->Hide();
-	expandButton->Hide();
-	closeButton->Hide();
-
-	Redraw({ 0, 0, position.width(), 30 }, true);
-}
-
-void Window::Block()
-{
 #ifdef _WIN32
-	EnableWindow(hWnd, FALSE);
+    expand_button->set_image(IDB_WINDOW_EXPAND);
 #endif
 }
 
-void Window::Unlock()
+window_state window::window_state() const
+{
+	return window_state_;
+}
+
+void window::show_title()
+{
+    title_showed = true;
+
+    minimize_button->show();
+    expand_button->show();
+    close_button->show();
+
+    redraw({ 0, 0, position_.width(), 30 }, false);
+}
+
+void window::hide_title()
+{
+	title_showed = false;
+
+    minimize_button->hide();
+    expand_button->hide();
+    close_button->hide();
+
+    redraw({ 0, 0, position_.width(), 30 }, true);
+}
+
+void window::block()
 {
 #ifdef _WIN32
-	EnableWindow(hWnd, TRUE);
-	SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    EnableWindow(hwnd, FALSE);
 #endif
 }
 
-void Window::SetSizeChangeCallback(std::function<void(int32_t, int32_t)> sizeChangeCallback_)
+void window::unlock()
 {
-	sizeChangeCallback = sizeChangeCallback_;
+#ifdef _WIN32
+    EnableWindow(hwnd, TRUE);
+    SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+#endif
 }
 
-void Window::SendMouseEvent(const MouseEvent &ev)
+void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback_)
 {
-	if (activeControl && !activeControl->GetPosition().In(ev.x, ev.y))
-	{
-		MouseEvent me{ MouseEventType::Leave, 0, 0 };
-		activeControl->ReceiveEvent({ EventType::Mouse, me });
+    size_change_callback = size_change_callback_;
+}
 
-		activeControl.reset();
-	}
+void window::send_mouse_event(const mouse_event &ev)
+{
+    if (active_control && !active_control->position().in(ev.x, ev.y))
+    {
+        mouse_event me{ mouse_event_type::leave, 0, 0 };
+        active_control->receive_event({ event_type::mouse, me });
 
-	for (auto &control : controls)
-	{
-		if (control->GetPosition().In(ev.x, ev.y))
-		{
-			if (activeControl == control)
-			{
-				if (ev.type == MouseEventType::LeftUp)
-				{
-					SetFocused(control);
+        active_control.reset();
+    }
+
+    for (auto &control : controls)
+    {
+        if (control->position().in(ev.x, ev.y))
+        {
+            if (active_control == control)
+            {
+                if (ev.type == mouse_event_type::left_up)
+                {
+                    set_focused(control);
+                }
+
+                control->receive_event({ event_type::mouse, ev });
+            }
+            else
+            {
+                if (active_control)
+                {
+                    mouse_event me{ mouse_event_type::leave, 0, 0 };
+                    active_control->receive_event({ event_type::mouse, me });
 				}
 
-				control->ReceiveEvent({ EventType::Mouse, ev });
-			}
-			else
-			{
-				if (activeControl)
-				{
-					MouseEvent me{ MouseEventType::Leave, 0, 0 };
-					activeControl->ReceiveEvent({ EventType::Mouse, me });
-				}
+                active_control = control;
 
-				activeControl = control;
+                mouse_event me{ mouse_event_type::enter, 0, 0 };
+                control->receive_event({ event_type::mouse, me });
+            }
 
-				MouseEvent me{ MouseEventType::Enter, 0, 0 };
-				control->ReceiveEvent({ EventType::Mouse, me });
-			}
-
-			break;
-		}
-	}
+            break;
+        }
+    }
 }
 
-void Window::ChangeFocus()
+void window::change_focus()
 {
-	if (controls.empty())
-	{
-		return;
-	}
+    if (controls.empty())
+    {
+        return;
+    }
 
-	for (auto &control : controls)
-	{
-		if (control->Focused())
-		{
-			if (control->RemoveFocus()) // Need to change the focus inside the internal elements of the control
-			{
-				++focusedIndex;
-			}
-			else
-			{
-				return;
-			}
-			break;
-		}
-	}
+    for (auto &control : controls)
+    {
+        if (control->focused())
+        {
+            if (control->remove_focus()) // Need to change the focus inside the internal elements of the control
+            {
+                ++focused_index;
+            }
+            else
+            {
+                return;
+            }
+            break;
+        }
+    }
 
-	size_t focusingControls = 0;
-	for (const auto &control : controls)
-	{
-		if (control->Focusing())
-		{
-			++focusingControls;
-		}
-	}
+    size_t focusing_controls = 0;
+    for (const auto &control : controls)
+    {
+        if (control->focusing())
+        {
+            ++focusing_controls;
+        }
+    }
 
-	if (focusedIndex >= focusingControls)
+    if (focused_index >= focusing_controls)
 	{
-		focusedIndex = 0;
-	}
+        focused_index = 0;
+    }
 
-	size_t index = 0;
-	for (auto &control : controls)
-	{
-		if (control->Focusing())
-		{
-			if (index == focusedIndex)
-			{
-				control->SetFocus();
-				break;
-			}
+    size_t index = 0;
+    for (auto &control : controls)
+    {
+        if (control->focusing())
+        {
+            if (index == focused_index)
+            {
+                control->set_focus();
+                break;
+            }
 			
-			++index;
-		}
-	}
+            ++index;
+        }
+    }
 }
 
-void Window::ExecuteFocused()
+void window::execute_focused()
 {
-	for (auto &control : controls)
-	{
-		if (control->Focused())
-		{
-			Event ev;
-			ev.type = EventType::Internal;
-			ev.internalEvent = InternalEvent{ InternalEventType::ExecuteFocused };;
+    for (auto &control : controls)
+    {
+        if (control->focused())
+        {
+            event ev;
+            ev.type = event_type::internal;
+            ev.internal_event_ = internal_event{ internal_event_type::execute_focused };;
 
-			control->ReceiveEvent(ev);
-			break;
-		}
-	}
+            control->receive_event(ev);
+            break;
+        }
+    }
 }
 
-void Window::SetFocused(std::shared_ptr<IControl> &control)
+void window::set_focused(std::shared_ptr<i_control> &control)
 {
-	size_t index = 0;
-	for (auto &c : controls)
-	{
-		if (c->Focused())
-		{
-			c->RemoveFocus();
-		}
+    size_t index = 0;
+    for (auto &c : controls)
+    {
+        if (c->focused())
+        {
+            c->remove_focus();
+        }
 
-		if (c == control)
-		{
-			focusedIndex = index;
-		}
+        if (c == control)
+        {
+            focused_index = index;
+        }
 
-		++index;
-	}
+        ++index;
+    }
 
-	control->SetFocus();
+    control->set_focus();
 }
 
-void Window::UpdateControlButtonsTheme()
+void window::update_control_buttons_theme()
 {
-	auto backgroundColor = ThemeColor(ThemeValue::Window_Background, theme);
+    auto background_color = theme_color(theme_value::window_background, theme_);
 
-	if (windowType == WindowType::Frame)
-	{
-		buttonsTheme->SetColor(WUI::ThemeValue::Button_Calm, backgroundColor);
-		buttonsTheme->SetColor(WUI::ThemeValue::Button_Active, ThemeColor(ThemeValue::Window_ActiveButton, theme));
-		buttonsTheme->SetColor(WUI::ThemeValue::Button_Border, backgroundColor);
-		buttonsTheme->SetColor(WUI::ThemeValue::Button_Text, ThemeColor(ThemeValue::Window_Text, theme));
-		buttonsTheme->SetColor(WUI::ThemeValue::Button_Disabled, backgroundColor);
-		buttonsTheme->SetDimension(WUI::ThemeValue::Button_Round, 0);
-		buttonsTheme->SetString(ThemeValue::Images_Path, ThemeString(ThemeValue::Images_Path, theme));
+    if (window_type_ == window_type::frame)
+    {
+        buttons_theme->set_color(theme_value::button_calm, background_color);
+        buttons_theme->set_color(theme_value::button_active, theme_color(theme_value::window_active_button, theme_));
+        buttons_theme->set_color(theme_value::button_border, background_color);
+        buttons_theme->set_color(theme_value::button_text, theme_color(theme_value::window_text, theme_));
+        buttons_theme->set_color(theme_value::button_disabled, background_color);
+        buttons_theme->set_dimension(theme_value::button_round, 0);
+        buttons_theme->set_string(theme_value::images_path, theme_string(theme_value::images_path, theme_));
 
-		minimizeButton->UpdateTheme(buttonsTheme);
-		expandButton->UpdateTheme(buttonsTheme);
+        minimize_button->update_theme(buttons_theme);
+        expand_button->update_theme(buttons_theme);
 	}
 
-	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Calm, backgroundColor);
-	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Active, WUI::MakeColor(235, 15, 20));
-	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Border, backgroundColor);
-	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Text, ThemeColor(ThemeValue::Window_Text, theme));
-	closeButtonTheme->SetColor(WUI::ThemeValue::Button_Disabled, backgroundColor);
-	closeButtonTheme->SetDimension(WUI::ThemeValue::Button_Round, 0);
-	closeButtonTheme->SetString(ThemeValue::Images_Path, ThemeString(ThemeValue::Images_Path, theme));
+    close_button_theme->set_color(theme_value::button_calm, background_color);
+    close_button_theme->set_color(theme_value::button_active, make_color(235, 15, 20));
+    close_button_theme->set_color(theme_value::button_border, background_color);
+    close_button_theme->set_color(theme_value::button_text, theme_color(theme_value::window_text, theme_));
+    close_button_theme->set_color(theme_value::button_disabled, background_color);
+    close_button_theme->set_dimension(theme_value::button_round, 0);
+    close_button_theme->set_string(theme_value::images_path, theme_string(theme_value::images_path, theme_));
 
-	closeButton->UpdateTheme(closeButtonTheme);
+    close_button->update_theme(close_button_theme);
 }
 
-bool Window::Init(WindowType type, const Rect &position_, const std::wstring &caption_, std::function<void(void)> closeCallback_, std::shared_ptr<ITheme> theme_)
+bool window::init(window_type type, const rect &position__, const std::wstring &caption_, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
 {
-	windowType = type;
-	position = position_;
-	normalPosition = position;
-	caption = caption_;
-	closeCallback = closeCallback_;
-	theme = theme_;
+    window_type_ = type;
+    position_ = position__;
+    normal_position = position_;
+    caption = caption_;
+    close_callback = close_callback_;
+    theme_ = theme__;
 
-	if (parent)
-	{
-		showed = true;
-		parent->Redraw(position);
+    if (parent)
+    {
+        showed_ = true;
+        parent->redraw(position_);
 
-		return true;
-	}
+        return true;
+    }
 
-	UpdateControlButtonsTheme();
+    update_control_buttons_theme();
 
-	if (type == WindowType::Frame)
-	{
-		AddControl(minimizeButton, { position.right - 78, 0, position.right - 52, 26 });
-		AddControl(expandButton, { position.right - 52, 0, position.right - 26, 26 });
-	}
-	AddControl(closeButton, { position.right - 26, 0, position.right, 26 });
+    if (type == window_type::frame)
+    {
+        add_control(minimize_button, { position_.right - 78, 0, position_.right - 52, 26 });
+        add_control(expand_button, { position_.right - 52, 0, position_.right - 26, 26 });
+    }
+    add_control(close_button, { position_.right - 26, 0, position_.right, 26 });
 
 #ifdef _WIN32
-	WNDCLASSEXW wcex = { 0 };
+    auto h_inst = GetModuleHandle(NULL);
 
-	wcex.cbSize = sizeof(WNDCLASSEX);
+    WNDCLASSEXW wcex = { 0 };
 
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = Window::WndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = sizeof(this);
-	wcex.hInstance = GetModuleHandle(NULL);
-	wcex.hbrBackground = backgroundBrush;
-	wcex.lpszClassName = L"WUI Window";
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wcex.cbSize = sizeof(WNDCLASSEX);
 
-	RegisterClassExW(&wcex);
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = window::wnd_proc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = sizeof(this);
+    wcex.hInstance = h_inst;
+    wcex.hbrBackground = background_brush;
+    wcex.lpszClassName = L"WUI Window";
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 
-	hWnd = CreateWindowW(wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP,
-		position.left, position.top, position.right, position.bottom, nullptr, nullptr, GetModuleHandle(NULL), this);
+    RegisterClassExW(&wcex);
 
-	if (!hWnd)
-	{
-		return false;
-	}
+    hwnd = CreateWindowW(wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP,
+        position_.left, position_.top, position_.right, position_.bottom, nullptr, nullptr, h_inst, this);
 
-	SetWindowText(hWnd, caption.c_str());
+    if (!hwnd)
+    {
+        return false;
+    }
 
-	UpdateWindow(hWnd);
+    SetWindowText(hwnd, caption.c_str());
+
+    UpdateWindow(hwnd);
 #endif
 
-	return true;
+    return true;
 }
 
-void Window::Destroy()
+void window::destroy()
 {
-	for (auto &control : controls)
-	{
-		control->ClearParent();
-	}
-	activeControl.reset();
-	controls.clear();
+    for (auto &control : controls)
+    {
+        control->clear_parent();
+    }
+    active_control.reset();
+    controls.clear();
 
-	if (parent)
-	{
-		parent->RemoveControl(shared_from_this());
-	}
-	else
-	{
+    if (parent)
+    {
+        parent->remove_control(shared_from_this());
+    }
+    else
+    {
 #ifdef _WIN32
-		DestroyWindow(hWnd);
+        DestroyWindow(hwnd);
 #endif
-	}
+    }
 
-	if (closeCallback)
-	{
-		closeCallback();
-	}
+    if (close_callback)
+    {
+        close_callback();
+    }
 }
 
 /// Windows specified code
 #ifdef _WIN32
 
-LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 {
-	switch (message)
-	{
-		case WM_CREATE:
-		{
-			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams));
-		}
-		break;
-		case WM_PAINT:
-		{
-			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    switch (message)
+    {
+        case WM_CREATE:
+        {
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(reinterpret_cast<CREATESTRUCT*>(l_param)->lpCreateParams));
+        }
+        break;
+        case WM_PAINT:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hWnd, &ps);
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
 
-			Graphic gr{ hdc };
+            graphic gr{ hdc };
 
-			SelectObject(hdc, wnd->font);
+            SelectObject(hdc, wnd->font);
 
-			SetTextColor(hdc, ThemeColor(ThemeValue::Window_Text, wnd->theme));
-			SetBkColor(hdc, ThemeColor(ThemeValue::Window_Background, wnd->theme));
+            SetTextColor(hdc, theme_color(theme_value::window_text, wnd->theme_));
+            SetBkColor(hdc, theme_color(theme_value::window_background, wnd->theme_));
 
-			if (wnd->titleShowed)
-			{
-				TextOutW(hdc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
-			}
+            if (wnd->title_showed)
+            {
+                TextOutW(hdc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
+            }
 		
-			for (auto &control : wnd->controls)
+            for (auto &control : wnd->controls)
+            {
+                control->draw(gr);
+            }
+
+            EndPaint(hwnd, &ps);
+        }
+        break;
+        case WM_ERASEBKGND:
+        {
+            HDC hdc = (HDC)w_param;
+            RECT client_rect;
+            GetClientRect(hwnd, &client_rect);
+            SetMapMode(hdc, MM_ANISOTROPIC);
+
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            FillRect(hdc, &client_rect, wnd->background_brush);
+        }
+        break;
+        case WM_MOUSEMOVE:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+            RECT window_rect;
+            GetWindowRect(hwnd, &window_rect);
+
+			int16_t x_mouse = GET_X_LPARAM(l_param);
+			int16_t y_mouse = GET_Y_LPARAM(l_param);
+
+            if (wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal)
+            {
+                if ((x_mouse > window_rect.right - window_rect.left - 5 && y_mouse > window_rect.bottom - window_rect.top - 5) ||
+                    (x_mouse < 5 && y_mouse < 5))
+                {
+                    SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
+                }
+                else if ((x_mouse > window_rect.right - window_rect.left - 5 && y_mouse < 5) ||
+                    (x_mouse < 5 && y_mouse > window_rect.bottom - window_rect.top - 5))
+                {
+                    SetCursor(LoadCursor(NULL, IDC_SIZENESW));
+                }
+                else if (x_mouse > window_rect.right - window_rect.left - 5 || x_mouse < 5)
+                {
+                    SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+                }
+                else if (y_mouse > window_rect.bottom - window_rect.top - 5 || y_mouse < 5)
+                {
+                    SetCursor(LoadCursor(NULL, IDC_SIZENS));
+                }
+            }
+
+			if (!wnd->mouse_tracked)
 			{
-				control->Draw(gr);
-			}
+				TRACKMOUSEEVENT track_mouse_event;
 
-			EndPaint(hWnd, &ps);
-		}
-		break;
-		case WM_ERASEBKGND:
-		{
-			HDC hdc = (HDC)wParam;
-			RECT clientRect;
-			GetClientRect(hWnd, &clientRect);
-			SetMapMode(hdc, MM_ANISOTROPIC);
+                track_mouse_event.cbSize = sizeof(track_mouse_event);
+                track_mouse_event.dwFlags = TME_LEAVE;
+                track_mouse_event.hwndTrack = hwnd;
 
-			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			FillRect(hdc, &clientRect, wnd->backgroundBrush);
-		}
-		break;
-		case WM_MOUSEMOVE:
-		{
-			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+				TrackMouseEvent(&track_mouse_event);
 
-			RECT windowRect;
-			GetWindowRect(hWnd, &windowRect);
+				wnd->mouse_tracked = true;
+            }
 
-			int16_t xMouse = GET_X_LPARAM(lParam);
-			int16_t yMouse = GET_Y_LPARAM(lParam);
+            if (GetCapture() == hwnd && wnd->window_state_ == window_state::normal)
+            {
+                switch (wnd->moving_mode_)
+                {
+                    case moving_mode::move:
+                    {
+                        int32_t x_window = window_rect.left + x_mouse - wnd->x_click;
+                        int32_t y_window = window_rect.top + y_mouse - wnd->y_click;
 
-			if (wnd->windowType == WindowType::Frame && wnd->windowState == WindowState::Normal)
-			{
-				if ((xMouse > windowRect.right - windowRect.left - 5 && yMouse > windowRect.bottom - windowRect.top - 5) ||
-					(xMouse < 5 && yMouse < 5))
-				{
-					SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
-				}
-				else if ((xMouse > windowRect.right - windowRect.left - 5 && yMouse < 5) ||
-					(xMouse < 5 && yMouse > windowRect.bottom - windowRect.top - 5))
-				{
-					SetCursor(LoadCursor(NULL, IDC_SIZENESW));
-				}
-				else if (xMouse > windowRect.right - windowRect.left - 5 || xMouse < 5)
-				{
-					SetCursor(LoadCursor(NULL, IDC_SIZEWE));
-				}
-				else if (yMouse > windowRect.bottom - windowRect.top - 5 || yMouse < 5)
-				{
-					SetCursor(LoadCursor(NULL, IDC_SIZENS));
-				}
-			}
+                        SetWindowPos(hwnd, NULL, x_window, y_window, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+                    }
+                    break;
+                    case moving_mode::size_we_left:
+                    {
+                        POINT scr_mouse = { 0 };
+                        GetCursorPos(&scr_mouse);
 
-			if (!wnd->mouseTracked)
-			{
-				TRACKMOUSEEVENT trackMouseEvent;
+                        int32_t width = window_rect.right - window_rect.left - x_mouse;
+                        int32_t height = window_rect.bottom - window_rect.top;
+                        SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                    }
+                    break;
+                    case moving_mode::size_we_right:
+                    {
+                        int32_t width = x_mouse;
+                        int32_t height = window_rect.bottom - window_rect.top;
+                        SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                    }
+                    break;
+                    case moving_mode::size_ns_top:
+                    {
+                        POINT scr_mouse = { 0 };
+                        GetCursorPos(&scr_mouse);
 
-				trackMouseEvent.cbSize = sizeof(trackMouseEvent);
-				trackMouseEvent.dwFlags = TME_LEAVE;
-				trackMouseEvent.hwndTrack = hWnd;
+                        int32_t width = window_rect.right - window_rect.left;
+                        int32_t height = window_rect.bottom - window_rect.top - y_mouse;
+                        SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                    }
+                    break;
+                    case moving_mode::size_ns_bottom:
+                    {
+                        int32_t width = window_rect.right - window_rect.left;
+                        int32_t height = y_mouse;
+                        SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                    }
+                    break;
+                    case moving_mode::size_nesw_top:
+                    {
+                        POINT scr_mouse = { 0 };
+                        GetCursorPos(&scr_mouse);
 
-				TrackMouseEvent(&trackMouseEvent);
+                        int32_t width = x_mouse;
+                        int32_t height = window_rect.bottom - window_rect.top - y_mouse;
+                        SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                    }
+                    break;
+                    case moving_mode::size_nwse_bottom:
+                    {
+                        int32_t width = x_mouse;
+                        int32_t height = y_mouse;
+                        SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                    }
+                    break;
+                    case moving_mode::size_nwse_top:
+                    {
+                        POINT scrMouse = { 0 };
+                        GetCursorPos(&scrMouse);
 
-				wnd->mouseTracked = true;
-			}
+                        int32_t width = window_rect.right - window_rect.left - x_mouse;
+                        int32_t height = window_rect.bottom - window_rect.top - y_mouse;
+                        SetWindowPos(hwnd, NULL, scrMouse.x, scrMouse.y, width, height, SWP_NOZORDER);
+                    }
+                    break;
+                    case moving_mode::size_nesw_bottom:
+                    {
+                        POINT scr_mouse = { 0 };
+                        GetCursorPos(&scr_mouse);
 
-			if (GetCapture() == hWnd && wnd->windowState == WindowState::Normal)
-			{
-				switch (wnd->movingMode)
-				{
-					case MovingMode::Move:
-					{
-						int32_t xWindow = windowRect.left + xMouse - wnd->xClick;
-						int32_t yWindow = windowRect.top + yMouse - wnd->yClick;
+                        int32_t width = window_rect.right - window_rect.left - x_mouse;
+                        int32_t height = y_mouse;
+                        SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                    }
+                    break;
+                }
+            }
+            else
+            {
+                wnd->send_mouse_event({ mouse_event_type::move, x_mouse, y_mouse });
+            }
+        }
+        break;
+        case WM_LBUTTONDOWN:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
-						SetWindowPos(hWnd, NULL, xWindow, yWindow, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-					}
-					break;
-					case MovingMode::SizeWELeft:
-					{
-						POINT scrMouse = { 0 };
-						GetCursorPos(&scrMouse);
+            SetCapture(hwnd);
 
-						int32_t width = windowRect.right - windowRect.left - xMouse;
-						int32_t height = windowRect.bottom - windowRect.top;
-						SetWindowPos(hWnd, NULL, scrMouse.x, windowRect.top, width, height, SWP_NOZORDER);
-					}
-					break;
-					case MovingMode::SizeWERight:
-					{
-						int32_t width = xMouse;
-						int32_t height = windowRect.bottom - windowRect.top;
-						SetWindowPos(hWnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
-					}
-					break;
-					case MovingMode::SizeNSTop:
-					{
-						POINT scrMouse = { 0 };
-						GetCursorPos(&scrMouse);
+            RECT window_rect;
+            GetWindowRect(hwnd, &window_rect);
 
-						int32_t width = windowRect.right - windowRect.left;
-						int32_t height = windowRect.bottom - windowRect.top - yMouse;
-						SetWindowPos(hWnd, NULL, windowRect.left, scrMouse.y, width, height, SWP_NOZORDER);
-					}
-					break;
-					case MovingMode::SizeNSBottom:
-					{
-						int32_t width = windowRect.right - windowRect.left;
-						int32_t height = yMouse;
-						SetWindowPos(hWnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
-					}
-					break;
-					case MovingMode::SizeNESWTop:
-					{
-						POINT scrMouse = { 0 };
-						GetCursorPos(&scrMouse);
+            wnd->x_click = GET_X_LPARAM(l_param);
+            wnd->y_click = GET_Y_LPARAM(l_param);
 
-						int32_t width = xMouse;
-						int32_t height = windowRect.bottom - windowRect.top - yMouse;
-						SetWindowPos(hWnd, NULL, windowRect.left, scrMouse.y, width, height, SWP_NOZORDER);
-					}
-					break;
-					case MovingMode::SizeNWSEBottom:
-					{
-						int32_t width = xMouse;
-						int32_t height = yMouse;
-						SetWindowPos(hWnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
-					}
-					break;
-					case MovingMode::SizeNWSETop:
-					{
-						POINT scrMouse = { 0 };
-						GetCursorPos(&scrMouse);
+            if (wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal)
+            {
+                if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
+                {
+                    wnd->moving_mode_ = moving_mode::size_nwse_bottom;
+                }
+                else if (wnd->x_click < 5 && wnd->y_click < 5)
+                {
+                    wnd->moving_mode_ = moving_mode::size_nwse_top;
+                }
+                else if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click < 5)
+                {
+                    wnd->moving_mode_ = moving_mode::size_nesw_top;
+                }
+                else if (wnd->x_click < 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
+                {
+                    wnd->moving_mode_ = moving_mode::size_nesw_bottom;
+                }
+                else if (wnd->x_click > window_rect.right - window_rect.left - 5)
+                {
+                    wnd->moving_mode_ = moving_mode::size_we_right;
+                }
+                else if(wnd->x_click < 5)
+                {
+                    wnd->moving_mode_ = moving_mode::size_we_left;
+                }
+                else if (wnd->y_click > window_rect.bottom - window_rect.top - 5)
+                {
+                    wnd->moving_mode_ = moving_mode::size_ns_bottom;
+                }
+                else if (wnd->y_click < 5)
+                {
+                    wnd->moving_mode_ = moving_mode::size_ns_top;
+                }
+            }
 
-						int32_t width = windowRect.right - windowRect.left - xMouse;
-						int32_t height = windowRect.bottom - windowRect.top - yMouse;
-						SetWindowPos(hWnd, NULL, scrMouse.x, scrMouse.y, width, height, SWP_NOZORDER);
-					}
-					break;
-					case MovingMode::SizeNESWBottom:
-					{
-						POINT scrMouse = { 0 };
-						GetCursorPos(&scrMouse);
+            wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click });
+        }
+        break;
+        case WM_LBUTTONUP:
+        {
+            ReleaseCapture();
 
-						int32_t width = windowRect.right - windowRect.left - xMouse;
-						int32_t height = yMouse;
-						SetWindowPos(hWnd, NULL, scrMouse.x, windowRect.top, width, height, SWP_NOZORDER);
-					}
-					break;
-				}
-			}
-			else
-			{
-				wnd->SendMouseEvent({ MouseEventType::Move, xMouse, yMouse });
-			}
-		}
-		break;
-		case WM_LBUTTONDOWN:
-		{
-			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
-			SetCapture(hWnd);
+            wnd->moving_mode_ = moving_mode::move;
 
-			RECT windowRect;
-			GetWindowRect(hWnd, &windowRect);
+            wnd->send_mouse_event({ mouse_event_type::left_up, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param) });
+        }
+        break;
+        case WM_MOUSELEAVE:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            wnd->mouse_tracked = false;
+            wnd->send_mouse_event({ mouse_event_type::leave, -1, -1 });
+        }
+        break;
+        case WM_SIZE:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
-			wnd->xClick = GET_X_LPARAM(lParam);
-			wnd->yClick = GET_Y_LPARAM(lParam);
+            auto width = LOWORD(l_param), height = HIWORD(l_param);
 
-			if (wnd->windowType == WindowType::Frame && wnd->windowState == WindowState::Normal)
-			{
-				if (wnd->xClick > windowRect.right - windowRect.left - 5 && wnd->yClick > windowRect.bottom - windowRect.top - 5)
-				{
-					wnd->movingMode = MovingMode::SizeNWSEBottom;
-				}
-				else if (wnd->xClick < 5 && wnd->yClick < 5)
-				{
-					wnd->movingMode = MovingMode::SizeNWSETop;
-				}
-				else if (wnd->xClick > windowRect.right - windowRect.left - 5 && wnd->yClick < 5)
-				{
-					wnd->movingMode = MovingMode::SizeNESWTop;
-				}
-				else if (wnd->xClick < 5 && wnd->yClick > windowRect.bottom - windowRect.top - 5)
-				{
-					wnd->movingMode = MovingMode::SizeNESWBottom;
-				}
-				else if (wnd->xClick > windowRect.right - windowRect.left - 5)
-				{
-					wnd->movingMode = MovingMode::SizeWERight;
-				}
-				else if(wnd->xClick < 5)
-				{
-					wnd->movingMode = MovingMode::SizeWELeft;
-				}
-				else if (wnd->yClick > windowRect.bottom - windowRect.top - 5)
-				{
-					wnd->movingMode = MovingMode::SizeNSBottom;
-				}
-				else if (wnd->yClick < 5)
-				{
-					wnd->movingMode = MovingMode::SizeNSTop;
-				}
-			}
+            if (wnd->window_type_ == window_type::frame)
+            {
+                wnd->minimize_button->set_position({ width - 78, 0, width - 52, 26 });
+                wnd->expand_button->set_position({ width - 52, 0, width - 26, 26 });
+            }
+            wnd->close_button->set_position({ width - 26, 0, width, 26 });
 
-			wnd->SendMouseEvent({ MouseEventType::LeftDown, wnd->xClick, wnd->yClick });
-		}
-		break;
-		case WM_LBUTTONUP:
-		{
-			ReleaseCapture();
-
-			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-
-			wnd->movingMode = MovingMode::Move;
-
-			wnd->SendMouseEvent({ MouseEventType::LeftUp, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) });
-		}
-		break;
-		case WM_MOUSELEAVE:
-		{
-			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			wnd->mouseTracked = false;
-			wnd->SendMouseEvent({ MouseEventType::Leave, -1, -1 });
-		}
-		break;
-		case WM_SIZE:
-		{
-			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-
-			auto width = LOWORD(lParam), height = HIWORD(lParam);
-
-			if (wnd->windowType == WindowType::Frame)
-			{
-				wnd->minimizeButton->SetPosition({ width - 78, 0, width - 52, 26 });
-				wnd->expandButton->SetPosition({ width - 52, 0, width - 26, 26 });
-			}
-			wnd->closeButton->SetPosition({ width - 26, 0, width, 26 });
-
-			wnd->UpdatePosition();
+            wnd->update_position();
 			
-			if (wnd->sizeChangeCallback)
-			{
-				wnd->sizeChangeCallback(LOWORD(lParam), HIWORD(lParam));
-			}
-		}
-		break;
-		case WM_MOVE:
-		{
-			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			wnd->UpdatePosition();
-		}
-		break;
-		case WM_SYSCOMMAND:
-			if (wParam == SC_RESTORE)
-			{
-				Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-				wnd->windowState = WindowState::Normal;
-			}
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		break;
-		case WM_CHAR:
-			switch (wParam)
-			{
-				case VK_TAB:
-				{
-					Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-					wnd->ChangeFocus();
-				}
-				break;
-				case VK_RETURN:
-				{
-					Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-					wnd->ExecuteFocused();
-				}
-				break;
-			}
-		break;
-		case WM_DESTROY:
-		{
-			Window* wnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-			if (wnd->closeCallback)
-			{
-				wnd->closeCallback();
-			}
-		}
-		break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
+            if (wnd->size_change_callback)
+            {
+                wnd->size_change_callback(LOWORD(l_param), HIWORD(l_param));
+            }
+        }
+        break;
+        case WM_MOVE:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            wnd->update_position();
+        }
+        break;
+        case WM_SYSCOMMAND:
+            if (w_param == SC_RESTORE)
+            {
+                window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+                wnd->window_state_ = window_state::normal;
+            }
+            return DefWindowProc(hwnd, message, w_param, l_param);
+        break;
+        case WM_CHAR:
+            switch (w_param)
+            {
+                case VK_TAB:
+                {
+                    window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+                    wnd->change_focus();
+                }
+                break;
+                case VK_RETURN:
+                {
+                    window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+                    wnd->execute_focused();
+                }
+                break;
+            }
+        break;
+        case WM_DESTROY:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            if (wnd->close_callback)
+            {
+                wnd->close_callback();
+            }
+        }
+        break;
+        default:
+            return DefWindowProc(hwnd, message, w_param, l_param);
+    }
+    return 0;
 }
 
-void Window::MakePrimitives()
+void window::make_primitives()
 {
-	backgroundBrush = CreateSolidBrush(ThemeColor(ThemeValue::Window_Background, theme));
-	font = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-		OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-		DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
+    background_brush = CreateSolidBrush(theme_color(theme_value::window_background, theme_));
+    font = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
+        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
 }
 
-void Window::DestroyPrimitives()
+void window::destroy_primitives()
 {
-	DeleteObject(backgroundBrush);
-	DeleteObject(font);
+    DeleteObject(background_brush);
+    DeleteObject(font);
 }
 
-void Window::UpdatePosition()
+void window::update_position()
 {
-	RECT windowRect = { 0 };
-	GetWindowRect(hWnd, &windowRect);
-	if (windowRect.left > 0 && windowRect.top > 0 && windowRect.left != windowRect.right && windowRect.top != windowRect.bottom)
-	{
-		position = { windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top };
-		if (windowState != WindowState::Maximized)
-		{
-			normalPosition = position;
-		}
-	}
+    RECT window_rect = { 0 };
+    GetWindowRect(hwnd, &window_rect);
+    if (window_rect.left > 0 && window_rect.top > 0 && window_rect.left != window_rect.right && window_rect.top != window_rect.bottom)
+    {
+        position_ = { window_rect.left, window_rect.top, window_rect.right - window_rect.left, window_rect.bottom - window_rect.top };
+        if (window_state_ != window_state::maximized)
+        {
+            normal_position = position_;
+        }
+    }
 }
 
 #endif

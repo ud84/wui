@@ -43,8 +43,8 @@ public:
     virtual bool init(window_type type, const rect &position, const std::wstring &caption, std::function<void(void)> close_callback, std::shared_ptr<i_theme> theme_ = nullptr);
     virtual void destroy();
 
-    virtual void addControl(std::shared_ptr<i_control> control, const rect &position);
-    virtual void removeControl(std::shared_ptr<i_control> control);
+    virtual void add_control(std::shared_ptr<i_control> control, const rect &position);
+    virtual void remove_control(std::shared_ptr<i_control> control);
 
     virtual void redraw(const rect &position, bool clear = false);
 
@@ -93,15 +93,15 @@ public:
 
 private:
     std::vector<std::shared_ptr<i_control>> controls;
-    std::shared_ptr<i_control> activeControl;
+    std::shared_ptr<i_control> active_control;
 
     window_type window_type_;
-    rect position, normal_position;
+    rect position_, normal_position;
     std::wstring caption;
     wui::window_state window_state_;
     std::shared_ptr<i_theme> theme_;
 
-    bool showed, enabled, title_showed;
+    bool showed_, enabled_, title_showed;
 
     size_t focused_index;
 
@@ -114,8 +114,8 @@ private:
         size_we_right,
         size_ns_top,
         size_ns_bottom,
-        size_nswe_top,
-        size_nswe_bottom,
+        size_nwse_top,
+        size_nwse_bottom,
         size_nesw_top,
         size_nesw_bottom
     };
@@ -125,7 +125,7 @@ private:
     std::function<void(int32_t, int32_t)> size_change_callback;
 
     std::shared_ptr<i_theme> buttons_theme, close_button_theme;
-    std::shared_ptr<Button> minimize_button, expand_button, close_button;
+    std::shared_ptr<button> minimize_button, expand_button, close_button;
 
 #ifdef _WIN32
     HWND hwnd;

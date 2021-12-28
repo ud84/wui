@@ -235,148 +235,148 @@ void button::receive_event(const event &ev)
     }
 }
 
-void Button::SetPosition(const Rect &position_)
+void button::set_position(const rect &position__)
 {
-	auto prevPosition = position;
-	position = position_;
+    auto prev_position = position_;
+    position_ = position__;
 
-	if (parent.lock())
-	{
-		parent.lock()->Redraw(prevPosition, true);
-	}
+    if (parent.lock())
+    {
+        parent.lock()->redraw(prev_position, true);
+    }
 	
-	Redraw();
+    redraw();
 }
 
-Rect Button::GetPosition() const
+rect button::position() const
 {
-	return position;
+    return position_;
 }
 
-void Button::SetParent(std::shared_ptr<Window> window)
+void button::set_parent(std::shared_ptr<window> window_)
 {
-	parent = window;
+    parent = window_;
 }
 
-void Button::ClearParent()
+void button::clear_parent()
 {
-	parent.reset();
+    parent.reset();
 }
 
-void Button::SetFocus()
+void button::set_focus()
 {
-	if (receiveFocus && enabled && showed)
-	{
-		focused = true;
+    if (focusing_ && enabled_ && showed_)
+    {
+        focused_ = true;
 
-		Redraw();
-	}
+        redraw();
+    }
 }
 
-bool Button::RemoveFocus()
+bool button::remove_focus()
 {
-	focused = false;
+    focused_ = false;
 
-	Redraw();
+    redraw();
 
-	return true;
+    return true;
 }
 
-bool Button::Focused() const
+bool button::focused() const
 {
-	return focused;
+    return focused_;
 }
 
-bool Button::Focusing() const
+bool button::focusing() const
 {
-	return enabled && showed && receiveFocus;
+    return enabled_ && showed_ && focusing_;
 }
 
-void Button::UpdateTheme(std::shared_ptr<ITheme> theme_)
+void button::update_theme(std::shared_ptr<i_theme> theme__)
 {
-	if (theme && !theme_)
-	{
-		return;
-	}
-	theme = theme_;
+    if (theme_ && !theme__)
+    {
+        return;
+    }
+    theme_ = theme__;
 
-	if (image)
-	{
-		image->UpdateTheme(theme);
-	}
+    if (image_)
+    {
+        image_->update_theme(theme_);
+    }
 
 #ifdef _WIN32
-	DestroyPrimitives();
-	MakePrimitives();
+    destroy_primitives();
+    make_primitives();
 #endif
 }
 
-void Button::Show()
+void button::show()
 {
-	showed = true;
-	Redraw();
+    showed_ = true;
+    redraw();
 }
 
-void Button::Hide()
+void button::hide()
 {
-	showed = false;
-	if (parent.lock())
-	{
-		parent.lock()->Redraw(position, true);
-	}
+    showed_ = false;
+    if (parent.lock())
+    {
+        parent.lock()->redraw(position_, true);
+    }
 }
 
-bool Button::Showed() const
+bool button::showed() const
 {
-	return showed;
+    return showed_;
 }
 
-void Button::Enable()
+void button::enable()
 {
-	enabled = true;
-	Redraw();
+    enabled_ = true;
+    redraw();
 }
 
-void Button::Disable()
+void button::disable()
 {
-	enabled = false;
-	Redraw();
+    enabled_ = false;
+    redraw();
 }
 
-bool Button::Enabled() const
+bool button::enabled() const
 {
-	return enabled;
+    return enabled_;
 }
 
-void Button::SetCaption(const std::wstring &caption_)
+void button::set_caption(const std::wstring &caption_)
 {
-	caption = caption_;
+    caption = caption_;
 }
 
-void Button::SetButtonView(ButtonView buttonView_)
+void button::set_button_view(button_view button_view__)
 {
-	buttonView = buttonView_;
+    button_view_ = button_view__;
 
 #ifdef _WIN32
-	DestroyPrimitives();
-	MakePrimitives();
+    destroy_primitives();
+    make_primitives();
 #endif
 
-	Redraw();
+    redraw();
 }
 
 #ifdef _WIN32
-void Button::SetImage(int32_t resourceIndex)
+void button::set_image(int32_t resource_index)
 {
-	if (image)
-	{
-		image->ChangeImage(resourceIndex);
-	}
-	else
-	{
-		image = std::shared_ptr<Image>(new Image(resourceIndex));
-	}
-	Redraw();
+    if (image_)
+    {
+        image_->change_image(resource_index);
+    }
+    else
+    {
+        image_ = std::shared_ptr<image>(new image(resource_index));
+    }
+    redraw();
 }
 #endif
 
