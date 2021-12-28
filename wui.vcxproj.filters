@@ -13,154 +13,122 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\WUI">
-      <UniqueIdentifier>{cb88aa55-e108-4b48-b73f-c28fa2c1314c}</UniqueIdentifier>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{52f7cf33-215b-4ab3-b0dc-e7db90d9a8dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\WUI">
-      <UniqueIdentifier>{0f36009b-71cb-4eb3-bc73-b9204a6ca7c0}</UniqueIdentifier>
+    <Filter Include="Header Files\control">
+      <UniqueIdentifier>{8b439cdf-9170-4d9d-a091-8f55f1524c6f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\WUI\Window">
-      <UniqueIdentifier>{91f6adae-6d9c-42ed-b07c-6fbf44c7ec55}</UniqueIdentifier>
+    <Filter Include="Header Files\event">
+      <UniqueIdentifier>{37670d4a-34cb-485e-9e7b-74c2bca88f42}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\WUI\Window">
-      <UniqueIdentifier>{8779893f-6793-4dc9-ac1a-96e795eb3470}</UniqueIdentifier>
+    <Filter Include="Header Files\graphic">
+      <UniqueIdentifier>{093f0e8d-ad36-4030-bbc6-3f7c2d5c916d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\WUI\Control">
-      <UniqueIdentifier>{e297763e-5759-4d2a-ae69-08428dcfe28b}</UniqueIdentifier>
+    <Filter Include="Header Files\theme">
+      <UniqueIdentifier>{0c39ba94-c8ec-45a0-96cd-cfff068f4eed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\WUI\Control">
-      <UniqueIdentifier>{702ee417-2930-4704-8ff0-aae697d7d625}</UniqueIdentifier>
+    <Filter Include="Header Files\window">
+      <UniqueIdentifier>{d82e81ca-abfe-46a9-9da1-7d0fc60ab5b7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\WUI\Common">
-      <UniqueIdentifier>{62cbb09b-3334-4adb-ba65-ccc0a8cb43c8}</UniqueIdentifier>
+    <Filter Include="Source Files\window">
+      <UniqueIdentifier>{f5310fbf-2966-43c4-9380-529f048a628d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\WUI\Event">
-      <UniqueIdentifier>{163cb05b-1a3f-4e76-a9b7-59f7e5b7d033}</UniqueIdentifier>
+    <Filter Include="Source Files\theme">
+      <UniqueIdentifier>{4c5c1a64-8d55-4102-8d42-99f7febc9f78}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\WUI\Graphic">
-      <UniqueIdentifier>{97f28e4e-6218-4b22-bae9-25dc74aaf183}</UniqueIdentifier>
+    <Filter Include="Source Files\control">
+      <UniqueIdentifier>{8880b4cf-e54f-430d-9f68-2ecfeaaa67c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\WUI\Common">
-      <UniqueIdentifier>{8201c19a-a5e4-4608-b108-7df857b81304}</UniqueIdentifier>
+    <Filter Include="Header Files\theme\impl">
+      <UniqueIdentifier>{ae19e477-fa89-4002-a3e5-043f884bf26d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\WUI\Event">
-      <UniqueIdentifier>{9d587071-1e45-488c-a76b-611a8d1e3a99}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\WUI\Graphic">
-      <UniqueIdentifier>{fdf56e24-84c6-43f3-aac5-ddeca88ed2d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\WUI\Theme">
-      <UniqueIdentifier>{6857d731-1cf6-4b01-99b4-7426347c5885}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\WUI\Theme">
-      <UniqueIdentifier>{b5cc505e-adf0-4fa0-bc8b-3604c3f0e00c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\WUI\Theme\impl">
-      <UniqueIdentifier>{cea449c6-bb08-47a5-b1f8-c7225a52b842}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\WUI\Theme\impl">
-      <UniqueIdentifier>{beb28a9a-8d10-458f-8a8b-00c627c819ba}</UniqueIdentifier>
+    <Filter Include="Source Files\theme\impl">
+      <UniqueIdentifier>{11eb642c-a9e1-494d-aa5d-14010c5c0752}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\wui\common\color.hpp">
+      <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\wui\common\rect.hpp">
+      <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="wui.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\wui\control\button.hpp">
+      <Filter>Header Files\control</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Window\Window.h">
-      <Filter>Header Files\WUI\Window</Filter>
+    <ClInclude Include="include\wui\control\icontrol.hpp">
+      <Filter>Header Files\control</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Common\Rect.h">
-      <Filter>Header Files\WUI\Common</Filter>
+    <ClInclude Include="include\wui\control\image.hpp">
+      <Filter>Header Files\control</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Control\IControl.h">
-      <Filter>Header Files\WUI\Control</Filter>
+    <ClInclude Include="include\wui\event\event.hpp">
+      <Filter>Header Files\event</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Event\Event.h">
-      <Filter>Header Files\WUI\Event</Filter>
+    <ClInclude Include="include\wui\event\internal_event.hpp">
+      <Filter>Header Files\event</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Window\IWindow.h">
-      <Filter>Header Files\WUI\Window</Filter>
+    <ClInclude Include="include\wui\event\keyboard_event.hpp">
+      <Filter>Header Files\event</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Graphic\Graphic.h">
-      <Filter>Header Files\WUI\Graphic</Filter>
+    <ClInclude Include="include\wui\event\mouse_event.hpp">
+      <Filter>Header Files\event</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Control\Button.h">
-      <Filter>Header Files\WUI\Control</Filter>
+    <ClInclude Include="include\wui\graphic\graphic.hpp">
+      <Filter>Header Files\graphic</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Theme\Theme.h">
-      <Filter>Header Files\WUI\Theme</Filter>
+    <ClInclude Include="include\wui\window\iwindow.hpp">
+      <Filter>Header Files\window</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Common\Color.h">
-      <Filter>Header Files\WUI\Common</Filter>
+    <ClInclude Include="include\wui\window\window.hpp">
+      <Filter>Header Files\window</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Event\MouseEvent.h">
-      <Filter>Header Files\WUI\Event</Filter>
+    <ClInclude Include="include\wui\theme\itheme.hpp">
+      <Filter>Header Files\theme</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Event\KeyboardEvent.h">
-      <Filter>Header Files\WUI\Event</Filter>
+    <ClInclude Include="include\wui\theme\theme.hpp">
+      <Filter>Header Files\theme</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Theme\ITheme.h">
-      <Filter>Header Files\WUI\Theme</Filter>
+    <ClInclude Include="include\wui\theme\impl\custom_theme.hpp">
+      <Filter>Header Files\theme\impl</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Theme\impl\CustomTheme.h">
-      <Filter>Header Files\WUI\Theme\impl</Filter>
+    <ClInclude Include="include\wui\theme\impl\dark_theme.hpp">
+      <Filter>Header Files\theme\impl</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Theme\impl\DarkTheme.h">
-      <Filter>Header Files\WUI\Theme\impl</Filter>
+    <ClInclude Include="include\wui\theme\impl\white_theme.hpp">
+      <Filter>Header Files\theme\impl</Filter>
     </ClInclude>
-    <ClInclude Include="WUI\Theme\impl\WhiteTheme.h">
-      <Filter>Header Files\WUI\Theme\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="WUI\Event\InternalEvent.h">
-      <Filter>Header Files\WUI\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="WUI\Control\Image.h">
-      <Filter>Header Files\WUI\Control</Filter>
+    <ClInclude Include="res\resource.hpp">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="wui.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\control\button.cpp">
+      <Filter>Source Files\control</Filter>
     </ClCompile>
-    <ClCompile Include="WUI\Window\Window.cpp">
-      <Filter>Source Files\WUI\Window</Filter>
+    <ClCompile Include="src\control\image.cpp">
+      <Filter>Source Files\control</Filter>
     </ClCompile>
-    <ClCompile Include="WUI\Control\Button.cpp">
-      <Filter>Source Files\WUI\Control</Filter>
+    <ClCompile Include="src\theme\theme.cpp">
+      <Filter>Source Files\theme</Filter>
     </ClCompile>
-    <ClCompile Include="WUI\Theme\Theme.cpp">
-      <Filter>Source Files\WUI\Theme</Filter>
+    <ClCompile Include="src\theme\impl\custom_theme.cpp">
+      <Filter>Source Files\theme\impl</Filter>
     </ClCompile>
-    <ClCompile Include="WUI\Theme\impl\CustomTheme.cpp">
-      <Filter>Source Files\WUI\Theme\impl</Filter>
+    <ClCompile Include="src\theme\impl\dark_theme.cpp">
+      <Filter>Source Files\theme\impl</Filter>
     </ClCompile>
-    <ClCompile Include="WUI\Theme\impl\DarkTheme.cpp">
-      <Filter>Source Files\WUI\Theme\impl</Filter>
+    <ClCompile Include="src\theme\impl\white_theme.cpp">
+      <Filter>Source Files\theme\impl</Filter>
     </ClCompile>
-    <ClCompile Include="WUI\Theme\impl\WhiteTheme.cpp">
-      <Filter>Source Files\WUI\Theme\impl</Filter>
-    </ClCompile>
-    <ClCompile Include="WUI\Control\Image.cpp">
-      <Filter>Source Files\WUI\Control</Filter>
+    <ClCompile Include="src\window\window.cpp">
+      <Filter>Source Files\window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="wui.rc">
+    <ResourceCompile Include="res\wui.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="wui.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>
