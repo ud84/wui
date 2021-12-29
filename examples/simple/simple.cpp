@@ -106,8 +106,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	window->add_control(cancelButton, wui::rect{ 370, 450, 480, 480 });
 
 	/*auto fileImageTheme = wui::make_custom_theme();
-	fileImageTheme->set_string(wui::theme_value::images_path, L"F:\\Docs");
-	std::shared_ptr<wui::image> fileImage(new wui::image(L"kavareiya_1.png", fileImageTheme));
+	fileImageTheme->set_string(wui::theme_value::images_path, L"d:\\");
+	std::shared_ptr<wui::image> fileImage(new wui::image(L"g620.png", fileImageTheme));
 	window->add_control(fileImage, wui::rect{ 180, 200, 344, 344 });*/
 
 	window->init(wui::window_type::frame, wui::rect{ 100, 100, 500, 500 }, L"Welcome to WUI!", []() { PostQuitMessage(IDCANCEL); });

@@ -617,7 +617,7 @@ bool window::init(window_type type, const rect &position__, const std::wstring &
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.style = CS_DBLCLKS;
     wcex.lpfnWndProc = window::wnd_proc;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = sizeof(this);
