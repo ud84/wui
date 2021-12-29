@@ -109,6 +109,7 @@ private:
 
     enum class moving_mode
     {
+        none,
         move,
         size_we_left,
         size_we_right,
@@ -144,10 +145,11 @@ private:
     void update_position();
 #endif
 
-    void send_mouse_event(const mouse_event &ev);
+    bool send_mouse_event(const mouse_event &ev);
     void change_focus();
     void execute_focused();
     void set_focused(std::shared_ptr<i_control> &control);
+    std::shared_ptr<i_control> get_focused();
 
     void update_control_buttons_theme();
 };

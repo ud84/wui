@@ -65,7 +65,10 @@ void input::draw(graphic &gr)
     auto rnd = theme_dimension(theme_value::button_round, theme_);
     RoundRect(gr.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
 	
-   TextOutW(gr.dc, position_.left, position_.top, text_.c_str(), (int32_t)text_.size());
+    SetTextColor(gr.dc, theme_color(theme_value::input_text, theme_));
+    SetBkColor(gr.dc, theme_color(theme_value::input_background, theme_));
+
+    TextOutW(gr.dc, position_.left + 5, position_.top + 3, text_.c_str(), (int32_t)text_.size());
 #endif
 }
 
@@ -76,33 +79,26 @@ void input::receive_event(const event &ev)
         return;
     }
 
-    /*if (ev.type == event_type::mouse)
+    if (ev.type == event_type::mouse)
     {
         switch (ev.mouse_event_.type)
         {
-            case mouse_event_type::enter:
-                active = true;
-                redraw();
-            break;
-            case mouse_event_type::leave:
-                active = false;
-                redraw();
+            case mouse_event_type::left_down:
+                
             break;
             case mouse_event_type::left_up:
-                if (click_callback)
-                {
-                    click_callback();
-                }
+                
             break;
         }
     }
-    else if (ev.type == event_type::internal)
+    else if (ev.type == event_type::keyboard)
     {
-        if (ev.internal_event_.type == internal_event_type::execute_focused && click_callback)
+        if (ev.keyboard_event_.type == keyboard_event_type::press)
         {
-            click_callback();
+            text_ += ev.keyboard_event_.key;
+            redraw();
         }
-    }*/
+    }
 }
 
 void input::set_position(const rect &position__)

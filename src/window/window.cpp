@@ -423,7 +423,7 @@ void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size
     size_change_callback = size_change_callback_;
 }
 
-void window::send_mouse_event(const mouse_event &ev)
+bool window::send_mouse_event(const mouse_event &ev)
 {
     if (active_control && !active_control->position().in(ev.x, ev.y))
     {
@@ -460,9 +460,11 @@ void window::send_mouse_event(const mouse_event &ev)
                 control->receive_event({ event_type::mouse, me });
             }
 
-            break;
+            return true;
         }
     }
+
+    return false;
 }
 
 void window::change_focus()
@@ -520,17 +522,14 @@ void window::change_focus()
 
 void window::execute_focused()
 {
-    for (auto &control : controls)
+    auto control = get_focused();
+    if (control)
     {
-        if (control->focused())
-        {
-            event ev;
-            ev.type = event_type::internal;
-            ev.internal_event_ = internal_event{ internal_event_type::execute_focused };;
+        event ev;
+        ev.type = event_type::internal;
+        ev.internal_event_ = internal_event{ internal_event_type::execute_focused };;
 
-            control->receive_event(ev);
-            break;
-        }
+        control->receive_event(ev);
     }
 }
 
@@ -553,6 +552,19 @@ void window::set_focused(std::shared_ptr<i_control> &control)
     }
 
     control->set_focus();
+}
+
+std::shared_ptr<i_control> window::get_focused()
+{
+    for (auto &control : controls)
+    {
+        if (control->focused())
+        {
+            return control;
+        }
+    }
+
+    return std::shared_ptr<i_control>();
 }
 
 void window::update_control_buttons_theme()
@@ -868,8 +880,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->x_click = GET_X_LPARAM(l_param);
             wnd->y_click = GET_Y_LPARAM(l_param);
 
-            if (wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal)
+            if (!wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click }) && wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal)
             {
+                wnd->moving_mode_ = moving_mode::move;
+
                 if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
                 {
                     wnd->moving_mode_ = moving_mode::size_nwse_bottom;
@@ -890,7 +904,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 {
                     wnd->moving_mode_ = moving_mode::size_we_right;
                 }
-                else if(wnd->x_click < 5)
+                else if (wnd->x_click < 5)
                 {
                     wnd->moving_mode_ = moving_mode::size_we_left;
                 }
@@ -903,8 +917,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     wnd->moving_mode_ = moving_mode::size_ns_top;
                 }
             }
-
-            wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click });
         }
         break;
         case WM_LBUTTONUP:
@@ -913,7 +925,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
-            wnd->moving_mode_ = moving_mode::move;
+            wnd->moving_mode_ = moving_mode::none;
 
             wnd->send_mouse_event({ mouse_event_type::left_up, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param) });
         }
@@ -960,7 +972,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             }
             return DefWindowProc(hwnd, message, w_param, l_param);
         break;
-        case WM_CHAR:
+        case WM_KEYDOWN:
             switch (w_param)
             {
                 case VK_TAB:
@@ -973,6 +985,20 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 {
                     window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
                     wnd->execute_focused();
+                }
+                break;
+                default:
+                {
+                    window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+                    auto control = wnd->get_focused();
+                    if (control)
+                    {
+                        event ev;
+                        ev.type = event_type::keyboard;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::press, (wchar_t)w_param };;
+
+                        control->receive_event(ev);
+                    }
                 }
                 break;
             }

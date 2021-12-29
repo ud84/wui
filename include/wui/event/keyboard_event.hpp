@@ -16,15 +16,14 @@ namespace wui
 
 enum class keyboard_event_type
 {
-    down,
-    up
+    press
 };
 
 struct keyboard_event
 {
     keyboard_event_type type;
 
-    int32_t key;
+    wchar_t key;
 };
 
 }
