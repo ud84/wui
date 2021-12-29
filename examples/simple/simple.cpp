@@ -4,6 +4,7 @@
 #include <wui/theme/theme.hpp>
 #include <wui/window/window.hpp>
 #include <wui/control/button.hpp>
+#include <wui/control/input.hpp>
 #include <wui/control/image.hpp>
 
 #ifdef _WIN32
@@ -72,6 +73,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	PluggedWindow pluggedWindow(window);
 	pluggedWindow.Plug();
+
+    std::shared_ptr<wui::input> nameInput(new wui::input());
+    window->add_control(nameInput, wui::rect{ 10, 250, 400, 275 });
 
 	std::shared_ptr<wui::window> dialog(new wui::window());
 

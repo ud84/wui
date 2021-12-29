@@ -22,6 +22,7 @@
     <ClInclude Include="include\wui\common\color.hpp" />
     <ClInclude Include="include\wui\common\rect.hpp" />
     <ClInclude Include="include\wui\control\button.hpp" />
+    <ClInclude Include="include\wui\control\input.hpp" />
     <ClInclude Include="include\wui\control\i_control.hpp" />
     <ClInclude Include="include\wui\control\image.hpp" />
     <ClInclude Include="include\wui\event\event.hpp" />
@@ -41,6 +42,7 @@
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp" />
     <ClCompile Include="src\control\image.cpp" />
+    <ClCompile Include="src\control\input.cpp" />
     <ClCompile Include="src\theme\impl\custom_theme.cpp" />
     <ClCompile Include="src\theme\impl\dark_theme.cpp" />
     <ClCompile Include="src\theme\impl\white_theme.cpp" />

@@ -38,7 +38,15 @@ enum class theme_value
     button_focused_border,
     button_text,
     button_disabled,
-    button_round
+    button_round,
+
+    input_background,
+    input_text,
+    input_selection,
+    input_cursor,
+    input_border,
+    input_focused_border,
+    input_round
 };
 
 class i_theme

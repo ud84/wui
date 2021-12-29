@@ -102,6 +102,9 @@
     <ClInclude Include="include\wui\window\i_window.hpp">
       <Filter>Header Files\window</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\control\input.hpp">
+      <Filter>Header Files\control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -124,6 +127,9 @@
     </ClCompile>
     <ClCompile Include="src\window\window.cpp">
       <Filter>Source Files\window</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\input.cpp">
+      <Filter>Source Files\control</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

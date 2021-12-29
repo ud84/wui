@@ -24,11 +24,19 @@ white_theme::white_theme()
         { theme_value::button_border, make_color(0, 160, 210) },
         { theme_value::button_focused_border, make_color(20, 10, 20) },
         { theme_value::button_text, make_color(24, 24, 24) },
-        { theme_value::button_disabled, make_color(205, 205, 200) }
+        { theme_value::button_disabled, make_color(205, 205, 200) },
+
+        { theme_value::input_background, make_color(220, 220, 220) },
+        { theme_value::input_text, make_color(25, 25, 20) },
+        { theme_value::input_selection, make_color(6, 165, 223) },
+        { theme_value::input_cursor, make_color(20, 20, 20) },
+        { theme_value::input_border, make_color(40, 120, 140) },
+        { theme_value::input_focused_border, make_color(20, 10, 20) }
     },
     dimensions
     {
-        { theme_value::button_round, 0}
+        { theme_value::button_round, 0 },
+        { theme_value::input_round, 0 }
     },
     strings
     {
