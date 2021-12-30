@@ -85,9 +85,10 @@ button::~button()
     destroy_primitives();
 #endif
 
-    if (parent.lock())
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent.lock()->remove_control(shared_from_this());
+        parent_->remove_control(shared_from_this());
     }
 }
 
@@ -240,9 +241,10 @@ void button::set_position(const rect &position__)
     auto prev_position = position_;
     position_ = position__;
 
-    if (parent.lock())
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent.lock()->redraw(prev_position, true);
+        parent_->redraw(prev_position, true);
     }
 	
     redraw();
@@ -320,9 +322,10 @@ void button::show()
 void button::hide()
 {
     showed_ = false;
-    if (parent.lock())
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent.lock()->redraw(position_, true);
+        parent_->redraw(position_, true);
     }
 }
 
@@ -410,9 +413,10 @@ void button::set_callback(std::function<void(void)> click_callback_)
 
 void button::redraw()
 {
-    if (parent.lock())
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent.lock()->redraw(position_);
+        parent_->redraw(position_);
     }
 }
 

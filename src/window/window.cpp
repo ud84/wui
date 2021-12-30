@@ -987,7 +987,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     wnd->execute_focused();
                 }
                 break;
-                default:
+                case VK_BACK: case VK_DELETE: case VK_END: case VK_HOME: case VK_LEFT: case VK_RIGHT: case VK_SHIFT:
                 {
                     window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
                     auto control = wnd->get_focused();
@@ -995,10 +995,45 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     {
                         event ev;
                         ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::press, (wchar_t)w_param };;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, (wchar_t)w_param };;
 
                         control->receive_event(ev);
                     }
+                }
+                break;
+            }
+        break;
+        case WM_KEYUP:
+            switch (w_param)
+            {
+                case VK_BACK: case VK_DELETE: case VK_END: case VK_HOME: case VK_LEFT: case VK_RIGHT: case VK_SHIFT:
+                {
+                    window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+                    auto control = wnd->get_focused();
+                    if (control)
+                    {
+                        event ev;
+                        ev.type = event_type::keyboard;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, (wchar_t)w_param };;
+
+                        control->receive_event(ev);
+                    }
+                }
+                break;
+            }
+        break;
+        case WM_CHAR:
+            if (w_param != VK_BACK && w_param != VK_DELETE && w_param != VK_END && w_param != VK_HOME && w_param != VK_LEFT && w_param != VK_RIGHT && w_param != VK_SHIFT)
+            {
+                window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+                auto control = wnd->get_focused();
+                if (control)
+                {
+                    event ev;
+                    ev.type = event_type::keyboard;
+                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, (wchar_t)w_param };;
+                    
+                    control->receive_event(ev);
                 }
                 break;
             }

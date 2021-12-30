@@ -14,6 +14,7 @@
 #include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
+#include <wui/common/timer.hpp>
 
 #include <string>
 #include <functional>
@@ -73,22 +74,32 @@ private:
     std::shared_ptr<i_theme> theme_;
 
     rect position_;
+    size_t cursor_position;
 
     std::weak_ptr<window> parent;
+
+    timer timer_;
 
     bool showed_, enabled_;
     bool focused_;
     bool focusing_;
+    bool cursor_visible;
 
 #ifdef _WIN32
     HBRUSH background_brush, selection_brush;
-    HPEN cursor_pen, border_pen, focused_border_pen;
+    HPEN cursor_pen, background_pen, border_pen, focused_border_pen;
 
     void make_primitives();
     void destroy_primitives();
 #endif
 
+    static const int32_t left_indent = 5, top_indent = 3;
+
     void redraw();
+
+    rect calculate_cursor_coordinates(int32_t text_width, int32_t text_height);
+
+    void redraw_cursor();
 };
 
 }

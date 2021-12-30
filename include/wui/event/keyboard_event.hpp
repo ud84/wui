@@ -16,7 +16,9 @@ namespace wui
 
 enum class keyboard_event_type
 {
-    press
+    down, 
+    up,
+    key
 };
 
 struct keyboard_event

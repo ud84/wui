@@ -110,9 +110,10 @@ image::~image()
     free_image(&img);
 #endif
 
-    if (parent.lock())
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent.lock()->remove_control(shared_from_this());
+        parent_->remove_control(shared_from_this());
     }
 }
 
@@ -147,9 +148,10 @@ void image::set_position(const rect &position__)
     auto prev_position = position_;
     position_ = position__;
 
-    if (parent.lock())
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent.lock()->redraw(prev_position, true);
+        parent_->redraw(prev_position, true);
     }
 	
     redraw();
@@ -216,9 +218,10 @@ void image::show()
 void image::hide()
 {
     showed_ = false;
-    if (parent.lock())
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent.lock()->redraw(position_, true);
+        parent_->redraw(position_, true);
     }
 }
 
@@ -280,9 +283,10 @@ int32_t image::height() const
 
 void image::redraw()
 {
-    if (parent.lock())
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent.lock()->redraw(position_);
+        parent_->redraw(position_);
     }
 }
 
