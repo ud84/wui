@@ -21,6 +21,16 @@ enum class keyboard_event_type
     key
 };
 
+static const wchar_t vk_tab = 0x09;
+static const wchar_t vk_return = 0x0D;
+static const wchar_t vk_back = 0x08;
+static const wchar_t vk_del = 0x2E;
+static const wchar_t vk_end = 0x23;
+static const wchar_t vk_home = 0x24;
+static const wchar_t vk_left = 0x25;
+static const wchar_t vk_right = 0x27;
+static const wchar_t vk_shift = 0x10;
+
 struct keyboard_event
 {
     keyboard_event_type type;

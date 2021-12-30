@@ -131,17 +131,61 @@ void input::receive_event(const event &ev)
         switch (ev.keyboard_event_.type)
         {
             case keyboard_event_type::down:
-                
+                timer_.stop();
+                cursor_visible = true;
+                switch (ev.keyboard_event_.key)
+                {
+                    case vk_left:
+                        if (cursor_position > 0)
+                        {
+                            --cursor_position;
+                            redraw();
+                        }
+                    break;
+                    case vk_right:
+                        if (cursor_position < text_.size())
+                        {
+                            ++cursor_position;
+                            redraw();
+                        }
+                    break;
+                    case vk_home:
+                        cursor_position = 0;
+                        redraw();
+                    break;
+                    case vk_end:
+                        if (!text_.empty())
+                        {
+                            cursor_position = text_.size();
+                            redraw();
+                        }
+                    break;
+                    case vk_back:
+                        if (cursor_position > 0)
+                        {
+                            text_.erase(cursor_position - 1, 1);
+                            --cursor_position;
+                            redraw();
+                        }
+                    break;
+                    case vk_del:
+                        if (!text_.empty())
+                        {
+                            text_.erase(cursor_position, 1);
+                            redraw();
+                        }
+                    break;
+                }
             break;
             case keyboard_event_type::up:
-
+                timer_.start();
             break;
             case keyboard_event_type::key:
-                if (input_view_ == input_view::singleline && ev.keyboard_event_.key == 0x0D)
+                if (input_view_ == input_view::singleline && ev.keyboard_event_.key == vk_return)
                 {
                     return;
                 }
-                text_ += ev.keyboard_event_.key;
+                text_.insert(cursor_position, 1, ev.keyboard_event_.key);
                 ++cursor_position;
                 redraw();
             break;
