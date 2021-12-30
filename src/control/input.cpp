@@ -16,13 +16,15 @@
 namespace wui
 {
 
+static const int32_t input_horizontal_indent = 5, input_top_indent = 3;
+
 input::input(const std::wstring &text__, input_view input_view__, std::shared_ptr<i_theme> theme__)
     : input_view_(input_view__),
     text_(text__),
     change_callback(),
     theme_(theme__),
     position_(),
-    cursor_position(0),
+    cursor_position(0), select_start_position(0), select_end_position(0),
     parent(),
     timer_(std::bind(&input::redraw_cursor, this)),
     showed_(true), enabled_(true),
@@ -52,6 +54,14 @@ input::~input()
     }
 }
 
+rect calculate_cursor_coordinates(int32_t text_width, int32_t text_height, const rect &position_)
+{
+    return rect{ position_.left + input_horizontal_indent + text_width,
+        position_.top + input_top_indent,
+        position_.left + input_horizontal_indent + text_width,
+        position_.top + input_top_indent + text_height };
+}
+
 #ifdef _WIN32
 
 rect calculate_text_dimensions(HDC dc, std::wstring text, size_t text_length)
@@ -62,7 +72,7 @@ rect calculate_text_dimensions(HDC dc, std::wstring text, size_t text_length)
 
     if (text_length == 0)
     {
-        text = L"A";
+        text = L"W";
     }
 
     DrawTextW(dc, text.c_str(), static_cast<int32_t>(text.size()), &text_rect, DT_CALCRECT);
@@ -70,16 +80,37 @@ rect calculate_text_dimensions(HDC dc, std::wstring text, size_t text_length)
     return { 0, 0, text_length != 0 ? text_rect.right : 0, text_rect.bottom };
 }
 
-#endif
-
-rect input::calculate_cursor_coordinates(int32_t text_width, int32_t text_height)
+void draw_text(HDC dc, const std::wstring &text, const rect &position_, std::shared_ptr<i_theme> &theme_)
 {
-    return rect{ position_.left + left_indent + text_width, position_.top + top_indent, position_.left + left_indent + text_width, position_.top + top_indent + text_height };
+    SetTextColor(dc, theme_color(theme_value::input_text, theme_));
+    SetBkColor(dc, theme_color(theme_value::input_background, theme_));
+
+    auto text_width = calculate_text_dimensions(dc, text, text.size()).right;
+
+    if (text_width > position_.width() - (input_horizontal_indent * 2))
+    {
+
+    }
+
+    TextOutW(dc, position_.left + input_horizontal_indent, position_.top + input_top_indent, text.c_str(), (int32_t)text.size());
 }
+
+void draw_cursor(HDC dc, HPEN pen, const std::wstring &text, size_t cursor_position, const rect &position_)
+{
+    SelectObject(dc, pen);
+
+    auto text_dimensions = calculate_text_dimensions(dc, text, cursor_position);
+    auto cursor_coordinates = calculate_cursor_coordinates(text_dimensions.right, text_dimensions.bottom, position_);
+
+    MoveToEx(dc, cursor_coordinates.left, cursor_coordinates.top, (LPPOINT)NULL);
+    LineTo(dc, cursor_coordinates.right, cursor_coordinates.bottom);
+}
+
+#endif
 
 void input::draw(graphic &gr)
 {
-    if (!showed_)
+    if (!showed_ || position_.width() == 0 || position_.height() == 0 || position_.width() <= input_horizontal_indent * 2)
     {
         return;
     }
@@ -88,22 +119,12 @@ void input::draw(graphic &gr)
     SelectObject(gr.dc, !focused_ ? border_pen : focused_border_pen);
     SelectObject(gr.dc, background_brush);
 
-    auto rnd = theme_dimension(theme_value::button_round, theme_);
+    auto rnd = theme_dimension(theme_value::input_round, theme_);
     RoundRect(gr.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
-	
-    SetTextColor(gr.dc, theme_color(theme_value::input_text, theme_));
-    SetBkColor(gr.dc, theme_color(theme_value::input_background, theme_));
 
-    TextOutW(gr.dc, position_.left + left_indent, position_.top + top_indent, text_.c_str(), (int32_t)text_.size());
+    draw_text(gr.dc, text_, position_, theme_);
 
-    SelectObject(gr.dc, cursor_visible ? cursor_pen : background_pen);
-
-    auto text_dimensions = calculate_text_dimensions(gr.dc, text_, cursor_position);
-    auto cursor_coordinates = calculate_cursor_coordinates(text_dimensions.right, text_dimensions.bottom);
-
-    MoveToEx(gr.dc, cursor_coordinates.left, cursor_coordinates.top, (LPPOINT)NULL);
-    LineTo(gr.dc, cursor_coordinates.right, cursor_coordinates.bottom);
-    
+    draw_cursor(gr.dc, cursor_visible ? cursor_pen : background_pen, text_, cursor_position, position_);
 #endif
 }
 
@@ -123,6 +144,9 @@ void input::receive_event(const event &ev)
             break;
             case mouse_event_type::left_up:
                 
+            break;
+            case mouse_event_type::move:
+
             break;
         }
     }

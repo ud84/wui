@@ -28,17 +28,17 @@ struct rect
         return { left + lv.left, top + lv.top, left + lv.right, top + lv.bottom };
     }
 
-    inline bool in(int32_t x, int32_t y)
+    inline bool in(int32_t x, int32_t y) const
     {
         return x >= left && x <= right && y >= top && y <= bottom;
     }
 
-    inline int32_t width()
+    inline int32_t width() const
     {
         return right - left;
     }
 
-    inline int32_t height()
+    inline int32_t height() const
     {
         return bottom - top;
     }
