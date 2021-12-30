@@ -166,6 +166,11 @@ void input::receive_event(const event &ev)
                             text_.erase(cursor_position - 1, 1);
                             --cursor_position;
                             redraw();
+
+                            if (change_callback)
+                            {
+                                change_callback(text_);
+                            }
                         }
                     break;
                     case vk_del:
@@ -173,6 +178,11 @@ void input::receive_event(const event &ev)
                         {
                             text_.erase(cursor_position, 1);
                             redraw();
+
+                            if (change_callback)
+                            {
+                                change_callback(text_);
+                            }
                         }
                     break;
                 }
@@ -188,6 +198,11 @@ void input::receive_event(const event &ev)
                 text_.insert(cursor_position, 1, ev.keyboard_event_.key);
                 ++cursor_position;
                 redraw();
+
+                if (change_callback)
+                {
+                    change_callback(text_);
+                }
             break;
         }
     }
