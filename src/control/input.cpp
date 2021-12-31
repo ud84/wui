@@ -95,7 +95,7 @@ void input::draw(graphic &gr)
 
     rect full_text_dimensions = calculate_text_dimensions(gr.dc, text_, text_.size());
 
-    HBITMAP mem_bitmap = CreateCompatibleBitmap(gr.dc, full_text_dimensions.right, full_text_dimensions.bottom);
+    HBITMAP mem_bitmap = CreateCompatibleBitmap(gr.dc, full_text_dimensions.right + 1, full_text_dimensions.bottom);
     HBITMAP hbm_old_buffer = (HBITMAP)SelectObject(mem_dc, mem_bitmap);
 
     SelectObject(mem_dc, font);
@@ -108,15 +108,15 @@ void input::draw(graphic &gr)
 
     SelectObject(mem_dc, cursor_visible ? cursor_pen : background_pen);
 
-    rect text_dimensions = calculate_text_dimensions(gr.dc, text_, cursor_position);
+    rect text_dimensions = calculate_text_dimensions(mem_dc, text_, cursor_position);
     
     MoveToEx(mem_dc, text_dimensions.right, 0, (LPPOINT)NULL);
     LineTo(mem_dc, text_dimensions.right, text_dimensions.bottom);
 
     int32_t left_shift = 0;
-    //while (text_dimensions.width() - left_shift > position_.width())
+    while (text_dimensions.width() - left_shift >= position_.width() - input_horizontal_indent * 2)
     {
-        //left_shift += 20;
+        left_shift += 20;
     }
 
     BitBlt(gr.dc,
