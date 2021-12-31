@@ -33,7 +33,8 @@ input::input(const std::wstring &text__, input_view input_view__, std::shared_pt
     cursor_visible(false)
 #ifdef _WIN32
     , background_brush(0), selection_brush(0),
-    cursor_pen(0), background_pen(0), border_pen(0), focused_border_pen(0)
+    cursor_pen(0), background_pen(0), border_pen(0), focused_border_pen(0),
+    font(0)
 #endif
 {
 #ifdef _WIN32
@@ -54,14 +55,6 @@ input::~input()
     }
 }
 
-rect calculate_cursor_coordinates(int32_t text_width, int32_t text_height, const rect &position_)
-{
-    return rect{ position_.left + input_horizontal_indent + text_width,
-        position_.top + input_top_indent,
-        position_.left + input_horizontal_indent + text_width,
-        position_.top + input_top_indent + text_height };
-}
-
 #ifdef _WIN32
 
 rect calculate_text_dimensions(HDC dc, std::wstring text, size_t text_length)
@@ -80,45 +73,6 @@ rect calculate_text_dimensions(HDC dc, std::wstring text, size_t text_length)
     return { 0, 0, text_length != 0 ? text_rect.right : 0, text_rect.bottom };
 }
 
-void draw_text(HDC dc, const std::wstring &text, const rect &position_, std::shared_ptr<i_theme> &theme_)
-{
-    HDC mem_dc = CreateCompatibleDC(dc);
-    
-    HBITMAP mem_bitmap = CreateCompatibleBitmap(dc, position_.width(), position_.height());
-    HBITMAP hbm_old_buffer = (HBITMAP)SelectObject(mem_dc, mem_bitmap);
-
-    SetTextColor(mem_dc, theme_color(theme_value::input_text, theme_));
-    SetBkColor(mem_dc, theme_color(theme_value::input_background, theme_));
-
-    /*auto text_width = calculate_text_dimensions(dc, text, text.size()).right;
-
-    if (text_width > position_.width() - (input_horizontal_indent * 2))
-    {
-
-    }*/
-
-    //TextOut(mem_dc, position_.left + input_horizontal_indent, position_.top + input_top_indent, text.c_str(), (int32_t)text.size());
-    TextOut(mem_dc, input_horizontal_indent, input_top_indent, text.c_str(), (int32_t)text.size());
-
-    BitBlt(dc, position_.left, position_.top, position_.width(), position_.height(), mem_dc, 0, 0, SRCCOPY);
-
-    SelectObject(mem_dc, hbm_old_buffer);
-
-    DeleteObject(mem_bitmap);
-    DeleteDC(mem_dc);
-}
-
-void draw_cursor(HDC dc, HPEN pen, const std::wstring &text, size_t cursor_position, const rect &position_)
-{
-    SelectObject(dc, pen);
-
-    auto text_dimensions = calculate_text_dimensions(dc, text, cursor_position);
-    auto cursor_coordinates = calculate_cursor_coordinates(text_dimensions.right, text_dimensions.bottom, position_);
-
-    MoveToEx(dc, cursor_coordinates.left, cursor_coordinates.top, (LPPOINT)NULL);
-    LineTo(dc, cursor_coordinates.right, cursor_coordinates.bottom);
-}
-
 #endif
 
 void input::draw(graphic &gr)
@@ -129,15 +83,43 @@ void input::draw(graphic &gr)
     }
 
 #ifdef _WIN32
+    /// Draw the frame
     SelectObject(gr.dc, !focused_ ? border_pen : focused_border_pen);
     SelectObject(gr.dc, background_brush);
 
     auto rnd = theme_dimension(theme_value::input_round, theme_);
     RoundRect(gr.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
 
-    draw_text(gr.dc, text_, position_, theme_);
+    /// Draw the text
+    HDC mem_dc = CreateCompatibleDC(gr.dc);
 
-    draw_cursor(gr.dc, cursor_visible ? cursor_pen : background_pen, text_, cursor_position, position_);
+    HBITMAP mem_bitmap = CreateCompatibleBitmap(gr.dc, position_.width() - input_horizontal_indent * 2, position_.height() - input_top_indent * 2);
+    HBITMAP hbm_old_buffer = (HBITMAP)SelectObject(mem_dc, mem_bitmap);
+
+    SelectObject(mem_dc, font);
+    SelectObject(mem_dc, background_brush);
+
+    RECT filled_rect = { 0, 0, position_.width() - input_horizontal_indent * 2, position_.height() - input_top_indent * 2 };
+    FillRect(mem_dc, &filled_rect, background_brush);
+
+    SetTextColor(mem_dc, theme_color(theme_value::input_text, theme_));
+    SetBkColor(mem_dc, theme_color(theme_value::input_background, theme_));
+
+    TextOut(mem_dc, 0, 0, text_.c_str(), static_cast<int32_t>(text_.size()));
+
+    SelectObject(mem_dc, cursor_visible ? cursor_pen : background_pen);
+
+    rect text_dimensions = calculate_text_dimensions(gr.dc, text_, cursor_position);
+    
+    MoveToEx(mem_dc, text_dimensions.right, 0, (LPPOINT)NULL);
+    LineTo(mem_dc, text_dimensions.right, text_dimensions.bottom);
+
+    BitBlt(gr.dc, position_.left + input_horizontal_indent, position_.top + input_top_indent, position_.width() - input_horizontal_indent, position_.height(), mem_dc, 0, 0, SRCCOPY);
+
+    SelectObject(mem_dc, hbm_old_buffer);
+
+    DeleteObject(mem_bitmap);
+    DeleteDC(mem_dc);
 #endif
 }
 
@@ -406,6 +388,10 @@ void input::make_primitives()
     background_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::input_background, theme_));
     border_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::input_border, theme_));
     focused_border_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::input_focused_border, theme_));
+
+    font = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
+        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
 }
 
 void input::destroy_primitives()
@@ -416,6 +402,7 @@ void input::destroy_primitives()
     DeleteObject(background_pen);
     DeleteObject(border_pen);
     DeleteObject(focused_border_pen);
+    DeleteObject(font);
 }
 #endif
 

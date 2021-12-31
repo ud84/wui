@@ -89,6 +89,8 @@ private:
     HBRUSH background_brush, selection_brush;
     HPEN cursor_pen, background_pen, border_pen, focused_border_pen;
 
+    HFONT font;
+
     void make_primitives();
     void destroy_primitives();
 #endif
