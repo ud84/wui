@@ -116,7 +116,7 @@ void input::draw(graphic &gr)
     int32_t left_shift = 0;
     while (text_dimensions.width() - left_shift >= position_.width() - input_horizontal_indent * 2)
     {
-        left_shift += 20;
+        left_shift += 10;
     }
 
     BitBlt(gr.dc,
