@@ -114,7 +114,14 @@ void input::draw(graphic &gr)
     MoveToEx(mem_dc, text_dimensions.right, 0, (LPPOINT)NULL);
     LineTo(mem_dc, text_dimensions.right, text_dimensions.bottom);
 
-    BitBlt(gr.dc, position_.left + input_horizontal_indent, position_.top + input_top_indent, position_.width() - input_horizontal_indent, position_.height(), mem_dc, 0, 0, SRCCOPY);
+    rect out_position = { position_.left + input_horizontal_indent, position_.top + input_top_indent, position_.width() - input_horizontal_indent, position_.height() };
+
+    //while (text_dimensions.width() > out_position.width())
+    {
+
+    }
+
+    BitBlt(gr.dc, out_position.left, out_position.top, out_position.right, out_position.bottom, mem_dc, 0, 0, SRCCOPY);
 
     SelectObject(mem_dc, hbm_old_buffer);
 
