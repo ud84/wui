@@ -119,6 +119,11 @@ void input::draw(graphic &gr)
         left_shift += 10;
     }
 
+    while (left_shift > cursor_coordinate)
+    {
+        left_shift -= 10;
+    }
+
     BitBlt(gr.dc,
         position_.left + input_horizontal_indent,
         position_.top + input_top_indent,
