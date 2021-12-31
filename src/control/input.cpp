@@ -82,17 +82,30 @@ rect calculate_text_dimensions(HDC dc, std::wstring text, size_t text_length)
 
 void draw_text(HDC dc, const std::wstring &text, const rect &position_, std::shared_ptr<i_theme> &theme_)
 {
-    SetTextColor(dc, theme_color(theme_value::input_text, theme_));
-    SetBkColor(dc, theme_color(theme_value::input_background, theme_));
+    HDC mem_dc = CreateCompatibleDC(dc);
+    
+    HBITMAP mem_bitmap = CreateCompatibleBitmap(dc, position_.width(), position_.height());
+    HBITMAP hbm_old_buffer = (HBITMAP)SelectObject(mem_dc, mem_bitmap);
 
-    auto text_width = calculate_text_dimensions(dc, text, text.size()).right;
+    SetTextColor(mem_dc, theme_color(theme_value::input_text, theme_));
+    SetBkColor(mem_dc, theme_color(theme_value::input_background, theme_));
+
+    /*auto text_width = calculate_text_dimensions(dc, text, text.size()).right;
 
     if (text_width > position_.width() - (input_horizontal_indent * 2))
     {
 
-    }
+    }*/
 
-    TextOutW(dc, position_.left + input_horizontal_indent, position_.top + input_top_indent, text.c_str(), (int32_t)text.size());
+    //TextOut(mem_dc, position_.left + input_horizontal_indent, position_.top + input_top_indent, text.c_str(), (int32_t)text.size());
+    TextOut(mem_dc, input_horizontal_indent, input_top_indent, text.c_str(), (int32_t)text.size());
+
+    BitBlt(dc, position_.left, position_.top, position_.width(), position_.height(), mem_dc, 0, 0, SRCCOPY);
+
+    SelectObject(mem_dc, hbm_old_buffer);
+
+    DeleteObject(mem_bitmap);
+    DeleteDC(mem_dc);
 }
 
 void draw_cursor(HDC dc, HPEN pen, const std::wstring &text, size_t cursor_position, const rect &position_)
