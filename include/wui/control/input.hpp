@@ -75,7 +75,7 @@ private:
 
     rect position_;
     size_t cursor_position, select_start_position, select_end_position;
-
+    
     std::weak_ptr<window> parent;
 
     timer timer_;
@@ -90,6 +90,8 @@ private:
     HPEN cursor_pen, background_pen, border_pen, focused_border_pen;
 
     HFONT font;
+
+    int32_t left_shift;
 
     void make_primitives();
     void destroy_primitives();

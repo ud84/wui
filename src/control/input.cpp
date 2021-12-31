@@ -34,7 +34,8 @@ input::input(const std::wstring &text__, input_view input_view__, std::shared_pt
 #ifdef _WIN32
     , background_brush(0), selection_brush(0),
     cursor_pen(0), background_pen(0), border_pen(0), focused_border_pen(0),
-    font(0)
+    font(0),
+    left_shift(0)
 #endif
 {
 #ifdef _WIN32
@@ -108,13 +109,12 @@ void input::draw(graphic &gr)
 
     SelectObject(mem_dc, cursor_visible ? cursor_pen : background_pen);
 
-    rect text_dimensions = calculate_text_dimensions(mem_dc, text_, cursor_position);
+    auto cursor_coordinate = calculate_text_dimensions(mem_dc, text_, cursor_position).right;
     
-    MoveToEx(mem_dc, text_dimensions.right, 0, (LPPOINT)NULL);
-    LineTo(mem_dc, text_dimensions.right, text_dimensions.bottom);
+    MoveToEx(mem_dc, cursor_coordinate, 0, (LPPOINT)NULL);
+    LineTo(mem_dc, cursor_coordinate, full_text_dimensions.bottom);
 
-    int32_t left_shift = 0;
-    while (text_dimensions.width() - left_shift >= position_.width() - input_horizontal_indent * 2)
+    while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
     {
         left_shift += 10;
     }
