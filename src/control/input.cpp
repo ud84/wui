@@ -93,14 +93,13 @@ void input::draw(graphic &gr)
     /// Draw the text
     HDC mem_dc = CreateCompatibleDC(gr.dc);
 
-    HBITMAP mem_bitmap = CreateCompatibleBitmap(gr.dc, position_.width() - input_horizontal_indent * 2, position_.height() - input_top_indent * 2);
+    rect full_text_dimensions = calculate_text_dimensions(gr.dc, text_, text_.size());
+
+    HBITMAP mem_bitmap = CreateCompatibleBitmap(gr.dc, full_text_dimensions.right, full_text_dimensions.bottom);
     HBITMAP hbm_old_buffer = (HBITMAP)SelectObject(mem_dc, mem_bitmap);
 
     SelectObject(mem_dc, font);
     SelectObject(mem_dc, background_brush);
-
-    RECT filled_rect = { 0, 0, position_.width() - input_horizontal_indent * 2, position_.height() - input_top_indent * 2 };
-    FillRect(mem_dc, &filled_rect, background_brush);
 
     SetTextColor(mem_dc, theme_color(theme_value::input_text, theme_));
     SetBkColor(mem_dc, theme_color(theme_value::input_background, theme_));
@@ -114,14 +113,21 @@ void input::draw(graphic &gr)
     MoveToEx(mem_dc, text_dimensions.right, 0, (LPPOINT)NULL);
     LineTo(mem_dc, text_dimensions.right, text_dimensions.bottom);
 
-    rect out_position = { position_.left + input_horizontal_indent, position_.top + input_top_indent, position_.width() - input_horizontal_indent, position_.height() };
-
-    //while (text_dimensions.width() > out_position.width())
+    int32_t left_shift = 0;
+    //while (text_dimensions.width() - left_shift > position_.width())
     {
-
+        //left_shift += 20;
     }
 
-    BitBlt(gr.dc, out_position.left, out_position.top, out_position.right, out_position.bottom, mem_dc, 0, 0, SRCCOPY);
+    BitBlt(gr.dc,
+        position_.left + input_horizontal_indent,
+        position_.top + input_top_indent,
+        position_.width() - input_horizontal_indent * 2,
+        position_.height() - input_top_indent,
+        mem_dc, 
+        left_shift,
+        0,
+        SRCCOPY);
 
     SelectObject(mem_dc, hbm_old_buffer);
 
