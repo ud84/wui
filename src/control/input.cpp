@@ -152,8 +152,18 @@ void input::receive_event(const event &ev)
     {
         switch (ev.mouse_event_.type)
         {
+            case mouse_event_type::enter:
+#ifdef _WIN32
+                SetCursor(LoadCursor(NULL, IDC_IBEAM));
+#endif
+            break;
+            case mouse_event_type::leave:
+#ifdef _WIN32
+                SetCursor(LoadCursor(NULL, IDC_ARROW));
+#endif
+            break;
             case mouse_event_type::left_down:
-                
+
             break;
             case mouse_event_type::left_up:
                 

@@ -636,7 +636,6 @@ bool window::init(window_type type, const rect &position__, const std::wstring &
     wcex.hInstance = h_inst;
     wcex.hbrBackground = background_brush;
     wcex.lpszClassName = L"WUI Window";
-    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 
     RegisterClassExW(&wcex);
 
@@ -761,6 +760,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 else if (y_mouse > window_rect.bottom - window_rect.top - 5 || y_mouse < 5)
                 {
                     SetCursor(LoadCursor(NULL, IDC_SIZENS));
+                }
+                else if (!wnd->active_control)
+                {
+                    SetCursor(LoadCursor(NULL, IDC_ARROW));
                 }
             }
 

@@ -216,6 +216,9 @@ void button::receive_event(const event &ev)
         {
             case mouse_event_type::enter:
                 active = true;
+#ifdef _WIN32
+                SetCursor(LoadCursor(NULL, IDC_ARROW));
+#endif
                 redraw();
             break;
             case mouse_event_type::leave:
