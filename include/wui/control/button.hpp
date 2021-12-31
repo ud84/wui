@@ -102,6 +102,8 @@ private:
     HBRUSH calm_brush, active_brush, disabled_brush;
     HPEN border_pen, focused_border_pen;
 
+    HFONT font;
+
     void make_primitives();
     void destroy_primitives();
 #endif

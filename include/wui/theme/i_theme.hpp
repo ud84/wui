@@ -29,6 +29,8 @@ enum class theme_value
     window_background,
     window_text,
     window_active_button,
+    window_title_font_size,
+    window_title_font_name,
 
     images_path,
 
@@ -39,6 +41,8 @@ enum class theme_value
     button_text,
     button_disabled,
     button_round,
+    button_font_size,
+    button_font_name,
 
     input_background,
     input_text,
@@ -46,7 +50,9 @@ enum class theme_value
     input_cursor,
     input_border,
     input_focused_border,
-    input_round
+    input_round,
+    input_font_size,
+    input_font_name
 };
 
 class i_theme

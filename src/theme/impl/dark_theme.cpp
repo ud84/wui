@@ -35,12 +35,18 @@ dark_theme::dark_theme()
     },
     dimensions
     {
+        { theme_value::window_title_font_size, 18 },
         { theme_value::button_round, 0 },
-        { theme_value::input_round, 0 }
+        { theme_value::button_font_size, 18 },
+        { theme_value::input_round, 0 },
+        { theme_value::input_font_size, 18 }
     },
     strings
     {
-        { theme_value::images_path, L"IMAGES_DARK" }
+        { theme_value::window_title_font_name, L"Segoe UI" },
+        { theme_value::images_path, L"IMAGES_DARK" },
+        { theme_value::button_font_name, L"Segoe UI" },
+        { theme_value::input_font_name, L"Segoe UI" }
     }
 {
 }

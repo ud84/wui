@@ -31,7 +31,8 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     focusing_(true)
 #ifdef _WIN32
     , calm_brush(0), active_brush(0), disabled_brush(0),
-    border_pen(0), focused_border_pen(0)
+    border_pen(0), focused_border_pen(0),
+    font(0)
 #endif
 {
 #ifdef _WIN32
@@ -100,6 +101,8 @@ void button::draw(graphic &gr)
     }
 
 #ifdef _WIN32
+    SelectObject(gr.dc, font);
+
     RECT text_rect = { 0 };
     DrawTextW(gr.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &text_rect, DT_CALCRECT);
 
@@ -428,6 +431,9 @@ void button::make_primitives()
     disabled_brush = CreateSolidBrush(button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_disabled, theme_) : theme_color(theme_value::window_background, theme_));
     border_pen = CreatePen(PS_SOLID, 1, button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_border, theme_) : theme_color(theme_value::window_background, theme_));
     focused_border_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::button_focused_border, theme_));
+    font = CreateFont(theme_dimension(theme_value::button_font_size, theme_), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
+        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE, theme_string(theme_value::button_font_name, theme_).c_str());
 }
 
 void button::destroy_primitives()
@@ -437,6 +443,7 @@ void button::destroy_primitives()
     DeleteObject(disabled_brush);
     DeleteObject(border_pen);
     DeleteObject(focused_border_pen);
+    DeleteObject(font);
 }
 #endif
 

@@ -407,9 +407,9 @@ void input::make_primitives()
     border_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::input_border, theme_));
     focused_border_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::input_focused_border, theme_));
 
-    font = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
+    font = CreateFont(theme_dimension(theme_value::input_font_size, theme_), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
         OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
+        DEFAULT_PITCH | FF_DONTCARE, theme_string(theme_value::input_font_name, theme_).c_str());
 }
 
 void input::destroy_primitives()

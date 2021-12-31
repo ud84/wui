@@ -1056,9 +1056,9 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 void window::make_primitives()
 {
     background_brush = CreateSolidBrush(theme_color(theme_value::window_background, theme_));
-    font = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
+    font = CreateFont(theme_dimension(theme_value::window_title_font_size, theme_), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
         OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
+        DEFAULT_PITCH | FF_DONTCARE, theme_string(theme_value::window_title_font_name, theme_).c_str());
 }
 
 void window::destroy_primitives()
