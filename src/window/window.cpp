@@ -36,7 +36,7 @@ window::window()
     showed_(true), enabled_(true), title_showed(true),
     focused_index(0),
     parent(),
-    moving_mode_(moving_mode::move),
+    moving_mode_(moving_mode::none),
     close_callback(),
     size_change_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),

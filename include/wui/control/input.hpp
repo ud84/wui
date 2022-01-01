@@ -105,6 +105,8 @@ private:
     void update_select_positions(bool shift_pressed, size_t start_position, size_t end_position);
 
     bool clear_selected_text(); /// returns true if selection is not empty
+
+    size_t calculate_mouse_cursor_position(int32_t x);
 };
 
 }

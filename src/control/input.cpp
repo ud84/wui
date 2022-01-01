@@ -95,6 +95,7 @@ void input::draw(graphic &gr)
     /// Create memory dc for text and selection bar
     HDC mem_dc = CreateCompatibleDC(gr.dc);
 
+    SelectObject(gr.dc, font);
     rect full_text_dimensions = calculate_text_dimensions(gr.dc, text_, text_.size());
 
     HBITMAP mem_bitmap = CreateCompatibleBitmap(gr.dc, full_text_dimensions.right + 1, full_text_dimensions.bottom);
@@ -154,6 +155,33 @@ void input::draw(graphic &gr)
 
     DeleteObject(mem_bitmap);
     DeleteDC(mem_dc);
+#endif
+}
+
+size_t input::calculate_mouse_cursor_position(int32_t x)
+{
+    if (text_.empty())
+    {
+        return 0;
+    }
+
+#ifdef _WIN32
+    x -= position_.left + input_horizontal_indent - left_shift;
+
+    HDC dc = GetDC(NULL);
+
+    SelectObject(dc, font);
+
+    int32_t text_width = 0;
+    size_t count = 0;
+    while (x > text_width && count != text_.size())
+    {
+        text_width = calculate_text_dimensions(dc, text_, ++count).right;
+    }
+
+    DeleteDC(dc);
+
+    return count;
 #endif
 }
 
@@ -233,13 +261,25 @@ void input::receive_event(const event &ev)
 #endif
             break;
             case mouse_event_type::left_down:
+                cursor_position = calculate_mouse_cursor_position(ev.mouse_event_.x);
+                
+                selecting = true;
+                select_start_position = cursor_position;
+                select_end_position = select_start_position;
 
+                redraw();
             break;
             case mouse_event_type::left_up:
-                
+                selecting = false;
             break;
             case mouse_event_type::move:
+                if (selecting)
+                {    
+                    cursor_position = calculate_mouse_cursor_position(ev.mouse_event_.x);
+                    select_end_position = cursor_position;
 
+                    redraw();
+                }
             break;
         }
     }
