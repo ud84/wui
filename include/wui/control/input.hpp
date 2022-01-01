@@ -84,6 +84,7 @@ private:
     bool focused_;
     bool focusing_;
     bool cursor_visible;
+    bool selecting;
 
 #ifdef _WIN32
     HBRUSH background_brush, selection_brush;
@@ -100,6 +101,10 @@ private:
     void redraw();
 
     void redraw_cursor();
+
+    void update_select_positions();
+
+    bool clear_selected_text(); /// returns true if selection is not empty
 };
 
 }
