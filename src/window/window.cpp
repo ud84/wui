@@ -808,7 +808,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 wnd->mouse_tracked = true;
             }
 
-            if (GetCapture() == hwnd && wnd->window_state_ == window_state::normal)
+            if (GetCapture() == hwnd && wnd->moving_mode_ != moving_mode::none)
             {
                 switch (wnd->moving_mode_)
                 {
