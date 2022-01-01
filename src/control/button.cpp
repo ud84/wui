@@ -187,15 +187,15 @@ void button::draw(graphic &gr)
 
     if (button_view_ != button_view::only_image)
     {
+        SetBkMode(gr.dc, TRANSPARENT);
+
         if (button_view_ != button_view::image_right_text_no_frame)
         {
             SetTextColor(gr.dc, theme_color(theme_value::button_text, theme_));
-            SetBkColor(gr.dc, enabled_ ? (active ? theme_color(theme_value::button_active, theme_) : theme_color(theme_value::button_calm, theme_)) : theme_color(theme_value::button_disabled, theme_));
         }
         else
         {
             SetTextColor(gr.dc, theme_color(theme_value::window_text, theme_));
-            SetBkColor(gr.dc, theme_color(theme_value::window_background, theme_));
         }
 
         TextOutW(gr.dc, text_left, text_top, caption.c_str(), (int32_t)caption.size());

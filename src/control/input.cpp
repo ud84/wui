@@ -24,7 +24,7 @@ input::input(const std::wstring &text__, input_view input_view__, std::shared_pt
     change_callback(),
     theme_(theme__),
     position_(),
-    cursor_position(0), select_start_position(0), select_end_position(0),
+    cursor_position(0), select_start_position(0), select_end_position(10),
     parent(),
     timer_(std::bind(&input::redraw_cursor, this)),
     showed_(true), enabled_(true),
@@ -91,7 +91,7 @@ void input::draw(graphic &gr)
     auto rnd = theme_dimension(theme_value::input_round, theme_);
     RoundRect(gr.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
 
-    /// Draw the text
+    /// Create memory dc for text and selection bar
     HDC mem_dc = CreateCompatibleDC(gr.dc);
 
     rect full_text_dimensions = calculate_text_dimensions(gr.dc, text_, text_.size());
@@ -99,11 +99,26 @@ void input::draw(graphic &gr)
     HBITMAP mem_bitmap = CreateCompatibleBitmap(gr.dc, full_text_dimensions.right + 1, full_text_dimensions.bottom);
     HBITMAP hbm_old_buffer = (HBITMAP)SelectObject(mem_dc, mem_bitmap);
 
+    RECT full_rect = { 0, 0, full_text_dimensions.right + 1, full_text_dimensions.bottom };
+    FillRect(mem_dc, &full_rect, background_brush);
+
     SelectObject(mem_dc, font);
+
+    /// Draw the selection bar
+    if (select_start_position != select_end_position)
+    {
+        auto start_coordinate = calculate_text_dimensions(mem_dc, text_, select_start_position).right;
+        auto end_coordinate = calculate_text_dimensions(mem_dc, text_, select_end_position).right;
+
+        RECT selection_rect = { start_coordinate, 0, end_coordinate, full_text_dimensions.bottom };
+        FillRect(mem_dc, &selection_rect, selection_brush);
+    }
+
+    /// Draw the text
     SelectObject(mem_dc, background_brush);
 
     SetTextColor(mem_dc, theme_color(theme_value::input_text, theme_));
-    SetBkColor(mem_dc, theme_color(theme_value::input_background, theme_));
+    SetBkMode(mem_dc, TRANSPARENT);
 
     TextOut(mem_dc, 0, 0, text_.c_str(), static_cast<int32_t>(text_.size()));
 

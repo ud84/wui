@@ -705,7 +705,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             SelectObject(hdc, wnd->font);
 
             SetTextColor(hdc, theme_color(theme_value::window_text, wnd->theme_));
-            SetBkColor(hdc, theme_color(theme_value::window_background, wnd->theme_));
+            SetBkMode(hdc, TRANSPARENT);
 
             if (wnd->title_showed)
             {
