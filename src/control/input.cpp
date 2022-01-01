@@ -99,7 +99,7 @@ void input::draw(graphic &gr)
     rect full_text_dimensions = calculate_text_dimensions(gr.dc, text_, text_.size());
 
     HBITMAP mem_bitmap = CreateCompatibleBitmap(gr.dc, full_text_dimensions.right + 1, full_text_dimensions.bottom);
-    HBITMAP hbm_old_buffer = (HBITMAP)SelectObject(mem_dc, mem_bitmap);
+    SelectObject(mem_dc, mem_bitmap);
 
     RECT full_rect = { 0, 0, full_text_dimensions.right + 1, full_text_dimensions.bottom };
     FillRect(mem_dc, &full_rect, background_brush);
@@ -150,8 +150,6 @@ void input::draw(graphic &gr)
         left_shift,
         0,
         SRCCOPY);
-
-    SelectObject(mem_dc, hbm_old_buffer);
 
     DeleteObject(mem_bitmap);
     DeleteDC(mem_dc);
@@ -275,10 +273,14 @@ void input::receive_event(const event &ev)
             case mouse_event_type::move:
                 if (selecting)
                 {    
-                    cursor_position = calculate_mouse_cursor_position(ev.mouse_event_.x);
-                    select_end_position = cursor_position;
+                    auto measured_cursor_position = calculate_mouse_cursor_position(ev.mouse_event_.x);
+                    if (cursor_position != measured_cursor_position)
+                    {
+                        cursor_position = measured_cursor_position;
+                        select_end_position = cursor_position;
 
-                    redraw();
+                        redraw();
+                    }
                 }
             break;
         }
@@ -432,6 +434,9 @@ bool input::remove_focus()
     focused_ = false;
 
     cursor_visible = false;
+
+    selecting = false;
+    select_start_position = 0; select_end_position = 0;
 
     timer_.stop();
 

@@ -538,6 +538,11 @@ void window::set_focused(std::shared_ptr<i_control> &control)
     size_t index = 0;
     for (auto &c : controls)
     {
+        if (c == control && c->focused())
+        {
+            return;
+        }
+
         if (c->focused())
         {
             c->remove_focus();
