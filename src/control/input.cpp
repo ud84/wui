@@ -190,8 +190,6 @@ bool input::clear_selected_text()
         {
             start = select_start_position;
             end = select_end_position;
-
-            cursor_position -= start - end;
         }
         else
         {
@@ -199,10 +197,11 @@ bool input::clear_selected_text()
             end = select_start_position;
         }
 
-        auto count = end - start;
+        cursor_position = start;
 
-        text_.erase(start, count);
+        text_.erase(start, end - start);
 
+        selecting = false;
         select_start_position = 0;
         select_end_position = 0;
 
@@ -289,7 +288,7 @@ void input::receive_event(const event &ev)
                     case vk_back:
                         if (cursor_position > 0)
                         {
-                            //if (!clear_selected_text())
+                            if (!clear_selected_text())
                             {
                                 text_.erase(cursor_position - 1, 1);
                                 --cursor_position;
@@ -306,7 +305,7 @@ void input::receive_event(const event &ev)
                     case vk_del:
                         if (!text_.empty())
                         {
-                            //if (!clear_selected_text())
+                            if (!clear_selected_text())
                             {
                                 text_.erase(cursor_position, 1);
                             }
@@ -325,14 +324,12 @@ void input::receive_event(const event &ev)
                 timer_.start();
             break;
             case keyboard_event_type::key:
-                selecting = false;
-
                 if (input_view_ == input_view::singleline && ev.keyboard_event_.key == vk_return)
                 {
                     return;
                 }
                 
-                //clear_selected_text();
+                clear_selected_text();
 
                 text_.insert(cursor_position, 1, ev.keyboard_event_.key);
                 
