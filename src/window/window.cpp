@@ -684,6 +684,34 @@ void window::destroy()
 /// Windows specified code
 #ifdef _WIN32
 
+wchar_t get_key_modifier()
+{
+    if (GetKeyState(VK_SHIFT) < 0)
+    {
+        return vk_shift;
+    }
+    else if (GetKeyState(VK_CAPITAL) & 0x0001)
+    {
+        return vk_capital;
+    }
+    else if (GetKeyState(VK_MENU) < 0)
+    {
+        return vk_alt;
+    }
+    else if (GetKeyState(VK_LCONTROL) < 0)
+    {
+        return vk_lcontrol;
+    }
+    else if (GetKeyState(VK_RCONTROL) < 0)
+    {
+        return vk_rcontrol;
+    }
+    else if (GetKeyState(VK_INSERT) & 0x0001)
+    {
+        return vk_insert;
+    }
+}
+
 LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 {
     switch (message)
@@ -998,7 +1026,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     {
                         event ev;
                         ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, (wchar_t)w_param };;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, get_key_modifier(), static_cast<wchar_t>(w_param) };;
 
                         control->receive_event(ev);
                     }
@@ -1017,7 +1045,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     {
                         event ev;
                         ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, (wchar_t)w_param };;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, get_key_modifier(), static_cast<wchar_t>(w_param) };;
 
                         control->receive_event(ev);
                     }
@@ -1034,7 +1062,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 {
                     event ev;
                     ev.type = event_type::keyboard;
-                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, (wchar_t)w_param };;
+                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, get_key_modifier(), static_cast<wchar_t>(w_param) };;
                     
                     control->receive_event(ev);
                 }

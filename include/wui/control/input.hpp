@@ -102,7 +102,7 @@ private:
 
     void redraw_cursor();
 
-    void update_select_positions();
+    void update_select_positions(bool shift_pressed, size_t start_position, size_t end_position);
 
     bool clear_selected_text(); /// returns true if selection is not empty
 };

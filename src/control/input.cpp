@@ -157,19 +157,24 @@ void input::draw(graphic &gr)
 #endif
 }
 
-void input::update_select_positions()
+void input::update_select_positions(bool shift_pressed, size_t start_position, size_t end_position)
 {
-    if (selecting)
+    if (shift_pressed)
     {
-        select_end_position = cursor_position;
-
-        if (select_end_position < select_start_position)
+        if (!selecting)
         {
-            std::swap(select_start_position, select_end_position);
+            selecting = true;
+            select_start_position = start_position;
+            select_end_position = end_position;
+        }
+        else
+        {
+            select_end_position = end_position;
         }
     }
     else
     {
+        selecting = false;
         select_start_position = 0;
         select_end_position = 0;
     }
@@ -179,11 +184,24 @@ bool input::clear_selected_text()
 {
     if (select_start_position != select_end_position)
     {
-        auto count = select_end_position - select_start_position;
+        size_t start = 0, end = 0;
 
-        text_.erase(select_start_position, select_end_position - select_start_position);
+        if (select_end_position > select_start_position)
+        {
+            start = select_start_position;
+            end = select_end_position;
 
-        cursor_position -= count;
+            cursor_position -= start - end;
+        }
+        else
+        {
+            start = select_end_position;
+            end = select_start_position;
+        }
+
+        auto count = end - start;
+
+        text_.erase(start, count);
 
         select_start_position = 0;
         select_end_position = 0;
@@ -235,16 +253,12 @@ void input::receive_event(const event &ev)
                 cursor_visible = true;
                 switch (ev.keyboard_event_.key)
                 {
-                    case vk_shift:
-                        selecting = true;
-                        select_start_position = cursor_position;
-                    break;
                     case vk_left:
                         if (cursor_position > 0)
                         {
                             --cursor_position;
 
-                            update_select_positions();
+                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position + 1, cursor_position);
                             redraw();
                         }
                     break;
@@ -253,29 +267,29 @@ void input::receive_event(const event &ev)
                         {
                             ++cursor_position;
 
-                            update_select_positions();
+                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position - 1, cursor_position);
                             redraw();
                         }
                     break;
                     case vk_home:
+                        update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position, 0);
                         cursor_position = 0;
-                        
-                        update_select_positions();
                         redraw();
                     break;
                     case vk_end:
                         if (!text_.empty())
                         {
+                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position, text_.size());
+
                             cursor_position = text_.size();
 
-                            update_select_positions();
                             redraw();
                         }
                     break;
                     case vk_back:
                         if (cursor_position > 0)
                         {
-                            if (!clear_selected_text())
+                            //if (!clear_selected_text())
                             {
                                 text_.erase(cursor_position - 1, 1);
                                 --cursor_position;
@@ -292,7 +306,7 @@ void input::receive_event(const event &ev)
                     case vk_del:
                         if (!text_.empty())
                         {
-                            if (!clear_selected_text())
+                            //if (!clear_selected_text())
                             {
                                 text_.erase(cursor_position, 1);
                             }
@@ -308,13 +322,11 @@ void input::receive_event(const event &ev)
                 }
             break;
             case keyboard_event_type::up:
-                if (ev.keyboard_event_.key == vk_shift)
-                {
-                    selecting = false;
-                }
                 timer_.start();
             break;
             case keyboard_event_type::key:
+                selecting = false;
+
                 if (input_view_ == input_view::singleline && ev.keyboard_event_.key == vk_return)
                 {
                     return;
