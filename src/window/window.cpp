@@ -927,41 +927,45 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->x_click = GET_X_LPARAM(l_param);
             wnd->y_click = GET_Y_LPARAM(l_param);
 
-            if (!wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click }) && wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal)
+            if (!wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click }) && 
+                ((wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal) || wnd->window_type_ == window_type::dialog))
             {
                 wnd->moving_mode_ = moving_mode::move;
 
-                if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
+                if (wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal)
                 {
-                    wnd->moving_mode_ = moving_mode::size_nwse_bottom;
-                }
-                else if (wnd->x_click < 5 && wnd->y_click < 5)
-                {
-                    wnd->moving_mode_ = moving_mode::size_nwse_top;
-                }
-                else if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click < 5)
-                {
-                    wnd->moving_mode_ = moving_mode::size_nesw_top;
-                }
-                else if (wnd->x_click < 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
-                {
-                    wnd->moving_mode_ = moving_mode::size_nesw_bottom;
-                }
-                else if (wnd->x_click > window_rect.right - window_rect.left - 5)
-                {
-                    wnd->moving_mode_ = moving_mode::size_we_right;
-                }
-                else if (wnd->x_click < 5)
-                {
-                    wnd->moving_mode_ = moving_mode::size_we_left;
-                }
-                else if (wnd->y_click > window_rect.bottom - window_rect.top - 5)
-                {
-                    wnd->moving_mode_ = moving_mode::size_ns_bottom;
-                }
-                else if (wnd->y_click < 5)
-                {
-                    wnd->moving_mode_ = moving_mode::size_ns_top;
+                    if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
+                    {
+                        wnd->moving_mode_ = moving_mode::size_nwse_bottom;
+                    }
+                    else if (wnd->x_click < 5 && wnd->y_click < 5)
+                    {
+                        wnd->moving_mode_ = moving_mode::size_nwse_top;
+                    }
+                    else if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click < 5)
+                    {
+                        wnd->moving_mode_ = moving_mode::size_nesw_top;
+                    }
+                    else if (wnd->x_click < 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
+                    {
+                        wnd->moving_mode_ = moving_mode::size_nesw_bottom;
+                    }
+                    else if (wnd->x_click > window_rect.right - window_rect.left - 5)
+                    {
+                        wnd->moving_mode_ = moving_mode::size_we_right;
+                    }
+                    else if (wnd->x_click < 5)
+                    {
+                        wnd->moving_mode_ = moving_mode::size_we_left;
+                    }
+                    else if (wnd->y_click > window_rect.bottom - window_rect.top - 5)
+                    {
+                        wnd->moving_mode_ = moving_mode::size_ns_bottom;
+                    }
+                    else if (wnd->y_click < 5)
+                    {
+                        wnd->moving_mode_ = moving_mode::size_ns_top;
+                    }
                 }
             }
         }
