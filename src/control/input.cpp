@@ -378,6 +378,10 @@ void input::receive_event(const event &ev)
             break;
             case keyboard_event_type::up:
                 timer_.start();
+                if (ev.keyboard_event_.key == vk_shift)
+                {
+                    selecting = false;
+                }
             break;
             case keyboard_event_type::key:
                 if (input_view_ == input_view::singleline && ev.keyboard_event_.key == vk_return)
