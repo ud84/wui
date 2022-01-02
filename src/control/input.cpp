@@ -254,6 +254,20 @@ void input::receive_event(const event &ev)
 #endif
             break;
             case mouse_event_type::leave:
+                if (selecting)
+                {
+                    if (select_start_position < select_end_position)
+                    {
+                        select_end_position = text_.size();
+                        cursor_position = select_end_position;
+                    }
+                    else
+                    {
+                        select_end_position = 0;
+                        cursor_position = 0;
+                    }
+                }
+                selecting = false;
 #ifdef _WIN32
                 SetCursor(LoadCursor(NULL, IDC_ARROW));
 #endif
