@@ -249,7 +249,7 @@ void input::select_current_word(int32_t x)
         --select_start_position;
     }
 
-    if (text_[select_start_position] == L' ')
+    if (text_[select_start_position] == L' ') // remove first space from selection
     {
         ++select_start_position;
     }
@@ -415,6 +415,19 @@ void input::receive_event(const event &ev)
                 if (input_view_ == input_view::singleline && ev.keyboard_event_.key == vk_return)
                 {
                     return;
+                }
+
+                if (ev.keyboard_event_.key == 0x3)       // ctrl + c
+                {
+                    return buffer_copy();
+                }
+                else if (ev.keyboard_event_.key == 0x18) // ctrl + x
+                {
+                    return buffer_cut();
+                }
+                else if (ev.keyboard_event_.key == 0x16) // ctrl + v
+                {
+                    return buffer_paste();
                 }
                 
                 clear_selected_text();
@@ -613,6 +626,86 @@ void input::destroy_primitives()
     DeleteObject(border_pen);
     DeleteObject(focused_border_pen);
     DeleteObject(font);
+}
+
+void input::buffer_copy()
+{
+    if (select_start_position == select_end_position)
+    {
+        return;
+    }
+
+    std::wstring copy_text = text_.substr(select_start_position, select_end_position - select_start_position);
+
+    if (OpenClipboard(NULL))
+    {
+        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, copy_text.size() * sizeof(wchar_t) + 2);
+        if (hGlobal != NULL)
+        {
+            LPVOID lpText = GlobalLock(hGlobal);
+            memcpy(lpText, copy_text.c_str(), copy_text.size() * sizeof(wchar_t));
+
+            EmptyClipboard();
+            GlobalUnlock(hGlobal);
+
+            SetClipboardData(CF_UNICODETEXT, hGlobal);
+        }
+        CloseClipboard();
+    }
+}
+
+void input::buffer_cut()
+{
+    if (select_start_position == select_end_position)
+    {
+        return;
+    }
+
+    buffer_copy();
+
+    clear_selected_text();
+
+    redraw();
+}
+
+void input::buffer_paste()
+{
+    if (!IsClipboardFormatAvailable(CF_UNICODETEXT))
+    {
+        return;
+    }
+
+    if (!OpenClipboard(NULL))
+    {
+        return;
+    }
+
+    std::wstring paste_string;
+
+    HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
+    if (hglb)
+    {
+        LPWSTR lptstr = (LPWSTR)GlobalLock(hglb);
+        if (lptstr)
+        {
+            paste_string = lptstr;
+            GlobalUnlock(hglb);
+        }
+    }
+    CloseClipboard();
+
+    clear_selected_text();
+
+    text_.insert(cursor_position, paste_string);
+
+    cursor_position += paste_string.size();
+
+    redraw();
+
+    if (change_callback)
+    {
+        change_callback(text_);
+    }
 }
 #endif
 

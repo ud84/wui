@@ -109,6 +109,10 @@ private:
     void select_current_word(int32_t x);
 
     size_t calculate_mouse_cursor_position(int32_t x);
+
+    void buffer_copy();
+    void buffer_cut();
+    void buffer_paste();
 };
 
 }
