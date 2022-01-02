@@ -106,6 +106,8 @@ private:
 
     bool clear_selected_text(); /// returns true if selection is not empty
 
+    void select_current_word(int32_t x);
+
     size_t calculate_mouse_cursor_position(int32_t x);
 };
 

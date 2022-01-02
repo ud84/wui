@@ -237,6 +237,31 @@ bool input::clear_selected_text()
     return false;
 }
 
+void input::select_current_word(int32_t x)
+{
+    cursor_position = calculate_mouse_cursor_position(x);
+
+    select_start_position = cursor_position;
+    select_end_position = cursor_position;
+
+    while (select_start_position != 0 && text_[select_start_position] != L' ')
+    {
+        --select_start_position;
+    }
+
+    if (text_[select_start_position] == L' ')
+    {
+        ++select_start_position;
+    }
+
+    while (select_end_position != text_.size() && text_[select_end_position] != L' ')
+    {
+        ++select_end_position;
+    }
+
+    redraw();
+}
+
 void input::receive_event(const event &ev)
 {
     if (!showed_ || !enabled_)
@@ -296,6 +321,9 @@ void input::receive_event(const event &ev)
                         redraw();
                     }
                 }
+            break;
+            case mouse_event_type::left_double:
+                select_current_word(ev.mouse_event_.x);
             break;
         }
     }

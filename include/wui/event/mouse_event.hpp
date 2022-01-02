@@ -25,7 +25,7 @@ enum class mouse_event_type
     center_up,
     left_down,
     left_up,
-    right_double
+    left_double
 };
 
 struct mouse_event
