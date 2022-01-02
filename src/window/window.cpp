@@ -639,7 +639,7 @@ bool window::init(window_type type, const rect &position__, const std::wstring &
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = sizeof(this);
     wcex.hInstance = h_inst;
-    wcex.hbrBackground = background_brush;
+    wcex.hbrBackground = NULL;
     wcex.lpszClassName = L"WUI Window";
 
     RegisterClassExW(&wcex);
