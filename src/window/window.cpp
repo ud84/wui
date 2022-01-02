@@ -774,7 +774,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             EndPaint(hwnd, &ps);
         }
-        break
+        break;
         case WM_MOUSEMOVE:
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
