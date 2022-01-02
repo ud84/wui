@@ -108,6 +108,8 @@ private:
 
     void select_current_word(int32_t x);
 
+    void select_all();
+
     size_t calculate_mouse_cursor_position(int32_t x);
 
     void buffer_copy();

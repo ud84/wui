@@ -262,6 +262,14 @@ void input::select_current_word(int32_t x)
     redraw();
 }
 
+void input::select_all()
+{
+    select_start_position = 0;
+    select_end_position = text_.size();;
+
+    redraw();
+}
+
 void input::receive_event(const event &ev)
 {
     if (!showed_ || !enabled_)
@@ -428,6 +436,10 @@ void input::receive_event(const event &ev)
                 else if (ev.keyboard_event_.key == 0x16) // ctrl + v
                 {
                     return buffer_paste();
+                }
+                else if (ev.keyboard_event_.key == 0x1)  // ctrl + a
+                {
+                    return select_all();
                 }
                 
                 clear_selected_text();
