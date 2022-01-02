@@ -733,37 +733,48 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
 
-            graphic gr{ hdc };
+            HDC mem_dc = CreateCompatibleDC(hdc);
 
-            SelectObject(hdc, wnd->font);
+            RECT client_rect;
+            GetClientRect(hwnd, &client_rect);
+            
+            HBITMAP mem_bitmap = CreateCompatibleBitmap(hdc, client_rect.right, client_rect.bottom);
+            SelectObject(mem_dc, mem_bitmap);
 
-            SetTextColor(hdc, theme_color(theme_value::window_text, wnd->theme_));
-            SetBkMode(hdc, TRANSPARENT);
+            FillRect(mem_dc, &client_rect, wnd->background_brush);
+
+            SelectObject(mem_dc, wnd->font);
+
+            SetTextColor(mem_dc, theme_color(theme_value::window_text, wnd->theme_));
+            SetBkMode(mem_dc, TRANSPARENT);
 
             if (wnd->title_showed)
             {
-                TextOutW(hdc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
+                TextOutW(mem_dc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
             }
 		
+            graphic gr{ mem_dc };
             for (auto &control : wnd->controls)
             {
                 control->draw(gr);
             }
 
+            BitBlt(hdc,
+                0,
+                0,
+                client_rect.right,
+                client_rect.bottom,
+                mem_dc,
+                0,
+                0,
+                SRCCOPY);
+
+            DeleteObject(mem_bitmap);
+            DeleteDC(mem_dc);
+
             EndPaint(hwnd, &ps);
         }
-        break;
-        case WM_ERASEBKGND:
-        {
-            HDC hdc = (HDC)w_param;
-            RECT client_rect;
-            GetClientRect(hwnd, &client_rect);
-            SetMapMode(hdc, MM_ANISOTROPIC);
-
-            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-            FillRect(hdc, &client_rect, wnd->background_brush);
-        }
-        break;
+        break
         case WM_MOUSEMOVE:
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
