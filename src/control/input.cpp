@@ -647,7 +647,20 @@ void input::buffer_copy()
         return;
     }
 
-    std::wstring copy_text = text_.substr(select_start_position, select_end_position - select_start_position);
+    size_t start = 0, end = 0;
+
+    if (select_end_position > select_start_position)
+    {
+        start = select_start_position;
+        end = select_end_position;
+    }
+    else
+    {
+        start = select_end_position;
+        end = select_start_position;
+    }
+
+    std::wstring copy_text = text_.substr(start, end - start);
 
     if (OpenClipboard(NULL))
     {
