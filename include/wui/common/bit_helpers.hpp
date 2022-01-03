@@ -9,8 +9,37 @@
 
 #pragma once
 
-#define set_bit(reg, bit)         reg |= (1<<bit)            
-#define clear_bit(reg, bit)       reg &= (~(1<<bit))
-#define inv_bit(reg, bit)         reg ^= (1<<bit)
-#define bit_is_set(reg, bit)       ((reg & (1<<bit)) != 0)
-#define bit_is_clear(reg, bit)     ((reg & (1<<bit)) == 0)
+namespace wui
+{
+
+template <typename T>
+inline void set_bit(T &reg, size_t bit)
+{
+    reg |= (1 << bit);
+}
+
+template <typename T>
+inline void clear_bit(T &reg, size_t bit)
+{
+    reg &= (~(1 << bit));
+}
+
+template <typename T>
+inline void inv_bit(T &reg, size_t bit)
+{
+    reg ^= (1 << bit);
+}
+
+template <typename T>
+inline bool bit_is_set(T &reg, size_t bit)
+{
+    return ((reg & (1 << bit)) != 0);
+}
+
+template <typename T>
+inline bool bit_is_clear(T &reg, size_t bit)
+{
+    return ((reg & (1 << bit)) == 0);
+}
+
+}
