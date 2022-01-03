@@ -24,6 +24,16 @@
 namespace wui
 {
 
+enum class window_style
+{
+    resizable = 0,
+    close_button,
+    expand_button,
+    minimize_button,
+    pin_button,
+    title_showed
+};
+
 enum class window_state
 {
     normal,
