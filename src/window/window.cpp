@@ -184,6 +184,10 @@ void window::set_parent(std::shared_ptr<window> window)
 
     if (parent)
     {
+#ifdef _WIN32
+        DestroyWindow(hwnd);
+#endif
+
         for (auto &control : controls)
         {
             control->set_position({ control->position().left + position_.left,
@@ -191,11 +195,9 @@ void window::set_parent(std::shared_ptr<window> window)
                 control->position().right + position_.left,
                 control->position().bottom + position_.top });
         }
-    }
 
-#ifdef _WIN32
-    DestroyWindow(hwnd);
-#endif
+        update_buttons(false);
+    }
 }
 
 void window::clear_parent()
