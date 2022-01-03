@@ -85,7 +85,8 @@ void window::add_control(std::shared_ptr<i_control> control, const rect &control
 {
     if (std::find(controls.begin(), controls.end(), control) == controls.end())
     {
-        control->set_position(!parent ? control_position : position_ + control_position);
+        //control->set_position(!parent ? control_position : position_ + control_position);
+        control->set_position(control_position);
         control->set_parent(shared_from_this());
         controls.emplace_back(control);
 
@@ -181,11 +182,39 @@ rect window::position() const
 void window::set_parent(std::shared_ptr<window> window)
 {
     parent = window;
+
+    if (parent)
+    {
+        for (auto &control : controls)
+        {
+            control->set_position({ control->position().left + position_.left,
+                control->position().top + position_.top,
+                control->position().right + position_.left,
+                control->position().bottom + position_.top });
+        }
+    }
+
+#ifdef _WIN32
+    DestroyWindow(hwnd);
+#endif
 }
 
 void window::clear_parent()
 {
+    if (parent)
+    {
+        for (auto &control : controls)
+        {
+            control->set_position({ control->position().left - position_.left,
+                control->position().top - position_.top,
+                control->position().right - position_.left,
+                control->position().bottom - position_.top });
+        }
+    }
+
     parent.reset();
+
+    init(caption, position_, window_style_, close_callback);
 }
 
 void window::set_focus()

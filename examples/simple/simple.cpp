@@ -21,15 +21,8 @@ struct PluggedWindow
 
 	void Plug()
 	{
-		window->destroy();
-
 		parentWindow->add_control(window, wui::rect{ 50, 50, 240, 240 });
-
-		window->add_control(unplugButton, wui::rect{ 10, 10, 110, 35 });
-		window->add_control(plugButton, wui::rect{ 10, 55, 110, 80 });
-
-        window->init(L"Child window plugged!", wui::rect{ 50, 50, 240, 240 }, wui::window_style::pinned, []() {});
-
+		
 		plugButton->disable();
 		unplugButton->enable();
 	}
@@ -37,8 +30,7 @@ struct PluggedWindow
 	void Unplug()
 	{
 		parentWindow->remove_control(window);
-		window->init(L"Child window unplugged!", wui::rect{ 50, 50, 240, 240 }, wui::window_style::pinned, []() {});
-
+		
 		plugButton->enable();
 		unplugButton->disable();
 	}
@@ -48,7 +40,16 @@ struct PluggedWindow
 		window(new wui::window()),
 		plugButton(new wui::button(L"Plug Window", std::bind(&PluggedWindow::Plug, this))),
 		unplugButton(new wui::button(L"Unplug Window", std::bind(&PluggedWindow::Unplug, this)))
-	{}
+	{
+        parentWindow->add_control(window, wui::rect{ 50, 50, 240, 240 });
+
+        window->add_control(unplugButton, wui::rect{ 10, 10, 110, 35 });
+        window->add_control(plugButton, wui::rect{ 10, 55, 110, 80 });
+
+        plugButton->disable();
+
+        window->init(L"Child window plugged!", wui::rect{ 50, 50, 240, 240 }, wui::window_style::pinned, []() {});
+    }
 };
 
 
@@ -74,7 +75,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     window->add_control(accountImage, wui::rect{ 250, 100, 314, 164 });
 
 	PluggedWindow pluggedWindow(window);
-	pluggedWindow.Plug();
 
     std::shared_ptr<wui::input> nameInput(new wui::input());
     window->add_control(nameInput, wui::rect{ 10, 250, 400, 275 });
