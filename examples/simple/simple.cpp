@@ -41,12 +41,12 @@ struct PluggedWindow
 		plugButton(new wui::button(L"Plug Window", std::bind(&PluggedWindow::Plug, this))),
 		unplugButton(new wui::button(L"Unplug Window", std::bind(&PluggedWindow::Unplug, this)))
 	{
-        parentWindow->add_control(window, wui::rect{ 50, 50, 240, 240 });
-
         window->add_control(unplugButton, wui::rect{ 10, 10, 110, 35 });
         window->add_control(plugButton, wui::rect{ 10, 55, 110, 80 });
 
         plugButton->disable();
+
+        parentWindow->add_control(window, wui::rect{ 50, 50, 240, 240 });
 
         window->init(L"Child window plugged!", wui::rect{ 50, 50, 240, 240 }, wui::window_style::pinned, []() {});
     }

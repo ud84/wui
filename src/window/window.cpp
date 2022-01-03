@@ -85,7 +85,6 @@ void window::add_control(std::shared_ptr<i_control> control, const rect &control
 {
     if (std::find(controls.begin(), controls.end(), control) == controls.end())
     {
-        //control->set_position(!parent ? control_position : position_ + control_position);
         control->set_position(control_position);
         control->set_parent(shared_from_this());
         controls.emplace_back(control);
@@ -730,17 +729,6 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     add_control(minimize_button, { position_.right - 78, 0, position_.right - 52, 26 });
     add_control(expand_button, { position_.right - 52, 0, position_.right - 26, 26 });
     add_control(close_button, { position_.right - 26, 0, position_.right, 26 });
-
-    if (parent)
-    {
-        for (auto &control : controls)
-        {
-            control->set_position({ control->position().left + position_.left,
-                control->position().top + position_.top,
-                control->position().right + position_.left,
-                control->position().bottom + position_.top });
-        }
-    }
 
     update_buttons(true);
 
