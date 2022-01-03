@@ -35,7 +35,7 @@ struct PluggedWindow
 	void Unplug()
 	{
 		parentWindow->remove_control(window);
-		window->init(wui::window_type::dialog, wui::rect{ 50, 50, 250, 250 }, L"Child window unplugged!", []() {});
+		window->init(L"Child window unplugged!", wui::rect{ 50, 50, 250, 250 }, wui::window_style::pinned, []() {});
 
 		plugButton->enable();
 		unplugButton->disable();
@@ -86,7 +86,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		std::shared_ptr<wui::button> dialogButton(new wui::button(L"Close", [&dialog]() { dialog->destroy(); }));
 		dialog->add_control(dialogButton, wui::rect{ 10, 200, 100, 235 });
 
-		dialog->init(wui::window_type::dialog, wui::rect{ 50, 50, 250, 250 }, L"Modal dialog", [window, &dialog]() { window->unlock(); /*dialog.reset();*/ });
+		dialog->init(L"Modal dialog", wui::rect{ 50, 50, 250, 250 }, wui::window_style::dialog, [window, &dialog]() { window->unlock(); /*dialog.reset();*/ });
 	}));
 
 	auto redButtonTheme = wui::make_custom_theme();
@@ -116,7 +116,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	std::shared_ptr<wui::image> fileImage(new wui::image(L"g620.png", fileImageTheme));
 	window->add_control(fileImage, wui::rect{ 180, 200, 344, 344 });*/
 
-	window->init(wui::window_type::frame, wui::rect{ 100, 100, 500, 500 }, L"Welcome to WUI!", []() { PostQuitMessage(IDCANCEL); });
+	window->init(L"Welcome to WUI!", wui::rect{ 100, 100, 500, 500 }, wui::window_style::frame, []() { PostQuitMessage(IDCANCEL); });
 	
 #ifdef _WIN32
 	// Main message loop:

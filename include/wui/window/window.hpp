@@ -24,21 +24,12 @@
 namespace wui
 {
 
-enum class window_style
-{
-    resizable = 0,
-    close_button,
-    expand_button,
-    minimize_button,
-    pin_button,
-    title_showed
-};
-
 enum class window_state
 {
     normal,
     minimized,
-    maximized
+    maximized,
+    pinned
 };
 
 class button;
@@ -50,7 +41,7 @@ public:
     ~window();
 
     /// IWindow
-    virtual bool init(window_type type, const rect &position, const std::wstring &caption, std::function<void(void)> close_callback, std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual bool init(const std::wstring &caption, const rect &position, window_style style, std::function<void(void)> close_callback, std::shared_ptr<i_theme> theme_ = nullptr);
     virtual void destroy();
 
     virtual void add_control(std::shared_ptr<i_control> control, const rect &position);
@@ -84,15 +75,15 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
+    /// Window style methods
+    void set_style(window_style style);
+
     /// Window state methods
+    void pin();
     void minimize();
     void expand();
     void normal();
     window_state window_state() const;
-
-    /// Show/hide window caption and button
-    void show_title();
-    void hide_title();
 
     /// Methods used to block the window while a modal dialog is displayed
     void block();
@@ -105,13 +96,13 @@ private:
     std::vector<std::shared_ptr<i_control>> controls;
     std::shared_ptr<i_control> active_control;
 
-    window_type window_type_;
-    rect position_, normal_position;
     std::wstring caption;
+    rect position_, normal_position;
+    window_style window_style_;
     wui::window_state window_state_;
     std::shared_ptr<i_theme> theme_;
 
-    bool showed_, enabled_, title_showed;
+    bool showed_, enabled_;
 
     size_t focused_index;
 
@@ -136,7 +127,7 @@ private:
     std::function<void(int32_t, int32_t)> size_change_callback;
 
     std::shared_ptr<i_theme> buttons_theme, close_button_theme;
-    std::shared_ptr<button> minimize_button, expand_button, close_button;
+    std::shared_ptr<button> pin_button, minimize_button, expand_button, close_button;
 
 #ifdef _WIN32
     HWND hwnd;
@@ -152,7 +143,6 @@ private:
     void make_primitives();
     void destroy_primitives();
 
-    void update_position();
 #endif
 
     bool send_mouse_event(const mouse_event &ev);
@@ -161,7 +151,9 @@ private:
     void set_focused(std::shared_ptr<i_control> &control);
     std::shared_ptr<i_control> get_focused();
 
-    void update_control_buttons_theme();
+    void update_buttons(bool theme_changed);
+
+    void update_position(const rect &new_position);
 };
 
 }

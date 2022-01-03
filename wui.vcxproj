@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="include\wui\common\bit_helpers.hpp" />
     <ClInclude Include="include\wui\common\color.hpp" />
+    <ClInclude Include="include\wui\common\enum_helpers.hpp" />
     <ClInclude Include="include\wui\common\rect.hpp" />
     <ClInclude Include="include\wui\common\timer.hpp" />
     <ClInclude Include="include\wui\control\button.hpp" />

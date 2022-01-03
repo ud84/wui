@@ -15,6 +15,8 @@
 
 #include <wui/control/button.hpp>
 
+#include <wui/common/enum_helpers.hpp>
+
 #include <algorithm>
 
 #ifdef _WIN32
@@ -28,12 +30,12 @@ namespace wui
 window::window()
     : controls(),
     active_control(),
-    window_type_(window_type::frame),
-    position_(), normal_position(),
     caption(),
+    position_(), normal_position(),
+    window_style_(window_style::frame),
     window_state_(window_state::normal),
     theme_(),
-    showed_(true), enabled_(true), title_showed(true),
+    showed_(true), enabled_(true),
     focused_index(0),
     parent(),
     moving_mode_(moving_mode::none),
@@ -41,6 +43,7 @@ window::window()
     size_change_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
 #ifdef _WIN32
+    pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
@@ -50,11 +53,13 @@ window::window()
     x_click(0), y_click(0),
     mouse_tracked(false)
 #elif __linux__
+    pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, ImagesConsts::Window_PinButton, 24)),
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, ImagesConsts::Window_MinimizeButton, 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? ImagesConsts::Window_ExpandButton : ImagesConsts::Window_NormalButton, 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, ImagesConsts::Window_CloseButton, 24))
 #endif
 {
+    pin_button->disable_focusing();
     minimize_button->disable_focusing();
     expand_button->disable_focusing();
     close_button->disable_focusing();
@@ -266,7 +271,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
         control->update_theme(theme_);
     }
 
-    update_control_buttons_theme();
+    update_buttons(true);
 }
 
 void window::show()
@@ -333,6 +338,11 @@ bool window::enabled() const
     return enabled_;
 }
 
+void window::pin()
+{
+
+}
+
 void window::minimize()
 {
     if (window_state_ == window_state::minimized)
@@ -352,7 +362,7 @@ void window::expand()
     window_state_ = window_state::maximized;
 
 #ifdef _WIN32
-    if (title_showed)
+    if (enum_is_set(window_style_, window_style::title_showed))
     {
         RECT work_area;
         SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
@@ -389,26 +399,13 @@ window_state window::window_state() const
     return window_state_;
 }
 
-void window::show_title()
+void window::set_style(window_style style)
 {
-    title_showed = true;
+    window_style_ = style;
 
-    minimize_button->show();
-    expand_button->show();
-    close_button->show();
+    update_buttons(false);
 
     redraw({ 0, 0, position_.width(), 30 }, false);
-}
-
-void window::hide_title()
-{
-    title_showed = false;
-
-    minimize_button->hide();
-    expand_button->hide();
-    close_button->hide();
-
-    redraw({ 0, 0, position_.width(), 30 }, true);
 }
 
 void window::block()
@@ -581,11 +578,11 @@ std::shared_ptr<i_control> window::get_focused()
     return std::shared_ptr<i_control>();
 }
 
-void window::update_control_buttons_theme()
+void window::update_buttons(bool theme_changed)
 {
     auto background_color = theme_color(theme_value::window_background, theme_);
 
-    if (window_type_ == window_type::frame)
+    if (theme_changed)
     {
         buttons_theme->set_color(theme_value::button_calm, background_color);
         buttons_theme->set_color(theme_value::button_active, theme_color(theme_value::window_active_button, theme_));
@@ -595,27 +592,98 @@ void window::update_control_buttons_theme()
         buttons_theme->set_dimension(theme_value::button_round, 0);
         buttons_theme->set_string(theme_value::images_path, theme_string(theme_value::images_path, theme_));
 
+        pin_button->update_theme(buttons_theme);
         minimize_button->update_theme(buttons_theme);
         expand_button->update_theme(buttons_theme);
+    
+        close_button_theme->set_color(theme_value::button_calm, background_color);
+        close_button_theme->set_color(theme_value::button_active, make_color(235, 15, 20));
+        close_button_theme->set_color(theme_value::button_border, background_color);
+        close_button_theme->set_color(theme_value::button_text, theme_color(theme_value::window_text, theme_));
+        close_button_theme->set_color(theme_value::button_disabled, background_color);
+        close_button_theme->set_dimension(theme_value::button_round, 0);
+        close_button_theme->set_string(theme_value::images_path, theme_string(theme_value::images_path, theme_));
+
+        close_button->update_theme(close_button_theme);
     }
 
-    close_button_theme->set_color(theme_value::button_calm, background_color);
-    close_button_theme->set_color(theme_value::button_active, make_color(235, 15, 20));
-    close_button_theme->set_color(theme_value::button_border, background_color);
-    close_button_theme->set_color(theme_value::button_text, theme_color(theme_value::window_text, theme_));
-    close_button_theme->set_color(theme_value::button_disabled, background_color);
-    close_button_theme->set_dimension(theme_value::button_round, 0);
-    close_button_theme->set_string(theme_value::images_path, theme_string(theme_value::images_path, theme_));
+    auto btn_width = 26;
+    auto left = position_.right - btn_width;
 
-    close_button->update_theme(close_button_theme);
+    if (enum_is_set(window_style_, window_style::close_button))
+    {
+        close_button->set_position({ left, 0, left + btn_width, 26 });
+        close_button->show();
+
+        left -= btn_width;
+    }
+    else
+    {
+        close_button->hide();
+    }
+
+    if (enum_is_set(window_style_, window_style::expand_button) || enum_is_set(window_style_, window_style::minimize_button))
+    {
+        expand_button->set_position({ left, 0, left + btn_width, 26 });
+        expand_button->show();
+
+        left -= btn_width;
+
+        if (enum_is_set(window_style_, window_style::expand_button))
+        {
+            expand_button->enable();
+        }
+        else
+        {
+            expand_button->disable();
+        }
+    }
+    else
+    {
+        expand_button->hide();
+    }
+
+    if (enum_is_set(window_style_, window_style::minimize_button))
+    {
+        minimize_button->set_position({ left, 0, left + btn_width, 26 });
+        minimize_button->show();
+
+        left -= btn_width;
+    }
+    else
+    {
+        minimize_button->hide();
+    }
+
+    if (enum_is_set(window_style_, window_style::pin_button))
+    {
+        pin_button->set_position({ left, 0, left + btn_width, 26 });
+        pin_button->show();
+    }
+    else
+    {
+        pin_button->hide();
+    }
 }
 
-bool window::init(window_type type, const rect &position__, const std::wstring &caption_, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
+void window::update_position(const rect &new_position)
+{   
+    if (new_position.width() != 0 && new_position.height() != 0)
+    {
+        position_ = new_position;
+        if (window_state_ != window_state::maximized)
+        {
+            normal_position = position_;
+        }
+    }
+}
+
+bool window::init(const std::wstring &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
 {
-    window_type_ = type;
+    caption = caption_;
     position_ = position__;
     normal_position = position_;
-    caption = caption_;
+    window_style_ = style;
     close_callback = close_callback_;
     theme_ = theme__;
 
@@ -627,13 +695,11 @@ bool window::init(window_type type, const rect &position__, const std::wstring &
         return true;
     }
 
-    update_control_buttons_theme();
+    update_buttons(true);
 
-    if (type == window_type::frame)
-    {
-        add_control(minimize_button, { position_.right - 78, 0, position_.right - 52, 26 });
-        add_control(expand_button, { position_.right - 52, 0, position_.right - 26, 26 });
-    }
+    add_control(pin_button, { position_.right - 78, 0, position_.right - 52, 26 });
+    add_control(minimize_button, { position_.right - 78, 0, position_.right - 52, 26 });
+    add_control(expand_button, { position_.right - 52, 0, position_.right - 26, 26 });
     add_control(close_button, { position_.right - 26, 0, position_.right, 26 });
 
 #ifdef _WIN32
@@ -724,6 +790,7 @@ wchar_t get_key_modifier()
     {
         return vk_insert;
     }
+    return 0;
 }
 
 LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
@@ -757,7 +824,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             SetTextColor(mem_dc, theme_color(theme_value::window_text, wnd->theme_));
             SetBkMode(mem_dc, TRANSPARENT);
 
-            if (wnd->title_showed)
+            if (enum_is_set(wnd->window_style_, window_style::title_showed))
             {
                 TextOutW(mem_dc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
             }
@@ -794,7 +861,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             int16_t x_mouse = GET_X_LPARAM(l_param);
             int16_t y_mouse = GET_Y_LPARAM(l_param);
 
-            if (wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal)
+            if (enum_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)
             {
                 if ((x_mouse > window_rect.right - window_rect.left - 5 && y_mouse > window_rect.bottom - window_rect.top - 5) ||
                     (x_mouse < 5 && y_mouse < 5))
@@ -937,11 +1004,11 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->y_click = GET_Y_LPARAM(l_param);
 
             if (!wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click }) && 
-                ((wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal) || wnd->window_type_ == window_type::dialog))
+                (enum_is_set(wnd->window_style_, window_style::moving) && wnd->window_state_ == window_state::normal))
             {
                 wnd->moving_mode_ = moving_mode::move;
 
-                if (wnd->window_type_ == window_type::frame && wnd->window_state_ == window_state::normal)
+                if (enum_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)
                 {
                     if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
                     {
@@ -1014,14 +1081,9 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             auto width = LOWORD(l_param), height = HIWORD(l_param);
 
-            if (wnd->window_type_ == window_type::frame)
-            {
-                wnd->minimize_button->set_position({ width - 78, 0, width - 52, 26 });
-                wnd->expand_button->set_position({ width - 52, 0, width - 26, 26 });
-            }
-            wnd->close_button->set_position({ width - 26, 0, width, 26 });
+            wnd->update_position({ wnd->position_.left, wnd->position_.top, width, height });
 
-            wnd->update_position();
+            wnd->update_buttons(false);
 			
             if (wnd->size_change_callback)
             {
@@ -1032,7 +1094,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
         case WM_MOVE:
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-            wnd->update_position();
+
+            RECT window_rect = { 0 };
+            GetWindowRect(hwnd, &window_rect);
+            wnd->update_position({ window_rect.left, window_rect.top, window_rect.right, window_rect.bottom });
         }
         break;
         case WM_SYSCOMMAND:
@@ -1136,20 +1201,6 @@ void window::destroy_primitives()
 {
     DeleteObject(background_brush);
     DeleteObject(font);
-}
-
-void window::update_position()
-{
-    RECT window_rect = { 0 };
-    GetWindowRect(hwnd, &window_rect);
-    if (window_rect.left > 0 && window_rect.top > 0 && window_rect.left != window_rect.right && window_rect.top != window_rect.bottom)
-    {
-        position_ = { window_rect.left, window_rect.top, window_rect.right - window_rect.left, window_rect.bottom - window_rect.top };
-        if (window_state_ != window_state::maximized)
-        {
-            normal_position = position_;
-        }
-    }
 }
 
 #endif
