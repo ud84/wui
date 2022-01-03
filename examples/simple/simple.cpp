@@ -23,10 +23,12 @@ struct PluggedWindow
 	{
 		window->destroy();
 
-		parentWindow->add_control(window, wui::rect{ 50, 50, 250, 250 });
+		parentWindow->add_control(window, wui::rect{ 50, 50, 240, 240 });
 
 		window->add_control(unplugButton, wui::rect{ 10, 10, 110, 35 });
 		window->add_control(plugButton, wui::rect{ 10, 55, 110, 80 });
+
+        window->init(L"Child window plugged!", wui::rect{ 50, 50, 240, 240 }, wui::window_style::pinned, []() {});
 
 		plugButton->disable();
 		unplugButton->enable();
@@ -35,7 +37,7 @@ struct PluggedWindow
 	void Unplug()
 	{
 		parentWindow->remove_control(window);
-		window->init(L"Child window unplugged!", wui::rect{ 50, 50, 250, 250 }, wui::window_style::pinned, []() {});
+		window->init(L"Child window unplugged!", wui::rect{ 50, 50, 240, 240 }, wui::window_style::pinned, []() {});
 
 		plugButton->enable();
 		unplugButton->disable();

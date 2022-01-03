@@ -616,15 +616,16 @@ void window::update_buttons(bool theme_changed)
         close_button->update_theme(close_button_theme);
     }
 
-    auto btn_width = 26;
-    auto left = position_.right - btn_width;
+    auto btn_size = 26;
+    auto left = position_.right - btn_size;
+    auto top = !parent ? 0 : position_.top;
 
     if (enum_is_set(window_style_, window_style::close_button))
     {
-        close_button->set_position({ left, 0, left + btn_width, 26 });
+        close_button->set_position({ left, top, left + btn_size, top + btn_size });
         close_button->show();
 
-        left -= btn_width;
+        left -= btn_size;
     }
     else
     {
@@ -633,10 +634,10 @@ void window::update_buttons(bool theme_changed)
 
     if (enum_is_set(window_style_, window_style::expand_button) || enum_is_set(window_style_, window_style::minimize_button))
     {
-        expand_button->set_position({ left, 0, left + btn_width, 26 });
+        expand_button->set_position({ left, top, left + btn_size, top + btn_size });
         expand_button->show();
 
-        left -= btn_width;
+        left -= btn_size;
 
         if (enum_is_set(window_style_, window_style::expand_button))
         {
@@ -654,10 +655,10 @@ void window::update_buttons(bool theme_changed)
 
     if (enum_is_set(window_style_, window_style::minimize_button))
     {
-        minimize_button->set_position({ left, 0, left + btn_width, 26 });
+        minimize_button->set_position({ left, top, left + btn_size, top + btn_size });
         minimize_button->show();
 
-        left -= btn_width;
+        left -= btn_size;
     }
     else
     {
@@ -666,7 +667,7 @@ void window::update_buttons(bool theme_changed)
 
     if (enum_is_set(window_style_, window_style::pin_button))
     {
-        pin_button->set_position({ left, 0, left + btn_width, 26 });
+        pin_button->set_position({ left, top, left + btn_size, top + btn_size });
         pin_button->show();
     }
     else
@@ -696,6 +697,24 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     close_callback = close_callback_;
     theme_ = theme__;
 
+    add_control(pin_button, { position_.right - 104, 0, position_.right - 78, 26 });
+    add_control(minimize_button, { position_.right - 78, 0, position_.right - 52, 26 });
+    add_control(expand_button, { position_.right - 52, 0, position_.right - 26, 26 });
+    add_control(close_button, { position_.right - 26, 0, position_.right, 26 });
+
+    if (parent)
+    {
+        for (auto &control : controls)
+        {
+            control->set_position({ control->position().left + position_.left,
+                control->position().top + position_.top,
+                control->position().right + position_.left,
+                control->position().bottom + position_.top });
+        }
+    }
+
+    update_buttons(true);
+
     if (parent)
     {
         showed_ = true;
@@ -703,13 +722,6 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
         return true;
     }
-
-    update_buttons(true);
-
-    add_control(pin_button, { position_.right - 78, 0, position_.right - 52, 26 });
-    add_control(minimize_button, { position_.right - 78, 0, position_.right - 52, 26 });
-    add_control(expand_button, { position_.right - 52, 0, position_.right - 26, 26 });
-    add_control(close_button, { position_.right - 26, 0, position_.right, 26 });
 
 #ifdef _WIN32
     auto h_inst = GetModuleHandle(NULL);
