@@ -91,6 +91,7 @@ public:
 
     /// Callbacks
     void set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback);
+    void set_pin_callback(std::function<void(void)> pin_callback);
 
 private:
     std::vector<std::shared_ptr<i_control>> controls;
@@ -125,6 +126,7 @@ private:
 
     std::function<void(void)> close_callback;
     std::function<void(int32_t, int32_t)> size_change_callback;
+    std::function<void(void)> pin_callback;
 
     std::shared_ptr<i_theme> buttons_theme, close_button_theme;
     std::shared_ptr<button> pin_button, minimize_button, expand_button, close_button;

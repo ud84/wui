@@ -41,6 +41,7 @@ window::window()
     moving_mode_(moving_mode::none),
     close_callback(),
     size_change_callback(),
+    pin_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
 #ifdef _WIN32
     pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, IDB_WINDOW_PIN, 24)),
@@ -340,7 +341,10 @@ bool window::enabled() const
 
 void window::pin()
 {
-
+    if (pin_callback)
+    {
+        pin_callback();
+    }
 }
 
 void window::minimize()
@@ -428,6 +432,11 @@ void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size
     size_change_callback = size_change_callback_;
 }
 
+void window::set_pin_callback(std::function<void(void)> pin_callback_)
+{
+    pin_callback = pin_callback_;
+}
+
 bool window::send_mouse_event(const mouse_event &ev)
 {
     if (active_control && !active_control->position().in(ev.x, ev.y))
@@ -441,7 +450,7 @@ bool window::send_mouse_event(const mouse_event &ev)
     auto end = controls.rend();
     for (auto control = controls.rbegin(); control != end; ++control)
     {
-        if ((*control)->position().in(ev.x, ev.y))
+        if ((*control)->showed() && (*control)->position().in(ev.x, ev.y))
         {
             if (active_control == *control)
             {
