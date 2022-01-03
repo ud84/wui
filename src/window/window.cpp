@@ -43,7 +43,7 @@ window::window()
     size_change_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
 #ifdef _WIN32
-    pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
+    pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, IDB_WINDOW_PIN, 24)),
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
