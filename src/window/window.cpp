@@ -433,18 +433,19 @@ bool window::send_mouse_event(const mouse_event &ev)
         active_control.reset();
     }
 
-    for (auto &control : controls)
+    auto end = controls.rend();
+    for (auto control = controls.rbegin(); control != end; ++control)
     {
-        if (control->position().in(ev.x, ev.y))
+        if ((*control)->position().in(ev.x, ev.y))
         {
-            if (active_control == control)
+            if (active_control == *control)
             {
                 if (ev.type == mouse_event_type::left_up)
                 {
-                    set_focused(control);
+                    set_focused(*control);
                 }
 
-                control->receive_event({ event_type::mouse, ev });
+                (*control)->receive_event({ event_type::mouse, ev });
             }
             else
             {
@@ -454,10 +455,10 @@ bool window::send_mouse_event(const mouse_event &ev)
                     active_control->receive_event({ event_type::mouse, me });
                 }
 
-                active_control = control;
+                active_control = *control;
 
                 mouse_event me{ mouse_event_type::enter, 0, 0 };
-                control->receive_event({ event_type::mouse, me });
+                (*control)->receive_event({ event_type::mouse, me });
             }
 
             return true;
