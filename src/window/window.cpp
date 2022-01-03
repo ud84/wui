@@ -122,6 +122,14 @@ void window::draw(graphic &gr)
         return;
     }
 
+    if (parent)
+    {
+#ifdef _WIN32
+        RECT client_rect = { position_.left, position_.top, position_.right, position_.bottom };
+        FillRect(gr.dc, &client_rect, background_brush);
+#endif
+    }
+
     for (auto &control : controls)
     {
         control->draw(gr);
