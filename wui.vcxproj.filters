@@ -108,6 +108,9 @@
     <ClInclude Include="include\wui\common\timer.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\common\bit_helpers.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
