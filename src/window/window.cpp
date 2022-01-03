@@ -375,6 +375,13 @@ bool window::enabled() const
 
 void window::pin()
 {
+    if (active_control)
+    {
+        mouse_event me{ mouse_event_type::leave, 0, 0 };
+        active_control->receive_event({ event_type::mouse, me });
+        active_control.reset();
+    }
+
     if (pin_callback)
     {
         pin_callback();
