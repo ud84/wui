@@ -1097,7 +1097,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             RECT window_rect = { 0 };
             GetWindowRect(hwnd, &window_rect);
-            wnd->update_position({ window_rect.left, window_rect.top, window_rect.right, window_rect.bottom });
+            wnd->update_position({ window_rect.left, window_rect.top, window_rect.right - window_rect.left, window_rect.bottom - window_rect.top });
         }
         break;
         case WM_SYSCOMMAND:
