@@ -12,12 +12,16 @@
 #include <gdiplus.h>
 #endif
 
-struct PluggedWindow
+struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 {
 	std::shared_ptr<wui::window> &parentWindow;
 
 	std::shared_ptr<wui::window> window;
 	std::shared_ptr<wui::button> plugButton, unplugButton;
+
+    std::weak_ptr<wui::button> createPluggedButton;
+
+    bool plugged;
 
 	void Plug()
 	{
@@ -25,6 +29,8 @@ struct PluggedWindow
 		
 		plugButton->disable();
 		unplugButton->enable();
+
+        plugged = !plugged;
 	}
 
 	void Unplug()
@@ -33,22 +39,37 @@ struct PluggedWindow
 		
 		plugButton->enable();
 		unplugButton->disable();
+
+        plugged = !plugged;
 	}
+
+    void SetPluggedButton(std::shared_ptr<wui::button> &createPluggedButton_)
+    {
+        createPluggedButton = createPluggedButton_;
+    }
 
 	PluggedWindow(std::shared_ptr<wui::window> &parentWindow_)
 		: parentWindow(parentWindow_),
 		window(new wui::window()),
 		plugButton(new wui::button(L"Plug Window", std::bind(&PluggedWindow::Plug, this))),
-		unplugButton(new wui::button(L"Unplug Window", std::bind(&PluggedWindow::Unplug, this)))
+		unplugButton(new wui::button(L"Unplug Window", std::bind(&PluggedWindow::Unplug, this))),
+        createPluggedButton(),
+        plugged(true)
 	{
         window->add_control(unplugButton, wui::rect{ 10, 40, 110, 65 });
         window->add_control(plugButton, wui::rect{ 10, 85, 110, 110 });
+
+        window->set_pin_callback([this]() { if (plugged) Unplug(); else Plug(); });
 
         plugButton->disable();
 
         parentWindow->add_control(window, wui::rect{ 20, 30, 190, 190 });
 
-        window->init(L"Child window plugged!", wui::rect{ 20, 30, 190, 190 }, wui::window_style::pinned, []() {});
+        window->init(L"Child window plugged!", wui::rect{ 20, 30, 190, 190 }, wui::window_style::pinned, [this]() { 
+            if (createPluggedButton.lock())
+                createPluggedButton.lock()->enable(); 
+            shared_from_this().reset(); 
+        });
     }
 };
 
@@ -74,8 +95,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     std::shared_ptr<wui::image> accountImage(new wui::image(IDB_ACCOUNT));
     window->add_control(accountImage, wui::rect{ 250, 100, 314, 164 });
 
-	PluggedWindow pluggedWindow(window);
+    std::shared_ptr<PluggedWindow> pluggedWindow(new PluggedWindow(window));
+    std::shared_ptr<wui::button> createPluggedButton(new wui::button(L"Create plugged window", []() {}));
+    createPluggedButton->set_callback([&window, &pluggedWindow, &createPluggedButton]() {
+        pluggedWindow = std::shared_ptr<PluggedWindow>(new PluggedWindow(window));
+        pluggedWindow->SetPluggedButton(createPluggedButton);
+        createPluggedButton->disable(); });
+    createPluggedButton->disable();
+    pluggedWindow->SetPluggedButton(createPluggedButton);
 
+    window->add_control(createPluggedButton, wui::rect{ 270, 50, 380, 75 });
+    
     std::shared_ptr<wui::input> nameInput(new wui::input());
     window->add_control(nameInput, wui::rect{ 10, 250, 400, 275 });
 
@@ -104,10 +134,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     redButtonTheme->set_string(wui::theme_value::button_font_name, L"Segoe UI");
 	std::shared_ptr<wui::button> cancelButton(new wui::button(L"Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IDB_ACCOUNT, 24, redButtonTheme));
 
-	std::shared_ptr<wui::button> darkThemeButton(new wui::button(L"Set the dark theme", [window, pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::dark); window->update_theme(); pluggedWindow.window->update_theme(); dialog->update_theme(); }));
+	std::shared_ptr<wui::button> darkThemeButton(new wui::button(L"Set the dark theme", [window, &pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::dark); window->update_theme(); pluggedWindow->window->update_theme(); dialog->update_theme(); }));
 	window->add_control(darkThemeButton, wui::rect{ 140, 350, 150, 375 });
 	
-	std::shared_ptr<wui::button> whiteThemeButton(new wui::button(L"Set the white theme", [window, pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::white); window->update_theme(); pluggedWindow.window->update_theme(); dialog->update_theme(); }));
+	std::shared_ptr<wui::button> whiteThemeButton(new wui::button(L"Set the white theme", [window, &pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::white); window->update_theme(); pluggedWindow->window->update_theme(); dialog->update_theme(); }));
 	window->add_control(whiteThemeButton, wui::rect{ 270, 350, 380, 375 });
 
 	window->add_control(okButton, wui::rect{ 240, 450, 350, 480 });

@@ -36,6 +36,7 @@ window::window()
     window_state_(window_state::normal),
     theme_(),
     showed_(true), enabled_(true),
+    destroyed(false),
     focused_index(0),
     parent(),
     moving_mode_(moving_mode::none),
@@ -79,6 +80,8 @@ window::~window()
 #ifdef _WIN32
     destroy_primitives();
 #endif
+
+    OutputDebugString(L"~Window()\n");
 }
 
 void window::add_control(std::shared_ptr<i_control> control, const rect &control_position)
@@ -215,7 +218,10 @@ void window::clear_parent()
 
     parent.reset();
 
-    init(caption, position_, window_style_, close_callback);
+    if (!destroyed)
+    {
+        init(caption, position_, window_style_, close_callback);
+    }
 }
 
 void window::set_focus()
@@ -727,6 +733,8 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     close_callback = close_callback_;
     theme_ = theme__;
 
+    destroyed = false;
+
     add_control(pin_button, { position_.right - 104, 0, position_.right - 78, 26 });
     add_control(minimize_button, { position_.right - 78, 0, position_.right - 52, 26 });
     add_control(expand_button, { position_.right - 52, 0, position_.right - 26, 26 });
@@ -777,10 +785,13 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
 void window::destroy()
 {
+    destroyed = true;
+
     for (auto &control : controls)
     {
         control->clear_parent();
     }
+
     active_control.reset();
     controls.clear();
 
