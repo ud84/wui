@@ -68,7 +68,6 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         window->init(L"Child window plugged!", wui::rect{ 20, 30, 190, 190 }, wui::window_style::pinned, [this]() { 
             if (createPluggedButton.lock())
                 createPluggedButton.lock()->enable(); 
-            shared_from_this().reset(); 
         });
     }
 };

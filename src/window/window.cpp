@@ -80,8 +80,6 @@ window::~window()
 #ifdef _WIN32
     destroy_primitives();
 #endif
-
-    OutputDebugString(L"~Window()\n");
 }
 
 void window::add_control(std::shared_ptr<i_control> control, const rect &control_position)
@@ -798,17 +796,17 @@ void window::destroy()
     if (parent)
     {
         parent->remove_control(shared_from_this());
+
+        if (close_callback)
+        {
+            close_callback();
+        }
     }
     else
     {
 #ifdef _WIN32
         DestroyWindow(hwnd);
 #endif
-    }
-
-    if (close_callback)
-    {
-        close_callback();
     }
 }
 
@@ -1228,7 +1226,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
         case WM_DESTROY:
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-            if (wnd->close_callback)
+            if (!wnd->parent && wnd->close_callback)
             {
                 wnd->close_callback();
             }
