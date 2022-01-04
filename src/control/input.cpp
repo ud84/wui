@@ -732,6 +732,24 @@ void input::buffer_paste()
         change_callback(text_);
     }
 }
+
+#elif __linux__
+
+void input::buffer_copy()
+{
+
+}
+
+void input::buffer_cut()
+{
+
+}
+
+void input::buffer_paste()
+{
+
+}
+
 #endif
 
 }

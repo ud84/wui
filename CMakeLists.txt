@@ -13,7 +13,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libstdc++ -static-lib
 include_directories(
 	include)
 
-#link_directories()
+link_directories(
+	src)
 
 add_subdirectory (src)
-#add_subdirectory (examples)
+add_subdirectory (examples/simple)

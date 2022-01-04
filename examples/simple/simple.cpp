@@ -73,6 +73,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 };
 
 
+#ifdef _WIN32
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
     _In_ LPWSTR    lpCmdLine,
@@ -81,10 +82,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-#ifdef _WIN32
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
     Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+#elif __linux__
+int main(int argc, char *argv[])
+{
+
+const std::wstring IDB_ACCOUNT = L"";
+
 #endif
 
     wui::set_default_theme(wui::theme::dark);
@@ -147,7 +153,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     std::shared_ptr<wui::image> fileImage(new wui::image(L"g620.png", fileImageTheme));
     window->add_control(fileImage, wui::rect{ 180, 200, 344, 344 });*/
 
-    window->init(L"Welcome to WUI!", wui::rect{ 100, 100, 500, 500 }, wui::window_style::frame, []() { PostQuitMessage(IDCANCEL); });
+    window->init(L"Welcome to WUI!", wui::rect{ 100, 100, 500, 500 }, wui::window_style::frame, []() {
+#ifdef _WIN32
+    	PostQuitMessage(IDCANCEL);
+#endif
+    });
 	
 #ifdef _WIN32
     // Main message loop:
