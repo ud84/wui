@@ -16,7 +16,7 @@ namespace wui
 
 struct rect
 {
-    int32_t left = 0, top = 0, right = 0, bottom = 0;
+    int32_t left, top, right, bottom;
 
     inline bool operator==(const rect &lv)
     {
@@ -25,7 +25,7 @@ struct rect
 
     inline rect operator+(const rect &lv)
     {
-        return { left + lv.left, top + lv.top, left + lv.right, top + lv.bottom };
+        return rect{ left + lv.left, top + lv.top, left + lv.right, top + lv.bottom };
     }
 
     inline bool in(int32_t x, int32_t y) const

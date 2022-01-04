@@ -101,7 +101,11 @@ image::image(const std::wstring &file_name_, std::shared_ptr<i_theme> theme__)
     img(nullptr)
 #endif
 {
+#ifdef _WIN32
     load_image_from_file(file_name_, theme_string(theme_value::images_path, theme_), &img);
+#elif __linux__
+
+#endif
 }
 
 image::~image()
@@ -199,11 +203,14 @@ void image::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
+#ifdef _WIN32
     if (resource_index)
     {
         change_image(resource_index);
     }
-    else if (!file_name.empty())
+    else
+#endif
+    if (!file_name.empty())
     {
         change_image(file_name);
     }
@@ -258,26 +265,33 @@ void image::change_image(const std::wstring &file_name_)
 {
     file_name = file_name_;
 
+#ifdef _WIN32
     free_image(&img);
     load_image_from_file(file_name, theme_string(theme_value::images_path, theme_), &img);
+#endif
+
     redraw();
 }
 
 int32_t image::width() const
 {
+#ifdef _WIN32
     if (img)
     {
         return img->GetWidth();
     }
+#endif
     return 0;
 }
 
 int32_t image::height() const
 {
+#ifdef _WIN32
     if (img)
     {
         return img->GetHeight();
     }
+#endif
     return 0;
 }
 

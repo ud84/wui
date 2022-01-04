@@ -55,10 +55,10 @@ window::window()
     x_click(0), y_click(0),
     mouse_tracked(false)
 #elif __linux__
-    pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, ImagesConsts::Window_PinButton, 24)),
-    minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, ImagesConsts::Window_MinimizeButton, 24)),
-    expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? ImagesConsts::Window_ExpandButton : ImagesConsts::Window_NormalButton, 24)),
-    close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, ImagesConsts::Window_CloseButton, 24))
+    pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, L"", 24)),
+    minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, L"", 24)),
+    expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? L"" : L"", 24)),
+    close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24))
 #endif
 {
     pin_button->disable_focusing();
@@ -439,7 +439,7 @@ void window::normal()
 #endif
 }
 
-window_state window::window_state() const
+window_state window::state() const
 {
     return window_state_;
 }

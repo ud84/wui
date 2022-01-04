@@ -45,7 +45,7 @@ public:
 			interval = interval_;
 			runned = true;
 
-			thread = std::thread(&Timer::run, this);
+			thread = std::thread(&timer::run, this);
 		}
 	}
 

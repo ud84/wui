@@ -83,7 +83,7 @@ public:
     void minimize();
     void expand();
     void normal();
-    window_state window_state() const;
+    window_state state() const;
 
     /// Methods used to block the window while a modal dialog is displayed
     void block();
