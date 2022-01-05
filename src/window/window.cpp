@@ -22,6 +22,8 @@
 #ifdef _WIN32
 #include <windowsx.h>
 #include <resource.hpp>
+#elif __linux__
+#include <X11/Xatom.h>
 #endif
 
 namespace wui
@@ -58,7 +60,12 @@ window::window()
     pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, L"", 24)),
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, L"", 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? L"" : L"", 24)),
-    close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24))
+    close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
+	display(nullptr),
+	wnd(0),
+	wm_delete_message(0),
+	runned(false),
+	thread()
 #endif
 {
     pin_button->disable_focusing();
@@ -79,6 +86,9 @@ window::~window()
     }
 #ifdef _WIN32
     destroy_primitives();
+#elif __linux__
+    send_destroy_event();
+    if (thread.joinable()) thread.join();
 #endif
 }
 
@@ -783,6 +793,35 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     SetWindowText(hwnd, caption.c_str());
 
     UpdateWindow(hwnd);
+#elif __linux__
+    display = XOpenDisplay(nullptr);
+    if (!display)
+    {
+    	return false;
+    }
+
+    wm_delete_message = XInternAtom(display, "WM_DELETE_WINDOW", False);
+
+    auto screen_number = DefaultScreen(display);
+
+    wnd = XCreateSimpleWindow(display,
+        RootWindow(display, screen_number),
+        position_.left, position_.right, position_.width(), position_.height(), 0,
+        BlackPixel(display, screen_number),
+        WhitePixel(display, screen_number));
+
+    XSetWMProtocols(display, wnd, &wm_delete_message, 1);
+
+    auto window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
+    auto value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DOCK", False);
+    XChangeProperty(display, wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+
+    XSelectInput(display, wnd, ExposureMask | KeyPressMask | NoEventMask);
+
+    XMapWindow(display, wnd);
+
+    runned = true;
+    thread = std::thread(std::bind(&window::process_events, this));
 #endif
 
     return true;
@@ -813,6 +852,8 @@ void window::destroy()
     {
 #ifdef _WIN32
         DestroyWindow(hwnd);
+#elif __linux__
+        send_destroy_event();
 #endif
     }
 }
@@ -1257,6 +1298,73 @@ void window::destroy_primitives()
 {
     DeleteObject(background_brush);
     DeleteObject(font);
+}
+
+#elif __linux__
+
+void window::send_destroy_event()
+{
+    if (display)
+    {
+        XDestroyWindow(display, wnd);
+
+        XEvent ev = { 0 };
+        ev.xclient.type = ClientMessage;
+        ev.xclient.window = wnd;
+        ev.xclient.message_type = XInternAtom(display, "WM_PROTOCOLS", true);
+        ev.xclient.format = 32;
+        ev.xclient.data.l[0] = wm_delete_message;//XInternAtom(display, "WM_DELETE_WINDOW", false);
+
+        XSendEvent(display, wnd, True, NoEventMask, &ev);
+    }
+}
+
+void window::process_events()
+{
+    XEvent e;
+
+    while(runned)
+    {
+        XNextEvent(display, &e);
+
+        switch (e.type)
+        {
+            case Expose:
+            {
+                if (e.xexpose.count != 0)
+                {
+                    break;
+                }
+
+                auto gc = XCreateGC(display, wnd, 0, NULL);
+
+                XSetForeground(display, gc, BlackPixel ( display, 0) );
+                XDrawString(display, wnd, gc, 20, 50, "First example", strlen ("First example"));
+
+                XFreeGC(display, gc);
+                XFlush(display);
+            }
+            break;
+            case KeyPress:
+                destroy();
+            break;
+            case ClientMessage:
+                if (e.xclient.data.l[0] == wm_delete_message)
+                {
+                    XDestroyWindow(display, e.xclient.window);
+                    XCloseDisplay(display);
+                    display = nullptr;
+
+                    runned = false;
+
+                    if (parent && close_callback)
+                    {
+                        close_callback();
+                    }
+                }
+            break;
+        }
+    }
 }
 
 #endif

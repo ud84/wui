@@ -19,6 +19,12 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#elif __linux__
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
+
+#include <thread>
 #endif
 
 namespace wui
@@ -146,7 +152,18 @@ private:
 
     void make_primitives();
     void destroy_primitives();
+#elif __linux__
+    Display *display;
+    Window wnd;
 
+    Atom wm_delete_message;
+
+    bool runned;
+    std::thread thread;
+
+    void process_events();
+
+    void send_destroy_event();
 #endif
 
     bool send_mouse_event(const mouse_event &ev);

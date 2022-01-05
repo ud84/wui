@@ -180,6 +180,10 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     DeleteDC(dc);
 
     return count;
+
+#elif __linux__
+
+    return 0;
 #endif
 }
 

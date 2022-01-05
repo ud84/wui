@@ -170,6 +170,8 @@ const std::wstring IDB_ACCOUNT = L"";
 
     //Gdiplus::GdiplusShutdown(gdiplusToken);
     return (int) msg.wParam;
+#elif __linux__
+    getchar();
 #endif
     return 0;
 }
