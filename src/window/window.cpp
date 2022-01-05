@@ -804,13 +804,19 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
     XSetWMProtocols(display, wnd, &wm_delete_message, 1);
 
+    /// Fullscreen
+    /*auto window_type = XInternAtom(display, "_NET_WM_STATE", False);
+    auto value = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", False);
+    XChangeProperty(display, wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);*/
+
     auto window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
     auto value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
     XChangeProperty(display, wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
 
-    auto window_type1 = XInternAtom(display, "_NET_WM_ALLOWED_ACTIONS", False);
-    auto value1 = XInternAtom(display, "_NET_WM_ACTION_RESIZE", False);
-    XChangeProperty(display, wnd, window_type1, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value1), 1);
+    long hints[5] = {0, 0, 0, 0, 0};
+    auto motif_hints = XInternAtom(display, "_MOTIF_WM_HINTS", False);
+
+    XChangeProperty(display, wnd, motif_hints, motif_hints, 32, PropModeReplace, (unsigned char *)&hints, 5);
 
     XSelectInput(display, wnd, ExposureMask | KeyPressMask);
 
