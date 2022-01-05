@@ -201,6 +201,8 @@ void window::set_parent(std::shared_ptr<window> window)
     {
 #ifdef _WIN32
         DestroyWindow(hwnd);
+#elif __linux__
+        send_destroy_event();
 #endif
 
         for (auto &control : controls)
