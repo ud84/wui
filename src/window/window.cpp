@@ -15,15 +15,20 @@
 
 #include <wui/control/button.hpp>
 
-#include <wui/common/enum_helpers.hpp>
+#include <wui/common/flag_helpers.hpp>
 
 #include <algorithm>
 
 #ifdef _WIN32
 #include <windowsx.h>
 #include <resource.hpp>
+
 #elif __linux__
+
 #include <X11/Xatom.h>
+
+#include <wui/common/char_helpers.hpp>
+
 #endif
 
 namespace wui
@@ -665,7 +670,7 @@ void window::update_buttons(bool theme_changed)
     auto left = position_.right - btn_size;
     auto top = !parent ? 0 : position_.top;
 
-    if (enum_is_set(window_style_, window_style::close_button))
+    if (flag_is_set(window_style_, window_style::close_button))
     {
         close_button->set_position({ left, top, left + btn_size, top + btn_size });
         close_button->show();
@@ -677,14 +682,14 @@ void window::update_buttons(bool theme_changed)
         close_button->hide();
     }
 
-    if (enum_is_set(window_style_, window_style::expand_button) || enum_is_set(window_style_, window_style::minimize_button))
+    if (flag_is_set(window_style_, window_style::expand_button) || flag_is_set(window_style_, window_style::minimize_button))
     {
         expand_button->set_position({ left, top, left + btn_size, top + btn_size });
         expand_button->show();
 
         left -= btn_size;
 
-        if (enum_is_set(window_style_, window_style::expand_button))
+        if (flag_is_set(window_style_, window_style::expand_button))
         {
             expand_button->enable();
         }
@@ -698,7 +703,7 @@ void window::update_buttons(bool theme_changed)
         expand_button->hide();
     }
 
-    if (enum_is_set(window_style_, window_style::minimize_button))
+    if (flag_is_set(window_style_, window_style::minimize_button))
     {
         minimize_button->set_position({ left, top, left + btn_size, top + btn_size });
         minimize_button->show();
@@ -710,7 +715,7 @@ void window::update_buttons(bool theme_changed)
         minimize_button->hide();
     }
 
-    if (enum_is_set(window_style_, window_style::pin_button))
+    if (flag_is_set(window_style_, window_style::pin_button))
     {
         pin_button->set_position({ left, top, left + btn_size, top + btn_size });
         pin_button->show();
@@ -812,11 +817,6 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     auto window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
     auto value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
     XChangeProperty(display, wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
-
-    long hints[5] = {0, 0, 0, 0, 0};
-    auto motif_hints = XInternAtom(display, "_MOTIF_WM_HINTS", False);
-
-    XChangeProperty(display, wnd, motif_hints, motif_hints, 32, PropModeReplace, (unsigned char *)&hints, 5);
 
     XSelectInput(display, wnd, ExposureMask | KeyPressMask);
 
@@ -1336,8 +1336,11 @@ void window::process_events()
 
                 auto gc = XCreateGC(display, wnd, 0, NULL);
 
-                XSetForeground(display, gc, BlackPixel ( display, 0) );
-                XDrawString(display, wnd, gc, 20, 50, "First example", strlen ("First example"));
+                if (flag_is_set(window_style_, window_style::title_showed))
+                {
+                    XSetForeground(display, gc, BlackPixel(display, 0));
+                    XDrawString(display, wnd, gc, 20, 50, to_multibyte(caption).c_str(), static_cast<int>(caption.size()));
+                }
 
                 XFreeGC(display, gc);
                 XFlush(display);

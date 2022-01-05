@@ -5,26 +5,16 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 // Official repository: https://github.com/ud84/wui
-//
 
 #pragma once
-
-#ifdef _WIN32
-#include <windows.h>
-#elif __linux__
-#include <X11/Xlib.h>
-#endif
 
 namespace wui
 {
 
-struct graphic
+template <typename T>
+inline bool flag_is_set(T value, T style)
 {
-#ifdef _WIN32
-    HDC dc;
-#elif __linux__
-    GC gc;
-#endif
-};
+    return ((static_cast<int>(value)) & (static_cast<int>(style)));
+}
 
 }

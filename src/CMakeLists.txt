@@ -1,4 +1,5 @@
 file(GLOB SOURCES 
+	common/*.cpp
 	control/*.cpp
 	theme/*.cpp
 	theme/impl/*.cpp
