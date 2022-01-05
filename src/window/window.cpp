@@ -1339,7 +1339,7 @@ void window::process_events()
                 if (flag_is_set(window_style_, window_style::title_showed))
                 {
                     XSetForeground(display, gc, BlackPixel(display, 0));
-                    XDrawString(display, wnd, gc, 20, 50, to_multibyte(caption).c_str(), static_cast<int>(caption.size()));
+                    XDrawString(display, wnd, gc, 5, 15, to_multibyte(caption).c_str(), static_cast<int>(caption.size()));
                 }
 
                 XFreeGC(display, gc);
