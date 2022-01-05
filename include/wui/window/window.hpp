@@ -111,8 +111,6 @@ private:
 
     bool showed_, enabled_;
 
-    bool destroyed;
-
     size_t focused_index;
 
     std::shared_ptr<window> parent;

@@ -38,7 +38,6 @@ window::window()
     window_state_(window_state::normal),
     theme_(),
     showed_(true), enabled_(true),
-    destroyed(false),
     focused_index(0),
     parent(),
     moving_mode_(moving_mode::none),
@@ -80,7 +79,7 @@ window::window()
 
 window::~window()
 {
-    if (parent)
+	if (parent)
     {
         parent->remove_control(shared_from_this());
     }
@@ -225,11 +224,6 @@ void window::clear_parent()
     }
 
     parent.reset();
-
-    if (!destroyed)
-    {
-        init(caption, position_, window_style_, close_callback);
-    }
 }
 
 void window::set_focus()
@@ -748,8 +742,6 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     close_callback = close_callback_;
     theme_ = theme__;
 
-    destroyed = false;
-
     add_control(pin_button, { position_.right - 104, 0, position_.right - 78, 26 });
     add_control(minimize_button, { position_.right - 78, 0, position_.right - 52, 26 });
     add_control(expand_button, { position_.right - 52, 0, position_.right - 26, 26 });
@@ -813,10 +805,14 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     XSetWMProtocols(display, wnd, &wm_delete_message, 1);
 
     auto window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
-    auto value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DOCK", False);
+    auto value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
     XChangeProperty(display, wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
 
-    XSelectInput(display, wnd, ExposureMask | KeyPressMask | NoEventMask);
+    auto window_type1 = XInternAtom(display, "_NET_WM_ALLOWED_ACTIONS", False);
+    auto value1 = XInternAtom(display, "_NET_WM_ACTION_RESIZE", False);
+    XChangeProperty(display, wnd, window_type1, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value1), 1);
+
+    XSelectInput(display, wnd, ExposureMask | KeyPressMask);
 
     XMapWindow(display, wnd);
 
@@ -829,8 +825,6 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
 void window::destroy()
 {
-    destroyed = true;
-
     for (auto &control : controls)
     {
         control->clear_parent();
@@ -1306,14 +1300,12 @@ void window::send_destroy_event()
 {
     if (display)
     {
-        XDestroyWindow(display, wnd);
-
         XEvent ev = { 0 };
         ev.xclient.type = ClientMessage;
         ev.xclient.window = wnd;
         ev.xclient.message_type = XInternAtom(display, "WM_PROTOCOLS", true);
         ev.xclient.format = 32;
-        ev.xclient.data.l[0] = wm_delete_message;//XInternAtom(display, "WM_DELETE_WINDOW", false);
+        ev.xclient.data.l[0] = wm_delete_message;
 
         XSendEvent(display, wnd, True, NoEventMask, &ev);
     }
