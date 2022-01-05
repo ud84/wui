@@ -418,7 +418,7 @@ void window::expand()
     window_state_ = window_state::maximized;
 
 #ifdef _WIN32
-    if (enum_is_set(window_style_, window_style::title_showed))
+    if (flag_is_set(window_style_, window_style::title_showed))
     {
         RECT work_area;
         SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
@@ -923,7 +923,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             SetTextColor(mem_dc, theme_color(theme_value::window_text, wnd->theme_));
             SetBkMode(mem_dc, TRANSPARENT);
 
-            if (enum_is_set(wnd->window_style_, window_style::title_showed))
+            if (flag_is_set(wnd->window_style_, window_style::title_showed))
             {
                 TextOutW(mem_dc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
             }
@@ -960,7 +960,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             int16_t x_mouse = GET_X_LPARAM(l_param);
             int16_t y_mouse = GET_Y_LPARAM(l_param);
 
-            if (enum_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)
+            if (flag_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)
             {
                 if ((x_mouse > window_rect.right - window_rect.left - 5 && y_mouse > window_rect.bottom - window_rect.top - 5) ||
                     (x_mouse < 5 && y_mouse < 5))
@@ -1103,11 +1103,11 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->y_click = GET_Y_LPARAM(l_param);
 
             if (!wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click }) && 
-                (enum_is_set(wnd->window_style_, window_style::moving) && wnd->window_state_ == window_state::normal))
+                (flag_is_set(wnd->window_style_, window_style::moving) && wnd->window_state_ == window_state::normal))
             {
                 wnd->moving_mode_ = moving_mode::move;
 
-                if (enum_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)
+                if (flag_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)
                 {
                     if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
                     {
