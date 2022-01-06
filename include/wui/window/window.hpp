@@ -21,6 +21,7 @@
 #include <windows.h>
 #elif __linux__
 #include <X11/Xlib.h>
+#include <X11/Xft/Xft.h>
 
 #include <thread>
 #endif
@@ -151,7 +152,12 @@ private:
     Display *display;
     Window wnd;
 
-    XFontStruct* font;
+    int scr;
+    Visual *visual;
+    Colormap cmap;
+    XftFont *xft_font;
+    XftDraw *xft_draw;
+    XftColor title_color;
 
     Atom wm_delete_message;
 

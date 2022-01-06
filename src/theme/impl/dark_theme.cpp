@@ -35,11 +35,19 @@ dark_theme::dark_theme()
     },
     dimensions
     {
+#ifdef _WIN32
         { theme_value::window_title_font_size, 18 },
         { theme_value::button_round, 0 },
         { theme_value::button_font_size, 18 },
         { theme_value::input_round, 0 },
         { theme_value::input_font_size, 18 }
+#elif __linux__
+        { theme_value::window_title_font_size, 10 },
+        { theme_value::button_round, 0 },
+        { theme_value::button_font_size, 10 },
+        { theme_value::input_round, 0 },
+        { theme_value::input_font_size, 10 }
+#endif
     },
     strings
     {
@@ -51,8 +59,8 @@ dark_theme::dark_theme()
 #elif __linux__
         { theme_value::window_title_font_name, L"FreeSans Regular" },
         { theme_value::images_path, L"IMAGES_DARK" },
-        { theme_value::button_font_name, L"Segoe UI" },
-        { theme_value::input_font_name, L"Segoe UI" }
+        { theme_value::button_font_name, L"FreeSans Regular" },
+        { theme_value::input_font_name, L"FreeSans Regular" }
 #endif
     }
 {
