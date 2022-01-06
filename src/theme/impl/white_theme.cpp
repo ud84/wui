@@ -43,10 +43,17 @@ white_theme::white_theme()
     },
     strings
     {
+#ifdef _WIN32
         { theme_value::window_title_font_name, L"Segoe UI" },
         { theme_value::images_path, L"IMAGES_WHITE" },
         { theme_value::button_font_name, L"Segoe UI" },
         { theme_value::input_font_name, L"Segoe UI" }
+#elif __linux__
+        { theme_value::window_title_font_name, L"Garuda Regular" },
+        { theme_value::images_path, L"IMAGES_WHITE" },
+        { theme_value::button_font_name, L"Segoe UI" },
+        { theme_value::input_font_name, L"Segoe UI" }
+#endif
     }
 {
 }

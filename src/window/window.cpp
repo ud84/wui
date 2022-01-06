@@ -67,6 +67,7 @@ window::window()
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
 	display(nullptr),
 	wnd(0),
+	font(nullptr),
 	wm_delete_message(0),
 	runned(false),
 	thread()
@@ -76,10 +77,6 @@ window::window()
     minimize_button->disable_focusing();
     expand_button->disable_focusing();
     close_button->disable_focusing();
-
-#ifdef _WIN32
-    make_primitives();
-#endif
 }
 
 window::~window()
@@ -88,9 +85,8 @@ window::~window()
     {
         parent->remove_control(shared_from_this());
     }
-#ifdef _WIN32
-    destroy_primitives();
-#elif __linux__
+
+#ifdef __linux__
     send_destroy_event();
     if (thread.joinable()) thread.join();
 #endif
@@ -300,15 +296,21 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-#ifdef _WIN32
     destroy_primitives();
     make_primitives();
+
+#ifdef _WIN32
 
     if (!parent)
     {
         RECT client_rect;
         GetClientRect(hwnd, &client_rect);
         InvalidateRect(hwnd, &client_rect, TRUE);
+    }
+#elif __linux__
+    if (!parent)
+    {
+        XSetWindowBackground(display, wnd, theme_color(theme_value::window_background, theme_));
     }
 #endif
 
@@ -765,6 +767,8 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     }
 
 #ifdef _WIN32
+    make_primitives();
+
     auto h_inst = GetModuleHandle(NULL);
 
     WNDCLASSEXW wcex = { 0 };
@@ -796,8 +800,11 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     display = XOpenDisplay(nullptr);
     if (!display)
     {
+    	fprintf(stderr, "window can't open default display\n");
     	return false;
     }
+
+    make_primitives();
 
     wm_delete_message = XInternAtom(display, "WM_DELETE_WINDOW", False);
 
@@ -806,8 +813,8 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     wnd = XCreateSimpleWindow(display,
         RootWindow(display, screen_number),
         position_.left, position_.right, position_.width(), position_.height(), 0,
-        BlackPixel(display, screen_number),
-        WhitePixel(display, screen_number));
+		theme_color(theme_value::window_background, theme_),
+		theme_color(theme_value::window_background, theme_));
 
     XSetWMProtocols(display, wnd, &wm_delete_message, 1);
 
@@ -820,7 +827,7 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     auto value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
     XChangeProperty(display, wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
 
-    XSelectInput(display, wnd, ExposureMask | KeyPressMask);
+    XSelectInput(display, wnd, ExposureMask | KeyPressMask | PointerMotionMask);
 
     XMapWindow(display, wnd);
 
@@ -858,6 +865,45 @@ void window::destroy()
         send_destroy_event();
 #endif
     }
+}
+
+void window::make_primitives()
+{
+#ifdef _WIN32
+    background_brush = CreateSolidBrush(theme_color(theme_value::window_background, theme_));
+    font = CreateFont(theme_dimension(theme_value::window_title_font_size, theme_), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
+        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE, theme_string(theme_value::window_title_font_name, theme_).c_str());
+
+#elif __linux__
+
+    if (!font)
+    {
+        std::string font_name = to_multibyte(theme_string(theme_value::window_title_font_name, theme_));
+        std::string font_size =  std::to_string(theme_dimension(theme_value::window_title_font_size, theme_));
+        std::string font_query = "-*-courier 10 pitch-*-r-*-*-*-*-*-*-*-*-*-*";//"-" + font_name + " 10 pitch-bold-r-normal--0-0-100-100-m-0-iso8859-1";
+
+        font = XLoadQueryFont(display, font_query.c_str());
+        if (!font)
+        {
+            fprintf(stderr, "window can't load the font %s\n", font_name.c_str());
+        }
+    }
+#endif
+}
+
+void window::destroy_primitives()
+{
+#ifdef _WIN32
+    DeleteObject(background_brush);
+    DeleteObject(font);
+#elif __linux__
+    if (font)
+    {
+        XFreeFont(display, font);
+        font = nullptr;
+    }
+#endif
 }
 
 /// Windows specified code
@@ -1276,6 +1322,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
         case WM_DESTROY:
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            wmd->destroy_primitives();
             if (!wnd->parent && wnd->close_callback)
             {
                 wnd->close_callback();
@@ -1286,20 +1333,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             return DefWindowProc(hwnd, message, w_param, l_param);
     }
     return 0;
-}
-
-void window::make_primitives()
-{
-    background_brush = CreateSolidBrush(theme_color(theme_value::window_background, theme_));
-    font = CreateFont(theme_dimension(theme_value::window_title_font_size, theme_), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, theme_string(theme_value::window_title_font_name, theme_).c_str());
-}
-
-void window::destroy_primitives()
-{
-    DeleteObject(background_brush);
-    DeleteObject(font);
 }
 
 #elif __linux__
@@ -1340,8 +1373,18 @@ void window::process_events()
 
                 if (flag_is_set(window_style_, window_style::title_showed))
                 {
-                    XSetForeground(display, gc, BlackPixel(display, 0));
+                    if (font)
+                    {
+                        XSetFont(display, gc, font->fid);
+                    }
+                    XSetForeground(display, gc, theme_color(theme_value::window_text, theme_));
                     XDrawString(display, wnd, gc, 5, 15, to_multibyte(caption).c_str(), static_cast<int>(caption.size()));
+                }
+
+                graphic gr{ gc };
+                for (auto &control : controls)
+                {
+                    control->draw(gr);
                 }
 
                 XFreeGC(display, gc);
@@ -1354,6 +1397,7 @@ void window::process_events()
             case ClientMessage:
                 if (e.xclient.data.l[0] == wm_delete_message)
                 {
+                	destroy_primitives();
                     XDestroyWindow(display, e.xclient.window);
                     XCloseDisplay(display);
                     display = nullptr;
