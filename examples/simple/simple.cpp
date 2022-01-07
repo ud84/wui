@@ -159,6 +159,8 @@ const std::wstring IDB_ACCOUNT = L"";
     std::shared_ptr<wui::image> fileImage(new wui::image(L"g620.png", fileImageTheme));
     window->add_control(fileImage, wui::rect{ 180, 200, 344, 344 });*/
 
+    window->set_min_size(100, 100);
+
     window->init(L"Welcome to WUI!", wui::rect{ 100, 100, 500, 500 }, wui::window_style::frame, []() {
 #ifdef _WIN32
     	PostQuitMessage(IDCANCEL);

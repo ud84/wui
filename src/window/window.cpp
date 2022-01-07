@@ -40,6 +40,7 @@ window::window()
     active_control(),
     caption(),
     position_(), normal_position(),
+    min_width(0), min_height(0),
     window_style_(window_style::frame),
     window_state_(window_state::normal),
     theme_(),
@@ -459,6 +460,12 @@ void window::set_style(window_style style)
     update_buttons(false);
 
     redraw({ 0, 0, position_.width(), 30 }, false);
+}
+
+void window::set_min_size(int32_t width, int32_t height)
+{
+    min_width = width;
+    min_height = height;
 }
 
 void window::block()
@@ -1091,14 +1098,21 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = window_rect.right - window_rect.left - x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top;
-                        SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+
+                        if (width > wnd->min_width && height > wnd->min_height)
+                        {
+                            SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_we_right:
                     {
                         int32_t width = x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top;
-                        SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                        if (width > wnd->min_width && height > wnd->min_height)
+                        {
+                            SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_ns_top:
@@ -1108,14 +1122,20 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = window_rect.right - window_rect.left;
                         int32_t height = window_rect.bottom - window_rect.top - y_mouse;
-                        SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                        if (width > wnd->min_width && height > wnd->min_height)
+                        {
+                            SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_ns_bottom:
                     {
                         int32_t width = window_rect.right - window_rect.left;
                         int32_t height = y_mouse;
-                        SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                        if (width > wnd->min_width && height > wnd->min_height)
+                        {
+                            SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_nesw_top:
@@ -1125,14 +1145,20 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top - y_mouse;
-                        SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                        if (width > wnd->min_width && height > wnd->min_height)
+                        {
+                            SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_nwse_bottom:
                     {
                         int32_t width = x_mouse;
                         int32_t height = y_mouse;
-                        SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                        if (width > wnd->min_width && height > wnd->min_height)
+                        {
+                            SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_nwse_top:
@@ -1142,7 +1168,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = window_rect.right - window_rect.left - x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top - y_mouse;
-                        SetWindowPos(hwnd, NULL, scrMouse.x, scrMouse.y, width, height, SWP_NOZORDER);
+                        if (width > wnd->min_width && height > wnd->min_height)
+                        {
+                            SetWindowPos(hwnd, NULL, scrMouse.x, scrMouse.y, width, height, SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_nesw_bottom:
@@ -1152,7 +1181,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = window_rect.right - window_rect.left - x_mouse;
                         int32_t height = y_mouse;
-                        SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                        if (width > wnd->min_width && height > wnd->min_height)
+                        {
+                            SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                        }
                     }
                     break;
                 }
@@ -1480,19 +1512,19 @@ void window::process_events()
                         case moving_mode::size_we_left:
                         {
                             int32_t width = wnd_attr.width - x_mouse;
-                            if (width > 0)
+                            int32_t height = wnd_attr.height;
+                            if (width > min_width && height > min_height)
                             {
-                                int32_t height = wnd_attr.height;
                                 XMoveResizeWindow(display, wnd, get_mouse_screen_position().left, wnd_attr.y, width, height);
                             }
                         }
             	        break;
             	        case moving_mode::size_we_right:
             	        {
-            	        	if (x_mouse > 0)
-            	        	{
-            	        	    int32_t width = x_mouse;
-            	        	    int32_t height = wnd_attr.height;
+                            int32_t width = x_mouse;
+                            int32_t height = wnd_attr.height;
+                            if (width > min_width && height > min_height)
+                            {
             	        	    XResizeWindow(display, wnd, width, height);
             	        	}
             	        }
@@ -1501,7 +1533,7 @@ void window::process_events()
             	        {
             	            int32_t width = wnd_attr.width;
             	            int32_t height = wnd_attr.height - y_mouse;
-            	            if (height > 0)
+                            if (width > min_width && height > min_height)
             	            {
             	                XMoveResizeWindow(display, wnd, wnd_attr.x, get_mouse_screen_position().top, width, height);
             	            }
@@ -1511,7 +1543,7 @@ void window::process_events()
             	        {
             	            int32_t width = wnd_attr.width;
             	            int32_t height = y_mouse;
-            	            if (height > 0)
+                            if (width > min_width && height > min_height)
             	            {
             	                XResizeWindow(display, wnd, width, height);
             	            }
@@ -1521,7 +1553,7 @@ void window::process_events()
             	        {
             	            int32_t width = x_mouse;
             	            int32_t height = wnd_attr.height - y_mouse;
-            	            if (width > 0 && height > 0)
+                            if (width > min_width && height > min_height)
             	            {
             	            	XMoveResizeWindow(display, wnd, wnd_attr.x, get_mouse_screen_position().top, width, height);
             	            }
@@ -1531,7 +1563,7 @@ void window::process_events()
             	        {
             	            int32_t width = x_mouse;
             	            int32_t height = y_mouse;
-            	            if (width > 0 && height > 0)
+                            if (width > min_width && height > min_height)
             	            {
             	                XResizeWindow(display, wnd, width, height);
             	            }
@@ -1542,7 +1574,7 @@ void window::process_events()
             	            auto mouse_pos = get_mouse_screen_position();
             	            int32_t width = wnd_attr.width - x_mouse;
             	            int32_t height = wnd_attr.height - y_mouse;
-            	            if (width > 0 && height > 0)
+                            if (width > min_width && height > min_height)
             	            {
             	                XMoveResizeWindow(display, wnd, mouse_pos.left, mouse_pos.top, width, height);
             	            }
@@ -1552,7 +1584,7 @@ void window::process_events()
             	        {
             	            int32_t width = wnd_attr.width - x_mouse;
             	            int32_t height = y_mouse;
-            	            if (width > 0 && height > 0)
+                            if (width > min_width && height > min_height)
             	            {
             	                XMoveResizeWindow(display, wnd, get_mouse_screen_position().left, wnd_attr.y, width, height);
             	            }

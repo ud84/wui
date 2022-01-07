@@ -82,6 +82,7 @@ public:
 
     /// Window style methods
     void set_style(window_style style);
+    void set_min_size(int32_t width, int32_t height);
 
     /// Window state methods
     void pin();
@@ -104,6 +105,7 @@ private:
 
     std::wstring caption;
     rect position_, normal_position;
+    int32_t min_width, min_height;
     window_style window_style_;
     wui::window_state window_state_;
     std::shared_ptr<i_theme> theme_;
