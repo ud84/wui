@@ -23,6 +23,8 @@ struct graphic
 #ifdef _WIN32
     HDC dc;
 #elif __linux__
+    Display *display;
+    Window wnd;
     GC gc;
 #endif
 };

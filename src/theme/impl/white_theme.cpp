@@ -35,11 +35,19 @@ white_theme::white_theme()
     },
     dimensions
     {
+#ifdef _WIN32
         { theme_value::window_title_font_size, 18 },
         { theme_value::button_round, 0 },
         { theme_value::button_font_size, 18 },
         { theme_value::input_round, 0 },
         { theme_value::input_font_size, 18 }
+#elif __linux__
+        { theme_value::window_title_font_size, 10 },
+        { theme_value::button_round, 0 },
+        { theme_value::button_font_size, 10 },
+        { theme_value::input_round, 0 },
+        { theme_value::input_font_size, 10 }
+#endif
     },
     strings
     {

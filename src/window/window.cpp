@@ -130,13 +130,33 @@ void window::redraw(const rect &redraw_position, bool clear)
 #ifdef _WIN32
         RECT invalidatingRect = { redraw_position.left, redraw_position.top, redraw_position.right, redraw_position.bottom };
         InvalidateRect(context_.hwnd, &invalidatingRect, clear ? TRUE : FALSE);
+#elif __linux__
+        if (context_.display)
+        {
+            XEvent ev = { 0 };
+            ev.type = Expose;
+            ev.xexpose.window = context_.wnd;
+            ev.xexpose.x = redraw_position.left;
+            ev.xexpose.y = redraw_position.top;
+            ev.xexpose.width = redraw_position.width();
+            ev.xexpose.height = redraw_position.height();
+
+            XSendEvent(context_.display, context_.wnd, True, ExposureMask, &ev);
+        }
 #endif
     }
 }
 
 system_context &window::context()
 {
-	return context_;
+	if (!parent)
+	{
+        return context_;
+	}
+	else
+	{
+        return parent->context();
+	}
 }
 
 void window::draw(graphic &gr)
@@ -308,7 +328,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
         InvalidateRect(context_.hwnd, &client_rect, TRUE);
     }
 #elif __linux__
-    if (!parent)
+    if (!parent && context_.display)
     {
         XSetWindowBackground(context_.display, context_.wnd, theme_color(theme_value::window_background, theme_));
     }
@@ -846,6 +866,7 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     XMapWindow(context_.display, context_.wnd);
 
     runned = true;
+    if (thread.joinable()) thread.join();
     thread = std::thread(std::bind(&window::process_events, this));
 #endif
 
@@ -892,7 +913,7 @@ void window::make_primitives()
 
 #elif __linux__
 
-    if (!xft_font)
+    /*if (!xft_font)
     {
     	auto scr = DefaultScreen(context_.display);
     	auto visual = DefaultVisual(context_.display, scr);
@@ -925,7 +946,7 @@ void window::make_primitives()
         {
             fprintf(stderr, "window can't load the font %s\n", font_name.c_str());
         }
-    }
+    }*/
 #endif
 }
 
@@ -935,13 +956,13 @@ void window::destroy_primitives()
     DeleteObject(background_brush);
     DeleteObject(font);
 #elif __linux__
-    if (xft_draw)
+    /*if (xft_draw)
     {
     	auto scr = DefaultScreen(context_.display);
     	XftColorFree(context_.display, DefaultVisual(context_.display, scr), DefaultColormap(context_.display, scr), &title_color);
         XftDrawDestroy(xft_draw);
         xft_draw = nullptr;
-    }
+    }*/
 #endif
 }
 
@@ -1455,7 +1476,7 @@ void window::process_events()
                     }
                 }
 
-                graphic gr{ gc };
+                graphic gr{ context_.display, context_.wnd, gc };
                 for (auto &control : controls)
                 {
                     control->draw(gr);

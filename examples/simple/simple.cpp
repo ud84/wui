@@ -99,7 +99,7 @@ const std::wstring IDB_ACCOUNT = L"";
 
 #endif
 
-    wui::set_default_theme(wui::theme::dark);
+    wui::set_default_theme(wui::theme::white);
 
     std::shared_ptr<wui::window> window(new wui::window());
 
@@ -129,7 +129,7 @@ const std::wstring IDB_ACCOUNT = L"";
         std::shared_ptr<wui::button> dialogButton(new wui::button(L"Close", [&dialog]() { dialog->destroy(); }));
         dialog->add_control(dialogButton, wui::rect{ 10, 200, 100, 235 });
 
-        dialog->init(L"Modal dialog", wui::rect{ 50, 50, 250, 250 }, wui::window_style::dialog, [window, &dialog]() { window->unlock(); /*dialog.reset();*/ });
+        dialog->init(L"Modal dialog", wui::rect{ 50, 50, 350, 350 }, wui::window_style::dialog, [window, &dialog]() { window->unlock(); /*dialog.reset();*/ });
     }));
 
     auto redButtonTheme = wui::make_custom_theme();
@@ -140,7 +140,7 @@ const std::wstring IDB_ACCOUNT = L"";
     redButtonTheme->set_color(wui::theme_value::button_text, wui::make_color(190, 205, 190));
     redButtonTheme->set_color(wui::theme_value::button_disabled, wui::make_color(180, 190, 180));
     redButtonTheme->set_dimension(wui::theme_value::button_round, 0);
-    redButtonTheme->set_dimension(wui::theme_value::button_font_size, 20);
+    redButtonTheme->set_dimension(wui::theme_value::button_font_size, 14);
     redButtonTheme->set_string(wui::theme_value::images_path, L"IMAGES_DARK");
     redButtonTheme->set_string(wui::theme_value::button_font_name, L"Segoe UI");
     std::shared_ptr<wui::button> cancelButton(new wui::button(L"Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IDB_ACCOUNT, 24, redButtonTheme));
@@ -161,7 +161,7 @@ const std::wstring IDB_ACCOUNT = L"";
 
     window->set_min_size(100, 100);
 
-    window->init(L"Welcome to WUI!", wui::rect{ 100, 100, 500, 500 }, wui::window_style::frame, []() {
+    window->init(L"Welcome to WUI!", wui::rect{ 100, 100, 700, 700 }, wui::window_style::frame, []() {
 #ifdef _WIN32
     	PostQuitMessage(IDCANCEL);
 #endif
