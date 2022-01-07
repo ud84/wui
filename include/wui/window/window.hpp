@@ -29,6 +29,23 @@
 namespace wui
 {
 
+#ifdef _WIN32
+
+struct system_context
+{
+    HWND hwnd;
+};
+
+#elif __linux__
+
+struct system_context
+{
+    Display *display;
+    Window wnd;
+};
+
+#endif
+
 enum class window_state
 {
     normal,
@@ -53,6 +70,8 @@ public:
     virtual void remove_control(std::shared_ptr<i_control> control);
 
     virtual void redraw(const rect &position, bool clear = false);
+
+    virtual system_context &context();
 
 	/// IControl
     virtual void draw(graphic &gr);
@@ -100,6 +119,8 @@ public:
     void set_pin_callback(std::function<void(void)> pin_callback);
 
 private:
+    system_context context_;
+
     std::vector<std::shared_ptr<i_control>> controls;
     std::shared_ptr<i_control> active_control;
 
@@ -141,7 +162,6 @@ private:
     std::shared_ptr<button> pin_button, minimize_button, expand_button, close_button;
 
 #ifdef _WIN32
-    HWND hwnd;
 
     HBRUSH background_brush;
     HFONT font;
@@ -151,9 +171,6 @@ private:
     static LRESULT CALLBACK wnd_proc(HWND hWnd, UINT message, WPARAM w_param, LPARAM l_param);
 
 #elif __linux__
-
-    Display *display;
-    Window wnd;
 
     XftFont *xft_font;
     XftDraw *xft_draw;
@@ -169,6 +186,7 @@ private:
     void send_destroy_event();
 
     rect get_mouse_screen_position();
+
 #endif
 
     void make_primitives();

@@ -35,6 +35,8 @@ enum class window_style : uint32_t
     pinned = pin_button | close_button | resizable | moving
 };
 
+struct system_context;
+
 class i_window
 {
 public:
@@ -45,6 +47,8 @@ public:
     virtual void remove_control(std::shared_ptr<i_control> control) = 0;
 
     virtual void redraw(const rect &position, bool clear = false) = 0;
+
+    virtual system_context &context() = 0;
 
 protected:
     ~i_window() {}

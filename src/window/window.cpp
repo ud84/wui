@@ -36,7 +36,8 @@ namespace wui
 {
 
 window::window()
-    : controls(),
+    : context_{ 0 },
+    controls(),
     active_control(),
     caption(),
     position_(), normal_position(),
@@ -58,7 +59,6 @@ window::window()
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
-    hwnd(0),
     background_brush(0),
     font(0),
     mouse_tracked(false)
@@ -67,8 +67,6 @@ window::window()
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, L"", 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? L"" : L"", 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
-	display(nullptr),
-	wnd(0),
 	xft_font(nullptr),
 	xft_draw(nullptr),
 	title_color(),
@@ -131,9 +129,14 @@ void window::redraw(const rect &redraw_position, bool clear)
     {
 #ifdef _WIN32
         RECT invalidatingRect = { redraw_position.left, redraw_position.top, redraw_position.right, redraw_position.bottom };
-        InvalidateRect(hwnd, &invalidatingRect, clear ? TRUE : FALSE);
+        InvalidateRect(context_.hwnd, &invalidatingRect, clear ? TRUE : FALSE);
 #endif
     }
+}
+
+system_context &window::context()
+{
+	return context_;
 }
 
 void window::draw(graphic &gr)
@@ -176,7 +179,7 @@ void window::set_position(const rect &position__)
     normal_position = position_;
 
 #ifdef _WIN32
-    SetWindowPos(hwnd, NULL, position_.left, position_.top, position_.right, position_.bottom, NULL);
+    SetWindowPos(context_.hwnd, NULL, position_.left, position_.top, position_.right, position_.bottom, NULL);
 #endif
 }
 
@@ -192,7 +195,8 @@ void window::set_parent(std::shared_ptr<window> window)
     if (parent)
     {
 #ifdef _WIN32
-        DestroyWindow(hwnd);
+        DestroyWindow(context_.hwnd);
+        context_.hwnd = 0;
 #elif __linux__
         send_destroy_event();
 #endif
@@ -300,13 +304,13 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
     if (!parent)
     {
         RECT client_rect;
-        GetClientRect(hwnd, &client_rect);
-        InvalidateRect(hwnd, &client_rect, TRUE);
+        GetClientRect(context_.hwnd, &client_rect);
+        InvalidateRect(context_.hwnd, &client_rect, TRUE);
     }
 #elif __linux__
     if (!parent)
     {
-        XSetWindowBackground(display, wnd, theme_color(theme_value::window_background, theme_));
+        XSetWindowBackground(context_.display, context_.wnd, theme_color(theme_value::window_background, theme_));
     }
 #endif
 
@@ -330,7 +334,7 @@ void window::show()
 #ifdef _WIN32
     if (!parent)
     {
-        ShowWindow(hwnd, SW_SHOW);
+        ShowWindow(context_.hwnd, SW_SHOW);
     }
 #endif
 }
@@ -347,7 +351,7 @@ void window::hide()
 #ifdef _WIN32
     if (!parent)
     {
-        ShowWindow(hwnd, SW_HIDE);
+        ShowWindow(context_.hwnd, SW_HIDE);
     }
 #endif
 }
@@ -405,7 +409,7 @@ void window::minimize()
     }
 
 #ifdef _WIN32
-    ShowWindow(hwnd, SW_MINIMIZE);
+    ShowWindow(context_.hwnd, SW_MINIMIZE);
 #endif
 
     window_state_ = window_state::minimized;
@@ -421,11 +425,11 @@ void window::expand()
         RECT work_area;
         SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
 
-        SetWindowPos(hwnd, NULL, work_area.left, work_area.top, work_area.right, work_area.bottom, NULL);
+        SetWindowPos(context_.hwnd, NULL, work_area.left, work_area.top, work_area.right, work_area.bottom, NULL);
     }
     else
     {
-        ShowWindow(hwnd, SW_MAXIMIZE);
+        ShowWindow(context_.hwnd, SW_MAXIMIZE);
     }
 
     expand_button->set_image(IDB_WINDOW_NORMAL);
@@ -471,15 +475,15 @@ void window::set_min_size(int32_t width, int32_t height)
 void window::block()
 {
 #ifdef _WIN32
-    EnableWindow(hwnd, FALSE);
+    EnableWindow(context_.hwnd, FALSE);
 #endif
 }
 
 void window::unlock()
 {
 #ifdef _WIN32
-    EnableWindow(hwnd, TRUE);
-    SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    EnableWindow(context_.hwnd, TRUE);
+    SetWindowPos(context_.hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 #endif
 }
 
@@ -787,51 +791,51 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
     RegisterClassExW(&wcex);
 
-    hwnd = CreateWindowW(wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP,
+    context_.hwnd = CreateWindowW(wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP,
         position_.left, position_.top, position_.right, position_.bottom, nullptr, nullptr, h_inst, this);
 
-    if (!hwnd)
+    if (!context_.hwnd)
     {
         return false;
     }
 
-    SetWindowText(hwnd, caption.c_str());
+    SetWindowText(context_.hwnd, caption.c_str());
 
-    UpdateWindow(hwnd);
+    UpdateWindow(context_.hwnd);
 
 #elif __linux__
 
-    display = XOpenDisplay(nullptr);
-    if (!display)
+    context_.display = XOpenDisplay(nullptr);
+    if (!context_.display)
     {
     	fprintf(stderr, "window can't open default display\n");
     	return false;
     }
 
-    wm_delete_message = XInternAtom(display, "WM_DELETE_WINDOW", False);
+    wm_delete_message = XInternAtom(context_.display, "WM_DELETE_WINDOW", False);
 
-    auto screen_number = DefaultScreen(display);
+    auto screen_number = DefaultScreen(context_.display);
 
-    wnd = XCreateSimpleWindow(display,
-        RootWindow(display, screen_number),
+    context_.wnd = XCreateSimpleWindow(context_.display,
+        RootWindow(context_.display, screen_number),
         position_.left, position_.right, position_.width(), position_.height(), 0,
 		theme_color(theme_value::window_background, theme_),
 		theme_color(theme_value::window_background, theme_));
 
     make_primitives();
 
-    XSetWMProtocols(display, wnd, &wm_delete_message, 1);
+    XSetWMProtocols(context_.display, context_.wnd, &wm_delete_message, 1);
 
     /// Fullscreen
     /*auto window_type = XInternAtom(display, "_NET_WM_STATE", False);
     auto value = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", False);
     XChangeProperty(display, wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);*/
 
-    auto window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
-    auto value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
-    XChangeProperty(display, wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+    auto window_type = XInternAtom(context_.display, "_NET_WM_WINDOW_TYPE", False);
+    auto value = XInternAtom(context_.display, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
+    XChangeProperty(context_.display, context_.wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
 
-    XSelectInput(display, wnd,
+    XSelectInput(context_.display, context_.wnd,
         ExposureMask |
         KeyPressMask |
         PointerMotionMask |
@@ -839,7 +843,7 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
         ButtonReleaseMask |
         LeaveWindowMask);
 
-    XMapWindow(display, wnd);
+    XMapWindow(context_.display, context_.wnd);
 
     runned = true;
     thread = std::thread(std::bind(&window::process_events, this));
@@ -870,7 +874,8 @@ void window::destroy()
     else
     {
 #ifdef _WIN32
-        DestroyWindow(hwnd);
+        DestroyWindow(context_.hwnd);
+        context_.hwnd = 0;
 #elif __linux__
         send_destroy_event();
 #endif
@@ -889,15 +894,15 @@ void window::make_primitives()
 
     if (!xft_font)
     {
-    	auto scr = DefaultScreen(display);
-    	auto visual = DefaultVisual(display, scr);
-    	auto cmap = DefaultColormap(display, scr);
+    	auto scr = DefaultScreen(context_.display);
+    	auto visual = DefaultVisual(context_.display, scr);
+    	auto cmap = DefaultColormap(context_.display, scr);
 
     	std::string font_name = to_multibyte(theme_string(theme_value::window_title_font_name, theme_));
         std::string font_size =  std::to_string(theme_dimension(theme_value::window_title_font_size, theme_));
         std::string font_query = font_name + ":size=" + font_size + ":antialias=true";
 
-        xft_draw = XftDrawCreate(display, wnd, visual, cmap);
+        xft_draw = XftDrawCreate(context_.display, context_.wnd, visual, cmap);
         if (!xft_draw)
         {
         	fprintf(stderr, "window XftDrawCreate error\n");
@@ -909,13 +914,13 @@ void window::make_primitives()
             static_cast<unsigned short>(0xffff * get_green(txt_color) / 0xff),
             static_cast<unsigned short>(0xffff * get_blue(txt_color) / 0xff),
             0xffff };
-        if (!XftColorAllocValue(display, visual, cmap, &xr_color, &title_color))
+        if (!XftColorAllocValue(context_.display, visual, cmap, &xr_color, &title_color))
         {
             fprintf(stderr, "cannot allocate xft color for window title\n");
             return;
         }
 
-        xft_font = XftFontOpenName(display, scr, font_query.c_str());
+        xft_font = XftFontOpenName(context_.display, scr, font_query.c_str());
         if (!xft_font)
         {
             fprintf(stderr, "window can't load the font %s\n", font_name.c_str());
@@ -932,8 +937,8 @@ void window::destroy_primitives()
 #elif __linux__
     if (xft_draw)
     {
-    	auto scr = DefaultScreen(display);
-    	XftColorFree(display, DefaultVisual(display, scr), DefaultColormap(display, scr), &title_color);
+    	auto scr = DefaultScreen(context_.display);
+    	XftColorFree(context_.display, DefaultVisual(context_.display, scr), DefaultColormap(context_.display, scr), &title_color);
         XftDrawDestroy(xft_draw);
         xft_draw = nullptr;
     }
@@ -1398,16 +1403,16 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
 void window::send_destroy_event()
 {
-    if (display)
+    if (context_.display)
     {
         XEvent ev = { 0 };
         ev.xclient.type = ClientMessage;
-        ev.xclient.window = wnd;
-        ev.xclient.message_type = XInternAtom(display, "WM_PROTOCOLS", true);
+        ev.xclient.window = context_.wnd;
+        ev.xclient.message_type = XInternAtom(context_.display, "WM_PROTOCOLS", true);
         ev.xclient.format = 32;
         ev.xclient.data.l[0] = wm_delete_message;
 
-        XSendEvent(display, wnd, True, NoEventMask, &ev);
+        XSendEvent(context_.display, context_.wnd, True, NoEventMask, &ev);
     }
 }
 
@@ -1417,7 +1422,7 @@ rect window::get_mouse_screen_position()
     int root_x, root_y;
     int win_x, win_y;
     unsigned int mask_return;
-    XQueryPointer(display, XRootWindow(display, 0), &window_returned,
+    XQueryPointer(context_.display, XRootWindow(context_.display, 0), &window_returned,
         &window_returned, &root_x, &root_y, &win_x, &win_y, &mask_return);
 
     return rect{ root_x, root_y, root_x, root_y };
@@ -1429,7 +1434,7 @@ void window::process_events()
 
     while(runned)
     {
-        XNextEvent(display, &e);
+        XNextEvent(context_.display, &e);
 
         switch (e.type)
         {
@@ -1440,7 +1445,7 @@ void window::process_events()
                     break;
                 }
 
-                auto gc = XCreateGC(display, wnd, 0, NULL);
+                auto gc = XCreateGC(context_.display, context_.wnd, 0, NULL);
 
                 if (flag_is_set(window_style_, window_style::title_showed))
                 {
@@ -1456,8 +1461,8 @@ void window::process_events()
                     control->draw(gr);
                 }
 
-                XFreeGC(display, gc);
-                XFlush(display);
+                XFreeGC(context_.display, gc);
+                XFlush(context_.display);
             }
             break;
             case KeyPress:
@@ -1466,7 +1471,7 @@ void window::process_events()
             case MotionNotify:
             {
                 XWindowAttributes wnd_attr;
-                XGetWindowAttributes(display, wnd, &wnd_attr);
+                XGetWindowAttributes(context_.display, context_.wnd, &wnd_attr);
 
                 int16_t x_mouse = e.xbutton.x;
                 int16_t y_mouse = e.xbutton.y;
@@ -1476,24 +1481,24 @@ void window::process_events()
                     if ((x_mouse > wnd_attr.width - 5 && y_mouse > wnd_attr.height - 5) ||
                         (x_mouse < 5 && y_mouse < 5))
                     {
-                    	XDefineCursor(display, wnd, XcursorLibraryLoadCursor(display, "top_left_corner"));
+                    	XDefineCursor(context_.display, context_.wnd, XcursorLibraryLoadCursor(context_.display, "top_left_corner"));
                     }
                     else if ((x_mouse > wnd_attr.width - 5 && y_mouse < 5) ||
                         (x_mouse < 5 && y_mouse > wnd_attr.height - 5))
                     {
-                    	XDefineCursor(display, wnd, XcursorLibraryLoadCursor(display, "top_right_corner"));
+                    	XDefineCursor(context_.display, context_.wnd, XcursorLibraryLoadCursor(context_.display, "top_right_corner"));
                     }
                     else if (x_mouse > wnd_attr.width - 5 || x_mouse < 5)
                     {
-                    	XDefineCursor(display, wnd, XcursorLibraryLoadCursor(display, "sb_h_double_arrow"));
+                    	XDefineCursor(context_.display, context_.wnd, XcursorLibraryLoadCursor(context_.display, "sb_h_double_arrow"));
                     }
                     else if (y_mouse > wnd_attr.height - 5 || y_mouse < 5)
                     {
-                    	XDefineCursor(display, wnd, XcursorLibraryLoadCursor(display, "sb_v_double_arrow"));
+                    	XDefineCursor(context_.display, context_.wnd, XcursorLibraryLoadCursor(context_.display, "sb_v_double_arrow"));
                     }
                     else if (!active_control)
                     {
-                    	XDefineCursor(display, wnd, XcursorLibraryLoadCursor(display, "default"));
+                    	XDefineCursor(context_.display, context_.wnd, XcursorLibraryLoadCursor(context_.display, "default"));
                     }
                 }
 
@@ -1506,7 +1511,7 @@ void window::process_events()
                             int32_t x_window = wnd_attr.x + x_mouse - x_click;
                             int32_t y_window = wnd_attr.y + y_mouse - y_click;
 
-                            XMoveWindow(display, wnd, x_window, y_window);
+                            XMoveWindow(context_.display, context_.wnd, x_window, y_window);
                         }
                         break;
                         case moving_mode::size_we_left:
@@ -1515,7 +1520,7 @@ void window::process_events()
                             int32_t height = wnd_attr.height;
                             if (width > min_width && height > min_height)
                             {
-                                XMoveResizeWindow(display, wnd, get_mouse_screen_position().left, wnd_attr.y, width, height);
+                                XMoveResizeWindow(context_.display, context_.wnd, get_mouse_screen_position().left, wnd_attr.y, width, height);
                             }
                         }
             	        break;
@@ -1525,7 +1530,7 @@ void window::process_events()
                             int32_t height = wnd_attr.height;
                             if (width > min_width && height > min_height)
                             {
-            	        	    XResizeWindow(display, wnd, width, height);
+            	        	    XResizeWindow(context_.display, context_.wnd, width, height);
             	        	}
             	        }
             	        break;
@@ -1535,7 +1540,7 @@ void window::process_events()
             	            int32_t height = wnd_attr.height - y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	                XMoveResizeWindow(display, wnd, wnd_attr.x, get_mouse_screen_position().top, width, height);
+            	                XMoveResizeWindow(context_.display, context_.wnd, wnd_attr.x, get_mouse_screen_position().top, width, height);
             	            }
             	        }
             	        break;
@@ -1545,7 +1550,7 @@ void window::process_events()
             	            int32_t height = y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	                XResizeWindow(display, wnd, width, height);
+            	                XResizeWindow(context_.display, context_.wnd, width, height);
             	            }
             	        }
             	        break;
@@ -1555,7 +1560,7 @@ void window::process_events()
             	            int32_t height = wnd_attr.height - y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	            	XMoveResizeWindow(display, wnd, wnd_attr.x, get_mouse_screen_position().top, width, height);
+            	            	XMoveResizeWindow(context_.display, context_.wnd, wnd_attr.x, get_mouse_screen_position().top, width, height);
             	            }
             	        }
             	        break;
@@ -1565,7 +1570,7 @@ void window::process_events()
             	            int32_t height = y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	                XResizeWindow(display, wnd, width, height);
+            	                XResizeWindow(context_.display, context_.wnd, width, height);
             	            }
             	        }
             	        break;
@@ -1576,7 +1581,7 @@ void window::process_events()
             	            int32_t height = wnd_attr.height - y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	                XMoveResizeWindow(display, wnd, mouse_pos.left, mouse_pos.top, width, height);
+            	                XMoveResizeWindow(context_.display, context_.wnd, mouse_pos.left, mouse_pos.top, width, height);
             	            }
             	        }
             	        break;
@@ -1586,7 +1591,7 @@ void window::process_events()
             	            int32_t height = y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	                XMoveResizeWindow(display, wnd, get_mouse_screen_position().left, wnd_attr.y, width, height);
+            	                XMoveResizeWindow(context_.display, context_.wnd, get_mouse_screen_position().left, wnd_attr.y, width, height);
             	            }
             	        }
             	        break;
@@ -1602,7 +1607,7 @@ void window::process_events()
                 if (e.xbutton.button == Button1)
                 {
                 	XWindowAttributes wnd_attr;
-                	XGetWindowAttributes(display, wnd, &wnd_attr);
+                	XGetWindowAttributes(context_.display, context_.wnd, &wnd_attr);
 
                     x_click = e.xbutton.x;
                     y_click = e.xbutton.y;
@@ -1662,9 +1667,11 @@ void window::process_events()
                 if (e.xclient.data.l[0] == wm_delete_message)
                 {
                 	destroy_primitives();
-                    XDestroyWindow(display, e.xclient.window);
-                    XCloseDisplay(display);
-                    display = nullptr;
+                    XDestroyWindow(context_.display, e.xclient.window);
+                    XCloseDisplay(context_.display);
+
+                    context_.wnd = 0;
+                    context_.display = nullptr;
 
                     runned = false;
 
