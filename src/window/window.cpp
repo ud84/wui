@@ -799,7 +799,9 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     SetWindowText(hwnd, caption.c_str());
 
     UpdateWindow(hwnd);
+
 #elif __linux__
+
     display = XOpenDisplay(nullptr);
     if (!display)
     {
