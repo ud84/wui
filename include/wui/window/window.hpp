@@ -152,9 +152,6 @@ private:
     Display *display;
     Window wnd;
 
-    int scr;
-    Visual *visual;
-    Colormap cmap;
     XftFont *xft_font;
     XftDraw *xft_draw;
     XftColor title_color;

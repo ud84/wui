@@ -67,9 +67,6 @@ window::window()
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
 	display(nullptr),
 	wnd(0),
-	scr(0),
-	visual(nullptr),
-	cmap(),
 	xft_font(nullptr),
 	xft_draw(nullptr),
 	title_color(),
@@ -884,9 +881,9 @@ void window::make_primitives()
 
     if (!xft_font)
     {
-    	scr = DefaultScreen(display);
-    	visual = DefaultVisual(display, scr);
-    	cmap = DefaultColormap(display, scr);
+    	auto scr = DefaultScreen(display);
+    	auto visual = DefaultVisual(display, scr);
+    	auto cmap = DefaultColormap(display, scr);
 
     	std::string font_name = to_multibyte(theme_string(theme_value::window_title_font_name, theme_));
         std::string font_size =  std::to_string(theme_dimension(theme_value::window_title_font_size, theme_));
@@ -899,9 +896,14 @@ void window::make_primitives()
         	return;
         }
 
-        if (!XftColorAllocName(display, visual, cmap, "#ffffff", &title_color))
+        auto txt_color = theme_color(theme_value::window_text, theme_);
+        XRenderColor xr_color = { static_cast<unsigned short>(0xffff * get_red(txt_color) / 0xff),
+            static_cast<unsigned short>(0xffff * get_green(txt_color) / 0xff),
+            static_cast<unsigned short>(0xffff * get_blue(txt_color) / 0xff),
+            0xffff };
+        if (!XftColorAllocValue(display, visual, cmap, &xr_color, &title_color))
         {
-            fprintf(stderr, "cannot allocate xft color\n");
+            fprintf(stderr, "cannot allocate xft color for window title\n");
             return;
         }
 
@@ -920,10 +922,12 @@ void window::destroy_primitives()
     DeleteObject(background_brush);
     DeleteObject(font);
 #elif __linux__
-    if (xft_font)
+    if (xft_draw)
     {
-        XftColorFree(display, visual, cmap, &title_color);
+    	auto scr = DefaultScreen(display);
+    	XftColorFree(display, DefaultVisual(display, scr), DefaultColormap(display, scr), &title_color);
         XftDrawDestroy(xft_draw);
+        xft_draw = nullptr;
     }
 #endif
 }
