@@ -142,14 +142,6 @@ void window::draw(graphic &gr)
         return;
     }
 
-    if (parent)
-    {
-#ifdef _WIN32
-        RECT client_rect = { position_.left, position_.top, position_.right, position_.bottom };
-        FillRect(gr.dc, &client_rect, background_brush);
-#endif
-    }
-
     for (auto &control : controls)
     {
         control->draw(gr);
@@ -1080,7 +1072,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 wnd->mouse_tracked = true;
             }
 
-            if (GetCapture() == hwnd && wnd->moving_mode_ != moving_mode::none)
+            if (wnd->moving_mode_ != moving_mode::none)
             {
                 switch (wnd->moving_mode_)
                 {
@@ -1357,7 +1349,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
         case WM_DESTROY:
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-            wmd->destroy_primitives();
+            wnd->destroy_primitives();
             if (!wnd->parent && wnd->close_callback)
             {
                 wnd->close_callback();
