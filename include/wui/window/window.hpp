@@ -129,6 +129,8 @@ private:
     };
     moving_mode moving_mode_;
 
+    int16_t x_click, y_click;
+
     std::function<void(void)> close_callback;
     std::function<void(int32_t, int32_t)> size_change_callback;
     std::function<void(void)> pin_callback;
@@ -142,7 +144,6 @@ private:
     HBRUSH background_brush;
     HFONT font;
 
-    int16_t x_click, y_click;
     bool mouse_tracked;
 
     static LRESULT CALLBACK wnd_proc(HWND hWnd, UINT message, WPARAM w_param, LPARAM l_param);
@@ -164,6 +165,8 @@ private:
     void process_events();
 
     void send_destroy_event();
+
+    rect get_mouse_screen_position();
 #endif
 
     void make_primitives();

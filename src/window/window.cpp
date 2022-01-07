@@ -26,6 +26,7 @@
 #elif __linux__
 
 #include <X11/Xatom.h>
+#include <X11/Xcursor/Xcursor.h>
 
 #include <wui/common/char_helpers.hpp>
 
@@ -46,6 +47,7 @@ window::window()
     focused_index(0),
     parent(),
     moving_mode_(moving_mode::none),
+    x_click(0), y_click(0),
     close_callback(),
     size_change_callback(),
     pin_callback(),
@@ -58,7 +60,6 @@ window::window()
     hwnd(0),
     background_brush(0),
     font(0),
-    x_click(0), y_click(0),
     mouse_tracked(false)
 #elif __linux__
     pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, L"", 24)),
@@ -829,7 +830,13 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     auto value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
     XChangeProperty(display, wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
 
-    XSelectInput(display, wnd, ExposureMask | KeyPressMask | PointerMotionMask);
+    XSelectInput(display, wnd,
+        ExposureMask |
+        KeyPressMask |
+        PointerMotionMask |
+        ButtonPressMask |
+        ButtonReleaseMask |
+        LeaveWindowMask);
 
     XMapWindow(display, wnd);
 
@@ -1378,6 +1385,18 @@ void window::send_destroy_event()
     }
 }
 
+rect window::get_mouse_screen_position()
+{
+    Window window_returned;
+    int root_x, root_y;
+    int win_x, win_y;
+    unsigned int mask_return;
+    XQueryPointer(display, XRootWindow(display, 0), &window_returned,
+        &window_returned, &root_x, &root_y, &win_x, &win_y, &mask_return);
+
+    return rect{ root_x, root_y, root_x, root_y };
+}
+
 void window::process_events()
 {
     XEvent e;
@@ -1417,6 +1436,201 @@ void window::process_events()
             break;
             case KeyPress:
                 destroy();
+            break;
+            case MotionNotify:
+            {
+                XWindowAttributes wnd_attr;
+                XGetWindowAttributes(display, wnd, &wnd_attr);
+
+                int16_t x_mouse = e.xbutton.x;
+                int16_t y_mouse = e.xbutton.y;
+
+                if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
+                {
+                    if ((x_mouse > wnd_attr.width - 5 && y_mouse > wnd_attr.height - 5) ||
+                        (x_mouse < 5 && y_mouse < 5))
+                    {
+                    	XDefineCursor(display, wnd, XcursorLibraryLoadCursor(display, "top_left_corner"));
+                    }
+                    else if ((x_mouse > wnd_attr.width - 5 && y_mouse < 5) ||
+                        (x_mouse < 5 && y_mouse > wnd_attr.height - 5))
+                    {
+                    	XDefineCursor(display, wnd, XcursorLibraryLoadCursor(display, "top_right_corner"));
+                    }
+                    else if (x_mouse > wnd_attr.width - 5 || x_mouse < 5)
+                    {
+                    	XDefineCursor(display, wnd, XcursorLibraryLoadCursor(display, "sb_h_double_arrow"));
+                    }
+                    else if (y_mouse > wnd_attr.height - 5 || y_mouse < 5)
+                    {
+                    	XDefineCursor(display, wnd, XcursorLibraryLoadCursor(display, "sb_v_double_arrow"));
+                    }
+                    else if (!active_control)
+                    {
+                    	XDefineCursor(display, wnd, XcursorLibraryLoadCursor(display, "default"));
+                    }
+                }
+
+                if (moving_mode_ != moving_mode::none)
+                {
+                    switch (moving_mode_)
+                    {
+                        case moving_mode::move:
+                        {
+                            int32_t x_window = wnd_attr.x + x_mouse - x_click;
+                            int32_t y_window = wnd_attr.y + y_mouse - y_click;
+
+                            XMoveWindow(display, wnd, x_window, y_window);
+                        }
+                        break;
+                        case moving_mode::size_we_left:
+                        {
+                            int32_t width = wnd_attr.width - x_mouse;
+                            if (width > 0)
+                            {
+                                int32_t height = wnd_attr.height;
+                                XMoveResizeWindow(display, wnd, get_mouse_screen_position().left, wnd_attr.y, width, height);
+                            }
+                        }
+            	        break;
+            	        case moving_mode::size_we_right:
+            	        {
+            	        	if (x_mouse > 0)
+            	        	{
+            	        	    int32_t width = x_mouse;
+            	        	    int32_t height = wnd_attr.height;
+            	        	    XResizeWindow(display, wnd, width, height);
+            	        	}
+            	        }
+            	        break;
+            	        case moving_mode::size_ns_top:
+            	        {
+            	            int32_t width = wnd_attr.width;
+            	            int32_t height = wnd_attr.height - y_mouse;
+            	            if (height > 0)
+            	            {
+            	                XMoveResizeWindow(display, wnd, wnd_attr.x, get_mouse_screen_position().top, width, height);
+            	            }
+            	        }
+            	        break;
+            	        case moving_mode::size_ns_bottom:
+            	        {
+            	            int32_t width = wnd_attr.width;
+            	            int32_t height = y_mouse;
+            	            if (height > 0)
+            	            {
+            	                XResizeWindow(display, wnd, width, height);
+            	            }
+            	        }
+            	        break;
+            	        case moving_mode::size_nesw_top:
+            	        {
+            	            int32_t width = x_mouse;
+            	            int32_t height = wnd_attr.height - y_mouse;
+            	            if (width > 0 && height > 0)
+            	            {
+            	            	XMoveResizeWindow(display, wnd, wnd_attr.x, get_mouse_screen_position().top, width, height);
+            	            }
+            	        }
+            	        break;
+            	        case moving_mode::size_nwse_bottom:
+            	        {
+            	            int32_t width = x_mouse;
+            	            int32_t height = y_mouse;
+            	            if (width > 0 && height > 0)
+            	            {
+            	                XResizeWindow(display, wnd, width, height);
+            	            }
+            	        }
+            	        break;
+            	        case moving_mode::size_nwse_top:
+            	        {
+            	            auto mouse_pos = get_mouse_screen_position();
+            	            int32_t width = wnd_attr.width - x_mouse;
+            	            int32_t height = wnd_attr.height - y_mouse;
+            	            if (width > 0 && height > 0)
+            	            {
+            	                XMoveResizeWindow(display, wnd, mouse_pos.left, mouse_pos.top, width, height);
+            	            }
+            	        }
+            	        break;
+            	        case moving_mode::size_nesw_bottom:
+            	        {
+            	            int32_t width = wnd_attr.width - x_mouse;
+            	            int32_t height = y_mouse;
+            	            if (width > 0 && height > 0)
+            	            {
+            	                XMoveResizeWindow(display, wnd, get_mouse_screen_position().left, wnd_attr.y, width, height);
+            	            }
+            	        }
+            	        break;
+                    }
+                }
+            	else
+            	{
+            	    send_mouse_event({ mouse_event_type::move, x_mouse, y_mouse });
+            	}
+            }
+            break;
+            case ButtonPress:
+                if (e.xbutton.button == Button1)
+                {
+                	XWindowAttributes wnd_attr;
+                	XGetWindowAttributes(display, wnd, &wnd_attr);
+
+                    x_click = e.xbutton.x;
+                    y_click = e.xbutton.y;
+
+                    if (!send_mouse_event({ mouse_event_type::left_down, x_click, y_click }) &&
+                        (flag_is_set(window_style_, window_style::moving) && window_state_ == window_state::normal))
+                    {
+                        moving_mode_ = moving_mode::move;
+
+                        if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
+                        {
+                            if (x_click > wnd_attr.width - 5 && y_click > wnd_attr.height - 5)
+                            {
+                                moving_mode_ = moving_mode::size_nwse_bottom;
+                            }
+                            else if (x_click < 5 && y_click < 5)
+                            {
+                                moving_mode_ = moving_mode::size_nwse_top;
+                            }
+                            else if (x_click > wnd_attr.width - 5 && y_click < 5)
+                            {
+                                moving_mode_ = moving_mode::size_nesw_top;
+                            }
+                            else if (x_click < 5 && y_click > wnd_attr.height - 5)
+                            {
+                                moving_mode_ = moving_mode::size_nesw_bottom;
+                            }
+                            else if (x_click > wnd_attr.width - 5)
+                            {
+                                moving_mode_ = moving_mode::size_we_right;
+                            }
+                            else if (x_click < 5)
+                            {
+                                moving_mode_ = moving_mode::size_we_left;
+                            }
+                            else if (y_click > wnd_attr.height - 5)
+                            {
+                                moving_mode_ = moving_mode::size_ns_bottom;
+                            }
+                            else if (y_click < 5)
+                            {
+                                moving_mode_ = moving_mode::size_ns_top;
+            	            }
+            	        }
+                    }
+                }
+            break;
+            case ButtonRelease:
+                moving_mode_ = moving_mode::none;
+
+                send_mouse_event({ mouse_event_type::left_up, e.xbutton.x, e.xbutton.y });
+            break;
+            case LeaveNotify:
+            	send_mouse_event({ mouse_event_type::leave, -1, -1 });
             break;
             case ClientMessage:
                 if (e.xclient.data.l[0] == wm_delete_message)
