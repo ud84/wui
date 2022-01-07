@@ -210,7 +210,7 @@ void button::draw(graphic &gr)
         TextOutW(gr.dc, text_left, text_top, caption.c_str(), (int32_t)caption.size());
     }
 #elif __linux__
-	auto scr = DefaultScreen(gr.display);
+	/*auto scr = DefaultScreen(gr.display);
 	auto visual = DefaultVisual(gr.display, scr);
 	auto cmap = DefaultColormap(gr.display, scr);
 
@@ -243,10 +243,10 @@ void button::draw(graphic &gr)
     {
         fprintf(stderr, "button can't load the font %s\n", font_name.c_str());
         return;
-    }
+    }*/
 
     XGlyphInfo extents = { 0 };
-    XftTextExtents8(gr.display, font, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size(), &extents);
+    //XftTextExtents8(gr.display, font, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size(), &extents);
 
     int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
 
@@ -320,8 +320,6 @@ void button::draw(graphic &gr)
         button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_disabled, theme_) : theme_color(theme_value::window_background, theme_));
     XFillRectangle(gr.display, gr.wnd, gr.gc, position_.left, position_.top, position_.width(), position_.height());
 
-    //SelectObject(gr.dc, !focused_ ? border_pen : focused_border_pen);
-    //SelectObject(gr.dc, enabled_ ? (active ? active_brush : calm_brush) : disabled_brush);
     XSetForeground(gr.display, gr.gc, !focused_ ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_border, theme_) : theme_color(theme_value::window_background, theme_))
         : theme_color(theme_value::button_focused_border, theme_));
 
@@ -334,10 +332,10 @@ void button::draw(graphic &gr)
         image_->draw(gr);
     }
 
-    XftDrawString8(xft_draw, &text_color, font, text_left, text_top, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
+    /*XftDrawString8(xft_draw, &text_color, font, text_left, text_top, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
 
     XftColorFree(gr.display, visual, cmap, &text_color);
-    XftDrawDestroy(xft_draw);
+    XftDrawDestroy(xft_draw);*/
 #endif
 }
 

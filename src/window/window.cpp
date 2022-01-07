@@ -133,15 +133,22 @@ void window::redraw(const rect &redraw_position, bool clear)
 #elif __linux__
         if (context_.display)
         {
-            XEvent ev = { 0 };
-            ev.type = Expose;
-            ev.xexpose.window = context_.wnd;
-            ev.xexpose.x = redraw_position.left;
-            ev.xexpose.y = redraw_position.top;
-            ev.xexpose.width = redraw_position.width();
-            ev.xexpose.height = redraw_position.height();
+        	if (!clear)
+        	{
+                XEvent ev = { 0 };
+                ev.type = Expose;
+                ev.xexpose.window = context_.wnd;
+                ev.xexpose.x = redraw_position.left;
+                ev.xexpose.y = redraw_position.top;
+                ev.xexpose.width = redraw_position.width();
+                ev.xexpose.height = redraw_position.height();
 
-            XSendEvent(context_.display, context_.wnd, True, ExposureMask, &ev);
+                XSendEvent(context_.display, context_.wnd, True, ExposureMask, &ev);
+        	}
+        	else
+            {
+            	XClearArea(context_.display, context_.wnd, redraw_position.left, redraw_position.top, redraw_position.width(), redraw_position.height(), False);
+            }
         }
 #endif
     }

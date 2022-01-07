@@ -99,7 +99,7 @@ const std::wstring IDB_ACCOUNT = L"";
 
 #endif
 
-    wui::set_default_theme(wui::theme::white);
+    wui::set_default_theme(wui::theme::dark);
 
     std::shared_ptr<wui::window> window(new wui::window());
 

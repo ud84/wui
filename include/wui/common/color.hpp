@@ -16,7 +16,11 @@ typedef unsigned long color;
 
 static inline color make_color(unsigned char red, unsigned char green, unsigned char blue)
 {
+#ifdef _WIN32
     return ((red) | (static_cast<unsigned short>(green) << 8)) | (static_cast<unsigned long>(blue) << 16);
+#elif __linux__
+    return ((blue) | (static_cast<unsigned short>(green) << 8)) | (static_cast<unsigned long>(red) << 16);
+#endif
 }
 
 static inline char get_red(color rgb)
