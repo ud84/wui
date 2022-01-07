@@ -149,7 +149,7 @@ const std::wstring IDB_ACCOUNT = L"";
     window->add_control(darkThemeButton, wui::rect{ 140, 350, 150, 375 });
 	
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button(L"Set the white theme", [window, &pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::white); window->update_theme(); pluggedWindow->window->update_theme(); dialog->update_theme(); }));
-    window->add_control(whiteThemeButton, wui::rect{ 270, 350, 380, 375 });
+    window->add_control(whiteThemeButton, wui::rect{ 290, 350, 380, 375 });
 
     window->add_control(okButton, wui::rect{ 240, 450, 350, 480 });
     window->add_control(cancelButton, wui::rect{ 370, 450, 480, 480 });
@@ -161,7 +161,7 @@ const std::wstring IDB_ACCOUNT = L"";
 
     window->set_min_size(100, 100);
 
-    window->init(L"Welcome to WUI!", wui::rect{ 100, 100, 700, 700 }, wui::window_style::frame, []() {
+    window->init(L"Welcome to WUI!", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame, []() {
 #ifdef _WIN32
     	PostQuitMessage(IDCANCEL);
 #endif

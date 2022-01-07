@@ -67,9 +67,7 @@ window::window()
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, L"", 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? L"" : L"", 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
-	xft_font(nullptr),
-	xft_draw(nullptr),
-	title_color(),
+	font(nullptr),
 	wm_delete_message(0),
 	runned(false),
 	thread()
@@ -79,6 +77,9 @@ window::window()
     minimize_button->disable_focusing();
     expand_button->disable_focusing();
     close_button->disable_focusing();
+#ifdef _WIN32
+    make_primitives();
+#endif
 }
 
 window::~window()
@@ -87,8 +88,9 @@ window::~window()
     {
         parent->remove_control(shared_from_this());
     }
-
-#ifdef __linux__
+#ifdef _WIN32
+    destroy_primitives();
+#elif __linux__
     send_destroy_event();
     if (thread.joinable()) thread.join();
 #endif
@@ -323,10 +325,9 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
+#ifdef _WIN32
     destroy_primitives();
     make_primitives();
-
-#ifdef _WIN32
 
     if (!parent)
     {
@@ -338,6 +339,9 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
     if (!parent && context_.display)
     {
         XSetWindowBackground(context_.display, context_.wnd, theme_color(theme_value::window_background, theme_));
+        XWindowAttributes wnd_attr;
+        XGetWindowAttributes(context_.display, context_.wnd, &wnd_attr);
+        redraw(rect{ 0, 0, wnd_attr.width, wnd_attr.height }, true);
     }
 #endif
 
@@ -800,8 +804,6 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     }
 
 #ifdef _WIN32
-    make_primitives();
-
     auto h_inst = GetModuleHandle(NULL);
 
     WNDCLASSEXW wcex = { 0 };
@@ -848,8 +850,6 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
         position_.left, position_.right, position_.width(), position_.height(), 0,
 		theme_color(theme_value::window_background, theme_),
 		theme_color(theme_value::window_background, theme_));
-
-    make_primitives();
 
     XSetWMProtocols(context_.display, context_.wnd, &wm_delete_message, 1);
 
@@ -908,69 +908,6 @@ void window::destroy()
         send_destroy_event();
 #endif
     }
-}
-
-void window::make_primitives()
-{
-#ifdef _WIN32
-    background_brush = CreateSolidBrush(theme_color(theme_value::window_background, theme_));
-    font = CreateFont(theme_dimension(theme_value::window_title_font_size, theme_), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, theme_string(theme_value::window_title_font_name, theme_).c_str());
-
-#elif __linux__
-
-    /*if (!xft_font)
-    {
-    	auto scr = DefaultScreen(context_.display);
-    	auto visual = DefaultVisual(context_.display, scr);
-    	auto cmap = DefaultColormap(context_.display, scr);
-
-    	std::string font_name = to_multibyte(theme_string(theme_value::window_title_font_name, theme_));
-        std::string font_size =  std::to_string(theme_dimension(theme_value::window_title_font_size, theme_));
-        std::string font_query = font_name + ":size=" + font_size + ":antialias=true";
-
-        xft_draw = XftDrawCreate(context_.display, context_.wnd, visual, cmap);
-        if (!xft_draw)
-        {
-        	fprintf(stderr, "window XftDrawCreate error\n");
-        	return;
-        }
-
-        auto txt_color = theme_color(theme_value::window_text, theme_);
-        XRenderColor xr_color = { static_cast<unsigned short>(0xffff * get_red(txt_color) / 0xff),
-            static_cast<unsigned short>(0xffff * get_green(txt_color) / 0xff),
-            static_cast<unsigned short>(0xffff * get_blue(txt_color) / 0xff),
-            0xffff };
-        if (!XftColorAllocValue(context_.display, visual, cmap, &xr_color, &title_color))
-        {
-            fprintf(stderr, "cannot allocate xft color for window title\n");
-            return;
-        }
-
-        xft_font = XftFontOpenName(context_.display, scr, font_query.c_str());
-        if (!xft_font)
-        {
-            fprintf(stderr, "window can't load the font %s\n", font_name.c_str());
-        }
-    }*/
-#endif
-}
-
-void window::destroy_primitives()
-{
-#ifdef _WIN32
-    DeleteObject(background_brush);
-    DeleteObject(font);
-#elif __linux__
-    /*if (xft_draw)
-    {
-    	auto scr = DefaultScreen(context_.display);
-    	XftColorFree(context_.display, DefaultVisual(context_.display, scr), DefaultColormap(context_.display, scr), &title_color);
-        XftDrawDestroy(xft_draw);
-        xft_draw = nullptr;
-    }*/
-#endif
 }
 
 /// Windows specified code
@@ -1414,7 +1351,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
         case WM_DESTROY:
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-            wnd->destroy_primitives();
             if (!wnd->parent && wnd->close_callback)
             {
                 wnd->close_callback();
@@ -1425,6 +1361,20 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             return DefWindowProc(hwnd, message, w_param, l_param);
     }
     return 0;
+}
+
+void window::make_primitives()
+{
+    background_brush = CreateSolidBrush(theme_color(theme_value::window_background, theme_));
+    font = CreateFont(theme_dimension(theme_value::window_title_font_size, theme_), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
+        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE, theme_string(theme_value::window_title_font_name, theme_).c_str());
+}
+
+void window::destroy_primitives()
+{
+    DeleteObject(background_brush);
+    DeleteObject(font);
 }
 
 #elif __linux__
@@ -1475,12 +1425,51 @@ void window::process_events()
 
                 auto gc = XCreateGC(context_.display, context_.wnd, 0, NULL);
 
-                if (flag_is_set(window_style_, window_style::title_showed))
+                if (e.xexpose.y > 0 && e.xexpose.height < 50 &&
+                		flag_is_set(window_style_, window_style::title_showed))
                 {
-                    if (xft_font)
+                    auto scr = DefaultScreen(context_.display);
+                    auto visual = DefaultVisual(context_.display, scr);
+                    auto cmap = DefaultColormap(context_.display, scr);
+
+                    std::string font_name = to_multibyte(theme_string(theme_value::window_title_font_name, theme_));
+                    std::string font_size =  std::to_string(theme_dimension(theme_value::window_title_font_size, theme_));
+                    std::string font_query = font_name + ":size=" + font_size + ":antialias=true";
+
+                    auto xft_draw = XftDrawCreate(context_.display, context_.wnd, visual, cmap);
+                    if (!xft_draw)
                     {
-                    	XftDrawString8(xft_draw, &title_color, xft_font, 5, 15, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
+                    	fprintf(stderr, "window XftDrawCreate error\n");
+                    	return;
                     }
+
+                    auto txt_color = theme_color(theme_value::window_text, theme_);
+                    XRenderColor xr_color = { static_cast<unsigned short>(0xffff * get_red(txt_color) / 0xff),
+                        static_cast<unsigned short>(0xffff * get_green(txt_color) / 0xff),
+                        static_cast<unsigned short>(0xffff * get_blue(txt_color) / 0xff),
+                        0xffff };
+
+                    XftColor title_color;
+                    if (!XftColorAllocValue(context_.display, visual, cmap, &xr_color, &title_color))
+                    {
+                        fprintf(stderr, "cannot allocate xft color for window title\n");
+                        return;
+                    }
+
+                    if (!font)
+                    {
+                        font = XftFontOpenName(context_.display, scr, font_query.c_str());
+                        if (!font)
+                        {
+                            fprintf(stderr, "window can't load the font %s\n", font_name.c_str());
+                            return;
+                        }
+                    }
+
+                    XftDrawString8(xft_draw, &title_color, font, 5, 15, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
+
+                    XftColorFree(context_.display, visual, cmap, &title_color);
+                    XftDrawDestroy(xft_draw);
                 }
 
                 graphic gr{ context_.display, context_.wnd, gc };
@@ -1694,7 +1683,6 @@ void window::process_events()
             case ClientMessage:
                 if (e.xclient.data.l[0] == wm_delete_message)
                 {
-                	destroy_primitives();
                     XDestroyWindow(context_.display, e.xclient.window);
                     XCloseDisplay(context_.display);
 

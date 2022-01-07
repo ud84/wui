@@ -170,11 +170,12 @@ private:
 
     static LRESULT CALLBACK wnd_proc(HWND hWnd, UINT message, WPARAM w_param, LPARAM l_param);
 
+    void make_primitives();
+    void destroy_primitives();
+
 #elif __linux__
 
-    XftFont *xft_font;
-    XftDraw *xft_draw;
-    XftColor title_color;
+    XftFont *font;
 
     Atom wm_delete_message;
 
@@ -188,9 +189,6 @@ private:
     rect get_mouse_screen_position();
 
 #endif
-
-    void make_primitives();
-    void destroy_primitives();
 
     bool send_mouse_event(const mouse_event &ev);
     void change_focus();

@@ -41,6 +41,8 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     , calm_brush(0), active_brush(0), disabled_brush(0),
     border_pen(0), focused_border_pen(0),
     font(0)
+#elif __linux__
+    , font(nullptr)
 #endif
 {
 #ifdef _WIN32
@@ -83,6 +85,8 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     , calm_brush(0), active_brush(0), disabled_brush(0),
     border_pen(0), focused_border_pen(0),
 	font(0)
+#elif __linux__
+    , font(nullptr)
 #endif
 {
 #ifdef _WIN32
@@ -210,7 +214,7 @@ void button::draw(graphic &gr)
         TextOutW(gr.dc, text_left, text_top, caption.c_str(), (int32_t)caption.size());
     }
 #elif __linux__
-	/*auto scr = DefaultScreen(gr.display);
+	auto scr = DefaultScreen(gr.display);
 	auto visual = DefaultVisual(gr.display, scr);
 	auto cmap = DefaultColormap(gr.display, scr);
 
@@ -238,15 +242,18 @@ void button::draw(graphic &gr)
         return;
     }
 
-    auto font = XftFontOpenName(gr.display, scr, font_query.c_str());
     if (!font)
     {
-        fprintf(stderr, "button can't load the font %s\n", font_name.c_str());
-        return;
-    }*/
+        font = XftFontOpenName(gr.display, scr, font_query.c_str());
+        if (!font)
+        {
+            fprintf(stderr, "button can't load the font %s\n", font_name.c_str());
+            return;
+        }
+    }
 
     XGlyphInfo extents = { 0 };
-    //XftTextExtents8(gr.display, font, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size(), &extents);
+    XftTextExtents8(gr.display, font, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size(), &extents);
 
     int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
 
@@ -332,10 +339,10 @@ void button::draw(graphic &gr)
         image_->draw(gr);
     }
 
-    /*XftDrawString8(xft_draw, &text_color, font, text_left, text_top, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
+    XftDrawString8(xft_draw, &text_color, font, text_left, text_top, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
 
     XftColorFree(gr.display, visual, cmap, &text_color);
-    XftDrawDestroy(xft_draw);*/
+    XftDrawDestroy(xft_draw);
 #endif
 }
 
