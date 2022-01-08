@@ -42,7 +42,7 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     border_pen(0), focused_border_pen(0),
     font(0)
 #elif __linux__
-    , font(nullptr)
+
 #endif
 {
 #ifdef _WIN32
@@ -86,7 +86,7 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     border_pen(0), focused_border_pen(0),
 	font(0)
 #elif __linux__
-    , font(nullptr)
+
 #endif
 {
 #ifdef _WIN32
@@ -214,44 +214,7 @@ void button::draw(graphic &gr)
         TextOutW(gr.dc, text_left, text_top, caption.c_str(), (int32_t)caption.size());
     }
 #elif __linux__
-	auto scr = DefaultScreen(gr.display);
-	auto visual = DefaultVisual(gr.display, scr);
-	auto cmap = DefaultColormap(gr.display, scr);
-
-	std::string font_name = to_multibyte(theme_string(theme_value::button_font_name, theme_));
-    std::string font_size =  std::to_string(theme_dimension(theme_value::button_font_size, theme_));
-    std::string font_query = font_name + ":size=" + font_size + ":antialias=true";
-
-    auto xft_draw = XftDrawCreate(gr.display, gr.wnd, visual, cmap);
-    if (!xft_draw)
-    {
-    	fprintf(stderr, "button XftDrawCreate error\n");
-    	return;
-    }
-
-    auto txt_color = theme_color(button_view_ != button_view::image_right_text_no_frame ? theme_value::button_text : theme_value::window_text, theme_);
-    XRenderColor xr_color = { static_cast<unsigned short>(0xffff * get_red(txt_color) / 0xff),
-        static_cast<unsigned short>(0xffff * get_green(txt_color) / 0xff),
-        static_cast<unsigned short>(0xffff * get_blue(txt_color) / 0xff),
-        0xffff };
-
-    XftColor text_color;
-    if (!XftColorAllocValue(gr.display, visual, cmap, &xr_color, &text_color))
-    {
-        fprintf(stderr, "cannot allocate xft color for button title\n");
-        return;
-    }
-
-    if (!font)
-    {
-        font = XftFontOpenName(gr.display, scr, font_query.c_str());
-        if (!font)
-        {
-            fprintf(stderr, "button can't load the font %s\n", font_name.c_str());
-            return;
-        }
-    }
-
+	/*
     XGlyphInfo extents = { 0 };
     XftTextExtents8(gr.display, font, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size(), &extents);
 
@@ -342,7 +305,7 @@ void button::draw(graphic &gr)
     XftDrawString8(xft_draw, &text_color, font, text_left, text_top, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
 
     XftColorFree(gr.display, visual, cmap, &text_color);
-    XftDrawDestroy(xft_draw);
+    XftDrawDestroy(xft_draw);*/
 #endif
 }
 
@@ -366,7 +329,7 @@ void button::receive_event(const event &ev)
                 auto parent_ = parent.lock();
                 if (parent_)
                 {
-                    XDefineCursor(parent_->context().display, parent_->context().wnd, XcursorLibraryLoadCursor(parent_->context().display, "default"));
+                    //XDefineCursor(parent_->context().display, parent_->context().wnd, XcursorLibraryLoadCursor(parent_->context().display, "default"));
                 }
 #endif
                 redraw();

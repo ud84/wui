@@ -20,8 +20,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #elif __linux__
-#include <X11/Xlib.h>
-#include <X11/Xft/Xft.h>
+#include <xcb/xcb.h>
 
 #include <thread>
 #endif
@@ -40,8 +39,9 @@ struct system_context
 
 struct system_context
 {
-    Display *display;
-    Window wnd;
+    xcb_connection_t *connection;
+    xcb_screen_t     *screen;
+    xcb_window_t     wnd;
 };
 
 #endif
@@ -175,18 +175,13 @@ private:
 
 #elif __linux__
 
-    XftFont *font;
-
-    Atom wm_delete_message;
+    xcb_intern_atom_reply_t *wm_protocols_event, *wm_delete_msg;
 
     bool runned;
     std::thread thread;
-
     void process_events();
 
     void send_destroy_event();
-
-    rect get_mouse_screen_position();
 
 #endif
 

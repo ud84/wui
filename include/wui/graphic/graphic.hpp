@@ -12,7 +12,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #elif __linux__
-#include <X11/Xlib.h>
+#include <xcb/xcb.h>
 #endif
 
 namespace wui
@@ -23,9 +23,9 @@ struct graphic
 #ifdef _WIN32
     HDC dc;
 #elif __linux__
-    Display *display;
-    Window wnd;
-    GC gc;
+    xcb_connection_t *connection;
+    xcb_screen_t     *screen;
+    xcb_window_t     wnd;
 #endif
 };
 

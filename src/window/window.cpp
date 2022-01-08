@@ -20,15 +20,129 @@
 #include <algorithm>
 
 #ifdef _WIN32
+
 #include <windowsx.h>
 #include <resource.hpp>
 
 #elif __linux__
 
-#include <X11/Xatom.h>
-#include <X11/Xcursor/Xcursor.h>
-
+#include <stdlib.h>
+#include <xcb/xcb_atom.h>
 #include <wui/common/char_helpers.hpp>
+
+#include <X11/cursorfont.h>
+
+#endif
+
+// Some helpers
+#ifdef __linux__
+
+bool test_cookie(xcb_void_cookie_t cookie,
+                xcb_connection_t *connection,
+                const char *errMessage)
+{
+    xcb_generic_error_t *error = xcb_request_check(connection, cookie);
+    if (error)
+    {
+        fprintf(stderr, "ERROR: %s : %d\n", errMessage , error->error_code);
+        return false;
+    }
+    return true;
+}
+
+void remove_window_decorations(xcb_connection_t *connection, xcb_window_t wnd)
+{
+    std::string mwh = "_MOTIF_WM_HINTS";
+    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(connection,
+        xcb_intern_atom(connection, 0, mwh.size(), mwh.c_str()),
+	    NULL);
+
+    struct WMHints
+    {
+        uint32_t flags;
+        uint32_t functions;
+        uint32_t decorations;
+        int32_t  input_mode;
+        uint32_t status;
+    };
+
+    WMHints hints = { 0 };
+    hints.flags = 2;
+
+    xcb_change_property(connection,
+        XCB_PROP_MODE_REPLACE,
+        wnd,
+        reply->atom,
+		XCB_ATOM_WM_HINTS,
+        32,
+        5,
+        &hints);
+
+    free(reply);
+}
+
+void set_cursor(xcb_connection_t *connection,
+    xcb_screen_t *screen,
+    xcb_window_t window,
+    int cursorId)
+{
+    xcb_font_t font = xcb_generate_id (connection);
+
+    std::string cur = "cursor";
+    xcb_void_cookie_t fontCookie = xcb_open_font_checked(connection,
+                                                         font,
+                                                         cur.size(),
+                                                         cur.c_str());
+    if (!test_cookie(fontCookie, connection, "can't open font"))
+    {
+        return;
+    }
+
+    xcb_cursor_t cursor = xcb_generate_id(connection);
+    xcb_create_glyph_cursor(connection,
+                            cursor,
+                            font,
+                            font,
+                            cursorId,
+                            cursorId + 1,
+                            0, 0, 0, 0, 0, 0);
+
+    xcb_gcontext_t gc = xcb_generate_id(connection);
+
+    uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_FONT;
+    uint32_t values_list[3];
+    values_list[0] = screen->black_pixel;
+    values_list[1] = screen->white_pixel;
+    values_list[2] = font;
+
+    xcb_void_cookie_t gcCookie = xcb_create_gc_checked(connection, gc, window, mask, values_list);
+    if (!test_cookie(gcCookie, connection, "can't create gc"))
+    {
+        return;
+    }
+
+    mask = XCB_CW_CURSOR;
+    uint32_t value_list = cursor;
+    xcb_change_window_attributes(connection, window, mask, &value_list);
+
+    xcb_free_cursor(connection, cursor);
+
+    fontCookie = xcb_close_font_checked (connection, font);
+    test_cookie(fontCookie, connection, "can't close font");
+}
+
+wui::rect get_window_size(xcb_connection_t *connection, xcb_window_t wnd)
+{
+	auto geom = xcb_get_geometry_reply(connection, xcb_get_geometry(connection, wnd), NULL);
+	if (geom)
+	{
+		wui::rect out{ geom->x, geom->y, geom->x + geom->width, geom->y + geom->height };
+		free(geom);
+
+		return out;
+	}
+	return wui::rect{ 0, 0, 0, 0 };
+}
 
 #endif
 
@@ -67,8 +181,7 @@ window::window()
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, L"", 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? L"" : L"", 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
-	font(nullptr),
-	wm_delete_message(0),
+	wm_protocols_event(nullptr), wm_delete_msg(nullptr),
 	runned(false),
 	thread()
 #endif
@@ -133,7 +246,7 @@ void window::redraw(const rect &redraw_position, bool clear)
         RECT invalidatingRect = { redraw_position.left, redraw_position.top, redraw_position.right, redraw_position.bottom };
         InvalidateRect(context_.hwnd, &invalidatingRect, clear ? TRUE : FALSE);
 #elif __linux__
-        if (context_.display)
+        /*if (context_.display)
         {
         	if (!clear)
         	{
@@ -151,7 +264,7 @@ void window::redraw(const rect &redraw_position, bool clear)
             {
             	XClearArea(context_.display, context_.wnd, redraw_position.left, redraw_position.top, redraw_position.width(), redraw_position.height(), False);
             }
-        }
+        }*/
 #endif
     }
 }
@@ -336,12 +449,12 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
         InvalidateRect(context_.hwnd, &client_rect, TRUE);
     }
 #elif __linux__
-    if (!parent && context_.display)
+    if (!parent && context_.connection)
     {
-        XSetWindowBackground(context_.display, context_.wnd, theme_color(theme_value::window_background, theme_));
+        /*XSetWindowBackground(context_.display, context_.wnd, theme_color(theme_value::window_background, theme_));
         XWindowAttributes wnd_attr;
         XGetWindowAttributes(context_.display, context_.wnd, &wnd_attr);
-        redraw(rect{ 0, 0, wnd_attr.width, wnd_attr.height }, true);
+        redraw(rect{ 0, 0, wnd_attr.width, wnd_attr.height }, true);*/
     }
 #endif
 
@@ -834,43 +947,54 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
 #elif __linux__
 
-    context_.display = XOpenDisplay(nullptr);
-    if (!context_.display)
+    context_.connection = xcb_connect(NULL, NULL);
+    if (!context_.connection)
     {
-    	fprintf(stderr, "window can't open default display\n");
+    	fprintf(stderr, "window can't open make the connection to X server\n");
     	return false;
     }
 
-    wm_delete_message = XInternAtom(context_.display, "WM_DELETE_WINDOW", False);
+    context_.screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
 
-    auto screen_number = DefaultScreen(context_.display);
+    context_.wnd = xcb_generate_id(context_.connection);
 
-    context_.wnd = XCreateSimpleWindow(context_.display,
-        RootWindow(context_.display, screen_number),
-        position_.left, position_.right, position_.width(), position_.height(), 0,
-		theme_color(theme_value::window_background, theme_),
-		theme_color(theme_value::window_background, theme_));
+    uint32_t mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
+    uint32_t values[] = { static_cast<uint32_t>(theme_color(theme_value::window_background, theme_)),
+        XCB_EVENT_MASK_EXPOSURE       | XCB_EVENT_MASK_BUTTON_PRESS   |
+        XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
+        XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
+        XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE };
 
-    XSetWMProtocols(context_.display, context_.wnd, &wm_delete_message, 1);
+    xcb_create_window(context_.connection,
+                      XCB_COPY_FROM_PARENT,
+                      context_.wnd,
+					  context_.screen->root, // parent window
+                      position_.left, position_.top,
+                      position_.width(), position_.height(),
+                      0,
+                      XCB_WINDOW_CLASS_INPUT_OUTPUT,
+					  context_.screen->root_visual,
+                      mask, values);
 
-    /// Fullscreen
-    /*auto window_type = XInternAtom(display, "_NET_WM_STATE", False);
-    auto value = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", False);
-    XChangeProperty(display, wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);*/
+    remove_window_decorations(context_.connection, context_.wnd);
 
-    auto window_type = XInternAtom(context_.display, "_NET_WM_WINDOW_TYPE", False);
-    auto value = XInternAtom(context_.display, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
-    XChangeProperty(context_.display, context_.wnd, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
+        XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, caption.size(), to_multibyte(caption).c_str());
 
-    XSelectInput(context_.display, context_.wnd,
-        ExposureMask |
-        KeyPressMask |
-        PointerMotionMask |
-        ButtonPressMask |
-        ButtonReleaseMask |
-        LeaveWindowMask);
+    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
+        XCB_ATOM_WM_ICON_NAME, XCB_ATOM_STRING, 8, caption.size(), to_multibyte(caption).c_str());
 
-    XMapWindow(context_.display, context_.wnd);
+    wm_protocols_event = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 1, 12,"WM_PROTOCOLS"), 0);
+
+    wm_delete_msg = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 16, "WM_DELETE_WINDOW"), NULL);
+
+    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd, (*wm_protocols_event).atom, 4, 32, 1, &(*wm_delete_msg).atom);
+
+    xcb_map_window(context_.connection, context_.wnd);
+
+    xcb_flush(context_.connection);
 
     runned = true;
     if (thread.joinable()) thread.join();
@@ -1379,143 +1503,66 @@ void window::destroy_primitives()
 
 #elif __linux__
 
-void window::send_destroy_event()
-{
-    if (context_.display)
-    {
-        XEvent ev = { 0 };
-        ev.xclient.type = ClientMessage;
-        ev.xclient.window = context_.wnd;
-        ev.xclient.message_type = XInternAtom(context_.display, "WM_PROTOCOLS", true);
-        ev.xclient.format = 32;
-        ev.xclient.data.l[0] = wm_delete_message;
-
-        XSendEvent(context_.display, context_.wnd, True, NoEventMask, &ev);
-    }
-}
-
-rect window::get_mouse_screen_position()
-{
-    Window window_returned;
-    int root_x, root_y;
-    int win_x, win_y;
-    unsigned int mask_return;
-    XQueryPointer(context_.display, XRootWindow(context_.display, 0), &window_returned,
-        &window_returned, &root_x, &root_y, &win_x, &win_y, &mask_return);
-
-    return rect{ root_x, root_y, root_x, root_y };
-}
-
 void window::process_events()
 {
-    XEvent e;
-
-    while(runned)
+	xcb_generic_event_t *e = nullptr;
+    while (runned && (e = xcb_wait_for_event(context_.connection)))
     {
-        XNextEvent(context_.display, &e);
-
-        switch (e.type)
+        switch (e->response_type & ~0x80)
         {
-            case Expose:
-            {
-                if (e.xexpose.count != 0)
+	        case XCB_EXPOSE:
+	        {
+            	//xcb_poly_point(context_.connection, XCB_COORD_MODE_ORIGIN, context_.wnd, foreground, 4, points);
+
+                if (flag_is_set(window_style_, window_style::title_showed))
                 {
-                    break;
+                    //XftDrawString8(xft_draw, &title_color, font, 5, 15, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
                 }
 
-                auto gc = XCreateGC(context_.display, context_.wnd, 0, NULL);
-
-                if (e.xexpose.y > 0 && e.xexpose.height < 50 &&
-                		flag_is_set(window_style_, window_style::title_showed))
-                {
-                    auto scr = DefaultScreen(context_.display);
-                    auto visual = DefaultVisual(context_.display, scr);
-                    auto cmap = DefaultColormap(context_.display, scr);
-
-                    std::string font_name = to_multibyte(theme_string(theme_value::window_title_font_name, theme_));
-                    std::string font_size =  std::to_string(theme_dimension(theme_value::window_title_font_size, theme_));
-                    std::string font_query = font_name + ":size=" + font_size + ":antialias=true";
-
-                    auto xft_draw = XftDrawCreate(context_.display, context_.wnd, visual, cmap);
-                    if (!xft_draw)
-                    {
-                    	fprintf(stderr, "window XftDrawCreate error\n");
-                    	return;
-                    }
-
-                    auto txt_color = theme_color(theme_value::window_text, theme_);
-                    XRenderColor xr_color = { static_cast<unsigned short>(0xffff * get_red(txt_color) / 0xff),
-                        static_cast<unsigned short>(0xffff * get_green(txt_color) / 0xff),
-                        static_cast<unsigned short>(0xffff * get_blue(txt_color) / 0xff),
-                        0xffff };
-
-                    XftColor title_color;
-                    if (!XftColorAllocValue(context_.display, visual, cmap, &xr_color, &title_color))
-                    {
-                        fprintf(stderr, "cannot allocate xft color for window title\n");
-                        return;
-                    }
-
-                    if (!font)
-                    {
-                        font = XftFontOpenName(context_.display, scr, font_query.c_str());
-                        if (!font)
-                        {
-                            fprintf(stderr, "window can't load the font %s\n", font_name.c_str());
-                            return;
-                        }
-                    }
-
-                    XftDrawString8(xft_draw, &title_color, font, 5, 15, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
-
-                    XftColorFree(context_.display, visual, cmap, &title_color);
-                    XftDrawDestroy(xft_draw);
-                }
-
-                graphic gr{ context_.display, context_.wnd, gc };
+                graphic gr{ context_.connection, context_.screen, context_.wnd };
                 for (auto &control : controls)
                 {
                     control->draw(gr);
                 }
 
-                XFreeGC(context_.display, gc);
-                XFlush(context_.display);
+                xcb_flush(context_.connection);
             }
             break;
-            case KeyPress:
+            case XCB_KEY_PRESS:
                 destroy();
             break;
-            case MotionNotify:
+            case XCB_MOTION_NOTIFY:
             {
-                XWindowAttributes wnd_attr;
-                XGetWindowAttributes(context_.display, context_.wnd, &wnd_attr);
+            	auto *ev = (xcb_motion_notify_event_t *)e;
 
-                int16_t x_mouse = e.xbutton.x;
-                int16_t y_mouse = e.xbutton.y;
+            	int16_t x_mouse = ev->event_x;
+                int16_t y_mouse = ev->event_y;
+
+                auto ws = get_window_size(context_.connection, context_.wnd);
 
                 if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
                 {
-                    if ((x_mouse > wnd_attr.width - 5 && y_mouse > wnd_attr.height - 5) ||
+                    if ((x_mouse > ws.width() - 5 && y_mouse > ws.height() - 5) ||
                         (x_mouse < 5 && y_mouse < 5))
                     {
-                    	XDefineCursor(context_.display, context_.wnd, XcursorLibraryLoadCursor(context_.display, "top_left_corner"));
+                        set_cursor(context_.connection, context_.screen, context_.wnd, XC_top_left_corner);
                     }
-                    else if ((x_mouse > wnd_attr.width - 5 && y_mouse < 5) ||
-                        (x_mouse < 5 && y_mouse > wnd_attr.height - 5))
+                    else if ((x_mouse > ws.width() - 5 && y_mouse < 5) ||
+                        (x_mouse < 5 && y_mouse > ws.height() - 5))
                     {
-                    	XDefineCursor(context_.display, context_.wnd, XcursorLibraryLoadCursor(context_.display, "top_right_corner"));
+                        set_cursor(context_.connection, context_.screen, context_.wnd, XC_top_right_corner);
                     }
-                    else if (x_mouse > wnd_attr.width - 5 || x_mouse < 5)
+                    else if (x_mouse > ws.width() - 5 || x_mouse < 5)
                     {
-                    	XDefineCursor(context_.display, context_.wnd, XcursorLibraryLoadCursor(context_.display, "sb_h_double_arrow"));
+                        set_cursor(context_.connection, context_.screen, context_.wnd, XC_sb_h_double_arrow);
                     }
-                    else if (y_mouse > wnd_attr.height - 5 || y_mouse < 5)
+                    else if (y_mouse > ws.height() - 5 || y_mouse < 5)
                     {
-                    	XDefineCursor(context_.display, context_.wnd, XcursorLibraryLoadCursor(context_.display, "sb_v_double_arrow"));
+                        set_cursor(context_.connection, context_.screen, context_.wnd, XC_sb_v_double_arrow);
                     }
                     else if (!active_control)
                     {
-                    	XDefineCursor(context_.display, context_.wnd, XcursorLibraryLoadCursor(context_.display, "default"));
+                        set_cursor(context_.connection, context_.screen, context_.wnd, XC_arrow);
                     }
                 }
 
@@ -1525,93 +1572,123 @@ void window::process_events()
                     {
                         case moving_mode::move:
                         {
-                            int32_t x_window = wnd_attr.x + x_mouse - x_click;
-                            int32_t y_window = wnd_attr.y + y_mouse - y_click;
+                            uint32_t x_window = ws.left + x_mouse - x_click;
+                            uint32_t y_window = ws.top + y_mouse - y_click;
 
-                            XMoveWindow(context_.display, context_.wnd, x_window, y_window);
+                            uint32_t values[] = { x_window, y_window };
+                            xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, values);
+                            xcb_flush(context_.connection);
                         }
                         break;
                         case moving_mode::size_we_left:
                         {
-                            int32_t width = wnd_attr.width - x_mouse;
-                            int32_t height = wnd_attr.height;
+                            uint32_t width = ws.width() - x_mouse;
+                            uint32_t height = ws.height();
                             if (width > min_width && height > min_height)
                             {
-                                XMoveResizeWindow(context_.display, context_.wnd, get_mouse_screen_position().left, wnd_attr.y, width, height);
+                                uint32_t values[] = { static_cast<uint32_t>(ev->root_x), static_cast<uint32_t>(ws.top), width, height };
+                                xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+                                    XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+                                xcb_flush(context_.connection);
                             }
                         }
             	        break;
             	        case moving_mode::size_we_right:
             	        {
-                            int32_t width = x_mouse;
-                            int32_t height = wnd_attr.height;
+                            uint32_t width = x_mouse;
+                            uint32_t height = ws.height();
                             if (width > min_width && height > min_height)
                             {
-            	        	    XResizeWindow(context_.display, context_.wnd, width, height);
+            	        	    uint32_t values[] = { width };
+            	        	    xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_WIDTH, values);
+            	        	    xcb_flush(context_.connection);
             	        	}
             	        }
             	        break;
             	        case moving_mode::size_ns_top:
             	        {
-            	            int32_t width = wnd_attr.width;
-            	            int32_t height = wnd_attr.height - y_mouse;
+            	            uint32_t width = ws.width();
+            	            uint32_t height = ws.height() - y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	                XMoveResizeWindow(context_.display, context_.wnd, wnd_attr.x, get_mouse_screen_position().top, width, height);
+                                uint32_t values[] = { static_cast<uint32_t>(ws.left), static_cast<uint32_t>(ev->root_y), width, height };
+                                xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+                                    XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
             	        case moving_mode::size_ns_bottom:
             	        {
-            	            int32_t width = wnd_attr.width;
-            	            int32_t height = y_mouse;
+            	            uint32_t width = ws.width();
+            	            uint32_t height = y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	                XResizeWindow(context_.display, context_.wnd, width, height);
+            	        	    uint32_t values[] = { height };
+            	        	    xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_HEIGHT, values);
+            	        	    xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
             	        case moving_mode::size_nesw_top:
             	        {
-            	            int32_t width = x_mouse;
-            	            int32_t height = wnd_attr.height - y_mouse;
+            	            uint32_t width = x_mouse;
+            	            uint32_t height = ws.height() - y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	            	XMoveResizeWindow(context_.display, context_.wnd, wnd_attr.x, get_mouse_screen_position().top, width, height);
+            	            	uint32_t values[] = { static_cast<uint32_t>(ws.left), static_cast<uint32_t>(ev->root_y), width, height };
+                                xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+                                    XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
             	        case moving_mode::size_nwse_bottom:
             	        {
-            	            int32_t width = x_mouse;
-            	            int32_t height = y_mouse;
+            	            uint32_t width = x_mouse;
+            	            uint32_t height = y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	                XResizeWindow(context_.display, context_.wnd, width, height);
+            	        	    uint32_t values[] = { width, height };
+            	        	    xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+            	        	    xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
             	        case moving_mode::size_nwse_top:
             	        {
-            	            auto mouse_pos = get_mouse_screen_position();
-            	            int32_t width = wnd_attr.width - x_mouse;
-            	            int32_t height = wnd_attr.height - y_mouse;
+            	            uint32_t width = ws.width() - x_mouse;
+            	            uint32_t height = ws.height() - y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	                XMoveResizeWindow(context_.display, context_.wnd, mouse_pos.left, mouse_pos.top, width, height);
+            	            	uint32_t values[] = { static_cast<uint32_t>(ev->root_x), static_cast<uint32_t>(ev->root_y), width, height };
+                                xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+                                    XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
             	        case moving_mode::size_nesw_bottom:
             	        {
-            	            int32_t width = wnd_attr.width - x_mouse;
-            	            int32_t height = y_mouse;
+            	            uint32_t width = ws.width() - x_mouse;
+            	            uint32_t height = y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	                XMoveResizeWindow(context_.display, context_.wnd, get_mouse_screen_position().left, wnd_attr.y, width, height);
+            	            	uint32_t values[] = { static_cast<uint32_t>(ev->root_x), static_cast<uint32_t>(ws.left), width, height };
+                                xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+                                    XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
+                    }
+
+                    ws = get_window_size(context_.connection, context_.wnd);
+                    update_position(ws);
+                    update_buttons(false);
+                    if (size_change_callback)
+                    {
+                        size_change_callback(ws.width(), ws.height());
                     }
                 }
             	else
@@ -1620,14 +1697,15 @@ void window::process_events()
             	}
             }
             break;
-            case ButtonPress:
-                if (e.xbutton.button == Button1)
+            case XCB_BUTTON_PRESS:
+            {
+                auto *ev = (xcb_button_press_event_t *)e;
+                if (ev->detail == 1)
                 {
-                	XWindowAttributes wnd_attr;
-                	XGetWindowAttributes(context_.display, context_.wnd, &wnd_attr);
+                    x_click = ev->event_x;
+                    y_click = ev->event_y;
 
-                    x_click = e.xbutton.x;
-                    y_click = e.xbutton.y;
+                    auto ws = get_window_size(context_.connection, context_.wnd);
 
                     if (!send_mouse_event({ mouse_event_type::left_down, x_click, y_click }) &&
                         (flag_is_set(window_style_, window_style::moving) && window_state_ == window_state::normal))
@@ -1636,7 +1714,7 @@ void window::process_events()
 
                         if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
                         {
-                            if (x_click > wnd_attr.width - 5 && y_click > wnd_attr.height - 5)
+                            if (x_click > ws.width() - 5 && y_click > ws.height() - 5)
                             {
                                 moving_mode_ = moving_mode::size_nwse_bottom;
                             }
@@ -1644,15 +1722,15 @@ void window::process_events()
                             {
                                 moving_mode_ = moving_mode::size_nwse_top;
                             }
-                            else if (x_click > wnd_attr.width - 5 && y_click < 5)
+                            else if (x_click > ws.width() - 5 && y_click < 5)
                             {
                                 moving_mode_ = moving_mode::size_nesw_top;
                             }
-                            else if (x_click < 5 && y_click > wnd_attr.height - 5)
+                            else if (x_click < 5 && y_click > ws.height() - 5)
                             {
                                 moving_mode_ = moving_mode::size_nesw_bottom;
                             }
-                            else if (x_click > wnd_attr.width - 5)
+                            else if (x_click > ws.width() - 5)
                             {
                                 moving_mode_ = moving_mode::size_we_right;
                             }
@@ -1660,7 +1738,7 @@ void window::process_events()
                             {
                                 moving_mode_ = moving_mode::size_we_left;
                             }
-                            else if (y_click > wnd_attr.height - 5)
+                            else if (y_click > ws.height() - 5)
                             {
                                 moving_mode_ = moving_mode::size_ns_bottom;
                             }
@@ -1671,23 +1749,30 @@ void window::process_events()
             	        }
                     }
                 }
+            }
             break;
-            case ButtonRelease:
+            case XCB_BUTTON_RELEASE:
+            {
                 moving_mode_ = moving_mode::none;
 
-                send_mouse_event({ mouse_event_type::left_up, e.xbutton.x, e.xbutton.y });
+                auto *ev = (xcb_button_press_event_t *)e;
+                if (ev->detail == 1)
+                {
+                    send_mouse_event({ mouse_event_type::left_up, ev->event_x, ev->event_y });
+                }
+            }
             break;
-            case LeaveNotify:
+            case XCB_LEAVE_NOTIFY:
             	send_mouse_event({ mouse_event_type::leave, -1, -1 });
             break;
-            case ClientMessage:
-                if (e.xclient.data.l[0] == wm_delete_message)
+            case XCB_CLIENT_MESSAGE:
+            	if((*(xcb_client_message_event_t*)e).data.data32[0] == (*wm_delete_msg).atom)
                 {
-                    XDestroyWindow(context_.display, e.xclient.window);
-                    XCloseDisplay(context_.display);
+                    xcb_destroy_window(context_.connection, context_.wnd);
+            	    xcb_disconnect(context_.connection);
 
                     context_.wnd = 0;
-                    context_.display = nullptr;
+                    context_.connection = nullptr;
 
                     runned = false;
 
@@ -1698,6 +1783,24 @@ void window::process_events()
                 }
             break;
         }
+	    free(e);
+    }
+}
+
+void window::send_destroy_event()
+{
+    if (context_.connection)
+    {
+    	xcb_client_message_event_t event = { 0 };
+
+    	event.window = context_.wnd;
+    	event.response_type = XCB_CLIENT_MESSAGE;
+    	event.type = XCB_ATOM_WM_COMMAND;
+    	event.format = 32;
+    	event.data.data32[0] = (*wm_delete_msg).atom;
+
+    	xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_NO_EVENT, (const char*)&event);
+    	xcb_flush(context_.connection);
     }
 }
 

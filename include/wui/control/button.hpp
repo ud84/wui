@@ -20,7 +20,6 @@
 #include <memory>
 
 #ifdef __linux__
-#include <X11/Xft/Xft.h>
 #endif
 
 namespace wui
@@ -111,7 +110,7 @@ private:
     void make_primitives();
     void destroy_primitives();
 #elif __linux__
-    XftFont *font;
+
 #endif
 
     void redraw();
