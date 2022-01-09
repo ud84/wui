@@ -15,14 +15,6 @@
 
 #include <wui/theme/theme.hpp>
 
-#ifdef __linux__
-
-#include <X11/Xft/Xft.h>
-#include <X11/Xcursor/Xcursor.h>
-#include <wui/common/char_helpers.hpp>
-
-#endif
-
 namespace wui
 {
 
@@ -200,12 +192,6 @@ void button::receive_event(const event &ev)
                 active = true;
 #ifdef _WIN32
                 SetCursor(LoadCursor(NULL, IDC_ARROW));
-#elif __linux__
-                auto parent_ = parent.lock();
-                if (parent_)
-                {
-                    //XDefineCursor(parent_->context().display, parent_->context().wnd, XcursorLibraryLoadCursor(parent_->context().display, "default"));
-                }
 #endif
                 redraw();
             }
