@@ -66,7 +66,6 @@ void input::draw(graphic &gr)
         return;
     }
 
-#ifdef _WIN32
     /// Draw the frame
     gr.draw_rect(position_,
         !focused_ ? theme_color(theme_value::input_border, theme_) : theme_color(theme_value::input_focused_border, theme_),
@@ -122,7 +121,6 @@ void input::draw(graphic &gr)
             position_.width() - input_horizontal_indent * 2,
             position_.height() - input_top_indent },
         mem_gr, left_shift, 0);
-#endif
 }
 
 size_t input::calculate_mouse_cursor_position(int32_t x)
