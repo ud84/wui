@@ -20,6 +20,7 @@ namespace wui
 
 enum class font_decorations : uint32_t
 {
+    normal = 0,
     italic = (1 << 0),
     underline = (1 << 1),
     strikeOut = (1 << 2)
@@ -28,38 +29,53 @@ enum class font_decorations : uint32_t
 struct font_settings
 {
     std::wstring name;
-    uint32_t size;
+    int32_t size;
     font_decorations decorations;
 };
 
 class graphic
 {
 public:
-	/// base context
-    graphic(system_context &context);
-
-    /// create another compatible graphic
-    graphic(graphic &graphic_, rect size);
-
+	graphic(system_context &context);
     ~graphic();
+
+    void start_drawing(const rect &position, color background_color);
+    void end_drawing(bool no_copy = false);
 
     void draw_line(const rect &position, color color_, uint32_t width = 1);
 
+    rect measure_text(const std::wstring &text, const font_settings &font);
     void draw_text(const rect &position, const std::wstring &text, color color_, const font_settings &font);
 
     void draw_rect(const rect &position, color fill_color);
-    void draw_rect(const rect &position, color border_color, color fill_color, uint32_t round);
+    void draw_rect(const rect &position, color border_color, color fill_color, uint32_t border_width, uint32_t round);
 
     /// draw some buffer on context
     void draw_buffer(const rect &position, uint8_t *buffer, size_t buffer_size);
 
     /// draw another graphic on context
-    void draw_graphic(const rect &position, graphic &graphic_);
+    void draw_graphic(const rect &position, graphic &graphic_, int32_t left_shift, int32_t right_shift);
 
-    system_context &context();
+#ifdef _WIN32
+    HDC drawable();
+#elif __linux__
+    xcb_drawable_t drawable();
+#endif
 
 private:
     system_context &context_;
+    rect draw_position;
+
+#ifdef _WIN32
+
+    HDC mem_dc;
+    HBITMAP mem_bitmap;
+    HBRUSH background_brush;
+
+#elif __linux__
+
+#endif
+
 };
 
 }

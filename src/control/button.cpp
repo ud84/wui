@@ -37,17 +37,7 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true)
-#ifdef _WIN32
-    , calm_brush(0), active_brush(0), disabled_brush(0),
-    border_pen(0), focused_border_pen(0),
-    font(0)
-#elif __linux__
-
-#endif
 {
-#ifdef _WIN32
-    make_primitives();
-#endif
 }
 
 #ifdef _WIN32
@@ -61,12 +51,8 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     position_(),
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
-    focusing_(true),
-    calm_brush(0), active_brush(0), disabled_brush(0),
-    border_pen(0), focused_border_pen(0),
-	font(0)
+    focusing_(true)
 {
-    make_primitives();
 }
 #endif
 
@@ -81,17 +67,7 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true)
-#ifdef _WIN32
-    , calm_brush(0), active_brush(0), disabled_brush(0),
-    border_pen(0), focused_border_pen(0),
-	font(0)
-#elif __linux__
-
-#endif
 {
-#ifdef _WIN32
-    make_primitives();
-#endif
 }
 
 button::~button()
@@ -101,9 +77,6 @@ button::~button()
     {
         parent_->remove_control(shared_from_this());
     }
-#ifdef _WIN32
-    destroy_primitives();
-#endif
 }
 
 void button::draw(graphic &gr)
@@ -113,11 +86,11 @@ void button::draw(graphic &gr)
         return;
     }
 
-#ifdef _WIN32
-    SelectObject(gc.dc, font);
+    auto font_ = font_settings{ theme_string(theme_value::button_font_name, theme_),
+        theme_dimension(theme_value::button_font_size, theme_),
+        font_decorations::normal };
 
-    RECT text_rect = { 0 };
-    DrawTextW(gc.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &text_rect, DT_CALCRECT);
+    auto text_rect = gr.measure_text(caption, font_);
 
     int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
 
@@ -186,11 +159,16 @@ void button::draw(graphic &gr)
         break;
     }
 
-    SelectObject(gc.dc, !focused_ ? border_pen : focused_border_pen);
-    SelectObject(gc.dc, enabled_ ? (active ? active_brush : calm_brush) : disabled_brush);
+    color border_color = !focused_ ?
+        (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_border, theme_) : theme_color(theme_value::window_background, theme_)) : 
+        theme_color(theme_value::button_focused_border, theme_);
 
-    auto rnd = theme_dimension(theme_value::button_round, theme_);
-    RoundRect(gc.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
+    color fill_color = enabled_ ?
+        (active ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_active, theme_) : theme_color(theme_value::window_background, theme_)) : 
+        (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_calm, theme_) : theme_color(theme_value::window_background, theme_))) :
+        button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_disabled, theme_) : theme_color(theme_value::window_background, theme_);
+
+    gr.draw_rect(position_, border_color, fill_color, 1, theme_dimension(theme_value::button_round, theme_));
 	
     if (button_view_ != button_view::only_text && image_)
     {
@@ -200,113 +178,10 @@ void button::draw(graphic &gr)
 
     if (button_view_ != button_view::only_image)
     {
-        SetBkMode(gc.dc, TRANSPARENT);
-
-        if (button_view_ != button_view::image_right_text_no_frame)
-        {
-            SetTextColor(gc.dc, theme_color(theme_value::button_text, theme_));
-        }
-        else
-        {
-            SetTextColor(gc.dc, theme_color(theme_value::window_text, theme_));
-        }
-
-        TextOutW(gc.dc, text_left, text_top, caption.c_str(), (int32_t)caption.size());
+        gr.draw_text(rect{ text_left, text_top, text_left, text_top }, caption, 
+            button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_text, theme_) : theme_color(theme_value::window_text, theme_),
+            font_);
     }
-#elif __linux__
-	/*
-    XGlyphInfo extents = { 0 };
-    XftTextExtents8(gr.display, font, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size(), &extents);
-
-    int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
-
-    switch (button_view_)
-    {
-        case button_view::only_text:
-            if (extents.width + 10 > position_.width())
-            {
-                position_.right = position_.left + extents.width + 10;
-            }
-
-            text_top = position_.top + extents.height + ((position_.height() - extents.height) / 2);
-            text_left = position_.left + ((position_.width() - extents.width) / 2);
-        break;
-        case button_view::only_image:
-            if (image_)
-	        {
-                if (image_size > position_.width())
-                {
-                    position_.right = position_.left + image_size;
-                }
-                if (image_size > position_.height())
-                {
-                    position_.bottom = position_.top + image_size;
-                }
-
-                image_top = position_.top + ((position_.height() - image_size) / 2);
-                image_left = position_.left + ((position_.width() - image_size) / 2);
-            }
-        break;
-        case button_view::image_right_text: case button_view::image_right_text_no_frame:
-            if (image_)
-            {
-                if (image_size + extents.width + 6 > position_.width())
-                {
-                    position_.right = position_.left + extents.width + image_size + 6;
-                }
-                if (image_size + 6 > position_.height())
-                {
-                    position_.bottom = position_.top + image_size + 6;
-                }
-
-                text_top = position_.top + extents.height + ((position_.height() - extents.height) / 2);
-                image_left = position_.left + ((position_.width() - extents.width - image_size - 5) / 2);
-                image_top = position_.top + ((position_.height() - image_size) / 2);
-                text_left = image_left + image_size + 5;
-            }
-        break;
-        case button_view::image_bottom_text:
-            if (image_)
-            {
-                if (image_size + 6 > position_.width())
-                {
-                    position_.right = position_.left + image_size + 6;
-                }
-                if (image_size + extents.height + 6 > position_.height())
-                {
-                    position_.bottom = position_.top + extents.height + image_size + 6;
-                }
-
-                image_top = position_.top + ((position_.height() - extents.height - image_size - 5) / 2);
-                text_top = image_top + extents.height + image_size + 5;
-                text_left = position_.left + ((position_.width() - extents.width) / 2);
-                image_left = position_.left + ((position_.width() - image_size) / 2);
-            }
-        break;
-    }
-
-    XSetForeground(gr.display, gr.gc, enabled_ ? (active ? button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_active, theme_) : theme_color(theme_value::window_background, theme_) :
-        button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_calm, theme_) : theme_color(theme_value::window_background, theme_)) :
-        button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_disabled, theme_) : theme_color(theme_value::window_background, theme_));
-    XFillRectangle(gr.display, gr.wnd, gr.gc, position_.left, position_.top, position_.width(), position_.height());
-
-    XSetForeground(gr.display, gr.gc, !focused_ ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_border, theme_) : theme_color(theme_value::window_background, theme_))
-        : theme_color(theme_value::button_focused_border, theme_));
-
-    //auto rnd = theme_dimension(theme_value::button_round, theme_);
-    XDrawRectangle(gr.display, gr.wnd, gr.gc, position_.left, position_.top, position_.width(), position_.height());
-
-    if (button_view_ != button_view::only_text && image_)
-    {
-        image_->set_position( { image_left, image_top, image_left + image_size, image_top + image_size } );
-        image_->draw(gr);
-    }
-
-    XftDrawString8(xft_draw, &text_color, font, text_left, text_top, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
-
-    XftColorFree(gr.display, visual, cmap, &text_color);
-    XftDrawDestroy(xft_draw);*/
-#endif
 }
 
 void button::receive_event(const event &ev)
@@ -426,11 +301,6 @@ void button::update_theme(std::shared_ptr<i_theme> theme__)
     {
         image_->update_theme(theme_);
     }
-
-#ifdef _WIN32
-    destroy_primitives();
-    make_primitives();
-#endif
 }
 
 void button::show()
@@ -479,11 +349,6 @@ void button::set_caption(const std::wstring &caption_)
 void button::set_button_view(button_view button_view__)
 {
     button_view_ = button_view__;
-
-#ifdef _WIN32
-    destroy_primitives();
-    make_primitives();
-#endif
 
     redraw();
 }
@@ -539,29 +404,5 @@ void button::redraw()
         parent_->redraw(position_);
     }
 }
-
-#ifdef _WIN32
-void button::make_primitives()
-{
-    calm_brush = CreateSolidBrush(button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_calm, theme_) : theme_color(theme_value::window_background, theme_));
-    active_brush = CreateSolidBrush(button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_active, theme_) : theme_color(theme_value::window_background, theme_));
-    disabled_brush = CreateSolidBrush(button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_disabled, theme_) : theme_color(theme_value::window_background, theme_));
-    border_pen = CreatePen(PS_SOLID, 1, button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_border, theme_) : theme_color(theme_value::window_background, theme_));
-    focused_border_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::button_focused_border, theme_));
-    font = CreateFont(theme_dimension(theme_value::button_font_size, theme_), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, theme_string(theme_value::button_font_name, theme_).c_str());
-}
-
-void button::destroy_primitives()
-{
-    DeleteObject(calm_brush);
-    DeleteObject(active_brush);
-    DeleteObject(disabled_brush);
-    DeleteObject(border_pen);
-    DeleteObject(focused_border_pen);
-    DeleteObject(font);
-}
-#endif
 
 }

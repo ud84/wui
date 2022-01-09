@@ -131,7 +131,7 @@ void image::draw(graphic &gr_)
 #ifdef _WIN32
     if (img)
     {
-        Gdiplus::Graphics gr(gr_.context().dc);
+        Gdiplus::Graphics gr(gr_.drawable());
 
         gr.DrawImage(
             img->Clone(),

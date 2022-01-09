@@ -138,8 +138,6 @@ window::window()
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
-    background_brush(0),
-    font(0),
     mouse_tracked(false)
 #elif __linux__
     pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, L"", 24)),
@@ -155,9 +153,6 @@ window::window()
     minimize_button->disable_focusing();
     expand_button->disable_focusing();
     close_button->disable_focusing();
-#ifdef _WIN32
-    make_primitives();
-#endif
 }
 
 window::~window()
@@ -166,9 +161,7 @@ window::~window()
     {
         parent->remove_control(shared_from_this());
     }
-#ifdef _WIN32
-    destroy_primitives();
-#elif __linux__
+#ifdef __linux__
     send_destroy_event();
     if (thread.joinable()) thread.join();
 #endif
@@ -404,8 +397,6 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
     theme_ = theme__;
 
 #ifdef _WIN32
-    destroy_primitives();
-    make_primitives();
 
     if (!parent)
     {
@@ -1045,48 +1036,31 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
             PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hwnd, &ps);
-
-            HDC mem_dc = CreateCompatibleDC(hdc);
+            wnd->context_.dc = BeginPaint(hwnd, &ps);
 
             RECT client_rect;
             GetClientRect(hwnd, &client_rect);
-            
-            HBITMAP mem_bitmap = CreateCompatibleBitmap(hdc, client_rect.right, client_rect.bottom);
-            SelectObject(mem_dc, mem_bitmap);
-
-            FillRect(mem_dc, &client_rect, wnd->background_brush);
-
-            SelectObject(mem_dc, wnd->font);
-
-            SetTextColor(mem_dc, theme_color(theme_value::window_text, wnd->theme_));
-            SetBkMode(mem_dc, TRANSPARENT);
+            wnd->graphic_.start_drawing(rect{ 0, 0, client_rect.right, client_rect.bottom }, theme_color(theme_value::window_background, wnd->theme_));
 
             if (flag_is_set(wnd->window_style_, window_style::title_showed))
             {
-                TextOutW(mem_dc, 5, 5, wnd->caption.c_str(), (int32_t)wnd->caption.size());
+                wnd->graphic_.draw_text(rect{ 5, 5, 5, 5, },
+                    wnd->caption,
+                    theme_color(theme_value::window_text, wnd->theme_),
+                    font_settings{ theme_string(theme_value::window_title_font_name, wnd->theme_),
+                        theme_dimension(theme_value::window_title_font_size, wnd->theme_),
+                        font_decorations::normal });
             }
 		
-            graphic gr{ mem_dc };
             for (auto &control : wnd->controls)
             {
-                control->draw(gr);
+                control->draw(wnd->graphic_);
             }
 
-            BitBlt(hdc,
-                0,
-                0,
-                client_rect.right,
-                client_rect.bottom,
-                mem_dc,
-                0,
-                0,
-                SRCCOPY);
+            wnd->graphic_.end_drawing();
 
-            DeleteObject(mem_bitmap);
-            DeleteDC(mem_dc);
-
-            EndPaint(hwnd, &ps);
+            EndPaint(wnd->context_.hwnd, &ps);
+            wnd->context_.dc = 0;
         }
         break;
         case WM_MOUSEMOVE:
@@ -1450,20 +1424,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             return DefWindowProc(hwnd, message, w_param, l_param);
     }
     return 0;
-}
-
-void window::make_primitives()
-{
-    background_brush = CreateSolidBrush(theme_color(theme_value::window_background, theme_));
-    font = CreateFont(theme_dimension(theme_value::window_title_font_size, theme_), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, theme_string(theme_value::window_title_font_name, theme_).c_str());
-}
-
-void window::destroy_primitives()
-{
-    DeleteObject(background_brush);
-    DeleteObject(font);
 }
 
 #elif __linux__

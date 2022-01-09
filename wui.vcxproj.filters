@@ -46,6 +46,12 @@
     <Filter Include="Source Files\theme\impl">
       <UniqueIdentifier>{11eb642c-a9e1-494d-aa5d-14010c5c0752}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\system">
+      <UniqueIdentifier>{460cb6ac-341e-41a4-be1e-81fd0e225a5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphic">
+      <UniqueIdentifier>{95509118-5ace-47ee-a101-02ef55accd51}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\wui\common\color.hpp">
@@ -111,7 +117,10 @@
     <ClInclude Include="include\wui\common\bit_helpers.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="include\wui\common\enum_helpers.hpp">
+    <ClInclude Include="include\wui\system\system_context.hpp">
+      <Filter>Header Files\system</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\common\flag_helpers.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>
@@ -139,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="src\control\input.cpp">
       <Filter>Source Files\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\graphic.cpp">
+      <Filter>Source Files\graphic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

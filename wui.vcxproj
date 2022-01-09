@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClInclude Include="include\wui\common\bit_helpers.hpp" />
     <ClInclude Include="include\wui\common\color.hpp" />
-    <ClInclude Include="include\wui\common\enum_helpers.hpp" />
+    <ClInclude Include="include\wui\common\flag_helpers.hpp" />
     <ClInclude Include="include\wui\common\rect.hpp" />
     <ClInclude Include="include\wui\common\timer.hpp" />
     <ClInclude Include="include\wui\control\button.hpp" />
@@ -33,6 +33,7 @@
     <ClInclude Include="include\wui\event\keyboard_event.hpp" />
     <ClInclude Include="include\wui\event\mouse_event.hpp" />
     <ClInclude Include="include\wui\graphic\graphic.hpp" />
+    <ClInclude Include="include\wui\system\system_context.hpp" />
     <ClInclude Include="include\wui\theme\impl\custom_theme.hpp" />
     <ClInclude Include="include\wui\theme\impl\dark_theme.hpp" />
     <ClInclude Include="include\wui\theme\impl\white_theme.hpp" />
@@ -46,6 +47,7 @@
     <ClCompile Include="src\control\button.cpp" />
     <ClCompile Include="src\control\image.cpp" />
     <ClCompile Include="src\control\input.cpp" />
+    <ClCompile Include="src\graphic\graphic.cpp" />
     <ClCompile Include="src\theme\impl\custom_theme.cpp" />
     <ClCompile Include="src\theme\impl\dark_theme.cpp" />
     <ClCompile Include="src\theme\impl\white_theme.cpp" />

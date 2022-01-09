@@ -86,17 +86,7 @@ private:
     bool cursor_visible;
     bool selecting;
 
-#ifdef _WIN32
-    HBRUSH background_brush, selection_brush;
-    HPEN cursor_pen, background_pen, border_pen, focused_border_pen;
-
-    HFONT font;
-
     int32_t left_shift;
-
-    void make_primitives();
-    void destroy_primitives();
-#endif
 
     void redraw();
 

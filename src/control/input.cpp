@@ -31,25 +31,13 @@ input::input(const std::wstring &text__, input_view input_view__, std::shared_pt
     focused_(false),
     focusing_(true),
     cursor_visible(false),
-    selecting(false)
-#ifdef _WIN32
-    , background_brush(0), selection_brush(0),
-    cursor_pen(0), background_pen(0), border_pen(0), focused_border_pen(0),
-    font(0),
+    selecting(false),
     left_shift(0)
-#endif
 {
-#ifdef _WIN32
-    make_primitives();
-#endif
 }
 
 input::~input()
 {
-#ifdef _WIN32
-    destroy_primitives();
-#endif
-
     auto parent_ = parent.lock();
     if (parent_)
     {
@@ -57,12 +45,8 @@ input::~input()
     }
 }
 
-#ifdef _WIN32
-
-rect calculate_text_dimensions(HDC dc, std::wstring text, size_t text_length)
+rect calculate_text_dimensions(graphic &gr, std::wstring text, size_t text_length, const font_settings &font_)
 {
-    RECT text_rect = { 0 };
-
     text.resize(text_length);
 
     if (text_length == 0)
@@ -70,12 +54,10 @@ rect calculate_text_dimensions(HDC dc, std::wstring text, size_t text_length)
         text = L"W";
     }
 
-    DrawTextW(dc, text.c_str(), static_cast<int32_t>(text.size()), &text_rect, DT_CALCRECT);
+    auto text_rect = gr.measure_text(text, font_);
 
     return { 0, 0, text_length != 0 ? text_rect.right : 0, text_rect.bottom };
 }
-
-#endif
 
 void input::draw(graphic &gr)
 {
@@ -86,51 +68,45 @@ void input::draw(graphic &gr)
 
 #ifdef _WIN32
     /// Draw the frame
-    SelectObject(gc.dc, !focused_ ? border_pen : focused_border_pen);
-    SelectObject(gc.dc, background_brush);
+    gr.draw_rect(position_,
+        !focused_ ? theme_color(theme_value::input_border, theme_) : theme_color(theme_value::input_focused_border, theme_),
+        theme_color(theme_value::input_background, theme_),
+        1,
+        theme_dimension(theme_value::input_round, theme_));
 
-    auto rnd = theme_dimension(theme_value::input_round, theme_);
-    RoundRect(gc.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
+    auto font_ = font_settings{ theme_string(theme_value::input_font_name, theme_),
+        theme_dimension(theme_value::input_font_size, theme_),
+        font_decorations::normal };
 
     /// Create memory dc for text and selection bar
-    HDC mem_dc = CreateCompatibleDC(gc.dc);
+    rect full_text_dimensions = calculate_text_dimensions(gr, text_, text_.size(), font_);
+    full_text_dimensions.right += 1;
 
-    SelectObject(gc.dc, font);
-    rect full_text_dimensions = calculate_text_dimensions(gc.dc, text_, text_.size());
-
-    HBITMAP mem_bitmap = CreateCompatibleBitmap(gc.dc, full_text_dimensions.right + 1, full_text_dimensions.bottom);
-    SelectObject(mem_dc, mem_bitmap);
-
-    RECT full_rect = { 0, 0, full_text_dimensions.right + 1, full_text_dimensions.bottom };
-    FillRect(mem_dc, &full_rect, background_brush);
-
-    SelectObject(mem_dc, font);
+#ifdef _WIN32
+    system_context ctx = { 0, gr.drawable() };
+#elif __linux__
+    system_context ctx;
+#endif
+    graphic mem_gr(ctx);
+    mem_gr.start_drawing(full_text_dimensions, theme_color(theme_value::input_background, theme_));
 
     /// Draw the selection bar
     if (select_start_position != select_end_position)
     {
-        auto start_coordinate = calculate_text_dimensions(mem_dc, text_, select_start_position).right;
-        auto end_coordinate = calculate_text_dimensions(mem_dc, text_, select_end_position).right;
+        auto start_coordinate = calculate_text_dimensions(mem_gr, text_, select_start_position, font_).right;
+        auto end_coordinate = calculate_text_dimensions(mem_gr, text_, select_end_position, font_).right;
 
         RECT selection_rect = { start_coordinate, 0, end_coordinate, full_text_dimensions.bottom };
-        FillRect(mem_dc, &selection_rect, selection_brush);
+        mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, full_text_dimensions.bottom }, theme_color(theme_value::input_selection, theme_));
     }
 
     /// Draw the text
-    SelectObject(mem_dc, background_brush);
+    mem_gr.draw_text(rect{ 0 }, text_, theme_color(theme_value::input_text, theme_), font_);
 
-    SetTextColor(mem_dc, theme_color(theme_value::input_text, theme_));
-    SetBkMode(mem_dc, TRANSPARENT);
-
-    TextOut(mem_dc, 0, 0, text_.c_str(), static_cast<int32_t>(text_.size()));
-
-    SelectObject(mem_dc, cursor_visible ? cursor_pen : background_pen);
-
-    auto cursor_coordinate = calculate_text_dimensions(mem_dc, text_, cursor_position).right;
+    auto cursor_coordinate = calculate_text_dimensions(mem_gr, text_, cursor_position, font_).right;
+    mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, full_text_dimensions.bottom },
+        cursor_visible ? theme_color(theme_value::input_cursor, theme_) : theme_color(theme_value::input_background, theme_));
     
-    MoveToEx(mem_dc, cursor_coordinate, 0, (LPPOINT)NULL);
-    LineTo(mem_dc, cursor_coordinate, full_text_dimensions.bottom);
-
     while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
     {
         left_shift += 10;
@@ -140,19 +116,12 @@ void input::draw(graphic &gr)
     {
         left_shift -= 10;
     }
-
-    BitBlt(gc.dc,
-        position_.left + input_horizontal_indent,
-        position_.top + input_top_indent,
-        position_.width() - input_horizontal_indent * 2,
-        position_.height() - input_top_indent,
-        mem_dc, 
-        left_shift,
-        0,
-        SRCCOPY);
-
-    DeleteObject(mem_bitmap);
-    DeleteDC(mem_dc);
+    
+    gr.draw_graphic(rect{ position_.left + input_horizontal_indent,
+            position_.top + input_top_indent,
+            position_.width() - input_horizontal_indent * 2,
+            position_.height() - input_top_indent },
+        mem_gr, left_shift, 0);
 #endif
 }
 
@@ -166,18 +135,30 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
 #ifdef _WIN32
     x -= position_.left + input_horizontal_indent - left_shift;
 
-    HDC dc = GetDC(NULL);
+#ifdef _WIN32
+    system_context ctx = { 0, GetDC(NULL) };
+#elif __linux__
+    system_context ctx;
+#endif
+    graphic mem_gr(ctx);
+    mem_gr.start_drawing(position_, theme_color(theme_value::input_background, theme_));
 
-    SelectObject(dc, font);
+    auto font_ = font_settings{ theme_string(theme_value::input_font_name, theme_),
+        theme_dimension(theme_value::input_font_size, theme_),
+        font_decorations::normal };
 
     int32_t text_width = 0;
     size_t count = 0;
     while (x > text_width && count != text_.size())
     {
-        text_width = calculate_text_dimensions(dc, text_, ++count).right;
+        text_width = calculate_text_dimensions(mem_gr, text_, ++count, font_).right;
     }
 
-    DeleteDC(dc);
+    mem_gr.end_drawing(true);
+
+#ifdef _WIN32
+    DeleteDC(ctx.dc);
+#endif
 
     return count;
 
@@ -537,11 +518,6 @@ void input::update_theme(std::shared_ptr<i_theme> theme__)
         return;
     }
     theme_ = theme__;
-
-#ifdef _WIN32
-    destroy_primitives();
-    make_primitives();
-#endif
 }
 
 void input::show()
@@ -619,31 +595,6 @@ void input::redraw_cursor()
 }
 
 #ifdef _WIN32
-void input::make_primitives()
-{
-    background_brush = CreateSolidBrush(theme_color(theme_value::input_background, theme_));
-    selection_brush = CreateSolidBrush(theme_color(theme_value::input_selection, theme_));
-    cursor_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::input_cursor, theme_));
-    background_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::input_background, theme_));
-    border_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::input_border, theme_));
-    focused_border_pen = CreatePen(PS_SOLID, 1, theme_color(theme_value::input_focused_border, theme_));
-
-    font = CreateFont(theme_dimension(theme_value::input_font_size, theme_), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, theme_string(theme_value::input_font_name, theme_).c_str());
-}
-
-void input::destroy_primitives()
-{
-    DeleteObject(background_brush);
-    DeleteObject(selection_brush);
-    DeleteObject(cursor_pen);
-    DeleteObject(background_pen);
-    DeleteObject(border_pen);
-    DeleteObject(focused_border_pen);
-    DeleteObject(font);
-}
-
 void input::buffer_copy()
 {
     if (select_start_position == select_end_position)

@@ -12,9 +12,9 @@ namespace wui
 {
 
 template <typename T>
-inline bool flag_is_set(T value, T style)
+inline bool flag_is_set(T value, T flag)
 {
-    return ((static_cast<int>(value)) & (static_cast<int>(style)));
+    return ((static_cast<int>(value)) & (static_cast<int>(flag)));
 }
 
 }

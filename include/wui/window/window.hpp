@@ -142,15 +142,9 @@ private:
 
 #ifdef _WIN32
 
-    HBRUSH background_brush;
-    HFONT font;
-
     bool mouse_tracked;
 
     static LRESULT CALLBACK wnd_proc(HWND hWnd, UINT message, WPARAM w_param, LPARAM l_param);
-
-    void make_primitives();
-    void destroy_primitives();
 
 #elif __linux__
 

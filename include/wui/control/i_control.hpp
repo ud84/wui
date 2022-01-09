@@ -16,7 +16,7 @@ namespace wui
 
 struct event;
 struct rect;
-struct graphic;
+class graphic;
 class window;
 class i_theme;
 
