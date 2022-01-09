@@ -28,9 +28,8 @@
 
 #include <stdlib.h>
 #include <xcb/xcb_atom.h>
+#include <xcb/xcb_cursor.h>
 #include <wui/common/char_helpers.hpp>
-
-#include <X11/cursorfont.h>
 
 #endif
 
@@ -50,11 +49,11 @@ bool test_cookie(xcb_void_cookie_t cookie,
     return true;
 }
 
-void remove_window_decorations(xcb_connection_t *connection, xcb_window_t wnd)
+void remove_window_decorations(wui::system_context &context)
 {
     std::string mwh = "_MOTIF_WM_HINTS";
-    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(connection,
-        xcb_intern_atom(connection, 0, mwh.size(), mwh.c_str()),
+    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(context.connection,
+        xcb_intern_atom(context.connection, 0, mwh.size(), mwh.c_str()),
 	    NULL);
 
     struct WMHints
@@ -69,9 +68,9 @@ void remove_window_decorations(xcb_connection_t *connection, xcb_window_t wnd)
     WMHints hints = { 0 };
     hints.flags = 2;
 
-    xcb_change_property(connection,
+    xcb_change_property(context.connection,
         XCB_PROP_MODE_REPLACE,
-        wnd,
+		context.wnd,
         reply->atom,
 		XCB_ATOM_WM_HINTS,
         32,
@@ -81,59 +80,24 @@ void remove_window_decorations(xcb_connection_t *connection, xcb_window_t wnd)
     free(reply);
 }
 
-void set_cursor(xcb_connection_t *connection,
-    xcb_screen_t *screen,
-    xcb_window_t window,
-    int cursorId)
+void set_cursor(wui::system_context &context, const char *cursorId)
 {
-    xcb_font_t font = xcb_generate_id (connection);
-
-    std::string cur = "cursor";
-    xcb_void_cookie_t fontCookie = xcb_open_font_checked(connection,
-                                                         font,
-                                                         cur.size(),
-                                                         cur.c_str());
-    if (!test_cookie(fontCookie, connection, "can't open font"))
-    {
-        return;
-    }
-
-    xcb_cursor_t cursor = xcb_generate_id(connection);
-    xcb_create_glyph_cursor(connection,
-                            cursor,
-                            font,
-                            font,
-                            cursorId,
-                            cursorId + 1,
-                            0, 0, 0, 0, 0, 0);
-
-    xcb_gcontext_t gc = xcb_generate_id(connection);
-
-    uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_FONT;
-    uint32_t values_list[3];
-    values_list[0] = screen->black_pixel;
-    values_list[1] = screen->white_pixel;
-    values_list[2] = font;
-
-    xcb_void_cookie_t gcCookie = xcb_create_gc_checked(connection, gc, window, mask, values_list);
-    if (!test_cookie(gcCookie, connection, "can't create gc"))
-    {
-        return;
-    }
-
-    mask = XCB_CW_CURSOR;
-    uint32_t value_list = cursor;
-    xcb_change_window_attributes(connection, window, mask, &value_list);
-
-    xcb_free_cursor(connection, cursor);
-
-    fontCookie = xcb_close_font_checked (connection, font);
-    test_cookie(fontCookie, connection, "can't close font");
+    xcb_cursor_context_t *ctx;
+    auto screen = xcb_setup_roots_iterator(xcb_get_setup(context.connection)).data;
+    if (xcb_cursor_context_new(context.connection, screen, &ctx) >= 0)
+	{
+	    xcb_cursor_t cursor = xcb_cursor_load_cursor(ctx, cursorId);
+	    if (cursor != XCB_CURSOR_NONE)
+	    {
+	        xcb_change_window_attributes(context.connection, context.wnd, XCB_CW_CURSOR, &cursor);
+	    }
+	    xcb_cursor_context_free(ctx);
+	}
 }
 
-wui::rect get_window_size(xcb_connection_t *connection, xcb_window_t wnd)
+wui::rect get_window_size(wui::system_context &context)
 {
-	auto geom = xcb_get_geometry_reply(connection, xcb_get_geometry(connection, wnd), NULL);
+	auto geom = xcb_get_geometry_reply(context.connection, xcb_get_geometry(context.connection, context.wnd), NULL);
 	if (geom)
 	{
 		wui::rect out{ geom->x, geom->y, geom->x + geom->width, geom->y + geom->height };
@@ -954,7 +918,7 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     	return false;
     }
 
-    context_.screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
+    auto screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
 
     context_.wnd = xcb_generate_id(context_.connection);
 
@@ -968,15 +932,15 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     xcb_create_window(context_.connection,
                       XCB_COPY_FROM_PARENT,
                       context_.wnd,
-					  context_.screen->root, // parent window
+					  screen->root, // parent window
                       position_.left, position_.top,
                       position_.width(), position_.height(),
                       0,
                       XCB_WINDOW_CLASS_INPUT_OUTPUT,
-					  context_.screen->root_visual,
+					  screen->root_visual,
                       mask, values);
 
-    remove_window_decorations(context_.connection, context_.wnd);
+    remove_window_decorations(context_);
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
         XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, caption.size(), to_multibyte(caption).c_str());
@@ -1519,7 +1483,7 @@ void window::process_events()
                     //XftDrawString8(xft_draw, &title_color, font, 5, 15, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
                 }
 
-                graphic gr{ context_.connection, context_.screen, context_.wnd };
+                graphic gr{ context_.connection, context_.wnd };
                 for (auto &control : controls)
                 {
                     control->draw(gr);
@@ -1538,31 +1502,31 @@ void window::process_events()
             	int16_t x_mouse = ev->event_x;
                 int16_t y_mouse = ev->event_y;
 
-                auto ws = get_window_size(context_.connection, context_.wnd);
+                auto ws = get_window_size(context_);
 
                 if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
                 {
                     if ((x_mouse > ws.width() - 5 && y_mouse > ws.height() - 5) ||
                         (x_mouse < 5 && y_mouse < 5))
                     {
-                        set_cursor(context_.connection, context_.screen, context_.wnd, XC_top_left_corner);
+                        set_cursor(context_, "top_left_corner");
                     }
                     else if ((x_mouse > ws.width() - 5 && y_mouse < 5) ||
                         (x_mouse < 5 && y_mouse > ws.height() - 5))
                     {
-                        set_cursor(context_.connection, context_.screen, context_.wnd, XC_top_right_corner);
+                        set_cursor(context_, "top_right_corner");
                     }
                     else if (x_mouse > ws.width() - 5 || x_mouse < 5)
                     {
-                        set_cursor(context_.connection, context_.screen, context_.wnd, XC_sb_h_double_arrow);
+                        set_cursor(context_, "sb_h_double_arrow");
                     }
                     else if (y_mouse > ws.height() - 5 || y_mouse < 5)
                     {
-                        set_cursor(context_.connection, context_.screen, context_.wnd, XC_sb_v_double_arrow);
+                        set_cursor(context_, "sb_v_double_arrow");
                     }
                     else if (!active_control)
                     {
-                        set_cursor(context_.connection, context_.screen, context_.wnd, XC_arrow);
+                        set_cursor(context_, "default");
                     }
                 }
 
@@ -1683,7 +1647,7 @@ void window::process_events()
             	        break;
                     }
 
-                    ws = get_window_size(context_.connection, context_.wnd);
+                    ws = get_window_size(context_);
                     update_position(ws);
                     update_buttons(false);
                     if (size_change_callback)
@@ -1705,7 +1669,7 @@ void window::process_events()
                     x_click = ev->event_x;
                     y_click = ev->event_y;
 
-                    auto ws = get_window_size(context_.connection, context_.wnd);
+                    auto ws = get_window_size(context_);
 
                     if (!send_mouse_event({ mouse_event_type::left_down, x_click, y_click }) &&
                         (flag_is_set(window_style_, window_style::moving) && window_state_ == window_state::normal))

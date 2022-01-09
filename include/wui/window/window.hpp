@@ -40,7 +40,6 @@ struct system_context
 struct system_context
 {
     xcb_connection_t *connection;
-    xcb_screen_t     *screen;
     xcb_window_t     wnd;
 };
 

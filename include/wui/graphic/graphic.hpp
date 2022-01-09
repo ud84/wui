@@ -24,7 +24,6 @@ struct graphic
     HDC dc;
 #elif __linux__
     xcb_connection_t *connection;
-    xcb_screen_t     *screen;
     xcb_window_t     wnd;
 #endif
 };
