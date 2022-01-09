@@ -1,6 +1,7 @@
 file(GLOB SOURCES 
 	common/*.cpp
 	control/*.cpp
+	graphic/*.cpp
 	theme/*.cpp
 	theme/impl/*.cpp
 	window/*.cpp)

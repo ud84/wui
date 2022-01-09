@@ -114,10 +114,10 @@ void button::draw(graphic &gr)
     }
 
 #ifdef _WIN32
-    SelectObject(gr.dc, font);
+    SelectObject(gc.dc, font);
 
     RECT text_rect = { 0 };
-    DrawTextW(gr.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &text_rect, DT_CALCRECT);
+    DrawTextW(gc.dc, caption.c_str(), static_cast<int32_t>(caption.size()), &text_rect, DT_CALCRECT);
 
     int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
 
@@ -186,11 +186,11 @@ void button::draw(graphic &gr)
         break;
     }
 
-    SelectObject(gr.dc, !focused_ ? border_pen : focused_border_pen);
-    SelectObject(gr.dc, enabled_ ? (active ? active_brush : calm_brush) : disabled_brush);
+    SelectObject(gc.dc, !focused_ ? border_pen : focused_border_pen);
+    SelectObject(gc.dc, enabled_ ? (active ? active_brush : calm_brush) : disabled_brush);
 
     auto rnd = theme_dimension(theme_value::button_round, theme_);
-    RoundRect(gr.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
+    RoundRect(gc.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
 	
     if (button_view_ != button_view::only_text && image_)
     {
@@ -200,18 +200,18 @@ void button::draw(graphic &gr)
 
     if (button_view_ != button_view::only_image)
     {
-        SetBkMode(gr.dc, TRANSPARENT);
+        SetBkMode(gc.dc, TRANSPARENT);
 
         if (button_view_ != button_view::image_right_text_no_frame)
         {
-            SetTextColor(gr.dc, theme_color(theme_value::button_text, theme_));
+            SetTextColor(gc.dc, theme_color(theme_value::button_text, theme_));
         }
         else
         {
-            SetTextColor(gr.dc, theme_color(theme_value::window_text, theme_));
+            SetTextColor(gc.dc, theme_color(theme_value::window_text, theme_));
         }
 
-        TextOutW(gr.dc, text_left, text_top, caption.c_str(), (int32_t)caption.size());
+        TextOutW(gc.dc, text_left, text_top, caption.c_str(), (int32_t)caption.size());
     }
 #elif __linux__
 	/*

@@ -86,19 +86,19 @@ void input::draw(graphic &gr)
 
 #ifdef _WIN32
     /// Draw the frame
-    SelectObject(gr.dc, !focused_ ? border_pen : focused_border_pen);
-    SelectObject(gr.dc, background_brush);
+    SelectObject(gc.dc, !focused_ ? border_pen : focused_border_pen);
+    SelectObject(gc.dc, background_brush);
 
     auto rnd = theme_dimension(theme_value::input_round, theme_);
-    RoundRect(gr.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
+    RoundRect(gc.dc, position_.left, position_.top, position_.right, position_.bottom, rnd, rnd);
 
     /// Create memory dc for text and selection bar
-    HDC mem_dc = CreateCompatibleDC(gr.dc);
+    HDC mem_dc = CreateCompatibleDC(gc.dc);
 
-    SelectObject(gr.dc, font);
-    rect full_text_dimensions = calculate_text_dimensions(gr.dc, text_, text_.size());
+    SelectObject(gc.dc, font);
+    rect full_text_dimensions = calculate_text_dimensions(gc.dc, text_, text_.size());
 
-    HBITMAP mem_bitmap = CreateCompatibleBitmap(gr.dc, full_text_dimensions.right + 1, full_text_dimensions.bottom);
+    HBITMAP mem_bitmap = CreateCompatibleBitmap(gc.dc, full_text_dimensions.right + 1, full_text_dimensions.bottom);
     SelectObject(mem_dc, mem_bitmap);
 
     RECT full_rect = { 0, 0, full_text_dimensions.right + 1, full_text_dimensions.bottom };
@@ -141,7 +141,7 @@ void input::draw(graphic &gr)
         left_shift -= 10;
     }
 
-    BitBlt(gr.dc,
+    BitBlt(gc.dc,
         position_.left + input_horizontal_indent,
         position_.top + input_top_indent,
         position_.width() - input_horizontal_indent * 2,

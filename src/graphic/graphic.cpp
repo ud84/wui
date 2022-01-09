@@ -12,7 +12,7 @@
 namespace wui
 {
 
-graphic::graphic(graphic_context &context__)
+graphic::graphic(system_context &context__)
     : context_(context__)
 {
 }
@@ -50,7 +50,7 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_)
 {
 }
 
-graphic_context &graphic::context()
+system_context &graphic::context()
 {
     return context_;
 }

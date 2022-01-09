@@ -10,40 +10,19 @@
 #pragma once
 
 #include <wui/window/i_window.hpp>
-#include <wui/common/rect.hpp>
+#include <wui/system/system_context.hpp>
 #include <wui/control/i_control.hpp>
+#include <wui/graphic/graphic.hpp>
 #include <wui/event/event.hpp>
+#include <wui/common/rect.hpp>
 
 #include <vector>
 #include <memory>
 
-#ifdef _WIN32
-#include <windows.h>
-#elif __linux__
-#include <xcb/xcb.h>
-
 #include <thread>
-#endif
 
 namespace wui
 {
-
-#ifdef _WIN32
-
-struct system_context
-{
-    HWND hwnd;
-};
-
-#elif __linux__
-
-struct system_context
-{
-    xcb_connection_t *connection;
-    xcb_window_t     wnd;
-};
-
-#endif
 
 enum class window_state
 {
@@ -119,6 +98,7 @@ public:
 
 private:
     system_context context_;
+    graphic graphic_;
 
     std::vector<std::shared_ptr<i_control>> controls;
     std::shared_ptr<i_control> active_control;

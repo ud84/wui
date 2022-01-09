@@ -115,6 +115,7 @@ namespace wui
 
 window::window()
     : context_{ 0 },
+    graphic_(context_),
     controls(),
     active_control(),
     caption(),
@@ -1483,10 +1484,9 @@ void window::process_events()
                     //XftDrawString8(xft_draw, &title_color, font, 5, 15, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
                 }
 
-                graphic gr{ context_.connection, context_.wnd };
                 for (auto &control : controls)
                 {
-                    control->draw(gr);
+                    control->draw(graphic_);
                 }
 
                 xcb_flush(context_.connection);
