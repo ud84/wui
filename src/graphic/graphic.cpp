@@ -26,7 +26,7 @@ graphic::graphic(system_context &context__)
 
 graphic::~graphic()
 {
-    end_drawing(true);
+    clear_resources();
 }
 
 void graphic::start_drawing(const rect &position, color background_color)
@@ -52,10 +52,10 @@ void graphic::start_drawing(const rect &position, color background_color)
 #endif
 }
 
-void graphic::end_drawing(bool no_copy)
+void graphic::end_drawing()
 {
 #ifdef _WIN32
-    if (!no_copy && context_.dc)
+    if (context_.dc)
     {
         BitBlt(context_.dc,
             draw_position.left,
@@ -67,17 +67,10 @@ void graphic::end_drawing(bool no_copy)
             0,
             SRCCOPY);
     }
-
-    DeleteObject(mem_bitmap);
-    mem_bitmap = 0;
-    
-    DeleteDC(mem_dc);
-    mem_dc = 0;
-    
-    DeleteObject(background_brush);
-    background_brush = 0;
 #elif __linux__
 #endif
+
+    clear_resources();
 }
 
 void graphic::draw_line(const rect &position, color color_, uint32_t width)
@@ -101,7 +94,7 @@ rect graphic::measure_text(const std::wstring &text, const font_settings &font_)
     HFONT font = CreateFont(font_.size, 0, 0, 0, FW_DONTCARE,
         flag_is_set(font_.decorations, font_decorations::italic),
         flag_is_set(font_.decorations, font_decorations::underline),
-        flag_is_set(font_.decorations, font_decorations::strikeOut), ANSI_CHARSET,
+        flag_is_set(font_.decorations, font_decorations::strike_out), ANSI_CHARSET,
         OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE, font_.name.c_str());
 
@@ -128,7 +121,7 @@ void graphic::draw_text(const rect &position, const std::wstring &text, color co
     HFONT font = CreateFont(font_.size, 0, 0, 0, FW_DONTCARE,
         flag_is_set(font_.decorations, font_decorations::italic), 
         flag_is_set(font_.decorations, font_decorations::underline),
-        flag_is_set(font_.decorations, font_decorations::strikeOut), ANSI_CHARSET,
+        flag_is_set(font_.decorations, font_decorations::strike_out), ANSI_CHARSET,
         OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE, font_.name.c_str());
 
@@ -204,9 +197,30 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
 #endif
 }
 
+#ifdef _WIN32
 HDC graphic::drawable()
 {
     return mem_dc;
+}
+#elif __linux__
+xcb_drawable_t graphic::drawable()
+{
+}
+#endif
+
+void graphic::clear_resources()
+{
+#ifdef _WIN32
+    DeleteObject(mem_bitmap);
+    mem_bitmap = 0;
+
+    DeleteDC(mem_dc);
+    mem_dc = 0;
+
+    DeleteObject(background_brush);
+    background_brush = 0;
+#elif __linux__
+#endif
 }
 
 }

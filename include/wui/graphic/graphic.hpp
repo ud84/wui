@@ -23,7 +23,7 @@ enum class font_decorations : uint32_t
     normal = 0,
     italic = (1 << 0),
     underline = (1 << 1),
-    strikeOut = (1 << 2)
+    strike_out = (1 << 2)
 };
 
 struct font_settings
@@ -36,11 +36,11 @@ struct font_settings
 class graphic
 {
 public:
-	graphic(system_context &context);
+    graphic(system_context &context);
     ~graphic();
 
     void start_drawing(const rect &position, color background_color);
-    void end_drawing(bool no_copy = false);
+    void end_drawing();
 
     void draw_line(const rect &position, color color_, uint32_t width = 1);
 
@@ -76,6 +76,7 @@ private:
 
 #endif
 
+    void clear_resources();
 };
 
 }

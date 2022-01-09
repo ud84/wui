@@ -152,8 +152,6 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
         text_width = calculate_text_dimensions(mem_gr, text_, ++count, font_).right;
     }
 
-    mem_gr.end_drawing(true);
-
 #ifdef _WIN32
     DeleteDC(ctx.dc);
 #endif
