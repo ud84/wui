@@ -94,10 +94,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 #elif __linux__
 int main(int argc, char *argv[])
 {
-
-const std::wstring IDB_ACCOUNT = L"";
-
+    const std::wstring IDB_ACCOUNT = L"";
 #endif
+    bool runned = true;
 
     wui::set_default_theme(wui::theme::dark);
 
@@ -161,9 +160,17 @@ const std::wstring IDB_ACCOUNT = L"";
 
     window->set_min_size(100, 100);
 
-    window->init(L"Welcome to WUI!", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame, []() {
+    window->set_size_change_callback([&nameInput, &okButton, &cancelButton](auto w, auto h) {
+        nameInput->set_position({ 10, 250, w - 10, 275 });
+        okButton->set_position({ w - 250, h - 50, w - 150, h - 20});
+        cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });
+    });
+
+    window->init(L"Welcome to WUI!", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame, [&runned]() {
 #ifdef _WIN32
-    	PostQuitMessage(IDCANCEL);
+        PostQuitMessage(IDCANCEL);
+#elif __linux__
+        runned = false;
 #endif
     });
 	
@@ -179,7 +186,11 @@ const std::wstring IDB_ACCOUNT = L"";
     //Gdiplus::GdiplusShutdown(gdiplusToken);
     return (int) msg.wParam;
 #elif __linux__
-    getchar();
-#endif
+    // Wait for main window
+    while (runned)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
     return 0;
+#endif
 }

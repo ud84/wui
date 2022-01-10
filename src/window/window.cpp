@@ -823,6 +823,8 @@ void window::update_position(const rect &new_position)
 
 bool window::init(const std::wstring &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
 {
+    auto old_position = position_;
+
     caption = caption_;
     position_ = position__;
     normal_position = position_;
@@ -836,6 +838,11 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     add_control(close_button, { position_.right - 26, 0, position_.right, 26 });
 
     update_buttons(true);
+
+    if (size_change_callback && (old_position.width() != position_.width() || old_position.height() != position_.height()))
+    {
+        size_change_callback(position_.width(), position_.height());
+    }
 
     if (parent)
     {
@@ -1304,7 +1311,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 wnd->update_buttons(false);
             }
 			
-            if (width != old_position.right && height != old_position.bottom && wnd->size_change_callback)
+            if ((width != old_position.right || height != old_position.bottom) && wnd->size_change_callback)
             {
                 wnd->size_change_callback(LOWORD(l_param), HIWORD(l_param));
             }
@@ -1608,7 +1615,7 @@ void window::process_events()
                         update_buttons(false);
                     }
 
-                    if (ws.width() != old_position.width() && height != old_position.height() && size_change_callback)
+                    if ((ws.width() != old_position.width() || height != old_position.height()) && size_change_callback)
                     {
                         size_change_callback(ws.width(), ws.height());
                     }
