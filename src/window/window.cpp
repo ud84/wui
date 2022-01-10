@@ -1294,11 +1294,16 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             auto width = LOWORD(l_param), height = HIWORD(l_param);
 
+            auto old_position = wnd->position_;
+
             wnd->update_position({ wnd->position_.left, wnd->position_.top, width, height });
 
-            wnd->update_buttons(false);
+            if (width != old_position.right)
+            {
+                wnd->update_buttons(false);
+            }
 			
-            if (wnd->size_change_callback)
+            if (width != old_position.right && height != old_position.bottom && wnd->size_change_callback)
             {
                 wnd->size_change_callback(LOWORD(l_param), HIWORD(l_param));
             }
