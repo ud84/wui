@@ -1588,13 +1588,20 @@ void window::process_events()
             	        break;
                     }
 
-                    /*ws = get_window_size(context_);
-                    update_position(ws);
-                    update_buttons(false);
-                    if (size_change_callback)
+                    ws = get_window_size(context_);
+
+                    if (ws.width() != position_.width() || ws.height() != position_.height())
                     {
-                        size_change_callback(ws.width(), ws.height());
-                    }*/
+                        if (ws.width() != position_.width())
+                        {
+                            update_buttons(false);
+                        }
+                        if (size_change_callback)
+                        {
+                            size_change_callback(ws.width(), ws.height());
+                        }
+                    }
+                    update_position(ws);
                 }
             	else
             	{
