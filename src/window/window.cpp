@@ -177,25 +177,27 @@ void window::redraw(const rect &redraw_position, bool clear)
         RECT invalidatingRect = { redraw_position.left, redraw_position.top, redraw_position.right, redraw_position.bottom };
         InvalidateRect(context_.hwnd, &invalidatingRect, clear ? TRUE : FALSE);
 #elif __linux__
-        /*if (context_.display)
+        if (context_.connection)
         {
         	if (!clear)
         	{
-                XEvent ev = { 0 };
-                ev.type = Expose;
-                ev.xexpose.window = context_.wnd;
-                ev.xexpose.x = redraw_position.left;
-                ev.xexpose.y = redraw_position.top;
-                ev.xexpose.width = redraw_position.width();
-                ev.xexpose.height = redraw_position.height();
+            	xcb_expose_event_t event = { 0 };
 
-                XSendEvent(context_.display, context_.wnd, True, ExposureMask, &ev);
+            	event.window = context_.wnd;
+            	event.response_type = XCB_EXPOSE;
+            	event.x = redraw_position.left;
+            	event.y = redraw_position.top;
+            	event.width = redraw_position.width();
+            	event.height = redraw_position.height();
+
+            	xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_EXPOSURE, (const char*)&event);
+            	xcb_flush(context_.connection);
         	}
         	else
             {
-            	XClearArea(context_.display, context_.wnd, redraw_position.left, redraw_position.top, redraw_position.width(), redraw_position.height(), False);
+        		xcb_clear_area(context_.connection, 0, context_.wnd, redraw_position.left, redraw_position.top, redraw_position.width(), redraw_position.height());
             }
-        }*/
+        }
 #endif
     }
 }
@@ -380,10 +382,8 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 #elif __linux__
     if (!parent && context_.connection)
     {
-        /*XSetWindowBackground(context_.display, context_.wnd, theme_color(theme_value::window_background, theme_));
-        XWindowAttributes wnd_attr;
-        XGetWindowAttributes(context_.display, context_.wnd, &wnd_attr);
-        redraw(rect{ 0, 0, wnd_attr.width, wnd_attr.height }, true);*/
+        auto ws = get_window_size(context_);
+        redraw(rect{ 0, 0, ws.width(), ws.height() }, true);
     }
 #endif
 
@@ -1017,7 +1017,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             if (flag_is_set(wnd->window_style_, window_style::title_showed))
             {
-                wnd->graphic_.draw_text(rect{ 5, 5, 5, 5, },
+                wnd->graphic_.draw_text(rect{ 5, 5, 5, 5 },
                     wnd->caption,
                     theme_color(theme_value::window_text, wnd->theme_),
                     font_settings{ theme_string(theme_value::window_title_font_name, wnd->theme_),
@@ -1410,17 +1410,25 @@ void window::process_events()
         {
 	        case XCB_EXPOSE:
 	        {
-            	//xcb_poly_point(context_.connection, XCB_COORD_MODE_ORIGIN, context_.wnd, foreground, 4, points);
+	        	auto ws = get_window_size(context_);
+	            graphic_.start_drawing(rect{ 0, 0, ws.width(), ws.height() }, theme_color(theme_value::window_background, theme_));
 
-                if (flag_is_set(window_style_, window_style::title_showed))
-                {
-                    //XftDrawString8(xft_draw, &title_color, font, 5, 15, (const FcChar8 *)to_multibyte(caption).c_str(), caption.size());
-                }
+	            if (flag_is_set(window_style_, window_style::title_showed))
+	            {
+	                graphic_.draw_text(rect{ 5, 5, 5, 5 },
+	                    caption,
+	                    theme_color(theme_value::window_text, theme_),
+	                    font_settings{ theme_string(theme_value::window_title_font_name, theme_),
+	                        theme_dimension(theme_value::window_title_font_size, theme_),
+	                        font_decorations::normal });
+	            }
 
-                for (auto &control : controls)
-                {
-                    control->draw(graphic_);
-                }
+	            for (auto &control : controls)
+	            {
+	                control->draw(graphic_);
+	            }
+
+	            graphic_.end_drawing();
 
                 xcb_flush(context_.connection);
             }
@@ -1580,13 +1588,13 @@ void window::process_events()
             	        break;
                     }
 
-                    ws = get_window_size(context_);
+                    /*ws = get_window_size(context_);
                     update_position(ws);
                     update_buttons(false);
                     if (size_change_callback)
                     {
                         size_change_callback(ws.width(), ws.height());
-                    }
+                    }*/
                 }
             	else
             	{

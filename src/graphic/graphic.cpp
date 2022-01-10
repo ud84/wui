@@ -10,6 +10,8 @@
 #include <wui/graphic/graphic.hpp>
 #include <wui/common/flag_helpers.hpp>
 
+#include <wui/system/tools.hpp>
+
 namespace wui
 {
 
@@ -21,7 +23,8 @@ graphic::graphic(system_context &context__)
     mem_bitmap(0),
     background_brush(0)
 #elif __linux__
-    , mem_pixmap(0)
+    , mem_pixmap(0),
+    gc(0)
 #endif
 {
 }
@@ -51,6 +54,38 @@ void graphic::start_drawing(const rect &position, color background_color)
     RECT filling_rect = { draw_position.left, draw_position.top, draw_position.right, draw_position.bottom };
     FillRect(mem_dc, &filling_rect, background_brush);
 #elif __linux__
+    if (!context_.wnd || mem_pixmap)
+    {
+        return;
+    }
+
+    draw_position = position;
+
+    gc = xcb_generate_id(context_.connection);
+    uint32_t mask = XCB_GC_FOREGROUND;
+    uint32_t value[] = { static_cast<uint32_t>(background_color) };
+    auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, mask, value);
+    if (!check_cookie(gc_create_cookie, context_.connection, "graphic::start_drawing xcb_create_gc"))
+    {
+        return;
+    }
+
+    auto screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
+
+    mem_pixmap = xcb_generate_id(context_.connection);
+    auto pixmap_create_cookie = xcb_create_pixmap(context_.connection,
+        screen->root_depth,
+		mem_pixmap,
+        context_.wnd,
+		draw_position.width(),
+		draw_position.height());
+    if (!check_cookie(pixmap_create_cookie, context_.connection, "graphic::start_drawing xcb_create_pixmap"))
+    {
+        return;
+    }
+
+    xcb_rectangle_t rct = { 0, 0, static_cast<uint16_t>(draw_position.width()), static_cast<uint16_t>(draw_position.height()) };
+    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
 #endif
 }
 
@@ -70,6 +105,24 @@ void graphic::end_drawing()
             SRCCOPY);
     }
 #elif __linux__
+    if (context_.wnd)
+    {
+    	auto copy_area_cookie = xcb_copy_area(context_.connection,
+            mem_pixmap,
+            context_.wnd,
+            gc,
+            0,
+            0,
+            draw_position.left,
+            draw_position.top,
+            draw_position.width(),
+            draw_position.height());
+
+        if (!check_cookie(copy_area_cookie, context_.connection, "graphic::end_drawing xcb_copy_area"))
+        {
+            return;
+        }
+    }
 #endif
 
     clear_resources();
@@ -150,6 +203,20 @@ void graphic::draw_rect(const rect &position, color fill_color)
 
     DeleteObject(brush);
 #elif __linux__
+
+    auto gc_ = xcb_generate_id(context_.connection);
+
+    uint32_t mask = XCB_GC_FOREGROUND;
+    uint32_t value[] = { static_cast<uint32_t>(fill_color) };
+    auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
+
+    xcb_rectangle_t rct = { static_cast<int16_t>(position.left),
+        static_cast<int16_t>(position.top),
+	    static_cast<uint16_t>(position.width()),
+	    static_cast<uint16_t>(position.height()) };
+    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc_, 1, &rct);
+
+    xcb_free_gc(context_.connection, gc_);
 #endif
 }
 
@@ -170,6 +237,7 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
     SelectObject(mem_dc, old_pen);
     DeleteObject(pen);
 #elif __linux__
+    draw_rect(position, fill_color);
 #endif
 }
 
@@ -196,6 +264,24 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
             SRCCOPY);
     }
 #elif __linux__
+    if (graphic_.drawable())
+    {
+    	auto copy_area_cookie = xcb_copy_area(context_.connection,
+            mem_pixmap,
+            context_.wnd,
+            gc,
+			left_shift,
+			right_shift,
+            draw_position.left,
+            draw_position.top,
+            draw_position.width(),
+            draw_position.height());
+
+        if (!check_cookie(copy_area_cookie, context_.connection, "graphic::draw_graphic xcb_copy_area"))
+        {
+            return;
+        }
+    }
 #endif
 }
 
@@ -223,6 +309,19 @@ void graphic::clear_resources()
     DeleteObject(background_brush);
     background_brush = 0;
 #elif __linux__
+    if (mem_pixmap)
+    {
+        auto free_pixmap_cookie = xcb_free_pixmap(context_.connection, mem_pixmap);
+        check_cookie(free_pixmap_cookie, context_.connection, "graphic::clear_resources");
+        mem_pixmap = 0;
+    }
+
+    if (gc)
+    {
+        auto free_gc_cookie = xcb_free_gc(context_.connection, gc);
+        check_cookie(free_gc_cookie, context_.connection, "graphic::clear_resources");
+        gc = 0;
+    }
 #endif
 }
 

@@ -29,7 +29,7 @@ enum class cursor
 void set_cursor(system_context &context, cursor cursor_);
 
 #ifdef __linux__
-bool test_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message);
+bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message);
 #endif
 
 }

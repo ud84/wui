@@ -105,7 +105,7 @@ void set_cursor(system_context &context, cursor cursor_)
 	}
 }
 
-bool test_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message)
+bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message)
 {
     xcb_generic_error_t *error = xcb_request_check(connection, cookie);
     if (error)
