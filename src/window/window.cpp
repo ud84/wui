@@ -17,6 +17,8 @@
 
 #include <wui/common/flag_helpers.hpp>
 
+#include <wui/system/tools.hpp>
+
 #include <algorithm>
 
 #ifdef _WIN32
@@ -28,26 +30,12 @@
 
 #include <stdlib.h>
 #include <xcb/xcb_atom.h>
-#include <xcb/xcb_cursor.h>
 #include <wui/common/char_helpers.hpp>
 
 #endif
 
 // Some helpers
 #ifdef __linux__
-
-bool test_cookie(xcb_void_cookie_t cookie,
-                xcb_connection_t *connection,
-                const char *errMessage)
-{
-    xcb_generic_error_t *error = xcb_request_check(connection, cookie);
-    if (error)
-    {
-        fprintf(stderr, "ERROR: %s : %d\n", errMessage , error->error_code);
-        return false;
-    }
-    return true;
-}
 
 void remove_window_decorations(wui::system_context &context)
 {
@@ -78,21 +66,6 @@ void remove_window_decorations(wui::system_context &context)
         &hints);
 
     free(reply);
-}
-
-void set_cursor(wui::system_context &context, const char *cursorId)
-{
-    xcb_cursor_context_t *ctx;
-    auto screen = xcb_setup_roots_iterator(xcb_get_setup(context.connection)).data;
-    if (xcb_cursor_context_new(context.connection, screen, &ctx) >= 0)
-	{
-	    xcb_cursor_t cursor = xcb_cursor_load_cursor(ctx, cursorId);
-	    if (cursor != XCB_CURSOR_NONE)
-	    {
-	        xcb_change_window_attributes(context.connection, context.wnd, XCB_CW_CURSOR, &cursor);
-	    }
-	    xcb_cursor_context_free(ctx);
-	}
 }
 
 wui::rect get_window_size(wui::system_context &context)
@@ -1078,24 +1051,24 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 if ((x_mouse > window_rect.right - window_rect.left - 5 && y_mouse > window_rect.bottom - window_rect.top - 5) ||
                     (x_mouse < 5 && y_mouse < 5))
                 {
-                    SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
+                    set_cursor(context_, cursor::size_nwse);
                 }
                 else if ((x_mouse > window_rect.right - window_rect.left - 5 && y_mouse < 5) ||
                     (x_mouse < 5 && y_mouse > window_rect.bottom - window_rect.top - 5))
                 {
-                    SetCursor(LoadCursor(NULL, IDC_SIZENESW));
+                    set_cursor(context_, cursor::size_nesw);
                 }
                 else if (x_mouse > window_rect.right - window_rect.left - 5 || x_mouse < 5)
                 {
-                    SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+                    set_cursor(context_, cursor::size_we);
                 }
                 else if (y_mouse > window_rect.bottom - window_rect.top - 5 || y_mouse < 5)
                 {
-                    SetCursor(LoadCursor(NULL, IDC_SIZENS));
+                    set_cursor(context_, cursor::size_ns);
                 }
                 else if (!wnd->active_control)
                 {
-                    SetCursor(LoadCursor(NULL, IDC_ARROW));
+                	set_cursor(context_, cursor::default_);
                 }
             }
 
@@ -1469,24 +1442,24 @@ void window::process_events()
                     if ((x_mouse > ws.width() - 5 && y_mouse > ws.height() - 5) ||
                         (x_mouse < 5 && y_mouse < 5))
                     {
-                        set_cursor(context_, "top_left_corner");
+                        set_cursor(context_, cursor::size_nwse);
                     }
                     else if ((x_mouse > ws.width() - 5 && y_mouse < 5) ||
                         (x_mouse < 5 && y_mouse > ws.height() - 5))
                     {
-                        set_cursor(context_, "top_right_corner");
+                    	set_cursor(context_, cursor::size_nesw);
                     }
                     else if (x_mouse > ws.width() - 5 || x_mouse < 5)
                     {
-                        set_cursor(context_, "sb_h_double_arrow");
+                    	set_cursor(context_, cursor::size_we);
                     }
                     else if (y_mouse > ws.height() - 5 || y_mouse < 5)
                     {
-                        set_cursor(context_, "sb_v_double_arrow");
+                    	set_cursor(context_, cursor::size_ns);
                     }
                     else if (!active_control)
                     {
-                        set_cursor(context_, "default");
+                    	set_cursor(context_, cursor::default_);
                     }
                 }
 

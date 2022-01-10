@@ -15,6 +15,8 @@
 
 #include <wui/theme/theme.hpp>
 
+#include <wui/system/tools.hpp>
+
 namespace wui
 {
 
@@ -190,9 +192,11 @@ void button::receive_event(const event &ev)
             case mouse_event_type::enter:
             {
                 active = true;
-#ifdef _WIN32
-                SetCursor(LoadCursor(NULL, IDC_ARROW));
-#endif
+                auto parent_ = parent.lock();
+                if (parent_)
+                {
+                    set_cursor(parent_->context(), cursor::default_);
+                }
                 redraw();
             }
             break;

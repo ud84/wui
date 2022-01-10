@@ -4,6 +4,7 @@ file(GLOB SOURCES
 	graphic/*.cpp
 	theme/*.cpp
 	theme/impl/*.cpp
+	system/*.cpp
 	window/*.cpp)
 
 include_directories(../include)

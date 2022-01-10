@@ -13,6 +13,8 @@
 
 #include <wui/theme/theme.hpp>
 
+#include <wui/system/tools.hpp>
+
 namespace wui
 {
 
@@ -95,7 +97,6 @@ void input::draw(graphic &gr)
         auto start_coordinate = calculate_text_dimensions(mem_gr, text_, select_start_position, font_).right;
         auto end_coordinate = calculate_text_dimensions(mem_gr, text_, select_end_position, font_).right;
 
-        RECT selection_rect = { start_coordinate, 0, end_coordinate, full_text_dimensions.bottom };
         mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, full_text_dimensions.bottom }, theme_color(theme_value::input_selection, theme_));
     }
 
@@ -130,7 +131,6 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
         return 0;
     }
 
-#ifdef _WIN32
     x -= position_.left + input_horizontal_indent - left_shift;
 
 #ifdef _WIN32
@@ -157,11 +157,6 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
 #endif
 
     return count;
-
-#elif __linux__
-
-    return 0;
-#endif
 }
 
 void input::update_select_positions(bool shift_pressed, size_t start_position, size_t end_position)
@@ -263,11 +258,16 @@ void input::receive_event(const event &ev)
         switch (ev.mouse_event_.type)
         {
             case mouse_event_type::enter:
-#ifdef _WIN32
-                SetCursor(LoadCursor(NULL, IDC_IBEAM));
-#endif
+            {
+                auto parent_ = parent.lock();
+                if (parent_)
+                {
+                    set_cursor(parent_->context(), cursor::ibeam);
+                }
+            }
             break;
             case mouse_event_type::leave:
+            {
                 if (selecting)
                 {
                     if (select_start_position < select_end_position)
@@ -282,9 +282,13 @@ void input::receive_event(const event &ev)
                     }
                 }
                 selecting = false;
-#ifdef _WIN32
-                SetCursor(LoadCursor(NULL, IDC_ARROW));
-#endif
+
+                auto parent_ = parent.lock();
+                if (parent_)
+                {
+                    set_cursor(parent_->context(), cursor::default_);
+                }
+            }
             break;
             case mouse_event_type::left_down:
                 cursor_position = calculate_mouse_cursor_position(ev.mouse_event_.x);

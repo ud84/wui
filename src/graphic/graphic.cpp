@@ -20,6 +20,8 @@ graphic::graphic(system_context &context__)
     , mem_dc(0),
     mem_bitmap(0),
     background_brush(0)
+#elif __linux__
+    , mem_pixmap(0)
 #endif
 {
 }
@@ -205,6 +207,7 @@ HDC graphic::drawable()
 #elif __linux__
 xcb_drawable_t graphic::drawable()
 {
+    return mem_pixmap;
 }
 #endif
 

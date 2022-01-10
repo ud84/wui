@@ -9,31 +9,27 @@
 
 #pragma once
 
-#ifdef _WIN32
-#include <windows.h>
-#elif __linux__
-#include <xcb/xcb.h>
-#endif
+#include <wui/system/system_context.hpp>
 
 namespace wui
 {
 
-#ifdef _WIN32
-
-struct system_context
+enum class cursor
 {
-    HWND hwnd;
-    HDC dc;
+	default_,
+	hand,
+	ibeam,
+	wait,
+	size_nwse,
+	size_nesw,
+	size_we,
+	size_ns
 };
 
-#elif __linux__
+void set_cursor(system_context &context, cursor cursor_);
 
-struct system_context
-{
-    xcb_connection_t *connection;
-    xcb_window_t     wnd;
-};
-
+#ifdef __linux__
+bool test_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message);
 #endif
 
 }

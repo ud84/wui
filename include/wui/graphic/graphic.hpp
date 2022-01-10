@@ -74,6 +74,7 @@ private:
 
 #elif __linux__
 
+    xcb_pixmap_t mem_pixmap;
 #endif
 
     void clear_resources();
