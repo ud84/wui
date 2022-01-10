@@ -42,7 +42,7 @@ void remove_window_decorations(wui::system_context &context)
     std::string mwh = "_MOTIF_WM_HINTS";
     xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(context.connection,
         xcb_intern_atom(context.connection, 0, mwh.size(), mwh.c_str()),
-	    NULL);
+        NULL);
 
     struct WMHints
     {
@@ -58,9 +58,9 @@ void remove_window_decorations(wui::system_context &context)
 
     xcb_change_property(context.connection,
         XCB_PROP_MODE_REPLACE,
-		context.wnd,
+        context.wnd,
         reply->atom,
-		XCB_ATOM_WM_HINTS,
+        XCB_ATOM_WM_HINTS,
         32,
         5,
         &hints);
@@ -70,15 +70,15 @@ void remove_window_decorations(wui::system_context &context)
 
 wui::rect get_window_size(wui::system_context &context)
 {
-	auto geom = xcb_get_geometry_reply(context.connection, xcb_get_geometry(context.connection, context.wnd), NULL);
-	if (geom)
-	{
-		wui::rect out{ geom->x, geom->y, geom->x + geom->width, geom->y + geom->height };
-		free(geom);
+    auto geom = xcb_get_geometry_reply(context.connection, xcb_get_geometry(context.connection, context.wnd), NULL);
+    if (geom)
+    {
+        wui::rect out{ geom->x, geom->y, geom->x + geom->width, geom->y + geom->height };
+        free(geom);
 
-		return out;
-	}
-	return wui::rect{ 0, 0, 0, 0 };
+        return out;
+    }
+    return wui::rect{ 0 };
 }
 
 #endif
@@ -117,9 +117,9 @@ window::window()
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, L"", 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? L"" : L"", 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
-	wm_protocols_event(nullptr), wm_delete_msg(nullptr),
-	runned(false),
-	thread()
+    wm_protocols_event(nullptr), wm_delete_msg(nullptr),
+    runned(false),
+    thread()
 #endif
 {
     pin_button->disable_focusing();
@@ -130,7 +130,7 @@ window::window()
 
 window::~window()
 {
-	if (parent)
+    if (parent)
     {
         parent->remove_control(shared_from_this());
     }
@@ -1072,7 +1072,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 }
                 else if (!wnd->active_control)
                 {
-                	set_cursor(wnd->context_, cursor::default_);
+                    set_cursor(wnd->context_, cursor::default_);
                 }
             }
 
@@ -1419,7 +1419,7 @@ void window::process_events()
         {
 	        case XCB_EXPOSE:
 	        {
-	        	auto ws = get_window_size(context_);
+                auto ws = get_window_size(context_);
 	            graphic_.start_drawing(rect{ 0, 0, ws.width(), ws.height() }, theme_color(theme_value::window_background, theme_));
 
 	            if (flag_is_set(window_style_, window_style::title_showed))
@@ -1513,10 +1513,10 @@ void window::process_events()
                             uint32_t height = ws.height();
                             if (width > min_width && height > min_height)
                             {
-            	        	    uint32_t values[] = { width };
-            	        	    xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_WIDTH, values);
-            	        	    xcb_flush(context_.connection);
-            	        	}
+                                uint32_t values[] = { width };
+                                xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_WIDTH, values);
+                                xcb_flush(context_.connection);
+                            }
             	        }
             	        break;
             	        case moving_mode::size_ns_top:
@@ -1538,9 +1538,9 @@ void window::process_events()
             	            uint32_t height = y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	        	    uint32_t values[] = { height };
-            	        	    xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_HEIGHT, values);
-            	        	    xcb_flush(context_.connection);
+                                uint32_t values[] = { height };
+                                xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_HEIGHT, values);
+                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
@@ -1563,9 +1563,9 @@ void window::process_events()
             	            uint32_t height = y_mouse;
                             if (width > min_width && height > min_height)
             	            {
-            	        	    uint32_t values[] = { width, height };
-            	        	    xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-            	        	    xcb_flush(context_.connection);
+                                uint32_t values[] = { width, height };
+                                xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
@@ -1705,7 +1705,7 @@ void window::process_events()
                 }
             break;
         }
-	    free(e);
+        free(e);
     }
 }
 

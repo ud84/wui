@@ -31,17 +31,17 @@ void set_cursor(system_context &, cursor cursor_)
 {
     switch (cursor_)
     {
-	    case cursor::default_:
-	        SetCursor(LoadCursor(NULL, IDC_ARROW));
+        case cursor::default_:
+            SetCursor(LoadCursor(NULL, IDC_ARROW));
         break;
-	    case cursor::hand:
-	        SetCursor(LoadCursor(NULL, IDC_HAND));
+        case cursor::hand:
+            SetCursor(LoadCursor(NULL, IDC_HAND));
         break;
-	    case cursor::ibeam:
-	        SetCursor(LoadCursor(NULL, IDC_IBEAM));
+        case cursor::ibeam:
+            SetCursor(LoadCursor(NULL, IDC_IBEAM));
         break;
         case cursor::wait:
-	        SetCursor(LoadCursor(NULL, IDC_WAIT));
+            SetCursor(LoadCursor(NULL, IDC_WAIT));
         break;
         case cursor::size_nwse:
             SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
@@ -62,18 +62,18 @@ void set_cursor(system_context &, cursor cursor_)
 
 void set_cursor(system_context &context, cursor cursor_)
 {
-	std::string cursor_id;
+    std::string cursor_id;
 
     switch (cursor_)
     {
-	    case cursor::default_:
-	        cursor_id = "default";
+        case cursor::default_:
+            cursor_id = "default";
         break;
-	    case cursor::hand:
-	        cursor_id = "hand";
+        case cursor::hand:
+            cursor_id = "hand";
         break;
-	    case cursor::ibeam:
-	        cursor_id = "ibeam";
+        case cursor::ibeam:
+            cursor_id = "ibeam";
         break;
         case cursor::wait:
             cursor_id = "wait";
@@ -95,14 +95,14 @@ void set_cursor(system_context &context, cursor cursor_)
     xcb_cursor_context_t *ctx;
     auto screen = xcb_setup_roots_iterator(xcb_get_setup(context.connection)).data;
     if (xcb_cursor_context_new(context.connection, screen, &ctx) >= 0)
-	{
-	    xcb_cursor_t cursor = xcb_cursor_load_cursor(ctx, cursor_id.c_str());
-	    if (cursor != XCB_CURSOR_NONE)
-	    {
-	        xcb_change_window_attributes(context.connection, context.wnd, XCB_CW_CURSOR, &cursor);
-	    }
-	    xcb_cursor_context_free(ctx);
-	}
+    {
+        xcb_cursor_t cursor = xcb_cursor_load_cursor(ctx, cursor_id.c_str());
+        if (cursor != XCB_CURSOR_NONE)
+        {
+            xcb_change_window_attributes(context.connection, context.wnd, XCB_CW_CURSOR, &cursor);
+        }
+        xcb_cursor_context_free(ctx);
+    }
 }
 
 bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message)

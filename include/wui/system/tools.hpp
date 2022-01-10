@@ -16,14 +16,14 @@ namespace wui
 
 enum class cursor
 {
-	default_,
-	hand,
-	ibeam,
-	wait,
-	size_nwse,
-	size_nesw,
-	size_we,
-	size_ns
+    default_,
+    hand,
+    ibeam,
+    wait,
+    size_nwse,
+    size_nesw,
+    size_we,
+    size_ns
 };
 
 void set_cursor(system_context &context, cursor cursor_);
