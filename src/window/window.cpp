@@ -1051,24 +1051,24 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 if ((x_mouse > window_rect.right - window_rect.left - 5 && y_mouse > window_rect.bottom - window_rect.top - 5) ||
                     (x_mouse < 5 && y_mouse < 5))
                 {
-                    set_cursor(context_, cursor::size_nwse);
+                    set_cursor(wnd->context_, cursor::size_nwse);
                 }
                 else if ((x_mouse > window_rect.right - window_rect.left - 5 && y_mouse < 5) ||
                     (x_mouse < 5 && y_mouse > window_rect.bottom - window_rect.top - 5))
                 {
-                    set_cursor(context_, cursor::size_nesw);
+                    set_cursor(wnd->context_, cursor::size_nesw);
                 }
                 else if (x_mouse > window_rect.right - window_rect.left - 5 || x_mouse < 5)
                 {
-                    set_cursor(context_, cursor::size_we);
+                    set_cursor(wnd->context_, cursor::size_we);
                 }
                 else if (y_mouse > window_rect.bottom - window_rect.top - 5 || y_mouse < 5)
                 {
-                    set_cursor(context_, cursor::size_ns);
+                    set_cursor(wnd->context_, cursor::size_ns);
                 }
                 else if (!wnd->active_control)
                 {
-                	set_cursor(context_, cursor::default_);
+                	set_cursor(wnd->context_, cursor::default_);
                 }
             }
 
