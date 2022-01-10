@@ -1010,12 +1010,13 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             PAINTSTRUCT ps;
             wnd->context_.dc = BeginPaint(hwnd, &ps);
+            const rect paint_rect{ ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom };
 
             RECT client_rect;
             GetClientRect(hwnd, &client_rect);
             wnd->graphic_.start_drawing(rect{ 0, 0, client_rect.right, client_rect.bottom }, theme_color(theme_value::window_background, wnd->theme_));
-
-            if (flag_is_set(wnd->window_style_, window_style::title_showed))
+            
+            if (flag_is_set(wnd->window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
             {
                 wnd->graphic_.draw_text(rect{ 5, 5, 5, 5 },
                     wnd->caption,
@@ -1027,7 +1028,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 		
             for (auto &control : wnd->controls)
             {
-                if (control->position().in(rect{ ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom }))
+                if (control->position().in(paint_rect))
                 {
                     control->draw(wnd->graphic_);
                 }
