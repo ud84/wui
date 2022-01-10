@@ -33,6 +33,11 @@ struct rect
         return x >= left && x <= right && y >= top && y <= bottom;
     }
 
+    inline bool in(const rect &outer) const
+    {
+        return !((outer.right <= left || right <= outer.left || outer.bottom <= top || bottom <= outer.top));
+    }
+
     inline int32_t width() const
     {
         return right - left;

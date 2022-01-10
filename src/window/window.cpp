@@ -1027,7 +1027,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 		
             for (auto &control : wnd->controls)
             {
-                control->draw(wnd->graphic_);
+                if (control->position().in(rect{ ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom }))
+                {
+                    control->draw(wnd->graphic_);
+                }
             }
 
             wnd->graphic_.end_drawing();
