@@ -52,6 +52,9 @@
     <Filter Include="Source Files\graphic">
       <UniqueIdentifier>{95509118-5ace-47ee-a101-02ef55accd51}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\system">
+      <UniqueIdentifier>{8e6c47c5-d753-4711-9ad8-a5b3d0dda9f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\wui\common\color.hpp">
@@ -123,6 +126,9 @@
     <ClInclude Include="include\wui\common\flag_helpers.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\system\tools.hpp">
+      <Filter>Header Files\system</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -151,6 +157,9 @@
     </ClCompile>
     <ClCompile Include="src\graphic\graphic.cpp">
       <Filter>Source Files\graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\tools.cpp">
+      <Filter>Source Files\system</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

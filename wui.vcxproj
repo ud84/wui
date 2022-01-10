@@ -34,6 +34,7 @@
     <ClInclude Include="include\wui\event\mouse_event.hpp" />
     <ClInclude Include="include\wui\graphic\graphic.hpp" />
     <ClInclude Include="include\wui\system\system_context.hpp" />
+    <ClInclude Include="include\wui\system\tools.hpp" />
     <ClInclude Include="include\wui\theme\impl\custom_theme.hpp" />
     <ClInclude Include="include\wui\theme\impl\dark_theme.hpp" />
     <ClInclude Include="include\wui\theme\impl\white_theme.hpp" />
@@ -48,6 +49,7 @@
     <ClCompile Include="src\control\image.cpp" />
     <ClCompile Include="src\control\input.cpp" />
     <ClCompile Include="src\graphic\graphic.cpp" />
+    <ClCompile Include="src\system\tools.cpp" />
     <ClCompile Include="src\theme\impl\custom_theme.cpp" />
     <ClCompile Include="src\theme\impl\dark_theme.cpp" />
     <ClCompile Include="src\theme\impl\white_theme.cpp" />
