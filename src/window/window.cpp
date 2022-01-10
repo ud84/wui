@@ -1599,18 +1599,19 @@ void window::process_events()
 
                     ws = get_window_size(context_);
 
-                    if (ws.width() != position_.width() || ws.height() != position_.height())
-                    {
-                        if (ws.width() != position_.width())
-                        {
-                            update_buttons(false);
-                        }
-                        if (size_change_callback)
-                        {
-                            size_change_callback(ws.width(), ws.height());
-                        }
-                    }
+                    auto old_position = position_;
+
                     update_position(ws);
+
+                    if (ws.width() != old_position.width())
+                    {
+                        update_buttons(false);
+                    }
+
+                    if (ws.width() != old_position.width() && height != old_position.height() && size_change_callback)
+                    {
+                        size_change_callback(ws.width(), ws.height());
+                    }
                 }
             	else
             	{
