@@ -60,6 +60,7 @@ void graphic::start_drawing(const rect &full_size, color background_color)
     uint32_t mask = XCB_GC_FOREGROUND;
     uint32_t value[] = { static_cast<uint32_t>(background_color) };
     auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, mask, value);
+    //auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, 0, nullptr);
     if (!check_cookie(gc_create_cookie, context_.connection, "graphic::start_drawing xcb_create_gc"))
     {
         return;

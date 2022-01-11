@@ -1683,11 +1683,11 @@ void window::process_events()
 
                 auto old_position = position_;
 
-                update_position(rect{ ev.x, ev.y, ev.width - ev.x, ev.height - ev.y });
+                update_position(rect{ ev.x, ev.y, ev.x + ev.width, ev.y + ev.height });
 
                 if (ev.width != old_position.width())
                 {
-                    update_buttons(false);
+                    //update_buttons(false);
                 }
 
                 if ((ev.width != old_position.width() || ev.height != old_position.height()) && size_change_callback)
