@@ -423,11 +423,11 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
     if (graphic_.drawable())
     {
     	auto copy_area_cookie = xcb_copy_area(context_.connection,
+            graphic_.drawable(),
             mem_pixmap,
-            context_.wnd,
             gc,
-            position.left, // left_shift,
-            position.top, // right_shift,
+            left_shift,
+            right_shift,
 			position.left,
 			position.top,
 			position.width(),
