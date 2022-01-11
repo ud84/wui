@@ -449,7 +449,6 @@ void input::set_position(const rect &position__)
     auto prev_position = position_;
     position_ = position__;
 
-#ifdef _WIN32
     if (showed_)
     {
         auto parent_ = parent.lock();
@@ -460,7 +459,6 @@ void input::set_position(const rect &position__)
     }
 	
     redraw();
-#endif
 }
 
 rect input::position() const
@@ -593,8 +591,6 @@ void input::redraw()
         {
             parent_->redraw(position_);
         }
-
-        redraw();
     }
 }
 
