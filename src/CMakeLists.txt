@@ -5,7 +5,9 @@ file(GLOB SOURCES
 	theme/*.cpp
 	theme/impl/*.cpp
 	system/*.cpp
-	window/*.cpp)
+	window/*.cpp
+	../thirdparty/xcbft/src/utf8_utils/*.c
+	../thirdparty/xcbft/src/xcbft/*.c)
 
 include_directories(../include)
 

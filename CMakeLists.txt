@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libstdc++ -static-lib
 
 include_directories(
 	include
+	thirdparty/xcbft/include
 	/usr/include/freetype2)
 
 link_directories(

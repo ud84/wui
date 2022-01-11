@@ -1436,7 +1436,8 @@ void window::process_events()
                 {
                     graphic_.clear(paint_rect);
                 }
-	            if (flag_is_set(window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
+
+                if (flag_is_set(window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
 	            {
 	                graphic_.draw_text(rect{ 5, 5, 5, 5 },
 	                    caption,

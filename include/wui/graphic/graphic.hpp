@@ -15,6 +15,12 @@
 #include <string>
 #include <cstdint>
 
+#ifdef __linux__
+extern "C" {
+#include <xcbft/xcbft.h>
+}
+#endif
+
 namespace wui
 {
 
@@ -83,6 +89,9 @@ private:
 
     xcb_pixmap_t mem_pixmap;
     xcb_gcontext_t gc;
+
+    struct xcbft_face_holder font_faces;
+
 #endif
 
 };
