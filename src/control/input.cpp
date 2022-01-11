@@ -86,7 +86,12 @@ void input::draw(graphic &gr)
 #ifdef _WIN32
     system_context ctx = { 0, gr.drawable() };
 #elif __linux__
-    system_context ctx;
+    system_context ctx = { 0 };
+    auto parent_ = parent.lock();
+    if (parent_)
+    {
+        ctx = { parent_->context().connection, parent_->context().screen, gr.drawable() };
+    }
 #endif
     graphic mem_gr(ctx);
     mem_gr.init(full_text_dimensions, theme_color(theme_value::input_background, theme_));
@@ -136,7 +141,12 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
 #ifdef _WIN32
     system_context ctx = { 0, GetDC(NULL) };
 #elif __linux__
-    system_context ctx;
+    system_context ctx = { 0 };
+    auto parent_ = parent.lock();
+    if (parent_)
+    {
+        ctx = { parent_->context().connection, parent_->context().screen, parent_->context().wnd };
+    }
 #endif
     graphic mem_gr(ctx);
     mem_gr.init(position_, theme_color(theme_value::input_background, theme_));

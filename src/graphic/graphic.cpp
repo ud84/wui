@@ -31,7 +31,9 @@ graphic::graphic(system_context &context__)
     background_brush(0)
 #elif __linux__
     , mem_pixmap(0),
-    gc(0)
+    gc(0),
+    surface(nullptr),
+    cr(nullptr)
 #endif
 {
 }
@@ -61,7 +63,7 @@ void graphic::init(const rect &max_size_, color background_color)
     RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
     FillRect(mem_dc, &filling_rect, background_brush);
 #elif __linux__
-    if (!context_.wnd || mem_pixmap)
+    if (!context_.connection || mem_pixmap)
     {
         return;
     }
@@ -77,11 +79,9 @@ void graphic::init(const rect &max_size_, color background_color)
         return;
     }
 
-    auto screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
-
     mem_pixmap = xcb_generate_id(context_.connection);
     auto pixmap_create_cookie = xcb_create_pixmap(context_.connection,
-        screen->root_depth,
+        context_.screen->root_depth,
         mem_pixmap,
         context_.wnd,
         max_size.width(),
@@ -96,6 +96,27 @@ void graphic::init(const rect &max_size_, color background_color)
         static_cast<uint16_t>(max_size.width()),
         static_cast<uint16_t>(max_size.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+
+    xcb_visualtype_t *visual_type;
+
+    auto depth_iter = xcb_screen_allowed_depths_iterator(context_.screen);
+    for (; depth_iter.rem; xcb_depth_next(&depth_iter))
+    {
+        auto visual_iter = xcb_depth_visuals_iterator(depth_iter.data);
+        for (; visual_iter.rem; xcb_visualtype_next(&visual_iter))
+        {
+            if (context_.screen->root_visual == visual_iter.data->visual_id)
+            {
+                visual_type = visual_iter.data;
+                goto visual_found;
+            }
+        }
+    }
+    visual_found: ;
+
+    surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, visual_type, max_size.width(), max_size.height());
+    cr = cairo_create(surface);
+
 #endif
 }
 
@@ -124,6 +145,18 @@ void graphic::release()
         check_cookie(free_gc_cookie, context_.connection, "graphic::clear_resources");
         gc = 0;
     }
+
+    if (cr)
+    {
+        cairo_destroy(cr);
+        cr = nullptr;
+    }
+    if (surface)
+    {
+        cairo_surface_destroy(surface);
+        surface = nullptr;
+    }
+
 #endif
 }
 
@@ -172,7 +205,7 @@ void graphic::clear(const rect &position)
     RECT filling_rect = { position.left, position.top, position.right, position.bottom };
     FillRect(mem_dc, &filling_rect, background_brush);
 #elif __linux__
-    if (!context_.wnd || !mem_pixmap)
+    if (!mem_pixmap)
     {
         return;
     }
@@ -257,7 +290,13 @@ rect graphic::measure_text(const std::wstring &text, const font_settings &font_)
 
     return rect {0, 0, text_rect.right, text_rect.bottom};
 #elif __linux__
-    return rect{ 0, 0, 0, 0 };
+    cairo_text_extents_t extents;
+
+    cairo_select_font_face(cr, to_multibyte(font_.name).c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, font_.size + 3);
+    cairo_text_extents(cr, to_multibyte(text).c_str(), &extents);
+
+    return rect{ 0, 0, extents.width, extents.height + extents.y_bearing * 2 };
 #endif
 }
 
@@ -281,7 +320,12 @@ void graphic::draw_text(const rect &position, const std::wstring &text_, color c
     SelectObject(mem_dc, old_font);
     DeleteObject(font);
 #elif __linux__
-
+    cairo_select_font_face(cr, to_multibyte(font_.name).c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, font_.size + 3);
+    cairo_set_source_rgb(cr, get_red(color_), get_green(color_), get_blue(color_));
+    cairo_move_to(cr, position.left, position.top);
+    cairo_show_text(cr, to_multibyte(text_).c_str());
+    cairo_surface_flush(surface);
 #endif
 }
 
@@ -376,8 +420,8 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
             mem_pixmap,
             context_.wnd,
             gc,
-			left_shift,
-			right_shift,
+            position.left, //left_shift,
+            position.top, //right_shift,
 			position.left,
 			position.top,
 			position.width(),

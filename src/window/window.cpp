@@ -883,7 +883,7 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     	return false;
     }
 
-    auto screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
+    context_.screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
 
     context_.wnd = xcb_generate_id(context_.connection);
 
@@ -898,12 +898,12 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     xcb_create_window(context_.connection,
                       XCB_COPY_FROM_PARENT,
                       context_.wnd,
-					  screen->root, // parent window
+					  context_.screen->root, // parent window
                       position_.left, position_.top,
                       position_.width(), position_.height(),
                       0,
                       XCB_WINDOW_CLASS_INPUT_OUTPUT,
-					  screen->root_visual,
+                      context_.screen->root_visual,
                       mask, values);
 
     remove_window_decorations(context_);
@@ -1437,7 +1437,7 @@ void window::process_events()
                     graphic_.clear(paint_rect);
                 }
 
-                if (flag_is_set(window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
+                if (flag_is_set(window_style_, window_style::title_showed) && rect { 5, 5, 100, 30}.in(paint_rect))
 	            {
 	                graphic_.draw_text(rect{ 5, 5, 5, 5 },
 	                    caption,

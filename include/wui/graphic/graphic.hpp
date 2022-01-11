@@ -16,6 +16,8 @@
 #include <cstdint>
 
 #ifdef __linux__
+struct _cairo_surface;
+struct _cairo;
 #endif
 
 namespace wui
@@ -86,6 +88,9 @@ private:
 
     xcb_pixmap_t mem_pixmap;
     xcb_gcontext_t gc;
+
+    _cairo_surface *surface;
+    _cairo *cr;
 
 #endif
 
