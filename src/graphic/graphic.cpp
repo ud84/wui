@@ -36,6 +36,24 @@ graphic::~graphic()
 
 void graphic::init(const rect &max_size_, color background_color)
 {
+#ifdef _WIN32
+    if (!context_.dc || mem_dc)
+    {
+        return;
+    }
+
+    max_size = max_size_;
+
+    mem_dc = CreateCompatibleDC(context_.dc);
+
+    HBITMAP mem_bitmap = CreateCompatibleBitmap(context_.dc, max_size.width(), max_size.height());
+    SelectObject(mem_dc, mem_bitmap);
+
+    background_brush = CreateSolidBrush(background_color);
+
+    RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
+    FillRect(mem_dc, &filling_rect, background_brush);
+#elif __linux__
     if (!context_.wnd || mem_pixmap)
     {
         return;
@@ -71,6 +89,7 @@ void graphic::init(const rect &max_size_, color background_color)
         max_size.width(),
         max_size.height() };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+#endif
 }
 
 void graphic::release()
@@ -103,6 +122,14 @@ void graphic::release()
 
 void graphic::set_background_color(color background_color)
 {
+#ifdef _WIN32
+    DeleteObject(background_brush);
+    
+    background_brush = CreateSolidBrush(background_color);
+
+    RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
+    FillRect(mem_dc, &filling_rect, background_brush);
+#elif __linux__
     if (gc)
     {
         auto free_gc_cookie = xcb_free_gc(context_.connection, gc);
@@ -124,24 +151,18 @@ void graphic::set_background_color(color background_color)
         max_size.width(),
         max_size.height() };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+#endif
 }
 
 void graphic::clear(const rect &position)
 {
 #ifdef _WIN32
-    if (!context_.dc || mem_dc)
+    if (!context_.dc || !mem_dc)
     {
         return;
     }
 
-    background_brush = CreateSolidBrush(background_color);
-
-    mem_dc = CreateCompatibleDC(context_.dc);
-
-    HBITMAP mem_bitmap = CreateCompatibleBitmap(context_.dc, full_size.width(), full_size.height());
-    SelectObject(mem_dc, mem_bitmap);
-
-    RECT filling_rect = { full_size.left, full_size.top, full_size.right, full_size.bottom };
+    RECT filling_rect = { position.left, position.top, position.right, position.bottom };
     FillRect(mem_dc, &filling_rect, background_brush);
 #elif __linux__
     if (!context_.wnd || !mem_pixmap)

@@ -369,6 +369,8 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 
     if (!parent)
     {
+        graphic_.set_background_color(theme_color(theme_value::window_background, theme_));
+
         RECT client_rect;
         GetClientRect(context_.hwnd, &client_rect);
         InvalidateRect(context_.hwnd, &client_rect, TRUE);
@@ -924,7 +926,7 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
     xcb_flush(context_.connection);
 
-    graphic_.init(theme_color(theme_value::window_background, theme_));
+    graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(theme_value::window_background, theme_));
 
     runned = true;
     if (thread.joinable()) thread.join();
@@ -1003,6 +1005,12 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
         case WM_CREATE:
         {
             SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(reinterpret_cast<CREATESTRUCT*>(l_param)->lpCreateParams));
+
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+            wnd->context_.dc = GetDC(hwnd);
+
+            wnd->graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(theme_value::window_background, wnd->theme_));
         }
         break;
         case WM_PAINT:
@@ -1010,14 +1018,15 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
             PAINTSTRUCT ps;
-            wnd->context_.dc = BeginPaint(hwnd, &ps);
+            BeginPaint(hwnd, &ps);
+
             const rect paint_rect{ ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom };
 
-            RECT client_rect;
-            GetClientRect(hwnd, &client_rect);
-            wnd->graphic_.start_drawing(rect{ 0, 0, client_rect.right, client_rect.bottom }, theme_color(theme_value::window_background, wnd->theme_));
-            
-            if (flag_is_set(wnd->window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
+            if (ps.fErase)
+            {
+                wnd->graphic_.clear(paint_rect);
+            }
+            if (flag_is_set(wnd->window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30 }.in(paint_rect))
             {
                 wnd->graphic_.draw_text(rect{ 5, 5, 5, 5 },
                     wnd->caption,
@@ -1026,7 +1035,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         theme_dimension(theme_value::window_title_font_size, wnd->theme_),
                         font_decorations::normal });
             }
-		
+
             for (auto &control : wnd->controls)
             {
                 if (control->position().in(paint_rect))
@@ -1035,10 +1044,9 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 }
             }
 
-            wnd->graphic_.end_drawing(paint_rect);
+            wnd->graphic_.flush(paint_rect);
 
             EndPaint(wnd->context_.hwnd, &ps);
-            wnd->context_.dc = 0;
         }
         break;
         case WM_MOUSEMOVE:
@@ -1394,6 +1402,9 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
         case WM_DESTROY:
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+            wnd->graphic_.release();
+
             if (!wnd->parent && wnd->close_callback)
             {
                 wnd->close_callback();
@@ -1419,31 +1430,29 @@ void window::process_events()
 	        {
 	            auto expose = (*(xcb_expose_event_t*)e);
 
-	            bool clear = expose.pad0 != 0;
-
 	            const rect paint_rect{ expose.x, expose.y, expose.x + expose.width, expose.y + expose.height };
 
-                if (clear)
+                if (expose.pad0 != 0)
                 {
                     graphic_.clear(paint_rect);
                 }
-	                if (flag_is_set(window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
-	                {
-	                    graphic_.draw_text(rect{ 5, 5, 5, 5 },
-	                        caption,
-	                        theme_color(theme_value::window_text, theme_),
-	                        font_settings{ theme_string(theme_value::window_title_font_name, theme_),
-	                            theme_dimension(theme_value::window_title_font_size, theme_),
-	                            font_decorations::normal });
-	                }
+	            if (flag_is_set(window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
+	            {
+	                graphic_.draw_text(rect{ 5, 5, 5, 5 },
+	                    caption,
+	                    theme_color(theme_value::window_text, theme_),
+	                    font_settings{ theme_string(theme_value::window_title_font_name, theme_),
+	                        theme_dimension(theme_value::window_title_font_size, theme_),
+	                        font_decorations::normal });
+	            }
 
-	                for (auto &control : controls)
-	                {
-                        if (control->position().in(paint_rect))
-                        {
-                            control->draw(graphic_);
-                        }
-	                }
+	            for (auto &control : controls)
+	            {
+                    if (control->position().in(paint_rect))
+                    {
+                        control->draw(graphic_);
+                    }
+	            }
 
 	            graphic_.flush(paint_rect);
 
