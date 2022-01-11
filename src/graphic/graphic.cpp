@@ -86,8 +86,8 @@ void graphic::init(const rect &max_size_, color background_color)
 
     xcb_rectangle_t rct = { 0,
         0,
-        max_size.width(),
-        max_size.height() };
+        static_cast<uint16_t>(max_size.width()),
+        static_cast<uint16_t>(max_size.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
 #endif
 }
@@ -148,8 +148,8 @@ void graphic::set_background_color(color background_color)
 
     xcb_rectangle_t rct = { 0,
         0,
-        max_size.width(),
-        max_size.height() };
+        static_cast<uint16_t>(max_size.width()),
+        static_cast<uint16_t>(max_size.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
 #endif
 }
