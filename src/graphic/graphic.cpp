@@ -13,6 +13,10 @@
 
 #ifdef __linux__
 #include <wui/common/char_helpers.hpp>
+
+#include <cairo.h>
+#include <cairo-xcb.h>
+
 #endif
 
 namespace wui
@@ -92,15 +96,6 @@ void graphic::init(const rect &max_size_, color background_color)
         static_cast<uint16_t>(max_size.width()),
         static_cast<uint16_t>(max_size.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
-
-    const char *searchlist = "FreeSans:style=regular:pixelsize=15,monospace:pixelsize=1\n";
-
-    auto *fontsearch = xcbft_extract_fontsearch_list(searchlist);
-    auto font_patterns = xcbft_query_fontsearch_all(fontsearch);
-    FcStrSetDestroy(fontsearch);
-    long dpi = xcbft_get_dpi(context_.connection);
-    font_faces = xcbft_load_faces(font_patterns, dpi);
-    xcbft_patterns_holder_destroy(font_patterns);
 #endif
 }
 
@@ -128,12 +123,6 @@ void graphic::release()
         auto free_gc_cookie = xcb_free_gc(context_.connection, gc);
         check_cookie(free_gc_cookie, context_.connection, "graphic::clear_resources");
         gc = 0;
-    }
-
-    if (font_faces.faces)
-    {
-        xcbft_face_holder_destroy(font_faces);
-        font_faces.faces = nullptr;
     }
 #endif
 }
@@ -292,46 +281,7 @@ void graphic::draw_text(const rect &position, const std::wstring &text_, color c
     SelectObject(mem_dc, old_font);
     DeleteObject(font);
 #elif __linux__
-    /*FcStrSet *fontsearch;
-    struct xcbft_patterns_holder font_patterns;
-    struct utf_holder text;
-    struct xcbft_face_holder faces;*/
-    xcb_render_color_t text_color = { static_cast<unsigned short>(0xffff * get_red(color_) / 0xff),
-        static_cast<unsigned short>(0xffff * get_green(color_) / 0xff),
-        static_cast<unsigned short>(0xffff * get_blue(color_) / 0xff),
-        0xffff };
 
-    // The fonts to use and the text in unicode
-    //const char *searchlist = "FreeSans:style=regular:pixelsize=15,monospace:pixelsize=1\n";
-    auto text = char_to_uint32(to_multibyte(text_).c_str());
-
-    // extract the fonts in a list
-    /*auto *fontsearch = xcbft_extract_fontsearch_list(searchlist);
-    // do the search and it returns all the matching fonts
-    auto font_patterns = xcbft_query_fontsearch_all(fontsearch);
-    // no need for the fonts list anymore
-    FcStrSetDestroy(fontsearch);
-    // get the dpi from the resources or the screen if not available
-    long dpi = xcbft_get_dpi(context_.connection);
-    // load the faces related to the matching fonts patterns
-    auto faces = xcbft_load_faces(font_patterns, dpi);
-    // no need for the matching fonts patterns
-    xcbft_patterns_holder_destroy(font_patterns);*/
-
-    long dpi = xcbft_get_dpi(context_.connection);
-
-    xcbft_draw_text(
-        context_.connection,
-        mem_pixmap,
-        position.left, position.top,
-        text,
-        text_color,
-        font_faces,
-        dpi);
-
-    // no need for the text and the faces
-    utf_holder_destroy(text);
-    //xcbft_face_holder_destroy(faces);
 #endif
 }
 

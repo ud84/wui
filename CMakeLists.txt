@@ -11,9 +11,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libstdc++ -static-lib
 #set(CMAKE_MODULE_LINKER_FLAGS:STRING=-fsanitize=address  -fsanitize=leak)
 
 include_directories(
-	include
-	thirdparty/xcbft/include
-	/usr/include/freetype2)
+	include)
 
 link_directories(
 	src)
