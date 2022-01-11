@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     window->add_control(createPluggedButton, wui::rect{ 270, 50, 380, 75 });
     
     std::shared_ptr<wui::input> nameInput(new wui::input());
-    window->add_control(nameInput, wui::rect{ 10, 250, 400, 275 });
+    //window->add_control(nameInput, wui::rect{ 10, 250, 400, 275 });
 
     std::shared_ptr<wui::window> dialog(new wui::window());
 
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     std::shared_ptr<wui::button> cancelButton(new wui::button(L"Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IDB_ACCOUNT, 24, redButtonTheme));
 
     std::shared_ptr<wui::button> darkThemeButton(new wui::button(L"Set the dark theme", [window, &pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::dark); window->update_theme(); pluggedWindow->window->update_theme(); dialog->update_theme(); }));
-    window->add_control(darkThemeButton, wui::rect{ 140, 350, 150, 375 });
+    window->add_control(darkThemeButton, wui::rect{ 140, 350, 260, 375 });
 	
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button(L"Set the white theme", [window, &pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::white); window->update_theme(); pluggedWindow->window->update_theme(); dialog->update_theme(); }));
     window->add_control(whiteThemeButton, wui::rect{ 290, 350, 380, 375 });

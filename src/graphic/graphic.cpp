@@ -16,7 +16,8 @@ namespace wui
 {
 
 graphic::graphic(system_context &context__)
-    : context_(context__)
+    : context_(context__),
+      max_size()
 #ifdef _WIN32
     , mem_dc(0),
     mem_bitmap(0),
@@ -30,10 +31,102 @@ graphic::graphic(system_context &context__)
 
 graphic::~graphic()
 {
-    clear_resources();
+    release();
 }
 
-void graphic::start_drawing(const rect &full_size, color background_color)
+void graphic::init(const rect &max_size_, color background_color)
+{
+    if (!context_.wnd || mem_pixmap)
+    {
+        return;
+    }
+
+    max_size = max_size_;
+
+    gc = xcb_generate_id(context_.connection);
+    uint32_t mask = XCB_GC_FOREGROUND;
+    uint32_t value[] = { static_cast<uint32_t>(background_color) };
+    auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, mask, value);
+    if (!check_cookie(gc_create_cookie, context_.connection, "graphic::init xcb_create_gc"))
+    {
+        return;
+    }
+
+    auto screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
+
+    mem_pixmap = xcb_generate_id(context_.connection);
+    auto pixmap_create_cookie = xcb_create_pixmap(context_.connection,
+        screen->root_depth,
+        mem_pixmap,
+        context_.wnd,
+        max_size.width(),
+        max_size.height());
+    if (!check_cookie(pixmap_create_cookie, context_.connection, "graphic::init xcb_create_pixmap"))
+    {
+        return;
+    }
+
+    xcb_rectangle_t rct = { 0,
+        0,
+        max_size.width(),
+        max_size.height() };
+    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+}
+
+void graphic::release()
+{
+#ifdef _WIN32
+    DeleteObject(mem_bitmap);
+    mem_bitmap = 0;
+
+    DeleteDC(mem_dc);
+    mem_dc = 0;
+
+    DeleteObject(background_brush);
+    background_brush = 0;
+#elif __linux__
+    if (mem_pixmap)
+    {
+        auto free_pixmap_cookie = xcb_free_pixmap(context_.connection, mem_pixmap);
+        check_cookie(free_pixmap_cookie, context_.connection, "graphic::clear_resources");
+        mem_pixmap = 0;
+    }
+
+    if (gc)
+    {
+        auto free_gc_cookie = xcb_free_gc(context_.connection, gc);
+        check_cookie(free_gc_cookie, context_.connection, "graphic::clear_resources");
+        gc = 0;
+    }
+#endif
+}
+
+void graphic::set_background_color(color background_color)
+{
+    if (gc)
+    {
+        auto free_gc_cookie = xcb_free_gc(context_.connection, gc);
+        check_cookie(free_gc_cookie, context_.connection, "graphic::clear_resources");
+        gc = 0;
+    }
+
+    gc = xcb_generate_id(context_.connection);
+    uint32_t mask = XCB_GC_FOREGROUND;
+    uint32_t value[] = { static_cast<uint32_t>(background_color) };
+    auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, mask, value);
+    if (!check_cookie(gc_create_cookie, context_.connection, "graphic::set_background_color xcb_create_gc"))
+    {
+        return;
+    }
+
+    xcb_rectangle_t rct = { 0,
+        0,
+        max_size.width(),
+        max_size.height() };
+    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+}
+
+void graphic::clear(const rect &position)
 {
 #ifdef _WIN32
     if (!context_.dc || mem_dc)
@@ -51,42 +144,20 @@ void graphic::start_drawing(const rect &full_size, color background_color)
     RECT filling_rect = { full_size.left, full_size.top, full_size.right, full_size.bottom };
     FillRect(mem_dc, &filling_rect, background_brush);
 #elif __linux__
-    if (!context_.wnd || mem_pixmap)
+    if (!context_.wnd || !mem_pixmap)
     {
         return;
     }
 
-    gc = xcb_generate_id(context_.connection);
-    uint32_t mask = XCB_GC_FOREGROUND;
-    uint32_t value[] = { static_cast<uint32_t>(background_color) };
-    auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, mask, value);
-    //auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, 0, nullptr);
-    if (!check_cookie(gc_create_cookie, context_.connection, "graphic::start_drawing xcb_create_gc"))
-    {
-        return;
-    }
-
-    auto screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
-
-    mem_pixmap = xcb_generate_id(context_.connection);
-    auto pixmap_create_cookie = xcb_create_pixmap(context_.connection,
-        screen->root_depth,
-		mem_pixmap,
-        context_.wnd,
-		full_size.width(),
-		full_size.height());
-    if (!check_cookie(pixmap_create_cookie, context_.connection, "graphic::start_drawing xcb_create_pixmap"))
-    {
-        return;
-    }
-
-    xcb_rectangle_t rct = { 0, 0, static_cast<uint16_t>(full_size.width()), static_cast<uint16_t>(full_size.height()) };
+    xcb_rectangle_t rct = { static_cast<int16_t>(position.left),
+        static_cast<int16_t>(position.top),
+        static_cast<uint16_t>(position.width()),
+        static_cast<uint16_t>(position.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
-
 #endif
 }
 
-void graphic::end_drawing(const rect &updated_size)
+void graphic::flush(const rect &updated_size)
 {
 #ifdef _WIN32
     if (context_.dc)
@@ -121,8 +192,6 @@ void graphic::end_drawing(const rect &updated_size)
         }
     }
 #endif
-
-    clear_resources();
 }
 
 void graphic::draw_line(const rect &position, color color_, uint32_t width)
@@ -232,6 +301,20 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
     DeleteObject(pen);
 #elif __linux__
     draw_rect(position, fill_color);
+
+    auto gc_ = xcb_generate_id(context_.connection);
+    uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_LINE_WIDTH;
+    uint32_t value[] = { static_cast<uint32_t>(border_color), border_width };
+    auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
+
+    xcb_rectangle_t rct = { static_cast<int16_t>(position.left),
+            static_cast<int16_t>(position.top),
+            static_cast<uint16_t>(position.width() - 1),
+            static_cast<uint16_t>(position.height() - 1) };
+
+    xcb_poly_rectangle(context_.connection, mem_pixmap, gc_, 1, &rct);
+
+    xcb_free_gc(context_.connection, gc_);
 #endif
 }
 
@@ -290,33 +373,5 @@ xcb_drawable_t graphic::drawable()
     return mem_pixmap;
 }
 #endif
-
-void graphic::clear_resources()
-{
-#ifdef _WIN32
-    DeleteObject(mem_bitmap);
-    mem_bitmap = 0;
-
-    DeleteDC(mem_dc);
-    mem_dc = 0;
-
-    DeleteObject(background_brush);
-    background_brush = 0;
-#elif __linux__
-    if (mem_pixmap)
-    {
-        auto free_pixmap_cookie = xcb_free_pixmap(context_.connection, mem_pixmap);
-        check_cookie(free_pixmap_cookie, context_.connection, "graphic::clear_resources");
-        mem_pixmap = 0;
-    }
-
-    if (gc)
-    {
-        auto free_gc_cookie = xcb_free_gc(context_.connection, gc);
-        check_cookie(free_gc_cookie, context_.connection, "graphic::clear_resources");
-        gc = 0;
-    }
-#endif
-}
 
 }

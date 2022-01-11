@@ -39,8 +39,14 @@ public:
     graphic(system_context &context);
     ~graphic();
 
-    void start_drawing(const rect &full_size, color background_color);
-    void end_drawing(const rect &updated_size);
+    void init(const rect &max_size, color background_color);
+    void release();
+
+    void set_background_color(color background_color);
+
+    void clear(const rect &position);
+
+    void flush(const rect &updated_size);
 
     void draw_line(const rect &position, color color_, uint32_t width = 1);
 
@@ -65,6 +71,8 @@ public:
 private:
     system_context &context_;
 
+    rect max_size;
+
 #ifdef _WIN32
 
     HDC mem_dc;
@@ -77,7 +85,6 @@ private:
     xcb_gcontext_t gc;
 #endif
 
-    void clear_resources();
 };
 
 }

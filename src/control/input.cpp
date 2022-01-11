@@ -89,7 +89,7 @@ void input::draw(graphic &gr)
     system_context ctx;
 #endif
     graphic mem_gr(ctx);
-    mem_gr.start_drawing(full_text_dimensions, theme_color(theme_value::input_background, theme_));
+    mem_gr.init(full_text_dimensions, theme_color(theme_value::input_background, theme_));
 
     /// Draw the selection bar
     if (select_start_position != select_end_position)
@@ -139,7 +139,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     system_context ctx;
 #endif
     graphic mem_gr(ctx);
-    mem_gr.start_drawing(position_, theme_color(theme_value::input_background, theme_));
+    mem_gr.init(position_, theme_color(theme_value::input_background, theme_));
 
     auto font_ = font_settings{ theme_string(theme_value::input_font_name, theme_),
         theme_dimension(theme_value::input_font_size, theme_),

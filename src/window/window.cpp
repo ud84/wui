@@ -179,24 +179,18 @@ void window::redraw(const rect &redraw_position, bool clear)
 #elif __linux__
         if (context_.connection)
         {
-        	if (!clear)
-        	{
-            	xcb_expose_event_t event = { 0 };
+        	xcb_expose_event_t event = { 0 };
 
-            	event.window = context_.wnd;
-            	event.response_type = XCB_EXPOSE;
-            	event.x = redraw_position.left;
-            	event.y = redraw_position.top;
-            	event.width = redraw_position.width();
-            	event.height = redraw_position.height();
+            event.window = context_.wnd;
+            event.response_type = XCB_EXPOSE;
+            event.x = redraw_position.left;
+            event.y = redraw_position.top;
+            event.width = redraw_position.width();
+            event.height = redraw_position.height();
+            event.pad0 = clear ? 1 : 0;
 
-            	xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_EXPOSURE, (const char*)&event);
-            	xcb_flush(context_.connection);
-        	}
-        	else
-            {
-        		xcb_clear_area(context_.connection, 0, context_.wnd, redraw_position.left, redraw_position.top, redraw_position.width(), redraw_position.height());
-            }
+            xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_EXPOSURE, (const char*)&event);
+            xcb_flush(context_.connection);
         }
 #endif
     }
@@ -382,6 +376,8 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 #elif __linux__
     if (!parent && context_.connection)
     {
+        graphic_.set_background_color(theme_color(theme_value::window_background, theme_));
+
         auto ws = get_window_size(context_);
         redraw(rect{ 0, 0, ws.width(), ws.height() }, true);
     }
@@ -928,6 +924,8 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
     xcb_flush(context_.connection);
 
+    graphic_.init(theme_color(theme_value::window_background, theme_));
+
     runned = true;
     if (thread.joinable()) thread.join();
     thread = std::thread(std::bind(&window::process_events, this));
@@ -1420,30 +1418,34 @@ void window::process_events()
 	        case XCB_EXPOSE:
 	        {
 	            auto expose = (*(xcb_expose_event_t*)e);
+
+	            bool clear = expose.pad0 != 0;
+
 	            const rect paint_rect{ expose.x, expose.y, expose.x + expose.width, expose.y + expose.height };
 
-                auto ws = get_window_size(context_);
-	            graphic_.start_drawing(rect{ 0, 0, ws.width(), ws.height() }, theme_color(theme_value::window_background, theme_));
+                if (clear)
+                {
+                    graphic_.clear(paint_rect);
+                }
+	                if (flag_is_set(window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
+	                {
+	                    graphic_.draw_text(rect{ 5, 5, 5, 5 },
+	                        caption,
+	                        theme_color(theme_value::window_text, theme_),
+	                        font_settings{ theme_string(theme_value::window_title_font_name, theme_),
+	                            theme_dimension(theme_value::window_title_font_size, theme_),
+	                            font_decorations::normal });
+	                }
 
-	            if (flag_is_set(window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
-	            {
-	                graphic_.draw_text(rect{ 5, 5, 5, 5 },
-	                    caption,
-	                    theme_color(theme_value::window_text, theme_),
-	                    font_settings{ theme_string(theme_value::window_title_font_name, theme_),
-	                        theme_dimension(theme_value::window_title_font_size, theme_),
-	                        font_decorations::normal });
-	            }
+	                for (auto &control : controls)
+	                {
+                        if (control->position().in(paint_rect))
+                        {
+                            control->draw(graphic_);
+                        }
+	                }
 
-	            for (auto &control : controls)
-	            {
-                    if (control->position().in(paint_rect))
-                    {
-                        control->draw(graphic_);
-                    }
-	            }
-
-	            graphic_.end_drawing(paint_rect);
+	            graphic_.flush(paint_rect);
 
                 xcb_flush(context_.connection);
             }
@@ -1687,7 +1689,7 @@ void window::process_events()
 
                 if (ev.width != old_position.width())
                 {
-                    //update_buttons(false);
+                    update_buttons(false);
                 }
 
                 if ((ev.width != old_position.width() || ev.height != old_position.height()) && size_change_callback)
@@ -1699,6 +1701,8 @@ void window::process_events()
             case XCB_CLIENT_MESSAGE:
             	if((*(xcb_client_message_event_t*)e).data.data32[0] == (*wm_delete_msg).atom)
                 {
+            	    graphic_.release();
+
                     xcb_destroy_window(context_.connection, context_.wnd);
             	    xcb_disconnect(context_.connection);
 
