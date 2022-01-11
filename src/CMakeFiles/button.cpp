@@ -15,6 +15,8 @@
 
 #include <wui/theme/theme.hpp>
 
+#include <wui/common/char_helpers.hpp>
+
 #include <wui/system/tools.hpp>
 
 namespace wui
@@ -79,6 +81,8 @@ void button::draw(graphic &gr)
     {
         return;
     }
+
+    fprintf(stderr, "draw button %s\n", to_multibyte(caption).c_str() );
 
     auto font_ = font_settings{ theme_string(theme_value::button_font_name, theme_),
         theme_dimension(theme_value::button_font_size, theme_),

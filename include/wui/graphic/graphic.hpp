@@ -39,8 +39,8 @@ public:
     graphic(system_context &context);
     ~graphic();
 
-    void start_drawing(const rect &position, color background_color);
-    void end_drawing();
+    void start_drawing(const rect &full_size, color background_color);
+    void end_drawing(const rect &updated_size);
 
     void draw_line(const rect &position, color color_, uint32_t width = 1);
 
@@ -64,7 +64,6 @@ public:
 
 private:
     system_context &context_;
-    rect draw_position;
 
 #ifdef _WIN32
 

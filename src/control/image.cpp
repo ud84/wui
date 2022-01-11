@@ -152,10 +152,13 @@ void image::set_position(const rect &position__)
     auto prev_position = position_;
     position_ = position__;
 
-    auto parent_ = parent.lock();
-    if (parent_)
+    if (showed_)
     {
-        parent_->redraw(prev_position, true);
+        auto parent_ = parent.lock();
+        if (parent_)
+        {
+            parent_->redraw(prev_position, true);
+        }
     }
 	
     redraw();

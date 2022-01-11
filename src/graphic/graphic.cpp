@@ -16,8 +16,7 @@ namespace wui
 {
 
 graphic::graphic(system_context &context__)
-    : context_(context__),
-    draw_position()
+    : context_(context__)
 #ifdef _WIN32
     , mem_dc(0),
     mem_bitmap(0),
@@ -34,7 +33,7 @@ graphic::~graphic()
     clear_resources();
 }
 
-void graphic::start_drawing(const rect &position, color background_color)
+void graphic::start_drawing(const rect &full_size, color background_color)
 {
 #ifdef _WIN32
     if (!context_.dc || mem_dc)
@@ -59,8 +58,6 @@ void graphic::start_drawing(const rect &position, color background_color)
         return;
     }
 
-    draw_position = position;
-
     gc = xcb_generate_id(context_.connection);
     uint32_t mask = XCB_GC_FOREGROUND;
     uint32_t value[] = { static_cast<uint32_t>(background_color) };
@@ -77,29 +74,29 @@ void graphic::start_drawing(const rect &position, color background_color)
         screen->root_depth,
 		mem_pixmap,
         context_.wnd,
-		draw_position.width(),
-		draw_position.height());
+		full_size.width(),
+		full_size.height());
     if (!check_cookie(pixmap_create_cookie, context_.connection, "graphic::start_drawing xcb_create_pixmap"))
     {
         return;
     }
 
-    xcb_rectangle_t rct = { 0, 0, static_cast<uint16_t>(draw_position.width()), static_cast<uint16_t>(draw_position.height()) };
+    xcb_rectangle_t rct = { 0, 0, static_cast<uint16_t>(full_size.width()), static_cast<uint16_t>(full_size.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
 
 #endif
 }
 
-void graphic::end_drawing()
+void graphic::end_drawing(const rect &updated_size)
 {
 #ifdef _WIN32
     if (context_.dc)
     {
         BitBlt(context_.dc,
-            draw_position.left,
-            draw_position.top,
-            draw_position.width(),
-            draw_position.height(),
+            updated_size.left,
+            updated_size.top,
+            updated_size.width(),
+            updated_size.height(),
             mem_dc,
             0,
             0,
@@ -112,12 +109,12 @@ void graphic::end_drawing()
             mem_pixmap,
             context_.wnd,
             gc,
-            0,
-            0,
-            draw_position.left,
-            draw_position.top,
-            draw_position.width(),
-            draw_position.height());
+            updated_size.left,
+            updated_size.top,
+			updated_size.left,
+			updated_size.top,
+			updated_size.width(),
+			updated_size.height());
 
         if (!check_cookie(copy_area_cookie, context_.connection, "graphic::end_drawing xcb_copy_area"))
         {
@@ -163,12 +160,9 @@ rect graphic::measure_text(const std::wstring &text, const font_settings &font_)
     DeleteObject(font);
 
     return rect {0, 0, text_rect.right, text_rect.bottom};
-
 #elif __linux__
-
+    return rect{ 0, 0, 0, 0 };
 #endif
-
-    return rect{ 0 };
 }
 
 void graphic::draw_text(const rect &position, const std::wstring &text, color color_, const font_settings &font_)
@@ -273,10 +267,10 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
             gc,
 			left_shift,
 			right_shift,
-            draw_position.left,
-            draw_position.top,
-            draw_position.width(),
-            draw_position.height());
+			position.left,
+			position.top,
+			position.width(),
+			position.height());
 
         if (!check_cookie(copy_area_cookie, context_.connection, "graphic::draw_graphic xcb_copy_area"))
         {

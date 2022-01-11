@@ -195,7 +195,7 @@ void window::redraw(const rect &redraw_position, bool clear)
         	}
         	else
             {
-        		xcb_clear_area(context_.connection, 0, context_.wnd, redraw_position.left, redraw_position.top, redraw_position.width(), redraw_position.height());
+        		//xcb_clear_area(context_.connection, 0, context_.wnd, redraw_position.left, redraw_position.top, redraw_position.width(), redraw_position.height());
             }
         }
 #endif
@@ -1426,10 +1426,15 @@ void window::process_events()
         {
 	        case XCB_EXPOSE:
 	        {
+	            auto expose = (*(xcb_expose_event_t*)e);
+	            const rect paint_rect{ expose.x, expose.y, expose.x + expose.width, expose.y + expose.height };
+
                 auto ws = get_window_size(context_);
 	            graphic_.start_drawing(rect{ 0, 0, ws.width(), ws.height() }, theme_color(theme_value::window_background, theme_));
 
-	            if (flag_is_set(window_style_, window_style::title_showed))
+	            printf("%d, %d, %d, %d\n", paint_rect.left, paint_rect.top, paint_rect.right, paint_rect.bottom);
+
+	            if (flag_is_set(window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
 	            {
 	                graphic_.draw_text(rect{ 5, 5, 5, 5 },
 	                    caption,
@@ -1441,10 +1446,13 @@ void window::process_events()
 
 	            for (auto &control : controls)
 	            {
-	                control->draw(graphic_);
+                    if (control->position().in(paint_rect))
+                    {
+                        control->draw(graphic_);
+                    }
 	            }
 
-	            graphic_.end_drawing();
+	            graphic_.end_drawing(paint_rect);
 
                 xcb_flush(context_.connection);
             }

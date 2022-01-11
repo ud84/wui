@@ -38,7 +38,7 @@ class window : public i_window, public i_control, public std::enable_shared_from
 {
 public:
     window();
-    ~window();
+    virtual ~window();
 
     /// IWindow
     virtual bool init(const std::wstring &caption, const rect &position, window_style style, std::function<void(void)> close_callback, std::shared_ptr<i_theme> theme_ = nullptr);

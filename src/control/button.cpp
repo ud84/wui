@@ -17,6 +17,8 @@
 
 #include <wui/system/tools.hpp>
 
+#include <wui/common/char_helpers.hpp>
+
 namespace wui
 {
 
@@ -79,6 +81,8 @@ void button::draw(graphic &gr)
     {
         return;
     }
+
+    printf("draw button %s\n", to_multibyte(caption).c_str());
 
     auto font_ = font_settings{ theme_string(theme_value::button_font_name, theme_),
         theme_dimension(theme_value::button_font_size, theme_),
@@ -226,13 +230,16 @@ void button::set_position(const rect &position__)
     auto prev_position = position_;
     position_ = position__;
 
-    auto parent_ = parent.lock();
-    if (parent_)
+    if (showed_)
     {
-        parent_->redraw(prev_position, true);
+        auto parent_ = parent.lock();
+        if (parent_)
+        {
+            parent_->redraw(prev_position, true);
+        }
+
+        redraw();
     }
-	
-    redraw();
 }
 
 rect button::position() const
