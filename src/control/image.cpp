@@ -152,7 +152,6 @@ void image::set_position(const rect &position__)
     auto prev_position = position_;
     position_ = position__;
 
-#ifdef _WIN32
     if (showed_)
     {
         auto parent_ = parent.lock();
@@ -163,7 +162,6 @@ void image::set_position(const rect &position__)
     }
 	
     redraw();
-#endif
 }
 
 rect image::position() const

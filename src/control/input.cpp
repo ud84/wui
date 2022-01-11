@@ -593,6 +593,8 @@ void input::redraw()
         {
             parent_->redraw(position_);
         }
+
+        redraw();
     }
 }
 
