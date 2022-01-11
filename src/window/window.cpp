@@ -839,9 +839,9 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
     update_buttons(true);
 
-    if (size_change_callback && (old_position.width() != position_.width() || old_position.height() != position_.height()))
+    //if (size_change_callback && (old_position.width() != position_.width() || old_position.height() != position_.height()))
     {
-        size_change_callback(position_.width(), position_.height());
+        //size_change_callback(position_.width(), position_.height());
     }
 
     if (parent)
@@ -1306,12 +1306,9 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->update_position({ wnd->position_.left, wnd->position_.top, width, height });
 
-            if (width != old_position.right)
-            {
-                wnd->update_buttons(false);
-            }
+            wnd->update_buttons(false);
 			
-            if ((width != old_position.right || height != old_position.bottom) && wnd->size_change_callback)
+            if (wnd->size_change_callback)
             {
                 wnd->size_change_callback(LOWORD(l_param), HIWORD(l_param));
             }
