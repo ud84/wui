@@ -887,8 +887,8 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
     context_.wnd = xcb_generate_id(context_.connection);
 
-    uint32_t mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-    uint32_t values[] = { static_cast<uint32_t>(theme_color(theme_value::window_background, theme_)),
+    uint32_t mask = XCB_CW_EVENT_MASK;
+    uint32_t values[] = {
         XCB_EVENT_MASK_EXPOSURE       | XCB_EVENT_MASK_BUTTON_PRESS   |
         XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
         XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
