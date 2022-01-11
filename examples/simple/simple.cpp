@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 
     window->set_min_size(100, 100);
 
-    window->set_size_change_callback([&nameInput, &okButton, &cancelButton](auto w, auto h) {
+    window->set_size_change_callback([&nameInput, &okButton, &cancelButton](int32_t w, int32_t h) {
         nameInput->set_position({ 10, 250, w - 10, 275 });
         okButton->set_position({ w - 250, h - 50, w - 150, h - 20});
         cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });

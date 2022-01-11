@@ -1615,7 +1615,7 @@ void window::process_events()
                         update_buttons(false);
                     }
 
-                    if ((ws.width() != old_position.width() || height != old_position.height()) && size_change_callback)
+                    if ((ws.width() != old_position.width() || ws.height() != old_position.height()) && size_change_callback)
                     {
                         size_change_callback(ws.width(), ws.height());
                     }
@@ -1705,7 +1705,7 @@ void window::process_events()
 
                     runned = false;
 
-                    if (parent && close_callback)
+                    if (!parent && close_callback)
                     {
                         close_callback();
                     }

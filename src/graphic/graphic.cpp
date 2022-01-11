@@ -86,6 +86,7 @@ void graphic::start_drawing(const rect &position, color background_color)
 
     xcb_rectangle_t rct = { 0, 0, static_cast<uint16_t>(draw_position.width()), static_cast<uint16_t>(draw_position.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+
 #endif
 }
 
