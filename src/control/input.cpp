@@ -584,10 +584,13 @@ void input::set_change_callback(std::function<void(const std::wstring&)> change_
 
 void input::redraw()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    if (showed_)
     {
-        parent_->redraw(position_);
+        auto parent_ = parent.lock();
+        if (parent_)
+        {
+            parent_->redraw(position_);
+        }
     }
 }
 

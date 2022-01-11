@@ -300,10 +300,13 @@ int32_t image::height() const
 
 void image::redraw()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    if (showed_)
     {
-        parent_->redraw(position_);
+        auto parent_ = parent.lock();
+        if (parent_)
+        {
+            parent_->redraw(position_);
+        }
     }
 }
 

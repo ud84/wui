@@ -41,16 +41,14 @@ void graphic::start_drawing(const rect &full_size, color background_color)
         return;
     }
 
-    draw_position = position;
-
     background_brush = CreateSolidBrush(background_color);
 
     mem_dc = CreateCompatibleDC(context_.dc);
 
-    HBITMAP mem_bitmap = CreateCompatibleBitmap(context_.dc, draw_position.width(), draw_position.height());
+    HBITMAP mem_bitmap = CreateCompatibleBitmap(context_.dc, full_size.width(), full_size.height());
     SelectObject(mem_dc, mem_bitmap);
 
-    RECT filling_rect = { draw_position.left, draw_position.top, draw_position.right, draw_position.bottom };
+    RECT filling_rect = { full_size.left, full_size.top, full_size.right, full_size.bottom };
     FillRect(mem_dc, &filling_rect, background_brush);
 #elif __linux__
     if (!context_.wnd || mem_pixmap)
@@ -98,8 +96,8 @@ void graphic::end_drawing(const rect &updated_size)
             updated_size.width(),
             updated_size.height(),
             mem_dc,
-            0,
-            0,
+            updated_size.left,
+            updated_size.top,
             SRCCOPY);
     }
 #elif __linux__

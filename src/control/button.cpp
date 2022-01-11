@@ -82,8 +82,6 @@ void button::draw(graphic &gr)
         return;
     }
 
-    printf("draw button %s\n", to_multibyte(caption).c_str());
-
     auto font_ = font_settings{ theme_string(theme_value::button_font_name, theme_),
         theme_dimension(theme_value::button_font_size, theme_),
         font_decorations::normal };
@@ -395,10 +393,13 @@ void button::set_callback(std::function<void(void)> click_callback_)
 
 void button::redraw()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    if (showed_)
     {
-        parent_->redraw(position_);
+        auto parent_ = parent.lock();
+        if (parent_)
+        {
+            parent_->redraw(position_);
+        }
     }
 }
 

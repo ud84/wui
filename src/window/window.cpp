@@ -1041,7 +1041,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 }
             }
 
-            wnd->graphic_.end_drawing();
+            wnd->graphic_.end_drawing(paint_rect);
 
             EndPaint(wnd->context_.hwnd, &ps);
             wnd->context_.dc = 0;
