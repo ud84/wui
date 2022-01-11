@@ -296,11 +296,11 @@ rect graphic::measure_text(const std::wstring &text, const font_settings &font_)
     cairo_set_font_size(cr, font_.size + 3);
     cairo_text_extents(cr, to_multibyte(text).c_str(), &extents);
 
-    return rect{ 0, 0, extents.width, extents.height + extents.y_bearing * 2 };
+    return rect{ 0, 0, extents.width, extents.height };
 #endif
 }
 
-void graphic::draw_text(const rect &position, const std::wstring &text_, color color_, const font_settings &font_)
+void graphic::draw_text(const rect &position, const std::wstring &text, color color_, const font_settings &font_)
 {
 #ifdef _WIN32
     HFONT font = CreateFont(font_.size, 0, 0, 0, FW_DONTCARE,
@@ -320,11 +320,17 @@ void graphic::draw_text(const rect &position, const std::wstring &text_, color c
     SelectObject(mem_dc, old_font);
     DeleteObject(font);
 #elif __linux__
+    cairo_text_extents_t extents;
+
     cairo_select_font_face(cr, to_multibyte(font_.name).c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, font_.size + 3);
     cairo_set_source_rgb(cr, get_red(color_), get_green(color_), get_blue(color_));
-    cairo_move_to(cr, position.left, position.top);
-    cairo_show_text(cr, to_multibyte(text_).c_str());
+
+    cairo_text_extents(cr, to_multibyte(text).c_str(), &extents);
+
+    cairo_move_to(cr, position.left, position.top + extents.height);
+    cairo_show_text(cr, to_multibyte(text).c_str());
+
     cairo_surface_flush(surface);
 #endif
 }
@@ -420,8 +426,8 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
             mem_pixmap,
             context_.wnd,
             gc,
-            position.left, //left_shift,
-            position.top, //right_shift,
+            position.left, // left_shift,
+            position.top, // right_shift,
 			position.left,
 			position.top,
 			position.width(),
