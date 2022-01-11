@@ -195,7 +195,7 @@ void window::redraw(const rect &redraw_position, bool clear)
         	}
         	else
             {
-        		//xcb_clear_area(context_.connection, 0, context_.wnd, redraw_position.left, redraw_position.top, redraw_position.width(), redraw_position.height());
+        		xcb_clear_area(context_.connection, 0, context_.wnd, redraw_position.left, redraw_position.top, redraw_position.width(), redraw_position.height());
             }
         }
 #endif
@@ -839,11 +839,6 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
     update_buttons(true);
 
-    //if (size_change_callback && (old_position.width() != position_.width() || old_position.height() != position_.height()))
-    {
-        //size_change_callback(position_.width(), position_.height());
-    }
-
     if (parent)
     {
         showed_ = true;
@@ -899,7 +894,8 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
         XCB_EVENT_MASK_EXPOSURE       | XCB_EVENT_MASK_BUTTON_PRESS   |
         XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
         XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
-        XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE };
+        XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE    |
+        XCB_EVENT_MASK_STRUCTURE_NOTIFY };
 
     xcb_create_window(context_.connection,
                       XCB_COPY_FROM_PARENT,
@@ -1429,8 +1425,6 @@ void window::process_events()
                 auto ws = get_window_size(context_);
 	            graphic_.start_drawing(rect{ 0, 0, ws.width(), ws.height() }, theme_color(theme_value::window_background, theme_));
 
-	            printf("%d, %d, %d, %d\n", paint_rect.left, paint_rect.top, paint_rect.right, paint_rect.bottom);
-
 	            if (flag_is_set(window_style_, window_style::title_showed) && rect { 5, 5, 1000, 30}.in(paint_rect))
 	            {
 	                graphic_.draw_text(rect{ 5, 5, 5, 5 },
@@ -1608,22 +1602,6 @@ void window::process_events()
             	        }
             	        break;
                     }
-
-                    ws = get_window_size(context_);
-
-                    auto old_position = position_;
-
-                    update_position(ws);
-
-                    if (ws.width() != old_position.width())
-                    {
-                        update_buttons(false);
-                    }
-
-                    if ((ws.width() != old_position.width() || ws.height() != old_position.height()) && size_change_callback)
-                    {
-                        size_change_callback(ws.width(), ws.height());
-                    }
                 }
             	else
             	{
@@ -1698,6 +1676,25 @@ void window::process_events()
             break;
             case XCB_LEAVE_NOTIFY:
             	send_mouse_event({ mouse_event_type::leave, -1, -1 });
+            break;
+            case XCB_CONFIGURE_NOTIFY:
+            {
+                auto ev = (*(xcb_configure_notify_event_t*)e);
+
+                auto old_position = position_;
+
+                update_position(rect{ ev.x, ev.y, ev.width - ev.x, ev.height - ev.y });
+
+                if (ev.width != old_position.width())
+                {
+                    update_buttons(false);
+                }
+
+                if ((ev.width != old_position.width() || ev.height != old_position.height()) && size_change_callback)
+                {
+                    size_change_callback(ev.width, ev.height);
+                }
+            }
             break;
             case XCB_CLIENT_MESSAGE:
             	if((*(xcb_client_message_event_t*)e).data.data32[0] == (*wm_delete_msg).atom)
