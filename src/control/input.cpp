@@ -489,6 +489,11 @@ void input::clear_parent()
     parent.reset();
 }
 
+bool input::topmost() const
+{
+    return false;
+}
+
 void input::set_focus()
 {
     if (focusing_ && enabled_ && showed_)

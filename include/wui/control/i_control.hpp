@@ -33,6 +33,8 @@ public:
     virtual void set_parent(std::shared_ptr<window> window_) = 0;
     virtual void clear_parent() = 0;
 
+    virtual bool topmost() const = 0;
+
     virtual void set_focus() = 0;
     virtual bool remove_focus() = 0; /// Returns false if the control changes focus within its internal controls
     virtual bool focused() const = 0; /// Returns true if the control is focused

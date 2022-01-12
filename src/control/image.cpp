@@ -179,6 +179,11 @@ void image::clear_parent()
     parent.reset();
 }
 
+bool image::topmost() const
+{
+    return false;
+}
+
 void image::set_focus()
 {
 }

@@ -38,6 +38,8 @@ public:
     virtual void set_parent(std::shared_ptr<window> window_);
     virtual void clear_parent();
 
+    virtual bool topmost() const;
+
     virtual void set_focus();
     virtual bool remove_focus();
     virtual bool focused() const;

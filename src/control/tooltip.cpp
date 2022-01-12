@@ -97,6 +97,11 @@ void tooltip::clear_parent()
     parent.reset();
 }
 
+bool tooltip::topmost() const
+{
+    return true;
+}
+
 void tooltip::set_focus()
 {
 }

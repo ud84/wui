@@ -300,6 +300,11 @@ void window::clear_parent()
     parent.reset();
 }
 
+bool window::topmost() const
+{
+    return flag_is_set(window_style_, window_style::topmost);
+}
+
 void window::set_focus()
 {
     change_focus();
@@ -1063,12 +1068,26 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 }
             }
 
+            std::vector<std::shared_ptr<i_control>> topmost_controls;
+
             for (auto &control : wnd->controls)
             {
                 if (control->position().in(paint_rect))
                 {
-                    control->draw(wnd->graphic_);
+                    if (!control->topmost())
+                    {
+                        control->draw(wnd->graphic_);
+                    }
+                    else
+                    {
+                        topmost_controls.emplace_back(control);
+                    }
                 }
+            }
+
+            for (auto &control : topmost_controls)
+            {
+                control->draw(wnd->graphic_);
             }
 
             wnd->graphic_.flush(paint_rect);
@@ -1493,13 +1512,27 @@ void window::process_events()
                     }
 	            }
 
-	            for (auto &control : controls)
-	            {
+                std::vector<std::shared_ptr<i_control>> topmost_controls;
+
+                for (auto &control : controls)
+                {
                     if (control->position().in(paint_rect))
                     {
-                        control->draw(graphic_);
+                        if (!control->topmost())
+                        {
+                            control->draw(graphic_);
+                        }
+                        else
+                        {
+                            topmost_controls.emplace_back(control);
+                        }
                     }
-	            }
+                }
+
+                for (auto &control : topmost_controls)
+                {
+                    control->draw(graphic_);
+                }
 
 	            graphic_.flush(paint_rect);
 

@@ -271,6 +271,11 @@ void button::clear_parent()
     parent.reset();
 }
 
+bool button::topmost() const
+{
+    return false;
+}
+
 void button::set_focus()
 {
     if (focusing_ && enabled_ && showed_)
