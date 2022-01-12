@@ -99,8 +99,6 @@ int main(int argc, char *argv[])
 {
     const std::wstring IDB_ACCOUNT = L"";
 
-    setlocale(LC_ALL, "ru_RU.KOI8-R");
-
 #endif
     bool runned = true;
 
