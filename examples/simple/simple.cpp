@@ -95,6 +95,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 int main(int argc, char *argv[])
 {
     const std::wstring IDB_ACCOUNT = L"";
+
+    setlocale(LC_ALL, "ru_RU.KOI8-R");
+
 #endif
     bool runned = true;
 
@@ -117,7 +120,7 @@ int main(int argc, char *argv[])
     window->add_control(createPluggedButton, wui::rect{ 270, 50, 380, 75 });
     
     std::shared_ptr<wui::input> nameInput(new wui::input());
-    nameInput->set_text(L"Hello world!");
+    //nameInput->set_text(L"Hello world!");
     window->add_control(nameInput, wui::rect{ 10, 250, 400, 275 });
 
     std::shared_ptr<wui::window> dialog(new wui::window());

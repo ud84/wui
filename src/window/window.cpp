@@ -32,6 +32,10 @@
 #include <xcb/xcb_atom.h>
 #include <wui/common/char_helpers.hpp>
 
+#include <X11/Xlib-xcb.h>
+#include <X11/Xutil.h>
+#include <locale.h>
+
 #endif
 
 // Some helpers
@@ -876,11 +880,20 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
 #elif __linux__
 
-    context_.connection = xcb_connect(NULL, NULL);
-    if (!context_.connection)
+    context_.display = XOpenDisplay(NULL);
+    if (!context_.display)
     {
-    	fprintf(stderr, "window can't open make the connection to X server\n");
-    	return false;
+        fprintf(stderr, "window can't open make the connection to X server\n");
+        return false;
+    }
+
+    XSetEventQueueOwner(context_.display, XCBOwnsEventQueue);
+    context_.connection = XGetXCBConnection(context_.display);
+
+    auto modifiers = XSetLocaleModifiers ("@im=none");
+    if (modifiers == NULL)
+    {
+        fprintf (stderr, "XSetLocaleModifiers failed\n");
     }
 
     context_.screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
@@ -1733,6 +1746,33 @@ void window::process_events()
                         }
                     }
                     break;
+                    default:
+                    {
+                        XKeyPressedEvent keyev;
+                        keyev.display = context_.display;
+                        keyev.keycode = ev_.detail;
+                        keyev.state = ev_.state;
+
+                        std::array<char, 16> buf {};
+
+                        auto nbytes = XLookupString(&keyev, buf.data(), buf.size(), nullptr, nullptr);
+
+                        if (nbytes)
+                        {
+                            printf("%d\n", nbytes);
+
+                            auto control = get_focused();
+                            if (control)
+                            {
+                                event ev;
+                                ev.type = event_type::keyboard;
+                                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, ev_.state, buf.data()[0] };;
+
+                                control->receive_event(ev);
+                            }
+                        }
+                    }
+                    break;
                 }
             }
             break;
@@ -1784,9 +1824,12 @@ void window::process_events()
 
                     xcb_destroy_window(context_.connection, context_.wnd);
             	    xcb_disconnect(context_.connection);
+            	    XCloseDisplay(context_.display);
 
                     context_.wnd = 0;
+                    context_.screen = nullptr;
                     context_.connection = nullptr;
+                    context_.display = nullptr;
 
                     runned = false;
 

@@ -53,7 +53,7 @@ rect calculate_text_dimensions(graphic &gr, std::wstring text, size_t text_lengt
 
     if (text_length == 0)
     {
-        text = L"W";
+        text = L"Wqb";
     }
 
     auto text_rect = gr.measure_text(text, font_);
@@ -90,7 +90,7 @@ void input::draw(graphic &gr)
     auto parent_ = parent.lock();
     if (parent_)
     {
-        ctx = { parent_->context().connection, parent_->context().screen, gr.drawable() };
+        ctx = { parent_->context().display, parent_->context().connection, parent_->context().screen, gr.drawable() };
     }
 #endif
     graphic mem_gr(ctx);
@@ -145,7 +145,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     auto parent_ = parent.lock();
     if (parent_)
     {
-        ctx = { parent_->context().connection, parent_->context().screen, parent_->context().wnd };
+        ctx = { parent_->context().display, parent_->context().connection, parent_->context().screen, parent_->context().wnd };
     }
 #endif
     graphic mem_gr(ctx);

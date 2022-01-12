@@ -13,6 +13,7 @@
 #include <windows.h>
 #elif __linux__
 #include <xcb/xcb.h>
+#include <X11/Xlib.h>
 #endif
 
 namespace wui
@@ -30,6 +31,8 @@ struct system_context
 
 struct system_context
 {
+    Display         *display;
+
     xcb_connection_t *connection;
     xcb_screen_t     *screen;
     xcb_window_t     wnd;

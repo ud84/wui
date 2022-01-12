@@ -16,7 +16,7 @@
 
 #include <cairo.h>
 #include <cairo-xcb.h>
-
+#include <cmath>
 #endif
 
 namespace wui
@@ -267,6 +267,17 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
     SelectObject(mem_dc, old_pen);
     DeleteObject(pen);
 #elif __linux__
+    auto gc_ = xcb_generate_id(context_.connection);
+
+    uint32_t mask = XCB_GC_FOREGROUND;
+    uint32_t value[] = { static_cast<uint32_t>(color_) };
+    auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
+
+    xcb_point_t polyline[] = { { static_cast<int16_t>(position.left), static_cast<int16_t>(position.top) },
+        { static_cast<int16_t>(position.right), static_cast<int16_t>(position.bottom) } };
+    xcb_poly_line(context_.connection, XCB_COORD_MODE_ORIGIN, mem_pixmap, gc_, 2, polyline);
+
+    xcb_free_gc(context_.connection, gc_);
 #endif
 }
 
@@ -296,7 +307,7 @@ rect graphic::measure_text(const std::wstring &text, const font_settings &font_)
     cairo_set_font_size(cr, font_.size - 4);
     cairo_text_extents(cr, to_multibyte(text).c_str(), &extents);
 
-    return rect{ 0, 0, extents.width, extents.height };
+    return rect{ 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
 #endif
 }
 
