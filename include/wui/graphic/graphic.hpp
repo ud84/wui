@@ -92,8 +92,6 @@ private:
     _cairo_surface *surface;
     _cairo *cr;
 
-    color background_color;
-
     void set_color(color color_);
 #endif
 
