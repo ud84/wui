@@ -14,7 +14,7 @@
 
 struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 {
-    std::shared_ptr<wui::window> &parentWindow;
+    std::weak_ptr<wui::window> parentWindow;
 
     std::shared_ptr<wui::window> window;
     std::shared_ptr<wui::button> plugButton, unplugButton;
@@ -25,7 +25,8 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     void Plug()
     {
-        parentWindow->add_control(window, wui::rect{ 20, 30, 190, 190 });
+        if (parentWindow.lock())
+            parentWindow.lock()->add_control(window, wui::rect{ 20, 30, 190, 190 });
 
         plugButton->disable();
         unplugButton->enable();
@@ -35,7 +36,8 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     void Unplug()
     {
-        parentWindow->remove_control(window);
+        if (parentWindow.lock())
+            parentWindow.lock()->remove_control(window);
         Init();
 		
         plugButton->enable();
@@ -72,7 +74,8 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
         plugButton->disable();
 
-        parentWindow->add_control(window, wui::rect{ 20, 30, 190, 190 });
+        if (parentWindow.lock())
+            parentWindow.lock()->add_control(window, wui::rect{ 20, 30, 190, 190 });
 
         Init();
     }
@@ -111,6 +114,7 @@ int main(int argc, char *argv[])
     std::shared_ptr<PluggedWindow> pluggedWindow(new PluggedWindow(window));
     std::shared_ptr<wui::button> createPluggedButton(new wui::button(L"Create plugged window", []() {}));
     createPluggedButton->set_callback([&window, &pluggedWindow, &createPluggedButton]() {
+        pluggedWindow.reset();
         pluggedWindow = std::shared_ptr<PluggedWindow>(new PluggedWindow(window));
         pluggedWindow->SetPluggedButton(createPluggedButton);
         createPluggedButton->disable(); });
