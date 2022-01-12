@@ -28,7 +28,7 @@ dark_theme::dark_theme()
 
         { theme_value::input_background, make_color(39, 41, 45) },
         { theme_value::input_text, make_color(240, 235, 240) },
-        { theme_value::input_selection, make_color(6, 165, 223) },
+        { theme_value::input_selection, make_color(38, 79, 120) },
         { theme_value::input_cursor, make_color(210, 210, 210) },
         { theme_value::input_border, make_color(140, 140, 140) },
         { theme_value::input_focused_border, make_color(200, 200, 200) },
@@ -45,8 +45,8 @@ dark_theme::dark_theme()
         { theme_value::input_round, 0 },
         { theme_value::input_font_size, 18 },
         { theme_value::tooltip_text_indent, 5 },
-        { theme_value::tooltip_font_size, 18 },
-        { theme_value::tooltip_round, 1 },
+        { theme_value::tooltip_font_size, 16 },
+        { theme_value::tooltip_round, 0 },
     },
     strings
     {

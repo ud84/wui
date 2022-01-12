@@ -28,10 +28,14 @@ white_theme::white_theme()
 
         { theme_value::input_background, make_color(220, 220, 220) },
         { theme_value::input_text, make_color(25, 25, 20) },
-        { theme_value::input_selection, make_color(6, 165, 223) },
+        { theme_value::input_selection, make_color(153, 201, 239) },
         { theme_value::input_cursor, make_color(20, 20, 20) },
         { theme_value::input_border, make_color(40, 120, 140) },
-        { theme_value::input_focused_border, make_color(20, 10, 20) }
+        { theme_value::input_focused_border, make_color(20, 10, 20) },
+
+        { theme_value::tooltip_background, make_color(241, 242, 247) },
+        { theme_value::tooltip_border, make_color(118, 118, 118) },
+        { theme_value::tooltip_text, make_color(6, 25, 18) }
     },
     dimensions
     {
@@ -39,7 +43,10 @@ white_theme::white_theme()
         { theme_value::button_round, 0 },
         { theme_value::button_font_size, 18 },
         { theme_value::input_round, 0 },
-        { theme_value::input_font_size, 18 }
+        { theme_value::input_font_size, 18 },
+        { theme_value::tooltip_text_indent, 5 },
+        { theme_value::tooltip_font_size, 16 },
+        { theme_value::tooltip_round, 0 },
     },
     strings
     {
@@ -47,12 +54,14 @@ white_theme::white_theme()
         { theme_value::window_title_font_name, L"Segoe UI" },
         { theme_value::images_path, L"IMAGES_WHITE" },
         { theme_value::button_font_name, L"Segoe UI" },
-        { theme_value::input_font_name, L"Segoe UI" }
+        { theme_value::input_font_name, L"Segoe UI" },
+        { theme_value::tooltip_font_name, L"Segoe UI" }
 #elif __linux__
         { theme_value::window_title_font_name, L"DejaVuSans" },
         { theme_value::images_path, L"IMAGES_WHITE" },
         { theme_value::button_font_name, L"DejaVuSans" },
-        { theme_value::input_font_name, L"DejaVuSans" }
+        { theme_value::input_font_name, L"DejaVuSans" },
+        { theme_value::tooltip_font_name, L"DejaVuSans" }
 #endif
     }
 {
