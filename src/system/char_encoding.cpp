@@ -7,7 +7,7 @@
 // Official repository: https://github.com/ud84/wui
 //
 
-#include <wui/common/char_helpers.hpp>
+#include <wui/system/char_encoding.hpp>
 
 #ifndef _WIN32
 

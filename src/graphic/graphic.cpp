@@ -12,7 +12,7 @@
 #include <wui/system/tools.hpp>
 
 #ifdef __linux__
-#include <wui/common/char_helpers.hpp>
+#include <wui/system/char_encoding.hpp>
 
 #include <cairo.h>
 #include <cairo-xcb.h>

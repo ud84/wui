@@ -17,7 +17,7 @@
 
 #include <wui/system/tools.hpp>
 
-#include <wui/common/char_helpers.hpp>
+#include <wui/system/char_encoding.hpp>
 
 namespace wui
 {

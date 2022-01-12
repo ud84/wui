@@ -30,7 +30,7 @@
 
 #include <stdlib.h>
 #include <xcb/xcb_atom.h>
-#include <wui/common/char_helpers.hpp>
+#include <wui/system/char_encoding.hpp>
 
 #include <X11/Xutil.h>
 

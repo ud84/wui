@@ -114,9 +114,6 @@
     <ClInclude Include="include\wui\control\input.hpp">
       <Filter>Header Files\control</Filter>
     </ClInclude>
-    <ClInclude Include="include\wui\common\timer.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="include\wui\common\bit_helpers.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -128,6 +125,15 @@
     </ClInclude>
     <ClInclude Include="include\wui\system\tools.hpp">
       <Filter>Header Files\system</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\system\timer.hpp">
+      <Filter>Header Files\system</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\control\tooltip.hpp">
+      <Filter>Header Files\control</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\system\char_encoding.hpp">
+      <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +165,12 @@
       <Filter>Source Files\graphic</Filter>
     </ClCompile>
     <ClCompile Include="src\system\tools.cpp">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\tooltip.cpp">
+      <Filter>Source Files\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\char_encoding.cpp">
       <Filter>Source Files\system</Filter>
     </ClCompile>
   </ItemGroup>
