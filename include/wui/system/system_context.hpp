@@ -12,8 +12,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #elif __linux__
-#include <xcb/xcb.h>
-#include <X11/Xlib.h>
+#include <X11/Xlib-xcb.h>
 #endif
 
 namespace wui

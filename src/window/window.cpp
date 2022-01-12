@@ -32,9 +32,7 @@
 #include <xcb/xcb_atom.h>
 #include <wui/common/char_helpers.hpp>
 
-#include <X11/Xlib-xcb.h>
 #include <X11/Xutil.h>
-#include <locale.h>
 
 #endif
 
@@ -906,7 +904,7 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
         XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
         XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
         XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE    |
-        XCB_EVENT_MASK_STRUCTURE_NOTIFY };
+        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE };
 
     xcb_create_window(context_.connection,
                       XCB_COPY_FROM_PARENT,
@@ -1754,19 +1752,19 @@ void window::process_events()
                         keyev.state = ev_.state;
 
                         std::array<char, 16> buf {};
-
                         auto nbytes = XLookupString(&keyev, buf.data(), buf.size(), nullptr, nullptr);
-
                         if (nbytes)
                         {
-                            printf("%d\n", nbytes);
-
                             auto control = get_focused();
                             if (control)
                             {
+                                std::wstring wc = to_widechar(std::string(buf.data(), nbytes));
+
                                 event ev;
                                 ev.type = event_type::keyboard;
-                                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, ev_.state, buf.data()[0] };;
+                                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key,
+                                    ev_.state,
+                                    wc.c_str()[0] };
 
                                 control->receive_event(ev);
                             }
@@ -1820,11 +1818,10 @@ void window::process_events()
             case XCB_CLIENT_MESSAGE:
             	if((*(xcb_client_message_event_t*)e).data.data32[0] == (*wm_delete_msg).atom)
                 {
-            	    graphic_.release();
-
-                    xcb_destroy_window(context_.connection, context_.wnd);
-            	    xcb_disconnect(context_.connection);
+            	    xcb_destroy_window(context_.connection, context_.wnd);
             	    XCloseDisplay(context_.display);
+
+            	    graphic_.release();
 
                     context_.wnd = 0;
                     context_.screen = nullptr;
