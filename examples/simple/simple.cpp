@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
     redButtonTheme->set_dimension(wui::theme_value::button_font_size, 20);
     redButtonTheme->set_string(wui::theme_value::images_path, L"IMAGES_DARK");
     redButtonTheme->set_string(wui::theme_value::button_font_name, L"Segoe UI");
-    std::shared_ptr<wui::button> cancelButton(new wui::button(L"Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IDB_ACCOUNT, 24, redButtonTheme));
+    std::shared_ptr<wui::button> cancelButton(new wui::button(L"Cancel", [window]() { window->destroy(); }, wui::button_view::only_image, IDB_ACCOUNT, 24, redButtonTheme));
 
     std::shared_ptr<wui::button> darkThemeButton(new wui::button(L"Set the dark theme", [window, &pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::dark); window->update_theme(); pluggedWindow->window->update_theme(); dialog->update_theme(); }));
     window->add_control(darkThemeButton, wui::rect{ 140, 350, 260, 375 });

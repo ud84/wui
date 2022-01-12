@@ -53,6 +53,8 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
+    void set_text(const std::wstring &text_);
+
 private:
     std::shared_ptr<i_theme> theme_;
 
@@ -63,6 +65,8 @@ private:
     std::weak_ptr<window> parent;
 
     bool showed_;
+
+    void update_size();
 
     void redraw();
 };

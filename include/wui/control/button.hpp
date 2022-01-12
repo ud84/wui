@@ -26,6 +26,7 @@ namespace wui
 {
 
 class image;
+class tooltip;
 
 enum class button_view
 {
@@ -90,6 +91,7 @@ private:
     std::wstring caption;
     std::shared_ptr<image> image_;
     int32_t image_size;
+    std::shared_ptr<tooltip> tooltip_;
     std::function<void(void)> click_callback;
     std::shared_ptr<i_theme> theme_;
 
@@ -102,6 +104,8 @@ private:
     bool focusing_;
 
     void redraw();
+
+    void update_tooltip_position();
 };
 
 }

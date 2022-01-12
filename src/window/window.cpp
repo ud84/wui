@@ -109,7 +109,7 @@ window::window()
     pin_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
 #ifdef _WIN32
-    pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, IDB_WINDOW_PIN, 24)),
+    pin_button(new button(L"Pin the window", std::bind(&window::pin, this), button_view::only_image, IDB_WINDOW_PIN, 24)),
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
@@ -731,6 +731,13 @@ void window::update_buttons(bool theme_changed)
         buttons_theme->set_color(theme_value::button_border, background_color);
         buttons_theme->set_color(theme_value::button_text, theme_color(theme_value::window_text, theme_));
         buttons_theme->set_color(theme_value::button_disabled, background_color);
+        buttons_theme->set_color(theme_value::tooltip_background, theme_color(theme_value::tooltip_background, theme_));
+        buttons_theme->set_color(theme_value::tooltip_border, theme_color(theme_value::tooltip_border, theme_));
+        buttons_theme->set_color(theme_value::tooltip_text, theme_color(theme_value::tooltip_text, theme_));
+        buttons_theme->set_dimension(theme_value::tooltip_text_indent, theme_dimension(theme_value::tooltip_text_indent, theme_));
+        buttons_theme->set_dimension(theme_value::tooltip_font_size, theme_dimension(theme_value::tooltip_font_size, theme_));
+        buttons_theme->set_dimension(theme_value::tooltip_round, theme_dimension(theme_value::tooltip_round, theme_));
+        buttons_theme->set_string(theme_value::tooltip_font_name, theme_string(theme_value::tooltip_font_name, theme_));
         buttons_theme->set_dimension(theme_value::button_round, 0);
         buttons_theme->set_string(theme_value::images_path, theme_string(theme_value::images_path, theme_));
 

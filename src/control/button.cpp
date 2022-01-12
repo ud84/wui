@@ -12,6 +12,7 @@
 #include <wui/window/window.hpp>
 
 #include <wui/control/image.hpp>
+#include <wui/control/tooltip.hpp>
 
 #include <wui/theme/theme.hpp>
 
@@ -27,6 +28,7 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     caption(caption_),
     image_(),
     image_size(0),
+    tooltip_(new tooltip(caption_, theme_)),
     click_callback(click_callback_),
     theme_(theme__),
     position_(),
@@ -42,6 +44,7 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     caption(caption_),
     image_(new image(image_resource_index_, theme_)),
     image_size(image_size_),
+    tooltip_(new tooltip(caption_, theme_)),
     click_callback(click_callback_),
     theme_(theme__),
     position_(),
@@ -57,6 +60,7 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
     caption(caption_),
     image_(new image(imageFileName_, theme_)),
     image_size(image_size_),
+    tooltip_(new tooltip(caption_, theme_)),
     click_callback(click_callback_),
     theme_(theme__),
     position_(),
@@ -200,9 +204,20 @@ void button::receive_event(const event &ev)
                     set_cursor(parent_->context(), cursor::default_);
                 }
                 redraw();
+
+                if (button_view_ == button_view::only_image && !caption.empty())
+                {
+                    update_tooltip_position();
+                    tooltip_->show();
+                }
             }
             break;
             case mouse_event_type::leave:
+                if (button_view_ == button_view::only_image && !caption.empty())
+                {
+                    tooltip_->hide();
+                }
+
                 active = false;
                 redraw();
             break;
@@ -248,6 +263,7 @@ rect button::position() const
 void button::set_parent(std::shared_ptr<window> window_)
 {
     parent = window_;
+    window_->add_control(tooltip_, tooltip_->position());
 }
 
 void button::clear_parent()
@@ -291,6 +307,8 @@ void button::update_theme(std::shared_ptr<i_theme> theme__)
         return;
     }
     theme_ = theme__;
+
+    tooltip_->update_theme(theme_);
 
     if (image_)
     {
@@ -339,6 +357,9 @@ bool button::enabled() const
 void button::set_caption(const std::wstring &caption_)
 {
     caption = caption_;
+    tooltip_->set_text(caption_);
+    
+    redraw();
 }
 
 void button::set_button_view(button_view button_view__)
@@ -401,6 +422,40 @@ void button::redraw()
             parent_->redraw(position_);
         }
     }
+}
+
+void button::update_tooltip_position()
+{
+    auto parent_ = parent.lock();
+    if (!parent_)
+    {
+        return;
+    }
+
+    auto parent_pos = parent_->position();
+
+    auto tt_size = tooltip_->position();
+
+    auto out_pos = tt_size;
+    out_pos.put(position_.left + 5, position_.bottom + 5); // below the button
+    if (out_pos.bottom <= parent_pos.bottom)
+    {
+        if (out_pos.right >= parent_pos.right)
+        {
+            out_pos.put(parent_pos.right - tt_size.width(), position_.bottom + 5);
+        }
+    }
+    else
+    {
+        out_pos.put(position_.left + 5, position_.top - out_pos.height() - 5); // above the button
+
+        if (out_pos.right >= parent_pos.right)
+        {
+            out_pos.put(parent_pos.right - tt_size.width(), position_.top - out_pos.height() - 5);
+        }
+    }
+
+    tooltip_->set_position(out_pos);
 }
 
 }

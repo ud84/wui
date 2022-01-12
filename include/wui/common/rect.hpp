@@ -55,6 +55,15 @@ struct rect
         right += x;
         bottom += y;
     }
+
+    inline void put(int32_t x, int32_t y)
+    {
+        right = x + width();
+        bottom = y + height();
+        left = x;
+        top = y;
+        
+    }
 };
 
 }

@@ -52,7 +52,15 @@ enum class theme_value
     input_focused_border,
     input_round,
     input_font_size,
-    input_font_name
+    input_font_name,
+    
+    tooltip_background,
+    tooltip_border,
+    tooltip_text,
+    tooltip_text_indent,
+    tooltip_font_size,
+    tooltip_font_name,
+    tooltip_round
 };
 
 class i_theme
