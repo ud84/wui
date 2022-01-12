@@ -47,6 +47,14 @@ struct rect
     {
         return bottom - top;
     }
+
+    inline void move(int32_t x, int32_t y)
+    {
+        left += x;
+        top += y;
+        right += x;
+        bottom += y;
+    }
 };
 
 }
