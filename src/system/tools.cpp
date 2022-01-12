@@ -73,7 +73,7 @@ void set_cursor(system_context &context, cursor cursor_)
             cursor_id = "hand";
         break;
         case cursor::ibeam:
-            cursor_id = "ibeam";
+            cursor_id = "xterm";
         break;
         case cursor::wait:
             cursor_id = "wait";

@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
     redButtonTheme->set_color(wui::theme_value::button_text, wui::make_color(190, 205, 190));
     redButtonTheme->set_color(wui::theme_value::button_disabled, wui::make_color(180, 190, 180));
     redButtonTheme->set_dimension(wui::theme_value::button_round, 0);
-    redButtonTheme->set_dimension(wui::theme_value::button_font_size, 14);
+    redButtonTheme->set_dimension(wui::theme_value::button_font_size, 20);
     redButtonTheme->set_string(wui::theme_value::images_path, L"IMAGES_DARK");
     redButtonTheme->set_string(wui::theme_value::button_font_name, L"Segoe UI");
     std::shared_ptr<wui::button> cancelButton(new wui::button(L"Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IDB_ACCOUNT, 24, redButtonTheme));
