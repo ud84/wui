@@ -1439,6 +1439,16 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
 #elif __linux__
 
+wchar_t normalize_modifier(wchar_t state)
+{
+    if (state >= 8192)
+    {
+        return state - 8192;
+    }
+
+    return state;
+}
+
 void window::process_events()
 {
 	xcb_generic_event_t *e = nullptr;
@@ -1738,7 +1748,7 @@ void window::process_events()
                         {
                             event ev;
                             ev.type = event_type::keyboard;
-                            ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, ev_.state, ev_.detail };;
+                            ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, normalize_modifier(ev_.state), ev_.detail };;
 
                             control->receive_event(ev);
                         }
@@ -1763,7 +1773,7 @@ void window::process_events()
                                 event ev;
                                 ev.type = event_type::keyboard;
                                 ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key,
-                                    ev_.state,
+                                    normalize_modifier(ev_.state),
                                     wc.c_str()[0] };
 
                                 control->receive_event(ev);

@@ -356,17 +356,26 @@ void graphic::draw_rect(const rect &position, color fill_color)
 
     DeleteObject(brush);
 #elif __linux__
-
     auto gc_ = xcb_generate_id(context_.connection);
 
     uint32_t mask = XCB_GC_FOREGROUND;
     uint32_t value[] = { static_cast<uint32_t>(fill_color) };
     auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
 
-    xcb_rectangle_t rct = { static_cast<int16_t>(position.left),
-        static_cast<int16_t>(position.top),
-        static_cast<uint16_t>(position.width()),
-        static_cast<uint16_t>(position.height()) };
+    auto pos = position;
+    if (pos.left > pos.right)
+    {
+        std::swap(pos.left, pos.right);
+    }
+    if (pos.top > pos.bottom)
+    {
+        std::swap(pos.top, pos.bottom);
+    }
+
+    xcb_rectangle_t rct = { static_cast<int16_t>(pos.left),
+        static_cast<int16_t>(pos.top),
+        static_cast<uint16_t>(pos.width()),
+        static_cast<uint16_t>(pos.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc_, 1, &rct);
 
     xcb_free_gc(context_.connection, gc_);
