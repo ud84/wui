@@ -1026,21 +1026,21 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->graphic_.clear(paint_rect);
             }
-            if (flag_is_set(window_style_, window_style::title_showed))
+            if (flag_is_set(wnd->window_style_, window_style::title_showed))
             {
-                auto caption_font = font_settings{ theme_string(theme_value::window_title_font_name, theme_),
-                    theme_dimension(theme_value::window_title_font_size, theme_),
+                auto caption_font = font_settings{ theme_string(theme_value::window_title_font_name, wnd->theme_),
+                    theme_dimension(theme_value::window_title_font_size, wnd->theme_),
                     font_decorations::normal };
 
-                auto caption_rect = graphic_.measure_text(caption, caption_font);
+                auto caption_rect = wnd->graphic_.measure_text(wnd->caption, caption_font);
                 caption_rect.move(5, 5);
 
                 if (caption_rect.in(paint_rect))
                 {
-                    graphic_.draw_rect(caption_rect, theme_color(theme_value::window_background, theme_));
-                    graphic_.draw_text(caption_rect,
-                        caption,
-                        theme_color(theme_value::window_text, theme_),
+                    wnd->graphic_.draw_rect(caption_rect, theme_color(theme_value::window_background, wnd->theme_));
+                    wnd->graphic_.draw_text(caption_rect,
+                        wnd->caption,
+                        theme_color(theme_value::window_text, wnd->theme_),
                         caption_font);
                 }
             }
