@@ -331,15 +331,14 @@ void graphic::draw_text(const rect &position, const std::wstring &text, color co
     SelectObject(mem_dc, old_font);
     DeleteObject(font);
 #elif __linux__
-    cairo_text_extents_t extents;
-
     cairo_select_font_face(cr, to_multibyte(font_.name).c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, font_.size - 4);
     set_color(color_);
 
-    cairo_text_extents(cr, to_multibyte(text).c_str(), &extents);
+    cairo_text_extents_t extents;
+    cairo_text_extents(cr, "QWqb", &extents);
 
-    cairo_move_to(cr, position.left, position.top + extents.height);
+    cairo_move_to(cr, position.left, (double)position.top + (extents.height * 3 / 4));
     cairo_show_text(cr, to_multibyte(text).c_str());
 
     cairo_surface_flush(surface);
@@ -450,8 +449,8 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
             right_shift,
             position.left,
             position.top,
-            position.width(),
-            position.height());
+            position.right,
+            position.bottom);
 
         if (!check_cookie(copy_area_cookie, context_.connection, "graphic::draw_graphic xcb_copy_area"))
         {

@@ -18,7 +18,7 @@
 namespace wui
 {
 
-static const int32_t input_horizontal_indent = 5, input_top_indent = 3;
+static const int32_t input_horizontal_indent = 5, input_top_indent = 5;
 
 input::input(const std::wstring &text__, input_view input_view__, std::shared_ptr<i_theme> theme__)
     : input_view_(input_view__),
@@ -53,7 +53,7 @@ rect calculate_text_dimensions(graphic &gr, std::wstring text, size_t text_lengt
 
     if (text_length == 0)
     {
-        text = L"Wqb";
+        text = L"QWqb";
     }
 
     auto text_rect = gr.measure_text(text, font_);
@@ -82,6 +82,7 @@ void input::draw(graphic &gr)
     /// Create memory dc for text and selection bar
     rect full_text_dimensions = calculate_text_dimensions(gr, text_, text_.size(), font_);
     full_text_dimensions.right += 1;
+    full_text_dimensions.bottom *= 2;
 
 #ifdef _WIN32
     system_context ctx = { 0, gr.drawable() };
@@ -125,7 +126,7 @@ void input::draw(graphic &gr)
     gr.draw_graphic(rect{ position_.left + input_horizontal_indent,
             position_.top + input_top_indent,
             position_.width() - input_horizontal_indent * 2,
-            position_.height() - input_top_indent },
+            position_.height() - input_top_indent * 2 },
         mem_gr, left_shift, 0);
 }
 
