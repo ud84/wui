@@ -14,7 +14,7 @@
 #include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
-#include <wui/common/timer.hpp>
+#include <wui/system/timer.hpp>
 
 #include <string>
 #include <functional>

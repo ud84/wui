@@ -70,14 +70,20 @@ private:
 
 	void run()
 	{
+	    auto begin = std::chrono::high_resolution_clock::now();
+
 		while (runned)
 		{
-			auto begin = std::chrono::high_resolution_clock::now();
-
-			callback();
-						
 			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin).count();
-			std::this_thread::sleep_for(std::chrono::microseconds((interval * 1000) - elapsed));
+			if (elapsed > interval * 1000)
+			{
+			    callback();
+			    begin = std::chrono::high_resolution_clock::now();
+			}
+			else
+			{
+			    std::this_thread::sleep_for(std::chrono::microseconds(100));
+			}
 		}
 	}
 };
