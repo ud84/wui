@@ -1478,9 +1478,6 @@ void window::process_events()
                 xcb_flush(context_.connection);
             }
             break;
-            case XCB_KEY_PRESS:
-                destroy();
-            break;
             case XCB_MOTION_NOTIFY:
             {
             	auto *ev = (xcb_motion_notify_event_t *)e;
@@ -1706,6 +1703,60 @@ void window::process_events()
             break;
             case XCB_LEAVE_NOTIFY:
             	send_mouse_event({ mouse_event_type::leave, -1, -1 });
+            break;
+            case XCB_KEY_PRESS:
+            {
+                auto ev_ = *(xcb_key_press_event_t *)e;
+
+                switch (ev_.detail)
+                {
+                    case vk_tab:
+                    {
+                        change_focus();
+                    }
+                    break;
+                    case vk_return:
+                    {
+                        execute_focused();
+                    }
+                    break;
+                    case vk_back: case vk_del: case vk_end: case vk_home: case vk_left: case vk_right: case vk_up: case vk_down: case vk_shift:
+                    {
+                        auto control = get_focused();
+                        if (control)
+                        {
+                            event ev;
+                            ev.type = event_type::keyboard;
+                            ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, ev_.state, ev_.detail };;
+
+                            control->receive_event(ev);
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+            case XCB_KEY_RELEASE:
+            {
+                auto ev_ = *(xcb_key_press_event_t *)e;
+
+                switch (ev_.detail)
+                {
+                    case vk_back: case vk_del: case vk_end: case vk_home: case vk_left: case vk_right: case vk_up: case vk_down: case vk_shift:
+                    {
+                        auto control = get_focused();
+                        if (control)
+                        {
+                            event ev;
+                            ev.type = event_type::keyboard;
+                            ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, ev_.state, ev_.detail };;
+
+                            control->receive_event(ev);
+                        }
+                    }
+                    break;
+                }
+            }
             break;
             case XCB_CONFIGURE_NOTIFY:
             {

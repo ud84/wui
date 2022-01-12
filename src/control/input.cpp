@@ -408,7 +408,7 @@ void input::receive_event(const event &ev)
                 }
             break;
             case keyboard_event_type::up:
-                timer_.start();
+                timer_.start(500);
                 if (ev.keyboard_event_.key == vk_shift)
                 {
                     selecting = false;
