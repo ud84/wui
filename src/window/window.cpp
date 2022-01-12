@@ -381,6 +381,11 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
         RECT client_rect;
         GetClientRect(context_.hwnd, &client_rect);
         InvalidateRect(context_.hwnd, &client_rect, TRUE);
+
+        if (topmost())
+        {
+            SetWindowPos(context_.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        }
     }
 #elif __linux__
     if (!parent && context_.connection)
@@ -498,16 +503,25 @@ void window::expand()
     window_state_ = window_state::maximized;
 
 #ifdef _WIN32
-    if (flag_is_set(window_style_, window_style::title_showed))
+    if (flag_is_set(window_style_, window_style::title_showed)) // normal window maximization
     {
         RECT work_area;
         SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
 
         SetWindowPos(context_.hwnd, NULL, work_area.left, work_area.top, work_area.right, work_area.bottom, NULL);
     }
-    else
+    else // fullscreen
     {
-        ShowWindow(context_.hwnd, SW_MAXIMIZE);
+        MONITORINFO mi = { sizeof(mi) };
+        if (GetMonitorInfo(MonitorFromWindow(context_.hwnd, MONITOR_DEFAULTTOPRIMARY), &mi))
+        {
+            SetWindowPos(context_.hwnd, 
+                HWND_TOP,
+                mi.rcMonitor.left, mi.rcMonitor.top,
+                mi.rcMonitor.right - mi.rcMonitor.left,
+                mi.rcMonitor.bottom - mi.rcMonitor.top,
+                SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+        }
     }
 
     expand_button->set_image(IDB_WINDOW_NORMAL);
@@ -876,7 +890,7 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
     RegisterClassExW(&wcex);
 
-    context_.hwnd = CreateWindowW(wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP,
+    context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST, wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP,
         position_.left, position_.top, position_.right, position_.bottom, nullptr, nullptr, h_inst, this);
 
     if (!context_.hwnd)
@@ -1272,10 +1286,12 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->x_click = GET_X_LPARAM(l_param);
             wnd->y_click = GET_Y_LPARAM(l_param);
 
-            if (!wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click }) && 
-                (flag_is_set(wnd->window_style_, window_style::moving) && wnd->window_state_ == window_state::normal))
+            if (!wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click }) && wnd->window_state_ == window_state::normal)
             {
-                wnd->moving_mode_ = moving_mode::move;
+                if (flag_is_set(wnd->window_style_, window_style::moving))
+                {
+                    wnd->moving_mode_ = moving_mode::move;
+                }
 
                 if (flag_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)
                 {
