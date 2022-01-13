@@ -280,6 +280,8 @@ void window::set_parent(std::shared_ptr<window> window)
                 control->position().bottom + position_.top });
         }
 
+        pin_button->set_caption(L"Unpin the window");
+
         update_buttons(false);
     }
 }
@@ -376,7 +378,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 
     if (!parent)
     {
-        graphic_.set_background_color(theme_color(theme_value::window_background, theme_));
+        graphic_.set_background_color(theme_color(theme_control::window, theme_value::background, theme_));
 
         RECT client_rect;
         GetClientRect(context_.hwnd, &client_rect);
@@ -743,7 +745,7 @@ std::shared_ptr<i_control> window::get_focused()
 
 void window::update_buttons(bool theme_changed)
 {
-    auto background_color = theme_color(theme_value::window_background, theme_);
+    auto background_color = theme_color(theme_control::window, theme_value::background, theme_);
 
     if (theme_changed)
     {

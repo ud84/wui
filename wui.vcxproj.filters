@@ -13,24 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\common">
-      <UniqueIdentifier>{52f7cf33-215b-4ab3-b0dc-e7db90d9a8dd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\control">
-      <UniqueIdentifier>{8b439cdf-9170-4d9d-a091-8f55f1524c6f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\event">
-      <UniqueIdentifier>{37670d4a-34cb-485e-9e7b-74c2bca88f42}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\graphic">
-      <UniqueIdentifier>{093f0e8d-ad36-4030-bbc6-3f7c2d5c916d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\theme">
-      <UniqueIdentifier>{0c39ba94-c8ec-45a0-96cd-cfff068f4eed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\window">
-      <UniqueIdentifier>{d82e81ca-abfe-46a9-9da1-7d0fc60ab5b7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\window">
       <UniqueIdentifier>{f5310fbf-2966-43c4-9380-529f048a628d}</UniqueIdentifier>
     </Filter>
@@ -40,100 +22,118 @@
     <Filter Include="Source Files\control">
       <UniqueIdentifier>{8880b4cf-e54f-430d-9f68-2ecfeaaa67c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\theme\impl">
-      <UniqueIdentifier>{ae19e477-fa89-4002-a3e5-043f884bf26d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\theme\impl">
-      <UniqueIdentifier>{11eb642c-a9e1-494d-aa5d-14010c5c0752}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\system">
-      <UniqueIdentifier>{460cb6ac-341e-41a4-be1e-81fd0e225a5f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\graphic">
       <UniqueIdentifier>{95509118-5ace-47ee-a101-02ef55accd51}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\system">
       <UniqueIdentifier>{8e6c47c5-d753-4711-9ad8-a5b3d0dda9f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\wui">
+      <UniqueIdentifier>{3b6346d2-4558-4d82-be95-da81695092ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\wui\graphic">
+      <UniqueIdentifier>{093f0e8d-ad36-4030-bbc6-3f7c2d5c916d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\wui\event">
+      <UniqueIdentifier>{37670d4a-34cb-485e-9e7b-74c2bca88f42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\wui\control">
+      <UniqueIdentifier>{8b439cdf-9170-4d9d-a091-8f55f1524c6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\wui\common">
+      <UniqueIdentifier>{52f7cf33-215b-4ab3-b0dc-e7db90d9a8dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\wui\system">
+      <UniqueIdentifier>{460cb6ac-341e-41a4-be1e-81fd0e225a5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\wui\theme">
+      <UniqueIdentifier>{0c39ba94-c8ec-45a0-96cd-cfff068f4eed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\wui\window">
+      <UniqueIdentifier>{d82e81ca-abfe-46a9-9da1-7d0fc60ab5b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\nlohmann">
+      <UniqueIdentifier>{ebf4a237-0561-4321-b4d6-cd3376712c18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\wui\common\color.hpp">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\wui\common</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\common\rect.hpp">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\wui\common</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\control\button.hpp">
-      <Filter>Header Files\control</Filter>
+      <Filter>Header Files\wui\control</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\control\image.hpp">
-      <Filter>Header Files\control</Filter>
+      <Filter>Header Files\wui\control</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\event\event.hpp">
-      <Filter>Header Files\event</Filter>
+      <Filter>Header Files\wui\event</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\event\internal_event.hpp">
-      <Filter>Header Files\event</Filter>
+      <Filter>Header Files\wui\event</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\event\keyboard_event.hpp">
-      <Filter>Header Files\event</Filter>
+      <Filter>Header Files\wui\event</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\event\mouse_event.hpp">
-      <Filter>Header Files\event</Filter>
+      <Filter>Header Files\wui\event</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\graphic\graphic.hpp">
-      <Filter>Header Files\graphic</Filter>
+      <Filter>Header Files\wui\graphic</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\window\window.hpp">
-      <Filter>Header Files\window</Filter>
+      <Filter>Header Files\wui\window</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\theme\theme.hpp">
-      <Filter>Header Files\theme</Filter>
-    </ClInclude>
-    <ClInclude Include="include\wui\theme\impl\custom_theme.hpp">
-      <Filter>Header Files\theme\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="include\wui\theme\impl\dark_theme.hpp">
-      <Filter>Header Files\theme\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="include\wui\theme\impl\white_theme.hpp">
-      <Filter>Header Files\theme\impl</Filter>
+      <Filter>Header Files\wui\theme</Filter>
     </ClInclude>
     <ClInclude Include="res\resource.hpp">
       <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\theme\i_theme.hpp">
-      <Filter>Header Files\theme</Filter>
+      <Filter>Header Files\wui\theme</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\control\i_control.hpp">
-      <Filter>Header Files\control</Filter>
+      <Filter>Header Files\wui\control</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\window\i_window.hpp">
-      <Filter>Header Files\window</Filter>
+      <Filter>Header Files\wui\window</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\control\input.hpp">
-      <Filter>Header Files\control</Filter>
+      <Filter>Header Files\wui\control</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\common\bit_helpers.hpp">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\wui\common</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\system\system_context.hpp">
-      <Filter>Header Files\system</Filter>
+      <Filter>Header Files\wui\system</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\common\flag_helpers.hpp">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\wui\common</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\system\tools.hpp">
-      <Filter>Header Files\system</Filter>
+      <Filter>Header Files\wui\system</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\system\timer.hpp">
-      <Filter>Header Files\system</Filter>
+      <Filter>Header Files\wui\system</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\control\tooltip.hpp">
-      <Filter>Header Files\control</Filter>
+      <Filter>Header Files\wui\control</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\system\char_encoding.hpp">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\wui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nlohmann\json.hpp">
+      <Filter>Header Files\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\theme\theme_impl.hpp">
+      <Filter>Header Files\wui\theme</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\theme\theme_str.hpp">
+      <Filter>Header Files\wui\theme</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -145,15 +145,6 @@
     </ClCompile>
     <ClCompile Include="src\theme\theme.cpp">
       <Filter>Source Files\theme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\theme\impl\custom_theme.cpp">
-      <Filter>Source Files\theme\impl</Filter>
-    </ClCompile>
-    <ClCompile Include="src\theme\impl\dark_theme.cpp">
-      <Filter>Source Files\theme\impl</Filter>
-    </ClCompile>
-    <ClCompile Include="src\theme\impl\white_theme.cpp">
-      <Filter>Source Files\theme\impl</Filter>
     </ClCompile>
     <ClCompile Include="src\window\window.cpp">
       <Filter>Source Files\window</Filter>
@@ -172,6 +163,12 @@
     </ClCompile>
     <ClCompile Include="src\system\char_encoding.cpp">
       <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\theme\theme_impl.cpp">
+      <Filter>Source Files\theme</Filter>
+    </ClCompile>
+    <ClCompile Include="src\theme\theme_str.cpp">
+      <Filter>Source Files\theme</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
