@@ -115,7 +115,7 @@ window::window()
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
     mouse_tracked(false)
 #elif __linux__
-    pin_button(new button(L"", std::bind(&window::pin, this), button_view::only_image, L"", 24)),
+    pin_button(new button(L"Pin the window", std::bind(&window::pin, this), button_view::only_image, L"", 24)),
     minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, L"", 24)),
     expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? L"" : L"", 24)),
     close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
