@@ -301,6 +301,10 @@ rect graphic::measure_text(const std::wstring &text, const font_settings &font_)
 
     return rect {0, 0, text_rect.right, text_rect.bottom};
 #elif __linux__
+    if (!cr)
+    {
+        return rect{ 0 };
+    }
     cairo_text_extents_t extents;
 
     cairo_select_font_face(cr, to_multibyte(font_.name).c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);

@@ -192,6 +192,12 @@ void tooltip::update_size()
     {
         ctx = { parent_->context().display, parent_->context().connection, parent_->context().screen, parent_->context().wnd };
     }
+
+    if (!ctx.display)
+    {
+        return;
+    }
+
 #endif
     graphic mem_gr(ctx);
     mem_gr.init(rect{ 0, 0, 1024, 50 }, 0);
