@@ -146,8 +146,15 @@ int main(int argc, char *argv[])
     redButtonTheme->set_color(wui::theme_value::button_disabled, wui::make_color(180, 190, 180));
     redButtonTheme->set_dimension(wui::theme_value::button_round, 0);
     redButtonTheme->set_dimension(wui::theme_value::button_font_size, 20);
-    redButtonTheme->set_string(wui::theme_value::images_path, L"IMAGES_DARK");
-    redButtonTheme->set_string(wui::theme_value::button_font_name, L"Segoe UI");
+    redButtonTheme->set_color(wui::theme_value::tooltip_background, wui::theme_color(wui::theme_value::tooltip_background));
+    redButtonTheme->set_color(wui::theme_value::tooltip_border, wui::theme_color(wui::theme_value::tooltip_border));
+    redButtonTheme->set_color(wui::theme_value::tooltip_text, wui::theme_color(wui::theme_value::tooltip_text));
+    redButtonTheme->set_dimension(wui::theme_value::tooltip_text_indent, wui::theme_dimension(wui::theme_value::tooltip_text_indent));
+    redButtonTheme->set_dimension(wui::theme_value::tooltip_font_size, wui::theme_dimension(wui::theme_value::tooltip_font_size));
+    redButtonTheme->set_dimension(wui::theme_value::tooltip_round, wui::theme_dimension(wui::theme_value::tooltip_round));
+    redButtonTheme->set_string(wui::theme_value::tooltip_font_name, wui::theme_string(wui::theme_value::tooltip_font_name));
+    redButtonTheme->set_string(wui::theme_value::images_path, wui::theme_string(wui::theme_value::images_path));
+    redButtonTheme->set_string(wui::theme_value::button_font_name, wui::theme_string(wui::theme_value::button_font_name));
     std::shared_ptr<wui::button> cancelButton(new wui::button(L"Cancel", [window]() { window->destroy(); }, wui::button_view::only_image, IDB_ACCOUNT, 24, redButtonTheme));
 
     std::shared_ptr<wui::button> darkThemeButton(new wui::button(L"Set the dark theme", [window, &pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::dark); window->update_theme(); pluggedWindow->window->update_theme(); dialog->update_theme(); }));

@@ -129,6 +129,8 @@ void tooltip::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
+    update_size();
+
     redraw();
 }
 

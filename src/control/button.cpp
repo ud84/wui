@@ -440,23 +440,28 @@ void button::update_tooltip_position()
     auto parent_pos = parent_->position();
 
     auto tt_size = tooltip_->position();
+    if (tt_size.width() == 0)
+    {
+        tooltip_->update_size();
+        tt_size = tooltip_->position();
+    }
 
     auto out_pos = tt_size;
     out_pos.put(position_.left + 5, position_.bottom + 5); // below the button
-    if (out_pos.bottom <= parent_pos.bottom)
+    if (out_pos.bottom < parent_pos.height())
     {
-        if (out_pos.right >= parent_pos.right)
+        if (out_pos.right > parent_pos.width())
         {
-            out_pos.put(parent_pos.right - tt_size.width(), position_.bottom + 5);
+            out_pos.put(parent_pos.width() - tt_size.width(), position_.bottom + 5);
         }
     }
     else
     {
         out_pos.put(position_.left + 5, position_.top - out_pos.height() - 5); // above the button
 
-        if (out_pos.right >= parent_pos.right)
+        if (out_pos.right > parent_pos.width())
         {
-            out_pos.put(parent_pos.right - tt_size.width(), position_.top - out_pos.height() - 5);
+            out_pos.put(parent_pos.width() - tt_size.width(), position_.top - out_pos.height() - 5);
         }
     }
 
