@@ -185,6 +185,11 @@ void tooltip::set_text(const std::wstring &text_)
 
 void tooltip::update_size()
 {
+    if (text.empty())
+    {
+        return;
+    }
+
 #ifdef _WIN32
     system_context ctx = { 0, GetDC(NULL) };
 #elif __linux__
