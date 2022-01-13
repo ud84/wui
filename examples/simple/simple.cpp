@@ -70,7 +70,18 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         window->add_control(unplugButton, wui::rect{ 10, 40, 110, 65 });
         window->add_control(plugButton, wui::rect{ 10, 85, 110, 110 });
 
-        window->set_pin_callback([this]() { if (plugged) Unplug(); else Plug(); });
+        window->set_pin_callback([this](std::wstring &tooltip_text) {
+            if (plugged)
+            {
+                Unplug();
+                tooltip_text = L"Pin the window";
+            }
+            else
+            {
+                Plug();
+                tooltip_text = L"Unpin the window";
+            }
+        });
 
         plugButton->disable();
 

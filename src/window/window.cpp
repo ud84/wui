@@ -480,7 +480,9 @@ void window::pin()
 
     if (pin_callback)
     {
-        pin_callback();
+        std::wstring tooltip_text;
+        pin_callback(tooltip_text);
+        pin_button->set_caption(tooltip_text);
     }
 }
 
@@ -584,7 +586,7 @@ void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size
     size_change_callback = size_change_callback_;
 }
 
-void window::set_pin_callback(std::function<void(void)> pin_callback_)
+void window::set_pin_callback(std::function<void(std::wstring &tooltip_text)> pin_callback_)
 {
     pin_callback = pin_callback_;
 }
