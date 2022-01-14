@@ -102,6 +102,11 @@ private:
 
     void select_all();
 
+    bool check_count_valid(size_t count);
+
+    void move_cursor_left();
+    void move_cursor_right();
+
     size_t calculate_mouse_cursor_position(int32_t x);
 
     void buffer_copy();

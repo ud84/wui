@@ -16,6 +16,7 @@
 #include <wui/system/tools.hpp>
 
 #include <boost/nowide/convert.hpp>
+#include <utf8/utf8.h>
 
 namespace wui
 {
@@ -158,9 +159,14 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
 
     int32_t text_width = 0;
     size_t count = 0;
-    while (x > text_width && count != text_.size())
+    while (x > text_width && count <= text_.size())
     {
-        text_width = calculate_text_dimensions(mem_gr, text_, ++count, font_).right;
+        ++count;
+
+        if (check_count_valid(count))
+        {
+            text_width = calculate_text_dimensions(mem_gr, text_, count, font_).right;
+        }
     }
 
 #ifdef _WIN32
@@ -257,6 +263,30 @@ void input::select_all()
     redraw();
 }
 
+bool input::check_count_valid(size_t count)
+{
+    auto end_it = utf8::find_invalid(text_.begin(), text_.begin() + count);
+    return end_it == text_.begin() + count;
+}
+
+void input::move_cursor_left()
+{
+    --cursor_position;
+    while (!check_count_valid(cursor_position))
+    {
+        --cursor_position;
+    }
+}
+
+void input::move_cursor_right()
+{
+    ++cursor_position;
+    while (!check_count_valid(cursor_position))
+    {
+        ++cursor_position;
+    }
+}
+
 void input::receive_event(const event &ev)
 {
     if (!showed_ || !enabled_)
@@ -343,18 +373,22 @@ void input::receive_event(const event &ev)
                     case vk_left:
                         if (cursor_position > 0)
                         {
-                            --cursor_position;
+                            auto prev_position = cursor_position;
 
-                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position + 1, cursor_position);
+                            move_cursor_left();
+
+                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, prev_position, cursor_position);
                             redraw();
                         }
                     break;
                     case vk_right:
                         if (cursor_position < text_.size())
                         {
-                            ++cursor_position;
+                            auto prev_position = cursor_position;
 
-                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position - 1, cursor_position);
+                            move_cursor_right();
+
+                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, prev_position, cursor_position);
                             redraw();
                         }
                     break;
@@ -378,8 +412,11 @@ void input::receive_event(const event &ev)
                         {
                             if (!clear_selected_text())
                             {
-                                text_.erase(cursor_position - 1, 1);
-                                --cursor_position;
+                                auto prev_position = cursor_position;
+
+                                move_cursor_left();
+
+                                text_.erase(cursor_position, prev_position - cursor_position);
                             }
                             
                             redraw();
@@ -395,7 +432,12 @@ void input::receive_event(const event &ev)
                         {
                             if (!clear_selected_text())
                             {
-                                text_.erase(cursor_position, 1);
+                                size_t char_count = 1;
+                                while (!check_count_valid(cursor_position + char_count))
+                                {
+                                    ++char_count;
+                                }
+                                text_.erase(cursor_position, char_count);
                             }
                             
                             redraw();
