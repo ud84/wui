@@ -5,8 +5,11 @@
       "background": "#f0f0f0",
       "text": "#191914",
       "active_button": "#dcdcdc",
-      "title_font_name": "Segoe UI",
-      "title_font_size": 18
+      "font":
+      {
+        "name": "Segoe UI",
+        "size": 18
+      }
     },
     {
       "type": "button",
@@ -16,9 +19,12 @@
       "focused_border": "#140a14",
       "text": "#181818",
       "disabled": "#cdcdc8",
-      "font_name": "Segoe UI",
-      "font_size": 18,
-      "round": 0
+      "round": 0,
+      "font":
+      {
+        "name": "Segoe UI",
+        "size": 18
+      }
     },
     {
       "type": "input",
@@ -28,19 +34,25 @@
       "cursor": "#141414",
       "border": "#28788c",
       "focused_border": "#140a14",
-      "font_name": "Segoe UI",
-      "font_size": 18,
-      "round": 0
+      "round": 0,
+      "font":
+      {
+        "name": "Segoe UI",
+        "size": 18
+      }
     },
     {
       "type": "tooltip",
       "background": "#f1f2f7",
       "border": "#767676",
       "text": "#061912",
-      "font_name": "Segoe UI",
-      "font_size": 16,
       "round": 0,
-      "text_indent": 3
+      "text_indent": 3,
+      "font":
+      {
+        "name": "Segoe UI",
+        "size": 18
+      }
     }
   ]
 }
