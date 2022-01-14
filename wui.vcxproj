@@ -23,6 +23,7 @@
     <ClInclude Include="include\wui\common\bit_helpers.hpp" />
     <ClInclude Include="include\wui\common\color.hpp" />
     <ClInclude Include="include\wui\common\flag_helpers.hpp" />
+    <ClInclude Include="include\wui\common\font.hpp" />
     <ClInclude Include="include\wui\common\rect.hpp" />
     <ClInclude Include="include\wui\control\button.hpp" />
     <ClInclude Include="include\wui\control\input.hpp" />
@@ -61,6 +62,10 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\wui.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\dark.json" />
+    <None Include="res\white.json" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

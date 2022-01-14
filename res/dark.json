@@ -5,7 +5,7 @@
       "background": "#131519",
       "text": "#f5f5f0",
       "active_button": "#3b3d41",
-      "font":
+      "caption_font":
       {
         "name": "Segoe UI",
         "size": 18

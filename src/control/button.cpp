@@ -86,9 +86,7 @@ void button::draw(graphic &gr)
         return;
     }
 
-    auto font_ = font_settings{ theme_string(theme_value::button_font_name, theme_),
-        theme_dimension(theme_value::button_font_size, theme_),
-        font_decorations::normal };
+    auto font_ = theme_font(theme_control::button, theme_value::font, theme_);
 
     auto text_rect = gr.measure_text(caption, font_);
 
@@ -160,15 +158,15 @@ void button::draw(graphic &gr)
     }
 
     color border_color = !focused_ ?
-        (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_border, theme_) : theme_color(theme_value::window_background, theme_)) : 
-        theme_color(theme_value::button_focused_border, theme_);
+        (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_control::button, theme_value::border, theme_) : theme_color(theme_control::window, theme_value::background, theme_)) :
+        theme_color(theme_control::button, theme_value::focused_border, theme_);
 
     color fill_color = enabled_ ?
-        (active ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_active, theme_) : theme_color(theme_value::window_background, theme_)) : 
-        (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_calm, theme_) : theme_color(theme_value::window_background, theme_))) :
-        button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_disabled, theme_) : theme_color(theme_value::window_background, theme_);
+        (active ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_control::button, theme_value::active, theme_) : theme_color(theme_control::window, theme_value::background, theme_)) :
+        (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_control::button, theme_value::calm, theme_) : theme_color(theme_control::window, theme_value::background, theme_))) :
+        button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_control::button, theme_value::disabled, theme_) : theme_color(theme_control::window, theme_value::background, theme_);
 
-    gr.draw_rect(position_, border_color, fill_color, 1, theme_dimension(theme_value::button_round, theme_));
+    gr.draw_rect(position_, border_color, fill_color, 1, theme_dimension(theme_control::button, theme_value::round, theme_));
 	
     if (button_view_ != button_view::only_text && image_)
     {
@@ -179,7 +177,7 @@ void button::draw(graphic &gr)
     if (button_view_ != button_view::only_image)
     {
         gr.draw_text(rect{ text_left, text_top, text_left, text_top }, caption, 
-            button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_value::button_text, theme_) : theme_color(theme_value::window_text, theme_),
+            button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_control::button, theme_value::text, theme_) : theme_color(theme_control::window, theme_value::text, theme_),
             font_);
     }
 }

@@ -32,6 +32,9 @@ public:
     virtual void set_string(theme_control control, theme_value value, const std::string &str);
     virtual std::string get_string(theme_control control, theme_value value) const;
 
+    virtual void set_font(theme_control control, theme_value value, const font &font_);
+    virtual font get_font(theme_control control, theme_value value) const;
+
     virtual void load_json(const std::string &json);
     virtual void load_file(const std::string &file_name);
 
@@ -40,6 +43,7 @@ private:
 
     std::map<std::string, int32_t> ints;
     std::map<std::string, std::string> strings;
+    std::map<std::string, font> fonts;
 };
 
 }

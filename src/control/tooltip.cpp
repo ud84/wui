@@ -42,21 +42,19 @@ void tooltip::draw(graphic &gr)
     }
 
     gr.draw_rect(position_,
-        theme_color(theme_value::tooltip_border, theme_),
-        theme_color(theme_value::tooltip_background, theme_),
+        theme_color(theme_control::tooltip, theme_value::border, theme_),
+        theme_color(theme_control::tooltip, theme_value::background, theme_),
         1,
-        theme_dimension(theme_value::tooltip_round, theme_));
+        theme_dimension(theme_control::tooltip, theme_value::round, theme_));
 
-    auto font_ = font_settings{ theme_string(theme_value::tooltip_font_name, theme_),
-        theme_dimension(theme_value::tooltip_font_size, theme_),
-        font_decorations::normal };
+    auto font_ = theme_font(theme_control::tooltip, theme_value::font, theme_);
 
-    auto text_indent = theme_dimension(theme_value::tooltip_text_indent, theme_);
+    auto text_indent = theme_dimension(theme_control::tooltip, theme_value::text_indent, theme_);
 
     auto text_position = position_;
     text_position.move(text_indent, text_indent);
 
-    gr.draw_text(text_position, text, theme_color(theme_value::tooltip_text, theme_), font_);
+    gr.draw_text(text_position, text, theme_color(theme_control::tooltip, theme_value::text, theme_), font_);
 }
 
 void tooltip::receive_event(const event &)
@@ -209,15 +207,13 @@ void tooltip::update_size()
     graphic mem_gr(ctx);
     mem_gr.init(rect{ 0, 0, 1024, 50 }, 0);
 
-    auto font_ = font_settings{ theme_string(theme_value::tooltip_font_name, theme_),
-        theme_dimension(theme_value::tooltip_font_size, theme_),
-        font_decorations::normal };
+    auto font_ = theme_font(theme_control::tooltip, theme_value::font, theme_);
 
     auto old_position = position_;
 
     position_ = mem_gr.measure_text(text, font_);
 
-    auto text_indent = theme_dimension(theme_value::tooltip_text_indent, theme_);
+    auto text_indent = theme_dimension(theme_control::tooltip, theme_value::text_indent, theme_);
     position_.right += text_indent * 2;
     position_.bottom += text_indent * 2;
 

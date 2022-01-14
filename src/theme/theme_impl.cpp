@@ -14,7 +14,7 @@ namespace wui
 {
 
 theme_impl::theme_impl(theme theme__)
-    : theme_(theme__), ints(), strings()
+    : theme_(theme__), ints(), strings(), fonts()
 {
 }
 
@@ -66,6 +66,31 @@ std::string theme_impl::get_string(theme_control control, theme_value value) con
         return it->second;
     }
     return "";
+}
+
+void theme_impl::set_font(theme_control control, theme_value value, const font &font_)
+{
+    fonts[str_theme_control(control) + str_theme_value(value)] = font_;
+}
+
+font theme_impl::get_font(theme_control control, theme_value value) const
+{
+    auto it = fonts.find(str_theme_control(control) + str_theme_value(value));
+    if (it != fonts.end())
+    {
+        return it->second;
+    }
+    return font();
+}
+
+void theme_impl::load_json(const std::string &json)
+{
+
+}
+
+void theme_impl::load_file(const std::string &file_name)
+{
+
 }
 
 }

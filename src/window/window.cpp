@@ -749,32 +749,34 @@ void window::update_buttons(bool theme_changed)
 
     if (theme_changed)
     {
-        buttons_theme->set_color(theme_value::button_calm, background_color);
-        buttons_theme->set_color(theme_value::button_active, theme_color(theme_value::window_active_button, theme_));
-        buttons_theme->set_color(theme_value::button_border, background_color);
-        buttons_theme->set_color(theme_value::button_text, theme_color(theme_value::window_text, theme_));
-        buttons_theme->set_color(theme_value::button_disabled, background_color);
-        buttons_theme->set_color(theme_value::tooltip_background, theme_color(theme_value::tooltip_background, theme_));
-        buttons_theme->set_color(theme_value::tooltip_border, theme_color(theme_value::tooltip_border, theme_));
-        buttons_theme->set_color(theme_value::tooltip_text, theme_color(theme_value::tooltip_text, theme_));
-        buttons_theme->set_dimension(theme_value::tooltip_text_indent, theme_dimension(theme_value::tooltip_text_indent, theme_));
-        buttons_theme->set_dimension(theme_value::tooltip_font_size, theme_dimension(theme_value::tooltip_font_size, theme_));
-        buttons_theme->set_dimension(theme_value::tooltip_round, theme_dimension(theme_value::tooltip_round, theme_));
-        buttons_theme->set_string(theme_value::tooltip_font_name, theme_string(theme_value::tooltip_font_name, theme_));
-        buttons_theme->set_dimension(theme_value::button_round, 0);
-        buttons_theme->set_string(theme_value::images_path, theme_string(theme_value::images_path, theme_));
+        buttons_theme->set_color(theme_control::button, theme_value::calm, background_color);
+        buttons_theme->set_color(theme_control::button, theme_value::active, theme_color(theme_control::window, theme_value::active_button, theme_));
+        buttons_theme->set_color(theme_control::button, theme_value::border, background_color);
+        buttons_theme->set_color(theme_control::button, theme_value::text, theme_color(theme_control::window, theme_value::text, theme_));
+        buttons_theme->set_color(theme_control::button, theme_value::disabled, background_color);
+        buttons_theme->set_dimension(theme_control::button, theme_value::round, 0);
+
+        buttons_theme->set_color(theme_control::tooltip, theme_value::background, theme_color(theme_control::tooltip, theme_value::background, theme_));
+        buttons_theme->set_color(theme_control::tooltip, theme_value::border, theme_color(theme_control::tooltip, theme_value::border, theme_));
+        buttons_theme->set_color(theme_control::tooltip, theme_value::text, theme_color(theme_control::tooltip, theme_value::text, theme_));
+        buttons_theme->set_dimension(theme_control::tooltip, theme_value::text_indent, theme_dimension(theme_control::tooltip, theme_value::text_indent, theme_));
+        buttons_theme->set_dimension(theme_control::tooltip, theme_value::font, theme_dimension(theme_control::tooltip, theme_value::font, theme_));
+        buttons_theme->set_dimension(theme_control::tooltip, theme_value::round, theme_dimension(theme_control::tooltip, theme_value::round, theme_));
+        
+        buttons_theme->set_string(theme_control::image, theme_value::images_path, theme_string(theme_control::image, theme_value::images_path, theme_));
 
         pin_button->update_theme(buttons_theme);
         minimize_button->update_theme(buttons_theme);
         expand_button->update_theme(buttons_theme);
     
-        close_button_theme->set_color(theme_value::button_calm, background_color);
-        close_button_theme->set_color(theme_value::button_active, make_color(235, 15, 20));
-        close_button_theme->set_color(theme_value::button_border, background_color);
-        close_button_theme->set_color(theme_value::button_text, theme_color(theme_value::window_text, theme_));
-        close_button_theme->set_color(theme_value::button_disabled, background_color);
-        close_button_theme->set_dimension(theme_value::button_round, 0);
-        close_button_theme->set_string(theme_value::images_path, theme_string(theme_value::images_path, theme_));
+        close_button_theme->set_color(theme_control::button, theme_value::calm, background_color);
+        close_button_theme->set_color(theme_control::button, theme_value::active, make_color(235, 15, 20));
+        close_button_theme->set_color(theme_control::button, theme_value::border, background_color);
+        close_button_theme->set_color(theme_control::button, theme_value::text, theme_color(theme_control::window, theme_value::text, theme_));
+        close_button_theme->set_color(theme_control::button, theme_value::disabled, background_color);
+        close_button_theme->set_dimension(theme_control::button, theme_value::round, 0);
+
+        close_button_theme->set_string(theme_control::image, theme_value::images_path, theme_string(theme_control::image, theme_value::images_path, theme_));
 
         close_button->update_theme(close_button_theme);
     }
@@ -1051,7 +1053,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->context_.dc = GetDC(hwnd);
 
-            wnd->graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(theme_value::window_background, wnd->theme_));
+            wnd->graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(theme_control::window, theme_value::background, wnd->theme_));
         }
         break;
         case WM_PAINT:
@@ -1069,16 +1071,14 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             }
             if (flag_is_set(wnd->window_style_, window_style::title_showed))
             {
-                auto caption_font = font_settings{ theme_string(theme_value::window_title_font_name, wnd->theme_),
-                    theme_dimension(theme_value::window_title_font_size, wnd->theme_),
-                    font_decorations::normal };
+                auto caption_font = theme_font(theme_control::window, theme_value::caption_font, wnd->theme_);
 
                 auto caption_rect = wnd->graphic_.measure_text(wnd->caption, caption_font);
                 caption_rect.move(5, 5);
 
                 if (caption_rect.in(paint_rect))
                 {
-                    wnd->graphic_.draw_rect(caption_rect, theme_color(theme_value::window_background, wnd->theme_));
+                    wnd->graphic_.draw_rect(caption_rect, theme_color(theme_control::window, theme_value::background, wnd->theme_));
                     wnd->graphic_.draw_text(caption_rect,
                         wnd->caption,
                         theme_color(theme_control::window, theme_value::text, wnd->theme_),

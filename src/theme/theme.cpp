@@ -88,6 +88,19 @@ std::string theme_string(theme_control control, theme_value value, std::shared_p
     return 0;
 }
 
+font theme_font(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_)
+{
+    if (theme_)
+    {
+        return theme_->get_font(control, value);
+    }
+    else if (instance)
+    {
+        return instance->get_font(control, value);
+    }
+    return font();
+}
+
 std::string str_theme_control(theme_control tc)
 {
     switch (tc)
@@ -142,20 +155,17 @@ std::string str_theme_value(theme_value tv)
         case theme_value::cursor:
             return "cursor";
         break;
-        case theme_value::font_name:
-            return "font_name";
+        case theme_value::font:
+            return "font";
         break;
         case theme_value::images_path:
             return "images_path";
         break;
-        case theme_value::font_size:
-            return "font_size";
-        break;
         case theme_value::round:
             return "round";
         break;
-        case theme_value::indent:
-            return "indent";
+        case theme_value::text_indent:
+            return "text_indent";
         break;
     }
     return "";

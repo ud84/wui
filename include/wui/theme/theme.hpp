@@ -11,8 +11,6 @@
 
 #include <wui/theme/i_theme.hpp>
 
-#include <cstdint>
-
 #include <memory>
 
 namespace wui
@@ -24,13 +22,16 @@ theme get_default_theme();
 
 std::shared_ptr<i_theme> make_custom_theme();
 
-/// Return the item's color by current color theme
+/// Return the item's color by current theme
 color theme_color(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_ = nullptr);
 
-/// Return the item's dimension by current color theme
+/// Return the item's dimension by current theme
 int32_t theme_dimension(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_ = nullptr);
 
-/// Return the item's string value by current color theme
+/// Return the item's string value by current theme
 std::string theme_string(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_ = nullptr);
+
+/// Return the item's font value by current theme
+font theme_font(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 }

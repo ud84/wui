@@ -92,6 +92,28 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     }
 };
 
+std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
+{
+    auto redButtonTheme = wui::make_custom_theme();
+
+    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::calm, wui::make_color(205, 15, 20));
+    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::active, wui::make_color(235, 15, 20));
+    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::border, wui::make_color(200, 215, 200));
+    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::focused_border, wui::make_color(20, 215, 20));
+    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::text, wui::make_color(190, 205, 190));
+    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::disabled, wui::make_color(180, 190, 180));
+    redButtonTheme->set_dimension(wui::theme_control::button, wui::theme_value::round, 0);
+    redButtonTheme->set_font(wui::theme_control::button, wui::theme_value::font, wui::theme_font(wui::theme_control::button, wui::theme_value::font));
+    redButtonTheme->set_color(wui::theme_control::tooltip, wui::theme_value::background, wui::theme_color(wui::theme_control::tooltip, wui::theme_value::background));
+    redButtonTheme->set_color(wui::theme_control::tooltip, wui::theme_value::border, wui::theme_color(wui::theme_control::tooltip, wui::theme_value::border));
+    redButtonTheme->set_color(wui::theme_control::tooltip, wui::theme_value::text, wui::theme_color(wui::theme_control::tooltip, wui::theme_value::text));
+    redButtonTheme->set_dimension(wui::theme_control::tooltip, wui::theme_value::text_indent, wui::theme_dimension(wui::theme_control::tooltip, wui::theme_value::text_indent));
+    redButtonTheme->set_font(wui::theme_control::tooltip, wui::theme_value::font, wui::theme_font(wui::theme_control::tooltip, wui::theme_value::font));
+    redButtonTheme->set_dimension(wui::theme_control::tooltip, wui::theme_value::round, wui::theme_dimension(wui::theme_control::tooltip, wui::theme_value::round));
+    redButtonTheme->set_string(wui::theme_control::image, wui::theme_value::images_path, wui::theme_string(wui::theme_control::image, wui::theme_value::images_path));
+    
+    return redButtonTheme;
+}
 
 #ifdef _WIN32
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -148,25 +170,7 @@ int main(int argc, char *argv[])
         dialog->init(L"Modal dialog", wui::rect{ 50, 50, 350, 350 }, wui::window_style::dialog, [window, &dialog]() { window->unlock(); /*dialog.reset();*/ });
     }));
 
-    auto redButtonTheme = wui::make_custom_theme();
-    redButtonTheme->set_color(wui::theme_value::button_calm, wui::make_color(205, 15, 20));
-    redButtonTheme->set_color(wui::theme_value::button_active, wui::make_color(235, 15, 20));
-    redButtonTheme->set_color(wui::theme_value::button_border, wui::make_color(200, 215, 200));
-    redButtonTheme->set_color(wui::theme_value::button_focused_border, wui::make_color(20, 215, 20));
-    redButtonTheme->set_color(wui::theme_value::button_text, wui::make_color(190, 205, 190));
-    redButtonTheme->set_color(wui::theme_value::button_disabled, wui::make_color(180, 190, 180));
-    redButtonTheme->set_dimension(wui::theme_value::button_round, 0);
-    redButtonTheme->set_dimension(wui::theme_value::button_font_size, 20);
-    redButtonTheme->set_color(wui::theme_value::tooltip_background, wui::theme_color(wui::theme_value::tooltip_background));
-    redButtonTheme->set_color(wui::theme_value::tooltip_border, wui::theme_color(wui::theme_value::tooltip_border));
-    redButtonTheme->set_color(wui::theme_value::tooltip_text, wui::theme_color(wui::theme_value::tooltip_text));
-    redButtonTheme->set_dimension(wui::theme_value::tooltip_text_indent, wui::theme_dimension(wui::theme_value::tooltip_text_indent));
-    redButtonTheme->set_dimension(wui::theme_value::tooltip_font_size, wui::theme_dimension(wui::theme_value::tooltip_font_size));
-    redButtonTheme->set_dimension(wui::theme_value::tooltip_round, wui::theme_dimension(wui::theme_value::tooltip_round));
-    redButtonTheme->set_string(wui::theme_value::tooltip_font_name, wui::theme_string(wui::theme_value::tooltip_font_name));
-    redButtonTheme->set_string(wui::theme_value::images_path, wui::theme_string(wui::theme_value::images_path));
-    redButtonTheme->set_string(wui::theme_value::button_font_name, wui::theme_string(wui::theme_value::button_font_name));
-    std::shared_ptr<wui::button> cancelButton(new wui::button(L"Cancel", [window]() { window->destroy(); }, wui::button_view::only_image, IDB_ACCOUNT, 24, redButtonTheme));
+    std::shared_ptr<wui::button> cancelButton(new wui::button(L"Cancel", [window]() { window->destroy(); }, wui::button_view::only_image, IDB_ACCOUNT, 24, MakeRedButtonTheme()));
 
     std::shared_ptr<wui::button> darkThemeButton(new wui::button(L"Set the dark theme", [window, &pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::dark); window->update_theme(); pluggedWindow->window->update_theme(); dialog->update_theme(); }));
     window->add_control(darkThemeButton, wui::rect{ 140, 350, 260, 375 });

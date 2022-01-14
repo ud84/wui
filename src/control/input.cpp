@@ -47,7 +47,7 @@ input::~input()
     }
 }
 
-rect calculate_text_dimensions(graphic &gr, std::wstring text, size_t text_length, const font_settings &font_)
+rect calculate_text_dimensions(graphic &gr, std::wstring text, size_t text_length, const font &font_)
 {
     text.resize(text_length);
 
@@ -70,14 +70,12 @@ void input::draw(graphic &gr)
 
     /// Draw the frame
     gr.draw_rect(position_,
-        !focused_ ? theme_color(theme_value::input_border, theme_) : theme_color(theme_value::input_focused_border, theme_),
-        theme_color(theme_value::input_background, theme_),
+        !focused_ ? theme_color(theme_control::input, theme_value::border, theme_) : theme_color(theme_control::input, theme_value::focused_border, theme_),
+        theme_color(theme_control::input, theme_value::background, theme_),
         1,
-        theme_dimension(theme_value::input_round, theme_));
+        theme_dimension(theme_control::input, theme_value::round, theme_));
 
-    auto font_ = font_settings{ theme_string(theme_value::input_font_name, theme_),
-        theme_dimension(theme_value::input_font_size, theme_),
-        font_decorations::normal };
+    auto font_ = theme_font(theme_control::input, theme_value::font, theme_);
 
     /// Create memory dc for text and selection bar
     rect full_text_dimensions = calculate_text_dimensions(gr, text_, text_.size(), font_);
@@ -95,7 +93,7 @@ void input::draw(graphic &gr)
     }
 #endif
     graphic mem_gr(ctx);
-    mem_gr.init(full_text_dimensions, theme_color(theme_value::input_background, theme_));
+    mem_gr.init(full_text_dimensions, theme_color(theme_control::input, theme_value::background, theme_));
 
     /// Draw the selection bar
     if (select_start_position != select_end_position)
@@ -103,15 +101,15 @@ void input::draw(graphic &gr)
         auto start_coordinate = calculate_text_dimensions(mem_gr, text_, select_start_position, font_).right;
         auto end_coordinate = calculate_text_dimensions(mem_gr, text_, select_end_position, font_).right;
 
-        mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, full_text_dimensions.bottom }, theme_color(theme_value::input_selection, theme_));
+        mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, full_text_dimensions.bottom }, theme_color(theme_control::input, theme_value::selection, theme_));
     }
 
     /// Draw the text
-    mem_gr.draw_text(rect{ 0 }, text_, theme_color(theme_value::input_text, theme_), font_);
+    mem_gr.draw_text(rect{ 0 }, text_, theme_color(theme_control::input, theme_value::text, theme_), font_);
 
     auto cursor_coordinate = calculate_text_dimensions(mem_gr, text_, cursor_position, font_).right;
     mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, full_text_dimensions.bottom },
-        cursor_visible ? theme_color(theme_value::input_cursor, theme_) : theme_color(theme_value::input_background, theme_));
+        cursor_visible ? theme_color(theme_control::input, theme_value::cursor, theme_) : theme_color(theme_control::input, theme_value::background, theme_));
     
     while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
     {
@@ -152,11 +150,9 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     }
 #endif
     graphic mem_gr(ctx);
-    mem_gr.init(position_, theme_color(theme_value::input_background, theme_));
+    mem_gr.init(position_, 0);
 
-    auto font_ = font_settings{ theme_string(theme_value::input_font_name, theme_),
-        theme_dimension(theme_value::input_font_size, theme_),
-        font_decorations::normal };
+    auto font_ = theme_font(theme_control::input, theme_value::font, theme_);
 
     int32_t text_width = 0;
     size_t count = 0;

@@ -51,6 +51,9 @@ std::string str_theme_value(theme_value tv)
         case theme_value::active:
             return "active";
         break;
+        case theme_value::active_button:
+            return "active_button";
+        break;
         case theme_value::border:
             return "border";
         break;
@@ -66,20 +69,20 @@ std::string str_theme_value(theme_value tv)
         case theme_value::cursor:
             return "cursor";
         break;
-        case theme_value::font_name:
-            return "font_name";
-        break;
         case theme_value::images_path:
             return "images_path";
-        break;
-        case theme_value::font_size:
-            return "font_size";
         break;
         case theme_value::round:
             return "round";
         break;
-        case theme_value::indent:
-            return "indent";
+        case theme_value::text_indent:
+            return "text_indent";
+        break;
+        case theme_value::font:
+            return "font";
+        break;
+        case theme_value::caption_font:
+            return "caption_font";
         break;
     }
     return "";

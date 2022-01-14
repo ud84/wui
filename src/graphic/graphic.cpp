@@ -10,10 +10,9 @@
 #include <wui/graphic/graphic.hpp>
 #include <wui/common/flag_helpers.hpp>
 #include <wui/system/tools.hpp>
-
-#ifdef __linux__
 #include <wui/system/char_encoding.hpp>
 
+#ifdef __linux__
 #include <cairo.h>
 #include <cairo-xcb.h>
 #include <cmath>
@@ -281,23 +280,23 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
 #endif
 }
 
-rect graphic::measure_text(const std::wstring &text, const font_settings &font_)
+rect graphic::measure_text(const std::wstring &text, const font &font__)
 {
 #ifdef _WIN32
-    HFONT font = CreateFont(font_.size, 0, 0, 0, FW_DONTCARE,
-        flag_is_set(font_.decorations, font_decorations::italic),
-        flag_is_set(font_.decorations, font_decorations::underline),
-        flag_is_set(font_.decorations, font_decorations::strike_out), ANSI_CHARSET,
+    HFONT font_ = CreateFont(font__.size, 0, 0, 0, FW_DONTCARE,
+        flag_is_set(font__.decorations_, decorations::italic),
+        flag_is_set(font__.decorations_, decorations::underline),
+        flag_is_set(font__.decorations_, decorations::strike_out), ANSI_CHARSET,
         OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, font_.name.c_str());
+        DEFAULT_PITCH | FF_DONTCARE, to_widechar(font__.name).c_str());
 
-    auto old_font = (HFONT)SelectObject(mem_dc, font);
+    auto old_font = (HFONT)SelectObject(mem_dc, font_);
 
     RECT text_rect = { 0 };
     DrawTextW(mem_dc, text.c_str(), static_cast<int32_t>(text.size()), &text_rect, DT_CALCRECT);
 
     SelectObject(mem_dc, old_font);
-    DeleteObject(font);
+    DeleteObject(font_);
 
     return rect {0, 0, text_rect.right, text_rect.bottom};
 #elif __linux__
@@ -307,25 +306,25 @@ rect graphic::measure_text(const std::wstring &text, const font_settings &font_)
     }
     cairo_text_extents_t extents;
 
-    cairo_select_font_face(cr, to_multibyte(font_.name).c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, font_.size - 4);
+    cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, font__.size - 4);
     cairo_text_extents(cr, to_multibyte(text).c_str(), &extents);
 
     return rect{ 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
 #endif
 }
 
-void graphic::draw_text(const rect &position, const std::wstring &text, color color_, const font_settings &font_)
+void graphic::draw_text(const rect &position, const std::wstring &text, color color_, const font &font__)
 {
 #ifdef _WIN32
-    HFONT font = CreateFont(font_.size, 0, 0, 0, FW_DONTCARE,
-        flag_is_set(font_.decorations, font_decorations::italic), 
-        flag_is_set(font_.decorations, font_decorations::underline),
-        flag_is_set(font_.decorations, font_decorations::strike_out), ANSI_CHARSET,
+    HFONT font_ = CreateFont(font__.size, 0, 0, 0, FW_DONTCARE,
+        flag_is_set(font__.decorations_, decorations::italic), 
+        flag_is_set(font__.decorations_, decorations::underline),
+        flag_is_set(font__.decorations_, decorations::strike_out), ANSI_CHARSET,
         OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, font_.name.c_str());
+        DEFAULT_PITCH | FF_DONTCARE, to_widechar(font__.name).c_str());
 
-    auto old_font = (HFONT)SelectObject(mem_dc, font);
+    auto old_font = (HFONT)SelectObject(mem_dc, font_);
     
     SetTextColor(mem_dc, color_);
     SetBkMode(mem_dc, TRANSPARENT);
@@ -333,10 +332,10 @@ void graphic::draw_text(const rect &position, const std::wstring &text, color co
     TextOutW(mem_dc, position.left, position.top, text.c_str(), static_cast<int32_t>(text.size()));
 
     SelectObject(mem_dc, old_font);
-    DeleteObject(font);
+    DeleteObject(font_);
 #elif __linux__
-    cairo_select_font_face(cr, to_multibyte(font_.name).c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, font_.size - 4);
+    cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, font__.size - 4);
     set_color(color_);
 
     cairo_text_extents_t extents;
