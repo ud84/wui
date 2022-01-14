@@ -684,11 +684,11 @@ void input::buffer_copy()
 
     if (OpenClipboard(NULL))
     {
-        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, wide_str.size());
+        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, copy_text.size() + 2);
         if (hGlobal != NULL)
         {
             LPVOID lpText = GlobalLock(hGlobal);
-            memcpy(lpText, wide_str.c_str(), wide_str.size());
+            memcpy(lpText, wide_str.c_str(), copy_text.size() + 2);
 
             EmptyClipboard();
             GlobalUnlock(hGlobal);
