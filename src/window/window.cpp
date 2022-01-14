@@ -1081,7 +1081,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     wnd->graphic_.draw_rect(caption_rect, theme_color(theme_value::window_background, wnd->theme_));
                     wnd->graphic_.draw_text(caption_rect,
                         wnd->caption,
-                        theme_color(theme_value::window_text, wnd->theme_),
+                        theme_color(theme_control::window, theme_value::text, wnd->theme_),
                         caption_font);
                 }
             }
