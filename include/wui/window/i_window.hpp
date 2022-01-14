@@ -42,7 +42,7 @@ struct system_context;
 class i_window
 {
 public:
-    virtual bool init(const std::wstring &caption, const rect &position, window_style style, std::function<void(void)> close_callback, std::shared_ptr<i_theme> theme_ = nullptr) = 0;
+    virtual bool init(const std::string &caption, const rect &position, window_style style, std::function<void(void)> close_callback, std::shared_ptr<i_theme> theme_ = nullptr) = 0;
     virtual void destroy() = 0;
 
     virtual void add_control(std::shared_ptr<i_control> control, const rect &position) = 0;

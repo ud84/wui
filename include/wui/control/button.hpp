@@ -40,12 +40,12 @@ enum class button_view
 class button : public i_control, public std::enable_shared_from_this<button>
 {
 public:
-    button(const std::wstring &caption, std::function<void(void)> click_callback, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(const std::string &caption, std::function<void(void)> click_callback, std::shared_ptr<i_theme> theme_ = nullptr);
 
 #ifdef _WIN32
-    button(const std::wstring &caption, std::function<void(void)> click_callback, button_view button_view_, int32_t image_resource_index, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, int32_t image_resource_index, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
 #endif
-    button(const std::wstring &caption, std::function<void(void)> click_callback, button_view button_view_, const std::wstring &image_file_name, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::string &image_file_name, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
     ~button();
 
     virtual void draw(graphic &gr);
@@ -75,13 +75,13 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    void set_caption(const std::wstring &caption);
+    void set_caption(const std::string &caption);
 
     void set_button_view(button_view button_view_);
 #ifdef _WIN32
     void set_image(int32_t resourceIndex);
 #endif
-    void set_image(const std::wstring &fileName);
+    void set_image(const std::string &fileName);
 
     void enable_focusing();
     void disable_focusing();
@@ -90,7 +90,7 @@ public:
 
 private:
     button_view button_view_;
-    std::wstring caption;
+    std::string caption;
     std::shared_ptr<image> image_;
     int32_t image_size;
     std::shared_ptr<tooltip> tooltip_;

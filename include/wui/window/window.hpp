@@ -41,7 +41,7 @@ public:
     virtual ~window();
 
     /// IWindow
-    virtual bool init(const std::wstring &caption, const rect &position, window_style style, std::function<void(void)> close_callback, std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual bool init(const std::string &caption, const rect &position, window_style style, std::function<void(void)> close_callback, std::shared_ptr<i_theme> theme_ = nullptr);
     virtual void destroy();
 
     virtual void add_control(std::shared_ptr<i_control> control, const rect &position);
@@ -96,7 +96,7 @@ public:
 
     /// Callbacks
     void set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback);
-    void set_pin_callback(std::function<void(std::wstring &tooltip_text)> pin_callback);
+    void set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback);
 
 private:
     system_context context_;
@@ -105,7 +105,7 @@ private:
     std::vector<std::shared_ptr<i_control>> controls;
     std::shared_ptr<i_control> active_control;
 
-    std::wstring caption;
+    std::string caption;
     rect position_, normal_position;
     int32_t min_width, min_height;
     window_style window_style_;
@@ -137,7 +137,7 @@ private:
 
     std::function<void(void)> close_callback;
     std::function<void(int32_t, int32_t)> size_change_callback;
-    std::function<void(std::wstring &tooltip_text)> pin_callback;
+    std::function<void(std::string &tooltip_text)> pin_callback;
 
     std::shared_ptr<i_theme> buttons_theme, close_button_theme;
     std::shared_ptr<button> pin_button, minimize_button, expand_button, close_button;

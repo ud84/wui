@@ -14,15 +14,16 @@
 #include <wui/theme/theme.hpp>
 
 #include <wui/system/tools.hpp>
+#include <wui/system/char_encoding.hpp>
 
 namespace wui
 {
 
 static const int32_t input_horizontal_indent = 5;
 
-input::input(const std::wstring &text__, input_view input_view__, std::shared_ptr<i_theme> theme__)
+input::input(const std::string &text__, input_view input_view__, std::shared_ptr<i_theme> theme__)
     : input_view_(input_view__),
-    text_(text__),
+    text_(to_widechar(text__)),
     change_callback(),
     theme_(theme__),
     position_(),
@@ -47,13 +48,13 @@ input::~input()
     }
 }
 
-rect calculate_text_dimensions(graphic &gr, std::wstring text, size_t text_length, const font &font_)
+rect calculate_text_dimensions(graphic &gr, std::string text, size_t text_length, const font &font_)
 {
     text.resize(text_length);
 
     if (text_length == 0)
     {
-        text = L"QWqb";
+        text = "QWqb";
     }
 
     auto text_rect = gr.measure_text(text, font_);
@@ -78,7 +79,7 @@ void input::draw(graphic &gr)
     auto font_ = theme_font(theme_control::input, theme_value::font, theme_);
 
     /// Create memory dc for text and selection bar
-    rect full_text_dimensions = calculate_text_dimensions(gr, text_, text_.size(), font_);
+    rect full_text_dimensions = calculate_text_dimensions(gr, to_multibyte(text_), text_.size(), font_);
     full_text_dimensions.right += 1;
     full_text_dimensions.bottom;
 
@@ -98,16 +99,16 @@ void input::draw(graphic &gr)
     /// Draw the selection bar
     if (select_start_position != select_end_position)
     {
-        auto start_coordinate = calculate_text_dimensions(mem_gr, text_, select_start_position, font_).right;
-        auto end_coordinate = calculate_text_dimensions(mem_gr, text_, select_end_position, font_).right;
+        auto start_coordinate = calculate_text_dimensions(mem_gr, to_multibyte(text_), select_start_position, font_).right;
+        auto end_coordinate = calculate_text_dimensions(mem_gr, to_multibyte(text_), select_end_position, font_).right;
 
         mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, full_text_dimensions.bottom }, theme_color(theme_control::input, theme_value::selection, theme_));
     }
 
     /// Draw the text
-    mem_gr.draw_text(rect{ 0 }, text_, theme_color(theme_control::input, theme_value::text, theme_), font_);
+    mem_gr.draw_text(rect{ 0 }, to_multibyte(text_), theme_color(theme_control::input, theme_value::text, theme_), font_);
 
-    auto cursor_coordinate = calculate_text_dimensions(mem_gr, text_, cursor_position, font_).right;
+    auto cursor_coordinate = calculate_text_dimensions(mem_gr, to_multibyte(text_), cursor_position, font_).right;
     mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, full_text_dimensions.bottom },
         cursor_visible ? theme_color(theme_control::input, theme_value::cursor, theme_) : theme_color(theme_control::input, theme_value::background, theme_));
     
@@ -158,7 +159,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     size_t count = 0;
     while (x > text_width && count != text_.size())
     {
-        text_width = calculate_text_dimensions(mem_gr, text_, ++count, font_).right;
+        text_width = calculate_text_dimensions(mem_gr, to_multibyte(text_), ++count, font_).right;
     }
 
 #ifdef _WIN32
@@ -384,7 +385,7 @@ void input::receive_event(const event &ev)
 
                             if (change_callback)
                             {
-                                change_callback(text_);
+                                change_callback(to_multibyte(text_));
                             }
                         }
                     break;
@@ -400,7 +401,7 @@ void input::receive_event(const event &ev)
 
                             if (change_callback)
                             {
-                                change_callback(text_);
+                                change_callback(to_multibyte(text_));
                             }
                         }
                     break;
@@ -446,7 +447,7 @@ void input::receive_event(const event &ev)
 
                 if (change_callback)
                 {
-                    change_callback(text_);
+                    change_callback(to_multibyte(text_));
                 }
             break;
         }
@@ -575,15 +576,15 @@ bool input::enabled() const
     return enabled_;
 }
 
-void input::set_text(const std::wstring &text__)
+void input::set_text(const std::string &text__)
 {
-    text_ = text__;
+    text_ = to_widechar(text__);
     redraw();
 }
 
-std::wstring input::text() const
+std::string input::text() const
 {
-    return text_;
+    return to_multibyte(text_);
 }
 
 void input::set_input_view(input_view input_view__)
@@ -591,7 +592,7 @@ void input::set_input_view(input_view input_view__)
     input_view_ = input_view__;
 }
 
-void input::set_change_callback(std::function<void(const std::wstring&)> change_callback_)
+void input::set_change_callback(std::function<void(const std::string&)> change_callback_)
 {
     change_callback = change_callback_;
 }
@@ -704,7 +705,7 @@ void input::buffer_paste()
 
     if (change_callback)
     {
-        change_callback(text_);
+        change_callback(to_multibyte(text_));
     }
 }
 

@@ -41,8 +41,8 @@ public:
 
     void draw_line(const rect &position, color color_, uint32_t width = 1);
 
-    rect measure_text(const std::wstring &text, const font &font_);
-    void draw_text(const rect &position, const std::wstring &text, color color_, const font &font_);
+    rect measure_text(const std::string &text, const font &font_);
+    void draw_text(const rect &position, const std::string &text, color color_, const font &font_);
 
     void draw_rect(const rect &position, color fill_color);
     void draw_rect(const rect &position, color border_color, color fill_color, uint32_t border_width, uint32_t round);

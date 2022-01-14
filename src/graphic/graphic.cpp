@@ -280,7 +280,7 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
 #endif
 }
 
-rect graphic::measure_text(const std::wstring &text, const font &font__)
+rect graphic::measure_text(const std::string &text, const font &font__)
 {
 #ifdef _WIN32
     HFONT font_ = CreateFont(font__.size, 0, 0, 0, FW_DONTCARE,
@@ -293,7 +293,7 @@ rect graphic::measure_text(const std::wstring &text, const font &font__)
     auto old_font = (HFONT)SelectObject(mem_dc, font_);
 
     RECT text_rect = { 0 };
-    DrawTextW(mem_dc, text.c_str(), static_cast<int32_t>(text.size()), &text_rect, DT_CALCRECT);
+    DrawTextW(mem_dc, to_widechar(text).c_str(), static_cast<int32_t>(text.size()), &text_rect, DT_CALCRECT);
 
     SelectObject(mem_dc, old_font);
     DeleteObject(font_);
@@ -314,7 +314,7 @@ rect graphic::measure_text(const std::wstring &text, const font &font__)
 #endif
 }
 
-void graphic::draw_text(const rect &position, const std::wstring &text, color color_, const font &font__)
+void graphic::draw_text(const rect &position, const std::string &text, color color_, const font &font__)
 {
 #ifdef _WIN32
     HFONT font_ = CreateFont(font__.size, 0, 0, 0, FW_DONTCARE,
@@ -329,7 +329,7 @@ void graphic::draw_text(const rect &position, const std::wstring &text, color co
     SetTextColor(mem_dc, color_);
     SetBkMode(mem_dc, TRANSPARENT);
 
-    TextOutW(mem_dc, position.left, position.top, text.c_str(), static_cast<int32_t>(text.size()));
+    TextOutW(mem_dc, position.left, position.top, to_widechar(text).c_str(), static_cast<int32_t>(text.size()));
 
     SelectObject(mem_dc, old_font);
     DeleteObject(font_);

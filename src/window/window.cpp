@@ -18,6 +18,7 @@
 #include <wui/common/flag_helpers.hpp>
 
 #include <wui/system/tools.hpp>
+#include <wui/system/char_encoding.hpp>
 
 #include <algorithm>
 
@@ -109,16 +110,16 @@ window::window()
     pin_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
 #ifdef _WIN32
-    pin_button(new button(L"Pin the window", std::bind(&window::pin, this), button_view::only_image, IDB_WINDOW_PIN, 24)),
-    minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
-    expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
-    close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
+    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, IDB_WINDOW_PIN, 24)),
+    minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
+    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
+    close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
     mouse_tracked(false)
 #elif __linux__
-    pin_button(new button(L"Pin the window", std::bind(&window::pin, this), button_view::only_image, L"", 24)),
-    minimize_button(new button(L"", std::bind(&window::minimize, this), button_view::only_image, L"", 24)),
-    expand_button(new button(L"", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? L"" : L"", 24)),
-    close_button(new button(L"", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
+    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, L"", 24)),
+    minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, L"", 24)),
+    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? L"" : L"", 24)),
+    close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
     wm_protocols_event(nullptr), wm_delete_msg(nullptr),
     runned(false),
     thread()
@@ -280,7 +281,7 @@ void window::set_parent(std::shared_ptr<window> window)
                 control->position().bottom + position_.top });
         }
 
-        pin_button->set_caption(L"Unpin the window");
+        pin_button->set_caption("Unpin the window");
 
         update_buttons(false);
     }
@@ -482,7 +483,7 @@ void window::pin()
 
     if (pin_callback)
     {
-        std::wstring tooltip_text;
+        std::string tooltip_text;
         pin_callback(tooltip_text);
         pin_button->set_caption(tooltip_text);
     }
@@ -588,7 +589,7 @@ void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size
     size_change_callback = size_change_callback_;
 }
 
-void window::set_pin_callback(std::function<void(std::wstring &tooltip_text)> pin_callback_)
+void window::set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback_)
 {
     pin_callback = pin_callback_;
 }
@@ -853,7 +854,7 @@ void window::update_position(const rect &new_position)
     }
 }
 
-bool window::init(const std::wstring &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
+bool window::init(const std::string &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
 {
     auto old_position = position_;
 
@@ -904,7 +905,7 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
         return false;
     }
 
-    SetWindowText(context_.hwnd, caption.c_str());
+    SetWindowText(context_.hwnd, to_widechar(caption).c_str());
 
     UpdateWindow(context_.hwnd);
 
@@ -952,10 +953,10 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
     remove_window_decorations(context_);
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
-        XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, caption.size(), to_multibyte(caption).c_str());
+        XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, caption.size(), caption.c_str());
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
-        XCB_ATOM_WM_ICON_NAME, XCB_ATOM_STRING, 8, caption.size(), to_multibyte(caption).c_str());
+        XCB_ATOM_WM_ICON_NAME, XCB_ATOM_STRING, 8, caption.size(), caption.c_str());
 
     wm_protocols_event = xcb_intern_atom_reply(context_.connection,
         xcb_intern_atom(context_.connection, 1, 12,"WM_PROTOCOLS"), 0);

@@ -20,7 +20,7 @@
 
 #else
 
-#include <codecvt>
+#include <windows.h>
 
 #endif
 
@@ -58,39 +58,44 @@ std::wstring to_widechar(const std::string &input)
 
 std::string to_multibyte(const std::wstring &input)
 {
-    const std::u16string& utf16 = reinterpret_cast<const char16_t*>(input.c_str());
+	int multiByteLen = input.size();
+	char *multiByteBuf = new char[multiByteLen + 1];
+	memset(multiByteBuf, 0, multiByteLen+1);
 
-    std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
-    auto p = reinterpret_cast<const int16_t*>(utf16.data());
-    std::string utf8_string;
+	WideCharToMultiByte(CP_UTF8,
+		0,
+		input.c_str(),
+		input.size(),
+		multiByteBuf, 
+		multiByteLen,
+		NULL, NULL );
 
-    try
-    {
-        utf8_string = convert.to_bytes(p, p + utf16.size());
-    }
-    catch (std::range_error &)
-    {
-        printf("bad conversion in wui::to_multibyte\n");
-    }
+	std::string out = multiByteBuf;
 
-    return utf8_string;
+	delete[] multiByteBuf;
+
+	return out;
 }
 
 std::wstring to_widechar(const std::string &input)
 {
-    std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
-    std::u16string utf16_string;
+	int multiByteLen = input.size();
+	int wideCharLen = multiByteLen + 1;
+	wchar_t *wideCharBuf = new wchar_t[wideCharLen];
+	memset(wideCharBuf, 0, wideCharLen * sizeof(wchar_t));
 
-    try
-    {
-        utf16_string = reinterpret_cast<const char16_t*>(convert.from_bytes(input).data());
-    }
-    catch (std::range_error &)
-    {
-        printf("bad conversion in wui::to_widechar\n");
-    }
+	MultiByteToWideChar(CP_UTF8,
+		0,
+		input.c_str(),
+		input.size(),
+		wideCharBuf, 
+		wideCharLen );
 
-    return reinterpret_cast<const wchar_t*>(utf16_string.c_str());
+	std::wstring out = wideCharBuf;
+
+	delete[] wideCharBuf;
+
+	return out;
 }
 
 #endif

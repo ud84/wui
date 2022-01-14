@@ -16,7 +16,7 @@
 namespace wui
 {
 
-tooltip::tooltip(const std::wstring &text_, std::shared_ptr<i_theme> theme__)
+tooltip::tooltip(const std::string &text_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent(),
@@ -172,7 +172,7 @@ bool tooltip::enabled() const
     return true;
 }
 
-void tooltip::set_text(const std::wstring &text_)
+void tooltip::set_text(const std::string &text_)
 {
     text = text_;
 

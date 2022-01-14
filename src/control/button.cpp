@@ -23,7 +23,7 @@
 namespace wui
 {
 
-button::button(const std::wstring &caption_, std::function<void(void)> click_callback_, std::shared_ptr<i_theme> theme__)
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view::only_text),
     caption(caption_),
     image_(),
@@ -39,7 +39,7 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
 }
 
 #ifdef _WIN32
-button::button(const std::wstring &caption_, std::function<void(void)> click_callback_, button_view button_view__, int32_t image_resource_index_, int32_t image_size_, std::shared_ptr<i_theme> theme__)
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, int32_t image_resource_index_, int32_t image_size_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
     image_(new image(image_resource_index_, theme__)),
@@ -55,7 +55,7 @@ button::button(const std::wstring &caption_, std::function<void(void)> click_cal
 }
 #endif
 
-button::button(const std::wstring &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::wstring &imageFileName_, int32_t image_size_, std::shared_ptr<i_theme> theme__)
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::string &imageFileName_, int32_t image_size_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
     image_(new image(imageFileName_, theme__)),
@@ -357,7 +357,7 @@ bool button::enabled() const
     return enabled_;
 }
 
-void button::set_caption(const std::wstring &caption_)
+void button::set_caption(const std::string &caption_)
 {
     caption = caption_;
     tooltip_->set_text(caption_);
@@ -387,7 +387,7 @@ void button::set_image(int32_t resource_index)
 }
 #endif
 
-void button::set_image(const std::wstring &file_name)
+void button::set_image(const std::string &file_name)
 {
     if (image_)
     {

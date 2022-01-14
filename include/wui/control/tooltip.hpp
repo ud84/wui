@@ -25,7 +25,7 @@ namespace wui
 class tooltip : public i_control, public std::enable_shared_from_this<tooltip>
 {
 public:
-    tooltip(const std::wstring &text, std::shared_ptr<i_theme> theme_ = nullptr);
+    tooltip(const std::string &text, std::shared_ptr<i_theme> theme_ = nullptr);
     ~tooltip();
 
     virtual void draw(graphic &gr);
@@ -55,14 +55,14 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    void set_text(const std::wstring &text_);
+    void set_text(const std::string &text_);
 
     void update_size();
 
 private:
     std::shared_ptr<i_theme> theme_;
 
-    std::wstring text;
+    std::string text;
 
     rect position_;
 

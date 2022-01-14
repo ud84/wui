@@ -32,7 +32,7 @@ public:
 #ifdef _WIN32
     image(int32_t resource_index, std::shared_ptr<i_theme> theme_ = nullptr);
 #endif
-    image(const std::wstring &fileName, std::shared_ptr<i_theme> theme_ = nullptr);
+    image(const std::string &file_name, std::shared_ptr<i_theme> theme_ = nullptr);
     ~image();
 
     virtual void draw(graphic &gr);
@@ -65,7 +65,7 @@ public:
 #ifdef _WIN32
     void change_image(int32_t resource_index);
 #endif
-    void change_image(const std::wstring &file_name);
+    void change_image(const std::string &file_name);
 
     int32_t width() const;
     int32_t height() const;
@@ -79,7 +79,7 @@ private:
 
     bool showed_;
 
-    std::wstring file_name;
+    std::string file_name;
 	
 #ifdef _WIN32
     int32_t resource_index;
