@@ -159,7 +159,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
 
     int32_t text_width = 0;
     size_t count = 0;
-    while (x > text_width && count <= text_.size())
+    while (x > text_width && count != text_.size())
     {
         ++count;
 
