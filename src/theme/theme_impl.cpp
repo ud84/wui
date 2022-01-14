@@ -95,15 +95,24 @@ void theme_impl::load_json(const std::string &json_)
     for (auto &c = controls.begin(); c != controls.end(); ++c)
     {
         std::string control = c->at("type").get<std::string>();
-
-        
-
-        //OutputDebugStringA(c->value.get<std::string>().c_str());
-        //OutputDebugStringA("\n");
-
-        
         OutputDebugStringA(control.c_str());
         OutputDebugStringA("\n");
+            
+        auto obj = c->get<nlohmann::json::object_t>();
+        for (auto& kvp : obj)
+        {
+            OutputDebugStringA(kvp.first.c_str());
+            OutputDebugStringA(":");
+
+            if (kvp.second.is_string())
+            {
+                OutputDebugStringA(kvp.second.get<std::string>().c_str());
+            }
+
+            OutputDebugStringA("\n");
+        }
+
+        OutputDebugStringA("============\n");
     }
 }
 
