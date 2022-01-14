@@ -392,7 +392,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 #elif __linux__
     if (!parent && context_.connection)
     {
-        graphic_.set_background_color(theme_color(theme_value::window_background, theme_));
+        graphic_.set_background_color(theme_color(theme_control::window, theme_value::background, theme_));
 
         auto ws = get_window_size(context_);
         redraw(rect{ 0, 0, ws.width(), ws.height() }, true);
@@ -969,7 +969,7 @@ bool window::init(const std::wstring &caption_, const rect &position__, window_s
 
     xcb_flush(context_.connection);
 
-    graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(theme_value::window_background, theme_));
+    graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(theme_control::window, theme_value::background, theme_));
 
     runned = true;
     if (thread.joinable()) thread.join();
@@ -1515,19 +1515,17 @@ void window::process_events()
 
                 if (flag_is_set(window_style_, window_style::title_showed))
 	            {
-                    auto caption_font = font_settings{ theme_string(theme_value::window_title_font_name, theme_),
-                        theme_dimension(theme_value::window_title_font_size, theme_),
-                        font_decorations::normal };
+                    auto caption_font = theme_font(theme_control::window, theme_value::window_title_font, theme_);
 
                     auto caption_rect = graphic_.measure_text(caption, caption_font);
                     caption_rect.move(5, 5);
 
                     if (caption_rect.in(paint_rect))
                     {
-                        graphic_.draw_rect(caption_rect, theme_color(theme_value::window_background, theme_));
+                        graphic_.draw_rect(caption_rect, theme_color(theme_control::window, theme_value::background, theme_));
 	                    graphic_.draw_text(caption_rect,
 	                        caption,
-	                        theme_color(theme_value::window_text, theme_),
+	                        theme_color(theme_control::window, theme_value::text, theme_),
 	                        caption_font);
                     }
 	            }

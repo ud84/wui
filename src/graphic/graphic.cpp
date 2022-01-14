@@ -308,7 +308,7 @@ rect graphic::measure_text(const std::wstring &text, const font &font__)
 
     cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, font__.size - 4);
-    cairo_text_extents(cr, to_multibyte(text).c_str(), &extents);
+    cairo_text_extents(cr, text.c_str(), &extents);
 
     return rect{ 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
 #endif
@@ -342,7 +342,7 @@ void graphic::draw_text(const rect &position, const std::wstring &text, color co
     cairo_text_extents(cr, "QWqb", &extents);
 
     cairo_move_to(cr, position.left, (double)position.top + (extents.height * 3 / 4));
-    cairo_show_text(cr, to_multibyte(text).c_str());
+    cairo_show_text(cr, text.c_str());
 
     cairo_surface_flush(surface);
 #endif
