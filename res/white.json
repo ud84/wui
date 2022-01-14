@@ -5,11 +5,14 @@
       "background": "#f0f0f0",
       "text": "#191914",
       "active_button": "#dcdcdc",
-      "font":
-      {
+      "font": {
         "name": "Segoe UI",
         "size": 18
       }
+    },
+    {
+      "type": "image",
+      "path": "IMAGES_WHITE"
     },
     {
       "type": "button",
@@ -20,8 +23,7 @@
       "text": "#181818",
       "disabled": "#cdcdc8",
       "round": 0,
-      "font":
-      {
+      "font": {
         "name": "Segoe UI",
         "size": 18
       }
@@ -35,8 +37,7 @@
       "border": "#28788c",
       "focused_border": "#140a14",
       "round": 0,
-      "font":
-      {
+      "font": {
         "name": "Segoe UI",
         "size": 18
       }
@@ -48,10 +49,9 @@
       "text": "#061912",
       "round": 0,
       "text_indent": 3,
-      "font":
-      {
+      "font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 16
       }
     }
   ]

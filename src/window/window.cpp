@@ -760,7 +760,7 @@ void window::update_buttons(bool theme_changed)
         buttons_theme->set_color(theme_control::tooltip, theme_value::border, theme_color(theme_control::tooltip, theme_value::border, theme_));
         buttons_theme->set_color(theme_control::tooltip, theme_value::text, theme_color(theme_control::tooltip, theme_value::text, theme_));
         buttons_theme->set_dimension(theme_control::tooltip, theme_value::text_indent, theme_dimension(theme_control::tooltip, theme_value::text_indent, theme_));
-        buttons_theme->set_dimension(theme_control::tooltip, theme_value::font, theme_dimension(theme_control::tooltip, theme_value::font, theme_));
+        buttons_theme->set_font(theme_control::tooltip, theme_value::font, theme_font(theme_control::tooltip, theme_value::font, theme_));
         buttons_theme->set_dimension(theme_control::tooltip, theme_value::round, theme_dimension(theme_control::tooltip, theme_value::round, theme_));
         
         buttons_theme->set_string(theme_control::image, theme_value::path, theme_string(theme_control::image, theme_value::path, theme_));

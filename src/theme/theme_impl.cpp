@@ -85,8 +85,6 @@ font theme_impl::get_font(theme_control control, theme_value value) const
     return font();
 }
 
-#include <windows.h>
-
 void theme_impl::load_json(const std::string &json_)
 {
     auto j = nlohmann::json::parse(json_);
@@ -95,24 +93,48 @@ void theme_impl::load_json(const std::string &json_)
     for (auto &c = controls.begin(); c != controls.end(); ++c)
     {
         std::string control = c->at("type").get<std::string>();
-        OutputDebugStringA(control.c_str());
-        OutputDebugStringA("\n");
-            
+
         auto obj = c->get<nlohmann::json::object_t>();
         for (auto& kvp : obj)
         {
-            OutputDebugStringA(kvp.first.c_str());
-            OutputDebugStringA(":");
+            if (kvp.first == "type")
+            {
+                continue;
+            }
 
             if (kvp.second.is_string())
             {
-                OutputDebugStringA(kvp.second.get<std::string>().c_str());
+                auto str = kvp.second.get<std::string>();
+                if (str[0] == '#')
+                {
+                    try
+                    {
+                        str.erase(0, 1);
+                        str.insert(0, "0x");
+                        int32_t color = std::stol(str, nullptr, 16);
+
+                        ints[control + kvp.first] = make_color(get_red(color), get_green(color), get_blue(color));
+                    }
+                    catch (...)
+                    {
+                        fprintf(stderr, "Error reading color in control: %s, key: %s, value: %s \n", control.c_str(), kvp.first.c_str(), str.c_str());
+                    }
+                }
+                else
+                {
+                    strings[control + kvp.first] = str;
+                }
             }
-
-            OutputDebugStringA("\n");
+            else if (kvp.second.is_number_integer())
+            {
+                ints[control + kvp.first] = kvp.second.get<int32_t>();
+            }
+            else if (kvp.second.is_object())
+            {
+                auto fnt = kvp.second.get<nlohmann::json::object_t>();
+                fonts[control + kvp.first] = font{ fnt.at("name").get<std::string>(), fnt.at("size").get<int32_t>(), decorations::normal };
+            }
         }
-
-        OutputDebugStringA("============\n");
     }
 }
 
