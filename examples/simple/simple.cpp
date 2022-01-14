@@ -1,4 +1,4 @@
-﻿// wui.cpp : Defines the entry point for the application.
+// wui.cpp : Defines the entry point for the application.
 //
 
 #include <wui/theme/theme.hpp>
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
         cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });
     });
 
-    window->init("Welcome to WUI!", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame, [&runned]() {
+    window->init("Welcome to WUI! 😂", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame, [&runned]() {
 #ifdef _WIN32
         PostQuitMessage(IDCANCEL);
 #elif __linux__

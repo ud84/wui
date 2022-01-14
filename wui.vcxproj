@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\nlohmann\json.hpp" />
     <ClInclude Include="include\wui\common\bit_helpers.hpp" />
     <ClInclude Include="include\wui\common\color.hpp" />
     <ClInclude Include="include\wui\common\flag_helpers.hpp" />
@@ -35,7 +34,6 @@
     <ClInclude Include="include\wui\event\keyboard_event.hpp" />
     <ClInclude Include="include\wui\event\mouse_event.hpp" />
     <ClInclude Include="include\wui\graphic\graphic.hpp" />
-    <ClInclude Include="include\wui\system\char_encoding.hpp" />
     <ClInclude Include="include\wui\system\system_context.hpp" />
     <ClInclude Include="include\wui\system\timer.hpp" />
     <ClInclude Include="include\wui\system\tools.hpp" />
@@ -53,7 +51,6 @@
     <ClCompile Include="src\control\input.cpp" />
     <ClCompile Include="src\control\tooltip.cpp" />
     <ClCompile Include="src\graphic\graphic.cpp" />
-    <ClCompile Include="src\system\char_encoding.cpp" />
     <ClCompile Include="src\system\tools.cpp" />
     <ClCompile Include="src\theme\theme.cpp" />
     <ClCompile Include="src\theme\theme_impl.cpp" />
@@ -125,7 +122,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);include;res</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);include;res;thirdparty</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

@@ -10,7 +10,8 @@
 #include <wui/graphic/graphic.hpp>
 #include <wui/common/flag_helpers.hpp>
 #include <wui/system/tools.hpp>
-#include <wui/system/char_encoding.hpp>
+
+#include <boost/nowide/convert.hpp>
 
 #ifdef __linux__
 #include <cairo.h>
@@ -288,12 +289,13 @@ rect graphic::measure_text(const std::string &text, const font &font__)
         flag_is_set(font__.decorations_, decorations::underline),
         flag_is_set(font__.decorations_, decorations::strike_out), ANSI_CHARSET,
         OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, to_widechar(font__.name).c_str());
+        DEFAULT_PITCH | FF_DONTCARE, boost::nowide::widen(font__.name).c_str());
 
     auto old_font = (HFONT)SelectObject(mem_dc, font_);
 
     RECT text_rect = { 0 };
-    DrawTextW(mem_dc, to_widechar(text).c_str(), static_cast<int32_t>(text.size()), &text_rect, DT_CALCRECT);
+    auto wide_str = boost::nowide::widen(text);
+    DrawTextW(mem_dc, wide_str.c_str(), static_cast<int32_t>(wide_str.size()), &text_rect, DT_CALCRECT);
 
     SelectObject(mem_dc, old_font);
     DeleteObject(font_);
@@ -322,14 +324,15 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
         flag_is_set(font__.decorations_, decorations::underline),
         flag_is_set(font__.decorations_, decorations::strike_out), ANSI_CHARSET,
         OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, to_widechar(font__.name).c_str());
+        DEFAULT_PITCH | FF_DONTCARE, boost::nowide::widen(font__.name).c_str());
 
     auto old_font = (HFONT)SelectObject(mem_dc, font_);
     
     SetTextColor(mem_dc, color_);
     SetBkMode(mem_dc, TRANSPARENT);
 
-    TextOutW(mem_dc, position.left, position.top, to_widechar(text).c_str(), static_cast<int32_t>(text.size()));
+    auto wide_str = boost::nowide::widen(text);
+    TextOutW(mem_dc, position.left, position.top, wide_str.c_str(), static_cast<int32_t>(wide_str.size()));
 
     SelectObject(mem_dc, old_font);
     DeleteObject(font_);

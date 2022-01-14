@@ -13,7 +13,7 @@
 
 #include <wui/theme/theme.hpp>
 
-#include <wui/system/char_encoding.hpp>
+#include <boost/nowide/convert.hpp>
 
 #ifdef _WIN32
 
@@ -88,7 +88,7 @@ image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
     resource_index(resource_index_),
     img(nullptr)
 {
-    load_image_from_resource(resource_index, to_widechar(theme_string(theme_control::image, theme_value::path, theme_)), &img);
+    load_image_from_resource(resource_index, boost::nowide::widen(theme_string(theme_control::image, theme_value::path, theme_)), &img);
 }
 #endif
 
@@ -104,7 +104,7 @@ image::image(const std::string &file_name_, std::shared_ptr<i_theme> theme__)
 #endif
 {
 #ifdef _WIN32
-    load_image_from_file(to_widechar(file_name_), to_widechar(theme_string(theme_control::image, theme_value::path, theme_)), &img);
+    load_image_from_file(boost::nowide::widen(file_name_), boost::nowide::widen(theme_string(theme_control::image, theme_value::path, theme_)), &img);
 #elif __linux__
 
 #endif
@@ -266,7 +266,7 @@ void image::change_image(int32_t resource_index_)
     resource_index = resource_index_;
 
     free_image(&img);
-    load_image_from_resource(resource_index, to_widechar(theme_string(theme_control::image, theme_value::path, theme_)), &img);
+    load_image_from_resource(resource_index, boost::nowide::widen(theme_string(theme_control::image, theme_value::path, theme_)), &img);
     redraw();
 }
 #endif
@@ -277,7 +277,7 @@ void image::change_image(const std::string &file_name_)
 
 #ifdef _WIN32
     free_image(&img);
-    load_image_from_file(to_widechar(file_name), to_widechar(theme_string(theme_control::image, theme_value::path, theme_)), &img);
+    load_image_from_file(boost::nowide::widen(file_name), boost::nowide::widen(theme_string(theme_control::image, theme_value::path, theme_)), &img);
 #endif
 
     redraw();

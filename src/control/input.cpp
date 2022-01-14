@@ -14,7 +14,8 @@
 #include <wui/theme/theme.hpp>
 
 #include <wui/system/tools.hpp>
-#include <wui/system/char_encoding.hpp>
+
+#include <boost/nowide/convert.hpp>
 
 namespace wui
 {
@@ -23,7 +24,7 @@ static const int32_t input_horizontal_indent = 5;
 
 input::input(const std::string &text__, input_view input_view__, std::shared_ptr<i_theme> theme__)
     : input_view_(input_view__),
-    text_(to_widechar(text__)),
+    text_(text__),
     change_callback(),
     theme_(theme__),
     position_(),
@@ -79,7 +80,7 @@ void input::draw(graphic &gr)
     auto font_ = theme_font(theme_control::input, theme_value::font, theme_);
 
     /// Create memory dc for text and selection bar
-    rect full_text_dimensions = calculate_text_dimensions(gr, to_multibyte(text_), text_.size(), font_);
+    rect full_text_dimensions = calculate_text_dimensions(gr, text_, text_.size(), font_);
     full_text_dimensions.right += 1;
     full_text_dimensions.bottom;
 
@@ -99,16 +100,16 @@ void input::draw(graphic &gr)
     /// Draw the selection bar
     if (select_start_position != select_end_position)
     {
-        auto start_coordinate = calculate_text_dimensions(mem_gr, to_multibyte(text_), select_start_position, font_).right;
-        auto end_coordinate = calculate_text_dimensions(mem_gr, to_multibyte(text_), select_end_position, font_).right;
+        auto start_coordinate = calculate_text_dimensions(mem_gr, text_, select_start_position, font_).right;
+        auto end_coordinate = calculate_text_dimensions(mem_gr, text_, select_end_position, font_).right;
 
         mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, full_text_dimensions.bottom }, theme_color(theme_control::input, theme_value::selection, theme_));
     }
 
     /// Draw the text
-    mem_gr.draw_text(rect{ 0 }, to_multibyte(text_), theme_color(theme_control::input, theme_value::text, theme_), font_);
+    mem_gr.draw_text(rect{ 0 }, text_, theme_color(theme_control::input, theme_value::text, theme_), font_);
 
-    auto cursor_coordinate = calculate_text_dimensions(mem_gr, to_multibyte(text_), cursor_position, font_).right;
+    auto cursor_coordinate = calculate_text_dimensions(mem_gr, text_, cursor_position, font_).right;
     mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, full_text_dimensions.bottom },
         cursor_visible ? theme_color(theme_control::input, theme_value::cursor, theme_) : theme_color(theme_control::input, theme_value::background, theme_));
     
@@ -159,7 +160,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     size_t count = 0;
     while (x > text_width && count != text_.size())
     {
-        text_width = calculate_text_dimensions(mem_gr, to_multibyte(text_), ++count, font_).right;
+        text_width = calculate_text_dimensions(mem_gr, text_, ++count, font_).right;
     }
 
 #ifdef _WIN32
@@ -337,7 +338,7 @@ void input::receive_event(const event &ev)
             case keyboard_event_type::down:
                 timer_.stop();
                 cursor_visible = true;
-                switch (ev.keyboard_event_.key)
+                switch (ev.keyboard_event_.key[0])
                 {
                     case vk_left:
                         if (cursor_position > 0)
@@ -385,7 +386,7 @@ void input::receive_event(const event &ev)
 
                             if (change_callback)
                             {
-                                change_callback(to_multibyte(text_));
+                                change_callback(text_);
                             }
                         }
                     break;
@@ -401,7 +402,7 @@ void input::receive_event(const event &ev)
 
                             if (change_callback)
                             {
-                                change_callback(to_multibyte(text_));
+                                change_callback(text_);
                             }
                         }
                     break;
@@ -409,45 +410,45 @@ void input::receive_event(const event &ev)
             break;
             case keyboard_event_type::up:
                 timer_.start(500);
-                if (ev.keyboard_event_.key == vk_shift)
+                if (ev.keyboard_event_.key[0] == vk_shift)
                 {
                     selecting = false;
                 }
             break;
             case keyboard_event_type::key:
-                if (input_view_ == input_view::singleline && ev.keyboard_event_.key == vk_return)
+                if (input_view_ == input_view::singleline && ev.keyboard_event_.key[0] == vk_return)
                 {
                     return;
                 }
 
-                if (ev.keyboard_event_.key == 0x3)       // ctrl + c
+                if (ev.keyboard_event_.key[0] == 0x3)       // ctrl + c
                 {
                     return buffer_copy();
                 }
-                else if (ev.keyboard_event_.key == 0x18) // ctrl + x
+                else if (ev.keyboard_event_.key[0] == 0x18) // ctrl + x
                 {
                     return buffer_cut();
                 }
-                else if (ev.keyboard_event_.key == 0x16) // ctrl + v
+                else if (ev.keyboard_event_.key[0] == 0x16) // ctrl + v
                 {
                     return buffer_paste();
                 }
-                else if (ev.keyboard_event_.key == 0x1)  // ctrl + a
+                else if (ev.keyboard_event_.key[0] == 0x1)  // ctrl + a
                 {
                     return select_all();
                 }
                 
                 clear_selected_text();
 
-                text_.insert(cursor_position, 1, ev.keyboard_event_.key);
+                text_.insert(cursor_position, ev.keyboard_event_.key);
                 
-                ++cursor_position;
+                cursor_position += ev.keyboard_event_.key_size;
 
                 redraw();
 
                 if (change_callback)
                 {
-                    change_callback(to_multibyte(text_));
+                    change_callback(text_);
                 }
             break;
         }
@@ -578,13 +579,13 @@ bool input::enabled() const
 
 void input::set_text(const std::string &text__)
 {
-    text_ = to_widechar(text__);
+    text_ = text__;
     redraw();
 }
 
 std::string input::text() const
 {
-    return to_multibyte(text_);
+    return text_;
 }
 
 void input::set_input_view(input_view input_view__)
@@ -636,15 +637,16 @@ void input::buffer_copy()
         end = select_start_position;
     }
 
-    std::wstring copy_text = text_.substr(start, end - start);
+    std::string copy_text = text_.substr(start, end - start);
+    auto wide_str = boost::nowide::widen(copy_text);
 
     if (OpenClipboard(NULL))
     {
-        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, copy_text.size() * sizeof(wchar_t) + 2);
+        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, wide_str.size());
         if (hGlobal != NULL)
         {
             LPVOID lpText = GlobalLock(hGlobal);
-            memcpy(lpText, copy_text.c_str(), copy_text.size() * sizeof(wchar_t));
+            memcpy(lpText, wide_str.c_str(), wide_str.size());
 
             EmptyClipboard();
             GlobalUnlock(hGlobal);
@@ -681,15 +683,15 @@ void input::buffer_paste()
         return;
     }
 
-    std::wstring paste_string;
+    std::string paste_string;
 
     HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
     if (hglb)
     {
-        LPWSTR lptstr = (LPWSTR)GlobalLock(hglb);
+        wchar_t *lptstr = (wchar_t *)GlobalLock(hglb);
         if (lptstr)
         {
-            paste_string = lptstr;
+            paste_string = boost::nowide::narrow(lptstr);
             GlobalUnlock(hglb);
         }
     }
@@ -705,7 +707,7 @@ void input::buffer_paste()
 
     if (change_callback)
     {
-        change_callback(to_multibyte(text_));
+        change_callback(text_);
     }
 }
 

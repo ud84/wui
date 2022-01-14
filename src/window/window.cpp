@@ -18,7 +18,7 @@
 #include <wui/common/flag_helpers.hpp>
 
 #include <wui/system/tools.hpp>
-#include <wui/system/char_encoding.hpp>
+#include <boost/nowide/convert.hpp>
 
 #include <algorithm>
 
@@ -905,7 +905,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
         return false;
     }
 
-    SetWindowText(context_.hwnd, to_widechar(caption).c_str());
+    SetWindowText(context_.hwnd, boost::nowide::widen(caption).c_str());
 
     UpdateWindow(context_.hwnd);
 
@@ -1013,7 +1013,7 @@ void window::destroy()
 /// Windows specified code
 #ifdef _WIN32
 
-wchar_t get_key_modifier()
+uint8_t get_key_modifier()
 {
     if (GetKeyState(VK_SHIFT) < 0)
     {
@@ -1423,7 +1423,8 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     {
                         event ev;
                         ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, get_key_modifier(), static_cast<wchar_t>(w_param) };;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, get_key_modifier(), 0 };
+                        ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
 
                         control->receive_event(ev);
                     }
@@ -1442,7 +1443,8 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     {
                         event ev;
                         ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, get_key_modifier(), static_cast<wchar_t>(w_param) };;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, get_key_modifier(), 0 };
+                        ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
 
                         control->receive_event(ev);
                     }
@@ -1459,7 +1461,11 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 {
                     event ev;
                     ev.type = event_type::keyboard;
-                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, get_key_modifier(), static_cast<wchar_t>(w_param) };;
+                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, get_key_modifier(), 0 };
+                    
+                    auto narrow_str = boost::nowide::narrow(reinterpret_cast<const wchar_t*>(&w_param));
+                    memcpy(ev.keyboard_event_.key, narrow_str.c_str(), narrow_str.size());
+                    ev.keyboard_event_.key_size = static_cast<uint8_t>(narrow_str.size());
                     
                     control->receive_event(ev);
                 }
@@ -1486,7 +1492,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
 #elif __linux__
 
-wchar_t normalize_modifier(wchar_t state)
+uint8_t normalize_modifier(int32_t state)
 {
     if (state >= 8192)
     {
@@ -1820,20 +1826,18 @@ void window::process_events()
                         keyev.keycode = ev_.detail;
                         keyev.state = ev_.state;
 
-                        std::array<char, 16> buf {};
+                        std::array<char, 4> buf {};
                         auto nbytes = XLookupString(&keyev, buf.data(), buf.size(), nullptr, nullptr);
                         if (nbytes)
                         {
                             auto control = get_focused();
                             if (control)
                             {
-                                std::wstring wc = to_widechar(std::string(buf.data(), nbytes));
-
                                 event ev;
                                 ev.type = event_type::keyboard;
-                                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key,
-                                    normalize_modifier(ev_.state),
-                                    wc.c_str()[0] };
+                                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, normalize_modifier(ev_.state), 0 };
+                                memcpy(ev.keyboard_event_.key, buf.data(), nbytes);
+                                ev.keyboard_event_.key_size = static_cast<uint8_t>(nbytes);
 
                                 control->receive_event(ev);
                             }

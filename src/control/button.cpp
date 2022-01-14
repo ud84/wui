@@ -18,8 +18,6 @@
 
 #include <wui/system/tools.hpp>
 
-#include <wui/system/char_encoding.hpp>
-
 namespace wui
 {
 

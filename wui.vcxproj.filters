@@ -52,9 +52,6 @@
     <Filter Include="Header Files\wui\window">
       <UniqueIdentifier>{d82e81ca-abfe-46a9-9da1-7d0fc60ab5b7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\nlohmann">
-      <UniqueIdentifier>{ebf4a237-0561-4321-b4d6-cd3376712c18}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\wui\common\color.hpp">
@@ -123,17 +120,11 @@
     <ClInclude Include="include\wui\control\tooltip.hpp">
       <Filter>Header Files\wui\control</Filter>
     </ClInclude>
-    <ClInclude Include="include\nlohmann\json.hpp">
-      <Filter>Header Files\nlohmann</Filter>
-    </ClInclude>
     <ClInclude Include="include\wui\theme\theme_impl.hpp">
       <Filter>Header Files\wui\theme</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\theme\theme_str.hpp">
       <Filter>Header Files\wui\theme</Filter>
-    </ClInclude>
-    <ClInclude Include="include\wui\system\char_encoding.hpp">
-      <Filter>Header Files\wui\system</Filter>
     </ClInclude>
     <ClInclude Include="include\wui\common\font.hpp">
       <Filter>Header Files\wui\common</Filter>
@@ -163,9 +154,6 @@
     </ClCompile>
     <ClCompile Include="src\control\tooltip.cpp">
       <Filter>Source Files\control</Filter>
-    </ClCompile>
-    <ClCompile Include="src\system\char_encoding.cpp">
-      <Filter>Source Files\system</Filter>
     </ClCompile>
     <ClCompile Include="src\theme\theme_impl.cpp">
       <Filter>Source Files\theme</Filter>

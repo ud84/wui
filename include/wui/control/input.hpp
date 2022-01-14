@@ -71,7 +71,7 @@ public:
 
 private:
     input_view input_view_;
-    std::wstring text_;
+    std::string text_;
     std::function<void(const std::string&)> change_callback;
     std::shared_ptr<i_theme> theme_;
 
