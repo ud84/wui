@@ -88,7 +88,7 @@ image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
     resource_index(resource_index_),
     img(nullptr)
 {
-    load_image_from_resource(resource_index, to_widechar(theme_string(theme_control::image, theme_value::images_path, theme_)), &img);
+    load_image_from_resource(resource_index, to_widechar(theme_string(theme_control::image, theme_value::path, theme_)), &img);
 }
 #endif
 
@@ -104,7 +104,7 @@ image::image(const std::wstring &file_name_, std::shared_ptr<i_theme> theme__)
 #endif
 {
 #ifdef _WIN32
-    load_image_from_file(file_name_, to_widechar(theme_string(theme_control::image, theme_value::images_path, theme_)), &img);
+    load_image_from_file(file_name_, to_widechar(theme_string(theme_control::image, theme_value::path, theme_)), &img);
 #elif __linux__
 
 #endif
@@ -266,7 +266,7 @@ void image::change_image(int32_t resource_index_)
     resource_index = resource_index_;
 
     free_image(&img);
-    load_image_from_resource(resource_index, to_widechar(theme_string(theme_control::image, theme_value::images_path, theme_)), &img);
+    load_image_from_resource(resource_index, to_widechar(theme_string(theme_control::image, theme_value::path, theme_)), &img);
     redraw();
 }
 #endif
@@ -277,7 +277,7 @@ void image::change_image(const std::wstring &file_name_)
 
 #ifdef _WIN32
     free_image(&img);
-    load_image_from_file(file_name, to_widechar(theme_string(theme_control::image, theme_value::images_path, theme_)), &img);
+    load_image_from_file(file_name, to_widechar(theme_string(theme_control::image, theme_value::path, theme_)), &img);
 #endif
 
     redraw();

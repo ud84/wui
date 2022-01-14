@@ -27,6 +27,7 @@ enum class theme
 
 enum class theme_control
 {
+    undefined,
     window,
     image,
     button,
@@ -36,6 +37,8 @@ enum class theme_control
 
 enum class theme_value
 {
+    undefined,
+
     /// colors
     background,
     text,
@@ -47,11 +50,13 @@ enum class theme_value
     disabled,
     selection,
     cursor,
+
+    /// fonts
     font,
     caption_font,
 
     /// strings
-    images_path,
+    path,
 
     /// ints
     round,

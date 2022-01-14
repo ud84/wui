@@ -12,7 +12,7 @@
 namespace wui
 {
 
-std::string str_theme_control(theme_control tc)
+std::string theme_control_to_str(theme_control tc)
 {
     switch (tc)
     {
@@ -35,7 +35,7 @@ std::string str_theme_control(theme_control tc)
     return "";
 }
 
-std::string str_theme_value(theme_value tv)
+std::string theme_value_to_str(theme_value tv)
 {
     switch (tv)
     {
@@ -69,8 +69,8 @@ std::string str_theme_value(theme_value tv)
         case theme_value::cursor:
             return "cursor";
         break;
-        case theme_value::images_path:
-            return "images_path";
+        case theme_value::path:
+            return "path";
         break;
         case theme_value::round:
             return "round";
@@ -86,6 +86,98 @@ std::string str_theme_value(theme_value tv)
         break;
     }
     return "";
+}
+
+theme_control theme_control_from_str(const std::string &str)
+{
+    if (str == "window")
+    {
+        return theme_control::window;
+    }
+    else if (str == "image")
+    {
+        return theme_control::image;
+    }
+    else if (str == "button")
+    {
+        return theme_control::button;
+    }
+    else if (str == "input")
+    {
+        return theme_control::input;
+    }
+    else if (str == "tooltip")
+    {
+        return theme_control::tooltip;
+    }
+
+    return theme_control::undefined;
+}
+
+theme_value theme_value_from_str(const std::string &str)
+{
+    if (str == "background")
+    {
+        return theme_value::background;
+    }
+    else if (str == "text")
+    {
+        return theme_value::text;
+    }
+    else if (str == "calm")
+    {
+        return theme_value::calm;
+    }
+    else if (str == "active")
+    {
+        return theme_value::active;
+    }
+    else if (str == "active_button")
+    {
+        return theme_value::active_button;
+    }
+    else if (str == "border")
+    {
+        return theme_value::border;
+    }
+    else if (str == "focused_border")
+    {
+        return theme_value::focused_border;
+    }
+    else if (str == "disabled")
+    {
+        return theme_value::disabled;
+    }
+    else if (str == "selection")
+    {
+        return theme_value::selection;
+    }
+    else if (str == "cursor")
+    {
+        return theme_value::cursor;
+    }
+    else if (str == "path")
+    {
+        return theme_value::path;
+    }
+    else if (str == "round")
+    {
+        return theme_value::round;
+    }
+    else if (str == "text_indent")
+    {
+        return theme_value::text_indent;
+    }
+    else if (str == "font")
+    {
+        return theme_value::font;
+    }
+    else if (str == "caption_font")
+    {
+        return theme_value::caption_font;
+    }
+
+    return theme_value::undefined;
 }
 
 }

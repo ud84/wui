@@ -110,7 +110,7 @@ std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
     redButtonTheme->set_dimension(wui::theme_control::tooltip, wui::theme_value::text_indent, wui::theme_dimension(wui::theme_control::tooltip, wui::theme_value::text_indent));
     redButtonTheme->set_font(wui::theme_control::tooltip, wui::theme_value::font, wui::theme_font(wui::theme_control::tooltip, wui::theme_value::font));
     redButtonTheme->set_dimension(wui::theme_control::tooltip, wui::theme_value::round, wui::theme_dimension(wui::theme_control::tooltip, wui::theme_value::round));
-    redButtonTheme->set_string(wui::theme_control::image, wui::theme_value::images_path, wui::theme_string(wui::theme_control::image, wui::theme_value::images_path));
+    redButtonTheme->set_string(wui::theme_control::image, wui::theme_value::path, wui::theme_string(wui::theme_control::image, wui::theme_value::path));
     
     return redButtonTheme;
 }

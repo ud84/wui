@@ -763,7 +763,7 @@ void window::update_buttons(bool theme_changed)
         buttons_theme->set_dimension(theme_control::tooltip, theme_value::font, theme_dimension(theme_control::tooltip, theme_value::font, theme_));
         buttons_theme->set_dimension(theme_control::tooltip, theme_value::round, theme_dimension(theme_control::tooltip, theme_value::round, theme_));
         
-        buttons_theme->set_string(theme_control::image, theme_value::images_path, theme_string(theme_control::image, theme_value::images_path, theme_));
+        buttons_theme->set_string(theme_control::image, theme_value::path, theme_string(theme_control::image, theme_value::path, theme_));
 
         pin_button->update_theme(buttons_theme);
         minimize_button->update_theme(buttons_theme);
@@ -776,7 +776,7 @@ void window::update_buttons(bool theme_changed)
         close_button_theme->set_color(theme_control::button, theme_value::disabled, background_color);
         close_button_theme->set_dimension(theme_control::button, theme_value::round, 0);
 
-        close_button_theme->set_string(theme_control::image, theme_value::images_path, theme_string(theme_control::image, theme_value::images_path, theme_));
+        close_button_theme->set_string(theme_control::image, theme_value::path, theme_string(theme_control::image, theme_value::path, theme_));
 
         close_button->update_theme(close_button_theme);
     }
