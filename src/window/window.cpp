@@ -33,6 +33,7 @@
 #include <xcb/xcb_atom.h>
 
 #include <X11/Xutil.h>
+#include <locale.h>
 
 #endif
 
@@ -908,12 +909,6 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     XSetEventQueueOwner(context_.display, XCBOwnsEventQueue);
     context_.connection = XGetXCBConnection(context_.display);
-
-    auto modifiers = XSetLocaleModifiers("@im=none");
-    if (modifiers == NULL)
-    {
-        fprintf (stderr, "XSetLocaleModifiers failed\n");
-    }
 
     context_.screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
 

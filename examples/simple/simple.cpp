@@ -126,6 +126,11 @@ int main(int argc, char *argv[])
 {
     const std::string IDB_ACCOUNT = "";
 
+    if (setlocale(LC_ALL,"") == NULL)
+    {
+        fprintf(stderr, "warning: could not set default locale\n");
+    }
+
 #endif
     bool runned = true;
 
