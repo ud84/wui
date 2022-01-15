@@ -144,16 +144,16 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
 
     x -= position_.left + input_horizontal_indent - left_shift;
 
-#ifdef _WIN32
-    system_context ctx = { 0, GetDC(NULL) };
-#elif __linux__
     system_context ctx = { 0 };
     auto parent_ = parent.lock();
     if (parent_)
     {
-        ctx = { parent_->context().display, parent_->context().connection, parent_->context().screen, parent_->context().wnd };
-    }
+#ifdef _WIN32
+        ctx = { parent_->context().hwnd, GetDC(parent_->context().hwnd) };
+#elif __linux__
+        ctx = parent_->context();
 #endif
+    }
     graphic mem_gr(ctx);
     mem_gr.init(position_, 0);
 
@@ -172,7 +172,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     }
 
 #ifdef _WIN32
-    DeleteDC(ctx.dc);
+    ReleaseDC(ctx.hwnd, ctx.dc);
 #endif
 
     return count;
