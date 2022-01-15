@@ -110,9 +110,11 @@ void input::draw(graphic &gr)
     /// Draw the text
     mem_gr.draw_text(rect{ 0 }, text_, theme_color(theme_control::input, theme_value::text, theme_), font_);
 
+    /// Draw the cursor
     auto cursor_coordinate = calculate_text_dimensions(mem_gr, text_, cursor_position, font_).right;
     mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, full_text_dimensions.bottom },
-        cursor_visible ? theme_color(theme_control::input, theme_value::cursor, theme_) : theme_color(theme_control::input, theme_value::background, theme_));
+        cursor_visible ? theme_color(theme_control::input, theme_value::cursor, theme_) :
+        (cursor_position >= select_start_position || cursor_position <= select_end_position ? theme_color(theme_control::input, theme_value::selection, theme_) : theme_color(theme_control::input, theme_value::background, theme_)));
     
     while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
     {
