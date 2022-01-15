@@ -82,6 +82,7 @@ public:
 
     virtual void load_json(const std::string &json) = 0;
     virtual void load_file(const std::string &file_name) = 0;
+    virtual void load_theme(const i_theme &theme_) = 0;
 
     virtual ~i_theme() {}
 };

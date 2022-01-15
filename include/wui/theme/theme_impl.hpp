@@ -37,6 +37,7 @@ public:
 
     virtual void load_json(const std::string &json);
     virtual void load_file(const std::string &file_name);
+    virtual void load_theme(const i_theme &theme_);
 
 private:
     theme theme_;
@@ -44,6 +45,8 @@ private:
     std::map<std::string, int32_t> ints;
     std::map<std::string, std::string> strings;
     std::map<std::string, font> fonts;
+
+    friend class theme_impl;
 };
 
 }

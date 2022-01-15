@@ -35,13 +35,9 @@ void set_default_theme(theme theme_)
     }
 }
 
-theme get_default_theme()
+std::shared_ptr<i_theme> get_default_theme()
 {
-    if (instance)
-    {
-        return instance->get_theme();
-    }
-    return theme::dark;
+    return instance;    
 }
 
 std::shared_ptr<i_theme> make_custom_theme()

@@ -18,7 +18,7 @@ namespace wui
 
 /// Set and get the current theme
 void set_default_theme(theme theme_);
-theme get_default_theme();
+std::shared_ptr<i_theme> get_default_theme();
 
 std::shared_ptr<i_theme> make_custom_theme();
 

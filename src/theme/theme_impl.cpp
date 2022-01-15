@@ -11,6 +11,8 @@
 #include <wui/theme/theme_str.hpp>
 
 #include <nlohmann/json.hpp>
+#include <boost/nowide/fstream.hpp>
+#include <sstream>
 
 namespace wui
 {
@@ -140,7 +142,19 @@ void theme_impl::load_json(const std::string &json_)
 
 void theme_impl::load_file(const std::string &file_name)
 {
+    boost::nowide::ifstream f(file_name);
+    
+    std::stringstream buffer;
+    buffer << f.rdbuf();
 
+    load_json(buffer.str());
+}
+
+void theme_impl::load_theme(const i_theme &theme_)
+{
+    ints = static_cast<const theme_impl*>(&theme_)->ints;
+    strings = static_cast<const theme_impl*>(&theme_)->strings;
+    fonts = static_cast<const theme_impl*>(&theme_)->fonts;
 }
 
 }

@@ -750,34 +750,23 @@ void window::update_buttons(bool theme_changed)
 
     if (theme_changed)
     {
+        buttons_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
+
         buttons_theme->set_color(theme_control::button, theme_value::calm, background_color);
-        buttons_theme->set_color(theme_control::button, theme_value::active, theme_color(theme_control::window, theme_value::active_button, theme_));
         buttons_theme->set_color(theme_control::button, theme_value::border, background_color);
-        buttons_theme->set_color(theme_control::button, theme_value::text, theme_color(theme_control::window, theme_value::text, theme_));
         buttons_theme->set_color(theme_control::button, theme_value::disabled, background_color);
         buttons_theme->set_dimension(theme_control::button, theme_value::round, 0);
-
-        buttons_theme->set_color(theme_control::tooltip, theme_value::background, theme_color(theme_control::tooltip, theme_value::background, theme_));
-        buttons_theme->set_color(theme_control::tooltip, theme_value::border, theme_color(theme_control::tooltip, theme_value::border, theme_));
-        buttons_theme->set_color(theme_control::tooltip, theme_value::text, theme_color(theme_control::tooltip, theme_value::text, theme_));
-        buttons_theme->set_dimension(theme_control::tooltip, theme_value::text_indent, theme_dimension(theme_control::tooltip, theme_value::text_indent, theme_));
-        buttons_theme->set_font(theme_control::tooltip, theme_value::font, theme_font(theme_control::tooltip, theme_value::font, theme_));
-        buttons_theme->set_dimension(theme_control::tooltip, theme_value::round, theme_dimension(theme_control::tooltip, theme_value::round, theme_));
-        
-        buttons_theme->set_string(theme_control::image, theme_value::path, theme_string(theme_control::image, theme_value::path, theme_));
 
         pin_button->update_theme(buttons_theme);
         minimize_button->update_theme(buttons_theme);
         expand_button->update_theme(buttons_theme);
     
+        close_button_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
         close_button_theme->set_color(theme_control::button, theme_value::calm, background_color);
         close_button_theme->set_color(theme_control::button, theme_value::active, make_color(235, 15, 20));
         close_button_theme->set_color(theme_control::button, theme_value::border, background_color);
-        close_button_theme->set_color(theme_control::button, theme_value::text, theme_color(theme_control::window, theme_value::text, theme_));
         close_button_theme->set_color(theme_control::button, theme_value::disabled, background_color);
         close_button_theme->set_dimension(theme_control::button, theme_value::round, 0);
-
-        close_button_theme->set_string(theme_control::image, theme_value::path, theme_string(theme_control::image, theme_value::path, theme_));
 
         close_button->update_theme(close_button_theme);
     }
