@@ -124,7 +124,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 #elif __linux__
 int main(int argc, char *argv[])
 {
-    const std::wstring IDB_ACCOUNT = L"";
+    const std::string IDB_ACCOUNT = "";
 
 #endif
     bool runned = true;

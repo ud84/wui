@@ -10,6 +10,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(CAIRO REQUIRED cairo)
 
 include_directories(.
+	../thirdparty
 #	PUBLIC ${CAIRO_INCLUDE_DIRS})
 	/usr/include/cairo
 	/usr/include/glib-2.0

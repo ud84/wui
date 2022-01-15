@@ -92,7 +92,7 @@ void theme_impl::load_json(const std::string &json_)
     auto j = nlohmann::json::parse(json_);
 
     auto controls = j.at("controls");
-    for (auto &c = controls.begin(); c != controls.end(); ++c)
+    for (auto c = controls.begin(); c != controls.end(); ++c)
     {
         std::string control = c->at("type").get<std::string>();
 

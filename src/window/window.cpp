@@ -31,7 +31,6 @@
 
 #include <stdlib.h>
 #include <xcb/xcb_atom.h>
-#include <wui/system/char_encoding.hpp>
 
 #include <X11/Xutil.h>
 
@@ -116,10 +115,10 @@ window::window()
     close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
     mouse_tracked(false)
 #elif __linux__
-    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, L"", 24)),
-    minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, L"", 24)),
-    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? L"" : L"", 24)),
-    close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, L"", 24)),
+    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, "", 24)),
+    minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, "", 24)),
+    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? "" : "", 24)),
+    close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, "", 24)),
     wm_protocols_event(nullptr), wm_delete_msg(nullptr),
     runned(false),
     thread()
@@ -910,7 +909,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     XSetEventQueueOwner(context_.display, XCBOwnsEventQueue);
     context_.connection = XGetXCBConnection(context_.display);
 
-    auto modifiers = XSetLocaleModifiers ("@im=none");
+    auto modifiers = XSetLocaleModifiers("@im=none");
     if (modifiers == NULL)
     {
         fprintf (stderr, "XSetLocaleModifiers failed\n");
@@ -1498,7 +1497,7 @@ void window::process_events()
 
                 if (flag_is_set(window_style_, window_style::title_showed))
 	            {
-                    auto caption_font = theme_font(theme_control::window, theme_value::window_title_font, theme_);
+                    auto caption_font = theme_font(theme_control::window, theme_value::caption_font, theme_);
 
                     auto caption_rect = graphic_.measure_text(caption, caption_font);
                     caption_rect.move(5, 5);
@@ -1785,7 +1784,8 @@ void window::process_events()
                     {
                         event ev;
                         ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, normalize_modifier(ev_.state), ev_.detail };;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, normalize_modifier(ev_.state), 0 };
+                        ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
 
                         control->receive_event(ev);
                     }
@@ -1803,8 +1803,8 @@ void window::process_events()
                         keyev.display = context_.display;
                         keyev.keycode = ev_.detail;
                         keyev.state = ev_.state;
-                        
-                        auto ev.keyboard_event_.key_size = static_cast<uint8_t>(XLookupString(&keyev, ev.keyboard_event_.key, sizeof(ev.keyboard_event_.key), nullptr, nullptr));
+
+                        ev.keyboard_event_.key_size = static_cast<uint8_t>(XLookupString(&keyev, ev.keyboard_event_.key, sizeof(ev.keyboard_event_.key), nullptr, nullptr));
                         if (ev.keyboard_event_.key_size)
                         {
                             control->receive_event(ev);
@@ -1822,7 +1822,8 @@ void window::process_events()
                 {
                     event ev;
                     ev.type = event_type::keyboard;
-                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, ev_.state, ev_.detail };;
+                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, normalize_modifier(ev_.state), 0 };
+                    ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
 
                     control->receive_event(ev);
                 }

@@ -46,7 +46,6 @@ private:
     std::map<std::string, std::string> strings;
     std::map<std::string, font> fonts;
 
-    friend class theme_impl;
 };
 
 }
