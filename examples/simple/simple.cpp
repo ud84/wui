@@ -104,6 +104,7 @@ std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
     redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::focused_border, wui::make_color(20, 215, 20));
     redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::text, wui::make_color(190, 205, 190));
     redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::disabled, wui::make_color(180, 190, 180));
+    redButtonTheme->set_string(wui::theme_control::image, wui::theme_value::path, "IMAGES_DARK");
     
     return redButtonTheme;
 }
@@ -165,10 +166,24 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::only_image, IDB_ACCOUNT, 24, MakeRedButtonTheme()));
 
-    std::shared_ptr<wui::button> darkThemeButton(new wui::button("Set the dark theme", [window, &pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::dark); window->update_theme(); pluggedWindow->window->update_theme(); dialog->update_theme(); }));
+    std::shared_ptr<wui::button> darkThemeButton(new wui::button("Set the dark theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
+    {
+        wui::set_default_theme(wui::theme::dark);
+        window->update_theme();
+        pluggedWindow->window->update_theme();
+        dialog->update_theme(); 
+        cancelButton->update_theme(MakeRedButtonTheme());
+    }));
     window->add_control(darkThemeButton, wui::rect{ 140, 350, 260, 375 });
 	
-    std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [window, &pluggedWindow, dialog]() { wui::set_default_theme(wui::theme::white); window->update_theme(); pluggedWindow->window->update_theme(); dialog->update_theme(); }));
+    std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
+    {
+        wui::set_default_theme(wui::theme::white);
+        window->update_theme();
+        pluggedWindow->window->update_theme();
+        dialog->update_theme();
+        cancelButton->update_theme(MakeRedButtonTheme());
+    }));
     window->add_control(whiteThemeButton, wui::rect{ 290, 350, 380, 375 });
 
     window->add_control(okButton, wui::rect{ 240, 450, 350, 480 });
@@ -187,7 +202,7 @@ int main(int argc, char *argv[])
         cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });
     });
 
-    window->init("Welcome to WUI! 😂", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame, [&runned]() {
+    window->init("Welcome to WUI! ✌️", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame, [&runned]() {
 #ifdef _WIN32
         PostQuitMessage(IDCANCEL);
 #elif __linux__
