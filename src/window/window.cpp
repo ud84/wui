@@ -33,7 +33,6 @@
 #include <xcb/xcb_atom.h>
 
 #include <X11/Xutil.h>
-#include <locale.h>
 
 #endif
 
@@ -753,6 +752,7 @@ void window::update_buttons(bool theme_changed)
         buttons_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
 
         buttons_theme->set_color(theme_control::button, theme_value::calm, background_color);
+        buttons_theme->set_color(theme_control::button, theme_value::active, theme_color(theme_control::window, theme_value::active_button, theme_));
         buttons_theme->set_color(theme_control::button, theme_value::border, background_color);
         buttons_theme->set_color(theme_control::button, theme_value::disabled, background_color);
         buttons_theme->set_dimension(theme_control::button, theme_value::round, 0);
