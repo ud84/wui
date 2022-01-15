@@ -1401,56 +1401,43 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             return DefWindowProc(hwnd, message, w_param, l_param);
         break;
         case WM_KEYDOWN:
-            switch (w_param)
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            if (w_param == VK_TAB)
             {
-                case VK_TAB:
-                {
-                    window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-                    wnd->change_focus();
-                }
-                break;
-                case VK_RETURN:
-                {
-                    window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-                    wnd->execute_focused();
-                }
-                break;
-                case VK_BACK: case VK_DELETE: case VK_END: case VK_HOME: case VK_LEFT: case VK_RIGHT: case VK_SHIFT:
-                {
-                    window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-                    auto control = wnd->get_focused();
-                    if (control)
-                    {
-                        event ev;
-                        ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, get_key_modifier(), 0 };
-                        ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
-
-                        control->receive_event(ev);
-                    }
-                }
-                break;
+                wnd->change_focus();
             }
+            else if (w_param == VK_RETURN)
+            {
+                wnd->execute_focused();
+            }
+
+            auto control = wnd->get_focused();
+            if (control)
+            {
+                event ev;
+                ev.type = event_type::keyboard;
+                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, get_key_modifier(), 0 };
+                ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
+
+                control->receive_event(ev);
+            }
+        }
         break;
         case WM_KEYUP:
-            switch (w_param)
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            auto control = wnd->get_focused();
+            if (control)
             {
-                case VK_BACK: case VK_DELETE: case VK_END: case VK_HOME: case VK_LEFT: case VK_RIGHT: case VK_SHIFT:
-                {
-                    window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-                    auto control = wnd->get_focused();
-                    if (control)
-                    {
-                        event ev;
-                        ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, get_key_modifier(), 0 };
-                        ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
+                event ev;
+                ev.type = event_type::keyboard;
+                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, get_key_modifier(), 0 };
+                ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
 
-                        control->receive_event(ev);
-                    }
-                }
-                break;
+                control->receive_event(ev);
             }
+        }
         break;
         case WM_CHAR:
             if (w_param != VK_BACK && w_param != VK_DELETE && w_param != VK_END && w_param != VK_HOME && w_param != VK_LEFT && w_param != VK_RIGHT && w_param != VK_SHIFT)
@@ -1794,56 +1781,46 @@ void window::process_events()
             {
                 auto ev_ = *(xcb_key_press_event_t *)e;
 
-                switch (ev_.detail)
+                if (ev_.detail == vk_tab)
                 {
-                    case vk_tab:
+                    change_focus();
+                }
+                else if (ev_.detail == vk_return)
+                {
+                    execute_focused();
+                }
+                else if (ev_.detail == vk_back || ev_.detail == vk_del || ev_.detail == vk_end || ev_.detail == vk_home || ev_.detail == vk_left || ev_.detail == vk_right || ev_.detail == vk_up || ev_.detail == vk_down || ev_.detail == vk_shift)
+                {
+                    auto control = get_focused();
+                    if (control)
                     {
-                        change_focus();
-                    }
-                    break;
-                    case vk_return:
-                    {
-                        execute_focused();
-                    }
-                    break;
-                    case vk_back: case vk_del: case vk_end: case vk_home: case vk_left: case vk_right: case vk_up: case vk_down: case vk_shift:
-                    {
-                        auto control = get_focused();
-                        if (control)
-                        {
-                            event ev;
-                            ev.type = event_type::keyboard;
-                            ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, normalize_modifier(ev_.state), ev_.detail };;
+                        event ev;
+                        ev.type = event_type::keyboard;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, normalize_modifier(ev_.state), ev_.detail };;
 
-                            control->receive_event(ev);
-                        }
+                        control->receive_event(ev);
                     }
-                    break;
-                    default:
+                }
+                else
+                {
+                    auto control = get_focused();
+                    if (control)
                     {
+                        event ev;
+                        ev.type = event_type::keyboard;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, normalize_modifier(ev_.state), 0 };
+                        
                         XKeyPressedEvent keyev;
                         keyev.display = context_.display;
                         keyev.keycode = ev_.detail;
                         keyev.state = ev_.state;
-
-                        std::array<char, 4> buf {};
-                        auto nbytes = XLookupString(&keyev, buf.data(), buf.size(), nullptr, nullptr);
-                        if (nbytes)
+                        
+                        auto ev.keyboard_event_.key_size = static_cast<uint8_t>(XLookupString(&keyev, ev.keyboard_event_.key, sizeof(ev.keyboard_event_.key), nullptr, nullptr));
+                        if (ev.keyboard_event_.key_size)
                         {
-                            auto control = get_focused();
-                            if (control)
-                            {
-                                event ev;
-                                ev.type = event_type::keyboard;
-                                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, normalize_modifier(ev_.state), 0 };
-                                memcpy(ev.keyboard_event_.key, buf.data(), nbytes);
-                                ev.keyboard_event_.key_size = static_cast<uint8_t>(nbytes);
-
-                                control->receive_event(ev);
-                            }
+                            control->receive_event(ev);
                         }
                     }
-                    break;
                 }
             }
             break;
@@ -1851,21 +1828,14 @@ void window::process_events()
             {
                 auto ev_ = *(xcb_key_press_event_t *)e;
 
-                switch (ev_.detail)
+                auto control = get_focused();
+                if (control)
                 {
-                    case vk_back: case vk_del: case vk_end: case vk_home: case vk_left: case vk_right: case vk_up: case vk_down: case vk_shift:
-                    {
-                        auto control = get_focused();
-                        if (control)
-                        {
-                            event ev;
-                            ev.type = event_type::keyboard;
-                            ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, ev_.state, ev_.detail };;
+                    event ev;
+                    ev.type = event_type::keyboard;
+                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, ev_.state, ev_.detail };;
 
-                            control->receive_event(ev);
-                        }
-                    }
-                    break;
+                    control->receive_event(ev);
                 }
             }
             break;
