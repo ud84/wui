@@ -358,7 +358,7 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
     cairo_set_font_size(cr, font__.size);
     set_color(color_);
 
-    cairo_move_to(cr, position.left, (double)position.top + font__.size - 4);
+    cairo_move_to(cr, position.left, (double)position.top + font__.size * 5 / 6);
     cairo_show_text(cr, text.c_str());
 
     cairo_surface_flush(surface);

@@ -61,7 +61,7 @@ public:
 
 public:
     /// Control name in theme
-    static constexpr const char *tc = "input";
+    static constexpr const char *tc = "tooltip";
 
     /// Used theme values
     static constexpr const char *tv_background = "background";
