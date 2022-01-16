@@ -243,7 +243,7 @@ void tooltip::show_on_control(i_control &control)
 
     auto out_pos = position_;
 
-    out_pos.put(control.position().left + 5, control.position().bottom + 5); // below the button
+    out_pos.put(control.position().left + 5, control.position().bottom + 5); // below the control
     if (out_pos.bottom <= parent_pos.height())
     {
         if (out_pos.right >= parent_pos.width())
@@ -253,7 +253,7 @@ void tooltip::show_on_control(i_control &control)
     }
     else
     {
-        out_pos.put(control.position().left + 5, control.position().top - out_pos.height() - 5); // above the button
+        out_pos.put(control.position().left + 5, control.position().top - out_pos.height() - 5); // above the control
 
         if (out_pos.right >= parent_pos.width())
         {
