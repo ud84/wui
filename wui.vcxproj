@@ -28,6 +28,7 @@
     <ClInclude Include="include\wui\control\input.hpp" />
     <ClInclude Include="include\wui\control\i_control.hpp" />
     <ClInclude Include="include\wui\control\image.hpp" />
+    <ClInclude Include="include\wui\control\menu.hpp" />
     <ClInclude Include="include\wui\control\tooltip.hpp" />
     <ClInclude Include="include\wui\event\event.hpp" />
     <ClInclude Include="include\wui\event\internal_event.hpp" />
@@ -48,6 +49,7 @@
     <ClCompile Include="src\control\button.cpp" />
     <ClCompile Include="src\control\image.cpp" />
     <ClCompile Include="src\control\input.cpp" />
+    <ClCompile Include="src\control\menu.cpp" />
     <ClCompile Include="src\control\tooltip.cpp" />
     <ClCompile Include="src\graphic\graphic.cpp" />
     <ClCompile Include="src\system\tools.cpp" />

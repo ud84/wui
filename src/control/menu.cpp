@@ -7,7 +7,7 @@
 // Official repository: https://github.com/ud84/wui
 //
 
-#include <wui/control/tooltip.hpp>
+#include <wui/control/menu.hpp>
 
 #include <wui/window/window.hpp>
 
@@ -16,16 +16,15 @@
 namespace wui
 {
 
-tooltip::tooltip(const std::string &text_, std::shared_ptr<i_theme> theme__)
+menu::menu(const std::string &text_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent(),
-    showed_(false),
-    text(text_)
+    showed_(false)
 {
 }
 
-tooltip::~tooltip()
+menu::~menu()
 {
     auto parent_ = parent.lock();
     if (parent_)
@@ -34,7 +33,7 @@ tooltip::~tooltip()
     }
 }
 
-void tooltip::draw(graphic &gr)
+void menu::draw(graphic &gr)
 {
     if (!showed_)
     {
@@ -49,19 +48,19 @@ void tooltip::draw(graphic &gr)
 
     auto font_ = theme_font(tc, tv_font, theme_);
 
-    auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
+    auto text_indent = 5;
 
     auto text_position = position_;
     text_position.move(text_indent, text_indent);
 
-    gr.draw_text(text_position, text, theme_color(tc, tv_text, theme_), font_);
+    //gr.draw_text(text_position, text, theme_color(tc, tv_text, theme_), font_);
 }
 
-void tooltip::receive_event(const event &)
+void menu::receive_event(const event &)
 {
 }
 
-void tooltip::set_position(const rect &position__)
+void menu::set_position(const rect &position__)
 {
     auto prev_position = position_;
     position_ = position__;
@@ -80,46 +79,46 @@ void tooltip::set_position(const rect &position__)
     redraw();
 }
 
-rect tooltip::position() const
+rect menu::position() const
 {
 	return position_;
 }
 
-void tooltip::set_parent(std::shared_ptr<window> window)
+void menu::set_parent(std::shared_ptr<window> window)
 {
     parent = window;
 }
 
-void tooltip::clear_parent()
+void menu::clear_parent()
 {
     parent.reset();
 }
 
-bool tooltip::topmost() const
+bool menu::topmost() const
 {
     return true;
 }
 
-void tooltip::set_focus()
+void menu::set_focus()
 {
 }
 
-bool tooltip::remove_focus()
+bool menu::remove_focus()
 {
     return true;
 }
 
-bool tooltip::focused() const
+bool menu::focused() const
 {
     return false;
 }
 
-bool tooltip::focusing() const
+bool menu::focusing() const
 {
     return false;
 }
 
-void tooltip::update_theme(std::shared_ptr<i_theme> theme__)
+void menu::update_theme(std::shared_ptr<i_theme> theme__)
 {
     if (theme_ && !theme__)
     {
@@ -132,7 +131,7 @@ void tooltip::update_theme(std::shared_ptr<i_theme> theme__)
     redraw();
 }
 
-void tooltip::show()
+void menu::show()
 {
     if (showed_)
     {
@@ -144,7 +143,7 @@ void tooltip::show()
     redraw();
 }
 
-void tooltip::hide()
+void menu::hide()
 {
     showed_ = false;
     auto parent_ = parent.lock();
@@ -154,38 +153,29 @@ void tooltip::hide()
     }
 }
 
-bool tooltip::showed() const
+bool menu::showed() const
 {
     return showed_;
 }
 
-void tooltip::enable()
+void menu::enable()
 {
 }
 
-void tooltip::disable()
+void menu::disable()
 {
 }
 
-bool tooltip::enabled() const
+bool menu::enabled() const
 {
     return true;
 }
 
-void tooltip::set_text(const std::string &text_)
+void menu::update_size()
 {
-    text = text_;
-
-    update_size();
-
-    redraw();
-}
-
-void tooltip::update_size()
-{
-    if (text.empty())
+    //if (text.empty())
     {
-        return;
+        //return;
     }
 
     system_context ctx = { 0 };
@@ -205,7 +195,7 @@ void tooltip::update_size()
         if (!ctx.display)
         {
             return;
-        }
+}
 #endif
     }
 
@@ -216,9 +206,9 @@ void tooltip::update_size()
 
     auto old_position = position_;
 
-    position_ = mem_gr.measure_text(text, font_);
+    //position_ = mem_gr.measure_text(text, font_);
 
-    auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
+    auto text_indent = 5;
     position_.right += text_indent * 2;
     position_.bottom += text_indent * 2;
 
@@ -229,7 +219,7 @@ void tooltip::update_size()
 #endif
 }
 
-void tooltip::redraw()
+void menu::redraw()
 {
     if (showed_)
     {
