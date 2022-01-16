@@ -83,7 +83,9 @@ void input::draw(graphic &gr)
     /// Create memory dc for text and selection bar
     rect full_text_dimensions = calculate_text_dimensions(gr, text_, text_.size(), font_);
     full_text_dimensions.right += 1;
-    full_text_dimensions.bottom;
+    full_text_dimensions.bottom = font_.size;
+
+    auto text_height = font_.size;
 
 #ifdef _WIN32
     system_context ctx = { 0, gr.drawable() };
@@ -104,7 +106,7 @@ void input::draw(graphic &gr)
         auto start_coordinate = calculate_text_dimensions(mem_gr, text_, select_start_position, font_).right;
         auto end_coordinate = calculate_text_dimensions(mem_gr, text_, select_end_position, font_).right;
 
-        mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, full_text_dimensions.bottom }, theme_color(theme_control::input, theme_value::selection, theme_));
+        mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, text_height }, theme_color(theme_control::input, theme_value::selection, theme_));
     }
 
     /// Draw the text
@@ -112,7 +114,7 @@ void input::draw(graphic &gr)
 
     /// Draw the cursor
     auto cursor_coordinate = calculate_text_dimensions(mem_gr, text_, cursor_position, font_).right;
-    mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, full_text_dimensions.bottom },
+    mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, text_height },
         cursor_visible ? theme_color(theme_control::input, theme_value::cursor, theme_) :
         (select_start_position != select_end_position && cursor_position >= select_start_position && cursor_position <= select_end_position ? theme_color(theme_control::input, theme_value::selection, theme_) : theme_color(theme_control::input, theme_value::background, theme_)));
     
@@ -126,7 +128,7 @@ void input::draw(graphic &gr)
         left_shift -= 10;
     }
 
-    int32_t input_vertical_indent = position_.height() > full_text_dimensions.bottom ? (position_.height() - full_text_dimensions.bottom) / 2 : 0;
+    int32_t input_vertical_indent = position_.height() > text_height ? (position_.height() - text_height) / 2 : 0;
     
     gr.draw_graphic(rect{ position_.left + input_horizontal_indent,
             position_.top + input_vertical_indent,
