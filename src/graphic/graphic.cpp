@@ -58,6 +58,8 @@ void graphic::init(const rect &max_size_, color background_color)
     HBITMAP mem_bitmap = CreateCompatibleBitmap(context_.dc, max_size.width(), max_size.height());
     SelectObject(mem_dc, mem_bitmap);
 
+    ::SetMapMode(mem_dc, MM_TEXT);
+
     background_brush = CreateSolidBrush(background_color);
 
     RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
@@ -320,7 +322,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
 void graphic::draw_text(const rect &position, const std::string &text, color color_, const font &font__)
 {
 #ifdef _WIN32
-    HFONT font_ = CreateFont(font__.size, 0, 0, 0, FW_DONTCARE,
+    HFONT font_ = CreateFont(font__.size, 0, 0, 0, flag_is_set(font__.decorations_, decorations::bold) ? FW_BOLD : FW_DONTCARE,
         flag_is_set(font__.decorations_, decorations::italic), 
         flag_is_set(font__.decorations_, decorations::underline),
         flag_is_set(font__.decorations_, decorations::strike_out), ANSI_CHARSET,
