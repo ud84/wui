@@ -772,7 +772,7 @@ void window::update_buttons(bool theme_changed)
     }
 
     auto btn_size = 26;
-    auto left = position_.right - btn_size;
+    auto left = !parent ? position_.width() - btn_size : position_.right - btn_size;
     auto top = !parent ? 0 : position_.top;
 
     if (flag_is_set(window_style_, window_style::close_button))
