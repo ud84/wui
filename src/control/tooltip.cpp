@@ -231,7 +231,7 @@ void tooltip::update_size()
 
 void tooltip::show_on_control(i_control &control)
 {
-    /*auto parent_ = parent.lock();
+    auto parent_ = parent.lock();
     if (!parent_)
     {
         return;
@@ -246,25 +246,26 @@ void tooltip::show_on_control(i_control &control)
 
     auto out_pos = position_;
 
-    out_pos.put(position_.left + 5, position_.bottom + 5); // below the button
+    out_pos.put(control.position().left + 5, control.position().bottom + 5); // below the button
     if (out_pos.bottom <= parent_pos.height())
     {
         if (out_pos.right >= parent_pos.width())
         {
-            out_pos.put(parent_pos.width() - tt_size.width(), position_.bottom + 5);
+            out_pos.put(parent_pos.width() - out_pos.width(), control.position().bottom + 5);
         }
     }
     else
     {
-        out_pos.put(position_.left + 5, position_.top - out_pos.height() - 5); // above the button
+        out_pos.put(control.position().left + 5, control.position().top - out_pos.height() - 5); // above the button
 
         if (out_pos.right >= parent_pos.width())
         {
-            out_pos.put(parent_pos.width() - tt_size.width(), position_.top - out_pos.height() - 5);
+            out_pos.put(parent_pos.width() - out_pos.width(), control.position().top - out_pos.height() - 5);
         }
     }
 
-    tooltip_->set_position(out_pos);*/
+    set_position(out_pos);
+    show();
 }
 
 void tooltip::redraw()

@@ -203,8 +203,7 @@ void button::receive_event(const event &ev)
 
                 if (button_view_ == button_view::only_image && !caption.empty())
                 {
-                    update_tooltip_position();
-                    tooltip_->show();
+                    tooltip_->show_on_control(*this);
                 }
             }
             break;
@@ -423,45 +422,6 @@ void button::redraw()
             parent_->redraw(position_);
         }
     }
-}
-
-void button::update_tooltip_position()
-{
-    auto parent_ = parent.lock();
-    if (!parent_)
-    {
-        return;
-    }
-
-    auto parent_pos = parent_->position();
-
-    auto tt_size = tooltip_->position();
-    if (tt_size.width() == 0)
-    {
-        tooltip_->update_size();
-        tt_size = tooltip_->position();
-    }
-
-    auto out_pos = tt_size;
-    out_pos.put(position_.left + 5, position_.bottom + 5); // below the button
-    if (out_pos.bottom <= parent_pos.height())
-    {
-        if (out_pos.right >= parent_pos.width())
-        {
-            out_pos.put(parent_pos.width() - tt_size.width(), position_.bottom + 5);
-        }
-    }
-    else
-    {
-        out_pos.put(position_.left + 5, position_.top - out_pos.height() - 5); // above the button
-
-        if (out_pos.right >= parent_pos.width())
-        {
-            out_pos.put(parent_pos.width() - tt_size.width(), position_.top - out_pos.height() - 5);
-        }
-    }
-
-    tooltip_->set_position(out_pos);
 }
 
 }

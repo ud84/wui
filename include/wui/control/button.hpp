@@ -120,8 +120,6 @@ private:
     bool focusing_;
 
     void redraw();
-
-    void update_tooltip_position();
 };
 
 }
