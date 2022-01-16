@@ -203,7 +203,7 @@ void button::receive_event(const event &ev)
 
                 if (button_view_ == button_view::only_image && !caption.empty())
                 {
-                    tooltip_->show_on_control(*this);
+                    tooltip_->show_on_control(*this, 5);
                 }
             }
             break;

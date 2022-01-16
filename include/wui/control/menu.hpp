@@ -114,6 +114,7 @@ private:
     int32_t max_width;
 
     bool showed_;
+    bool size_updated;
 
     void update_size();
 

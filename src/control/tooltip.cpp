@@ -21,6 +21,7 @@ tooltip::tooltip(const std::string &text_, std::shared_ptr<i_theme> theme__)
     position_(),
     parent(),
     showed_(false),
+    size_updated(false),
     text(text_)
 {
 }
@@ -65,8 +66,6 @@ void tooltip::set_position(const rect &position__)
 {
     auto prev_position = position_;
     position_ = position__;
-
-    update_size();
 
     if (showed_)
     {
@@ -127,7 +126,7 @@ void tooltip::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-    update_size();
+    size_updated = false;
 
     redraw();
 }
@@ -176,7 +175,7 @@ void tooltip::set_text(const std::string &text_)
 {
     text = text_;
 
-    update_size();
+    size_updated = false;
 
     redraw();
 }
@@ -229,7 +228,7 @@ void tooltip::update_size()
 #endif
 }
 
-void tooltip::show_on_control(i_control &control)
+void tooltip::show_on_control(i_control &control, int32_t indent)
 {
     auto parent_ = parent.lock();
     if (!parent_)
@@ -237,27 +236,31 @@ void tooltip::show_on_control(i_control &control)
         return;
     }
 
-    auto parent_pos = parent_->position();
+    if (!size_updated)
+    {
+        update_size();
+        size_updated = true;
+    }
 
-    update_size();
+    auto parent_pos = parent_->position();
 
     auto out_pos = position_;
 
-    out_pos.put(control.position().left + 5, control.position().bottom + 5); // below the control
+    out_pos.put(control.position().left + indent, control.position().bottom + indent); // below the control
     if (out_pos.bottom <= parent_pos.height())
     {
         if (out_pos.right >= parent_pos.width())
         {
-            out_pos.put(parent_pos.width() - out_pos.width(), control.position().bottom + 5);
+            out_pos.put(parent_pos.width() - out_pos.width(), control.position().bottom + indent);
         }
     }
     else
     {
-        out_pos.put(control.position().left + 5, control.position().top - out_pos.height() - 5); // above the control
+        out_pos.put(control.position().left + indent, control.position().top - out_pos.height() - indent); // above the control
 
         if (out_pos.right >= parent_pos.width())
         {
-            out_pos.put(parent_pos.width() - out_pos.width(), control.position().top - out_pos.height() - 5);
+            out_pos.put(parent_pos.width() - out_pos.width(), control.position().top - out_pos.height() - indent);
         }
     }
 

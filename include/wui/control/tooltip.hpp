@@ -55,7 +55,7 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    void show_on_control(i_control &control);
+    void show_on_control(i_control &control, int32_t indent);
 
     void set_text(const std::string &text_);
 
@@ -81,6 +81,8 @@ private:
     std::weak_ptr<window> parent;
 
     bool showed_;
+
+    bool size_updated;
 
     void update_size();
 

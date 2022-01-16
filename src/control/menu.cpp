@@ -25,7 +25,8 @@ menu::menu(const std::string &text_, std::shared_ptr<i_theme> theme__)
     items(),
     item_height(20),
     max_width(-1),
-    showed_(false)
+    showed_(false),
+    size_updated(false)
 {
 }
 
@@ -72,8 +73,6 @@ void menu::set_position(const rect &position__)
 {
     auto prev_position = position_;
     position_ = position__;
-
-    update_size();
 
     if (showed_)
     {
@@ -134,7 +133,7 @@ void menu::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-    update_size();
+    size_updated = false;
 
     redraw();
 }
@@ -185,6 +184,7 @@ void menu::append_item(const menu_item &mi)
     if (it == items.end())
     {
         items.emplace_back(mi);
+        size_updated = false;
     }
 }
 
@@ -216,17 +216,20 @@ void menu::delete_item(int32_t id)
     if (it != items.end())
     {
         items.erase(it);
+        size_updated = false;
     }
 }
 
 void menu::set_item_height(int32_t item_height_)
 {
     item_height = item_height_;
+    size_updated = false;
 }
 
 void menu::set_max_width(int32_t width)
 {
     max_width = width;
+    size_updated = false;
 }
 
 void menu::update_size()
@@ -287,7 +290,11 @@ void menu::show_on_control(i_control &control, int32_t relative)
 
     auto parent_pos = parent_->position();
 
-    update_size();
+    if (!size_updated)
+    {
+        update_size();
+        size_updated = true;
+    }
 
     auto out_pos = position_;
 
