@@ -88,6 +88,20 @@ public:
 
     void set_callback(std::function<void(void)> click_callback);
 
+public:
+    /// Control name in theme
+    static constexpr const char *tc = "button";
+
+    /// Used theme values
+    static constexpr const char *tv_calm = "calm";
+    static constexpr const char *tv_active = "active";
+    static constexpr const char *tv_border = "border";
+    static constexpr const char *tv_focused_border = "focused_border";
+    static constexpr const char *tv_text = "text";
+    static constexpr const char *tv_disabled = "disabled";
+    static constexpr const char *tv_round = "round";
+    static constexpr const char *tv_font = "font";
+
 private:
     button_view button_view_;
     std::string caption;

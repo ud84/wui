@@ -9,7 +9,6 @@
 
 #include <wui/theme/theme.hpp>
 #include <wui/theme/theme_impl.hpp>
-#include <wui/theme/theme_str.hpp>
 
 namespace wui
 {
@@ -18,21 +17,24 @@ static std::shared_ptr<i_theme> instance = nullptr;
 
 /// Interface
 
-void set_default_theme(theme theme_)
+void set_default_theme_from_json(const std::string &theme_, const std::string &json)
 {
     instance.reset();
+    instance = std::shared_ptr<i_theme>(new theme_impl(theme_));
+    instance->load_json(json);
+}
 
-    switch (theme_)
-    {
-        case theme::dark:
-            instance = std::shared_ptr<i_theme>(new theme_impl(theme::dark));
-            instance->load_json(dark_json);
-        break;
-        case theme::white:
-            instance = std::shared_ptr<i_theme>(new theme_impl(theme::white));
-            instance->load_json(white_json);
-        break;
-    }
+void set_default_theme_from_file(const std::string &theme_, const std::string &file_name)
+{
+    instance.reset();
+    instance = std::shared_ptr<i_theme>(new theme_impl(theme_));
+    instance->load_file(file_name);
+}
+
+void set_default_theme_empty(const std::string &theme_)
+{
+    instance.reset();
+    instance = std::shared_ptr<i_theme>(new theme_impl(theme_));
 }
 
 std::shared_ptr<i_theme> get_default_theme()
@@ -40,12 +42,19 @@ std::shared_ptr<i_theme> get_default_theme()
     return instance;    
 }
 
-std::shared_ptr<i_theme> make_custom_theme()
+std::shared_ptr<i_theme> make_custom_theme(const std::string &name)
 {
-    return std::shared_ptr<i_theme>(new theme_impl(theme::custom));
+    return std::shared_ptr<i_theme>(new theme_impl(name));
 }
 
-color theme_color(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_)
+std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json)
+{
+    auto ct = std::shared_ptr<i_theme>(new theme_impl(name));
+    ct->load_json(json);
+    return ct;
+}
+
+color theme_color(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {
@@ -58,7 +67,7 @@ color theme_color(theme_control control, theme_value value, std::shared_ptr<i_th
     return 0;
 }
 
-int32_t theme_dimension(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_)
+int32_t theme_dimension(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {
@@ -71,7 +80,7 @@ int32_t theme_dimension(theme_control control, theme_value value, std::shared_pt
     return 0;
 }
 
-std::string theme_string(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_)
+std::string theme_string(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {
@@ -84,7 +93,7 @@ std::string theme_string(theme_control control, theme_value value, std::shared_p
     return 0;
 }
 
-font theme_font(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_)
+font theme_font(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {

@@ -394,7 +394,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 #elif __linux__
     if (!parent && context_.connection)
     {
-        graphic_.set_background_color(theme_color(theme_control::window, theme_value::background, theme_));
+        graphic_.set_background_color(theme_color(tc, tv_background, theme_));
 
         auto ws = get_window_size(context_);
         redraw(rect{ 0, 0, ws.width(), ws.height() }, true);
@@ -747,28 +747,27 @@ std::shared_ptr<i_control> window::get_focused()
 
 void window::update_buttons(bool theme_changed)
 {
-    auto background_color = theme_color(theme_control::window, theme_value::background, theme_);
+    auto background_color = theme_color(tc, tv_background, theme_);
 
     if (theme_changed)
     {
         buttons_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
 
-        buttons_theme->set_color(theme_control::button, theme_value::calm, background_color);
-        buttons_theme->set_color(theme_control::button, theme_value::active, theme_color(theme_control::window, theme_value::active_button, theme_));
-        buttons_theme->set_color(theme_control::button, theme_value::border, background_color);
-        buttons_theme->set_color(theme_control::button, theme_value::disabled, background_color);
-        buttons_theme->set_dimension(theme_control::button, theme_value::round, 0);
+        buttons_theme->set_color(button::tc, button::tv_calm, background_color);
+        buttons_theme->set_color(button::tc, button::tv_active, theme_color(tc, tv_active_button, theme_));
+        buttons_theme->set_color(button::tc, button::tv_border, background_color);
+        buttons_theme->set_color(button::tc, button::tv_disabled, background_color);
+        buttons_theme->set_dimension(button::tc, button::tv_round, 0);
 
         pin_button->update_theme(buttons_theme);
         minimize_button->update_theme(buttons_theme);
         expand_button->update_theme(buttons_theme);
     
         close_button_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
-        close_button_theme->set_color(theme_control::button, theme_value::calm, background_color);
-        close_button_theme->set_color(theme_control::button, theme_value::active, make_color(235, 15, 20));
-        close_button_theme->set_color(theme_control::button, theme_value::border, background_color);
-        close_button_theme->set_color(theme_control::button, theme_value::disabled, background_color);
-        close_button_theme->set_dimension(theme_control::button, theme_value::round, 0);
+        close_button_theme->set_color(button::tc, button::tv_calm, background_color);
+        close_button_theme->set_color(button::tc, button::tv_active, make_color(235, 15, 20));
+        close_button_theme->set_color(button::tc, button::tv_border, background_color);
+        close_button_theme->set_dimension(button::tc, button::tv_round, 0);
 
         close_button->update_theme(close_button_theme);
     }
@@ -955,7 +954,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     xcb_flush(context_.connection);
 
-    graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(theme_control::window, theme_value::background, theme_));
+    graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tc, tv_background, theme_));
 
     runned = true;
     if (thread.joinable()) thread.join();
@@ -1039,7 +1038,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->context_.dc = GetDC(hwnd);
 
-            wnd->graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(theme_control::window, theme_value::background, wnd->theme_));
+            wnd->graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tc, tv_background, wnd->theme_));
         }
         break;
         case WM_PAINT:
@@ -1057,17 +1056,17 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             }
             if (flag_is_set(wnd->window_style_, window_style::title_showed))
             {
-                auto caption_font = theme_font(theme_control::window, theme_value::caption_font, wnd->theme_);
+                auto caption_font = theme_font(tc, tv_caption_font, wnd->theme_);
 
                 auto caption_rect = wnd->graphic_.measure_text(wnd->caption, caption_font);
                 caption_rect.move(5, 5);
 
                 if (caption_rect.in(paint_rect))
                 {
-                    wnd->graphic_.draw_rect(caption_rect, theme_color(theme_control::window, theme_value::background, wnd->theme_));
+                    wnd->graphic_.draw_rect(caption_rect, theme_color(tc, tv_background, wnd->theme_));
                     wnd->graphic_.draw_text(caption_rect,
                         wnd->caption,
-                        theme_color(theme_control::window, theme_value::text, wnd->theme_),
+                        theme_color(tc, tv_text, wnd->theme_),
                         caption_font);
                 }
             }
@@ -1497,17 +1496,17 @@ void window::process_events()
 
                 if (flag_is_set(window_style_, window_style::title_showed))
 	            {
-                    auto caption_font = theme_font(theme_control::window, theme_value::caption_font, theme_);
+                    auto caption_font = theme_font(tc, tv_caption_font, theme_);
 
                     auto caption_rect = graphic_.measure_text(caption, caption_font);
                     caption_rect.move(5, 5);
 
                     if (caption_rect.in(paint_rect))
                     {
-                        graphic_.draw_rect(caption_rect, theme_color(theme_control::window, theme_value::background, theme_));
+                        graphic_.draw_rect(caption_rect, theme_color(tc, tv_background, theme_));
 	                    graphic_.draw_text(caption_rect,
 	                        caption,
-	                        theme_color(theme_control::window, theme_value::text, theme_),
+	                        theme_color(tc, tv_text, theme_),
 	                        caption_font);
                     }
 	            }

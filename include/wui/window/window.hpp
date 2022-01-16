@@ -98,6 +98,16 @@ public:
     void set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback);
     void set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback);
 
+public:
+    /// Control name in theme
+    static constexpr const char *tc = "window";
+
+    /// Used theme values
+    static constexpr const char *tv_background = "background";
+    static constexpr const char *tv_text = "text";
+    static constexpr const char *tv_active_button = "active_button";
+    static constexpr const char *tv_caption_font = "caption_font";
+
 private:
     system_context context_;
     graphic graphic_;

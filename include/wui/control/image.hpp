@@ -70,6 +70,13 @@ public:
     int32_t width() const;
     int32_t height() const;
 
+public:
+    /// Control name in theme
+    static constexpr const char *tc = "image";
+
+    /// Used theme values
+    static constexpr const char *tv_path = "path";
+
 private:
     std::shared_ptr<i_theme> theme_;
 

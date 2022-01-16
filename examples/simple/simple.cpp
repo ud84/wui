@@ -12,6 +12,9 @@
 #include <gdiplus.h>
 #endif
 
+static const char * dark_json = "{ \"controls\": [ { \"type\": \"window\", \"background\": \"#131519\", \"text\": \"#f5f5f0\", \"active_button\": \"#3b3d41\", \"caption_font\": { \"name\": \"Segoe UI\", \"size\": 18 } }, { \"type\": \"image\", \"path\" : \"IMAGES_DARK\" }, { \"type\": \"button\", \"calm\": \"#06a5df\", \"active\": \"#1aafe9\", \"border\": \"#6b6b6b\", \"focused_border\": \"#dcd2dc\", \"text\": \"#f0f1f1\", \"disabled\": \"#a5a5a0\", \"round\": 0, \"font\": { \"name\": \"Segoe UI\", \"size\": 18 } }, { \"type\": \"input\", \"background\": \"#27292d\", \"text\": \"#f0ebf0\", \"selection\": \"#264f78\", \"cursor\": \"#d2d2d2\", \"border\": \"#8c8c8c\", \"focused_border\": \"#c8c8c8\", \"round\": 0, \"font\": { \"name\": \"Segoe UI\", \"size\": 18 } }, { \"type\": \"tooltip\", \"background\": \"#b4aabe\", \"border\": \"#f1f2f7\", \"text\": \"#061912\", \"round\": 0, \"text_indent\": 3, \"font\": { \"name\": \"Segoe UI\", \"size\": 16 } } ] } ";
+static const char * white_json = "{ \"controls\": [ { \"type\": \"window\", \"background\": \"#f0f0f0\", \"text\": \"#191914\", \"active_button\": \"#dcdcdc\", \"font\": { \"name\": \"Segoe UI\", \"size\": 18 } }, { \"type\": \"image\", \"path\" : \"IMAGES_WHITE\" }, { \"type\": \"button\", \"calm\": \"#06a5df\", \"active\": \"#1aafe9\", \"border\": \"#b0b0b0\", \"focused_border\": \"#140a14\", \"text\": \"#181818\", \"disabled\": \"#cdcdc8\", \"round\": 0, \"font\": { \"name\": \"Segoe UI\", \"size\": 18 } }, { \"type\": \"input\", \"background\": \"#dcdcdc\", \"text\": \"#191914\", \"selection\": \"#99c9ef\", \"cursor\": \"#141414\", \"border\": \"#28788c\", \"focused_border\": \"#140a14\", \"round\": 0, \"font\": { \"name\": \"Segoe UI\", \"size\": 18 } }, { \"type\": \"tooltip\", \"background\": \"#f1f2f7\", \"border\": \"#767676\", \"text\": \"#061912\", \"round\": 0, \"text_indent\": 3, \"font\": { \"name\": \"Segoe UI\", \"size\": 16 } } ] } ";
+
 struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 {
     std::weak_ptr<wui::window> parentWindow;
@@ -98,13 +101,13 @@ std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
 
     redButtonTheme->load_theme(*wui::get_default_theme());
 
-    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::calm, wui::make_color(205, 15, 20));
-    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::active, wui::make_color(235, 15, 20));
-    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::border, wui::make_color(200, 215, 200));
-    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::focused_border, wui::make_color(20, 215, 20));
-    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::text, wui::make_color(190, 205, 190));
-    redButtonTheme->set_color(wui::theme_control::button, wui::theme_value::disabled, wui::make_color(180, 190, 180));
-    redButtonTheme->set_string(wui::theme_control::image, wui::theme_value::path, "IMAGES_DARK");
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_calm, wui::make_color(205, 15, 20));
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_active, wui::make_color(235, 15, 20));
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_border, wui::make_color(200, 215, 200));
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_focused_border, wui::make_color(20, 215, 20));
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_text, wui::make_color(190, 205, 190));
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_disabled, wui::make_color(180, 190, 180));
+    redButtonTheme->set_string(wui::image::tc, wui::image::tv_path, "IMAGES_DARK");
     
     return redButtonTheme;
 }
@@ -134,7 +137,7 @@ int main(int argc, char *argv[])
 #endif
     bool runned = true;
 
-    wui::set_default_theme(wui::theme::dark);
+    wui::set_default_theme_from_json("dark", dark_json);
 
     std::shared_ptr<wui::window> window(new wui::window());
 
@@ -173,7 +176,7 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<wui::button> darkThemeButton(new wui::button("Set the dark theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
-        wui::set_default_theme(wui::theme::dark);
+        wui::set_default_theme_from_json("dark", dark_json);
         window->update_theme();
         pluggedWindow->window->update_theme();
         dialog->update_theme(); 
@@ -183,7 +186,7 @@ int main(int argc, char *argv[])
 	
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
-        wui::set_default_theme(wui::theme::white);
+        wui::set_default_theme_from_json("white", white_json);
         window->update_theme();
         pluggedWindow->window->update_theme();
         dialog->update_theme();

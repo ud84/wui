@@ -67,12 +67,12 @@ void input::draw(graphic &gr)
 
     /// Draw the frame
     gr.draw_rect(position_,
-        !focused_ ? theme_color(theme_control::input, theme_value::border, theme_) : theme_color(theme_control::input, theme_value::focused_border, theme_),
-        theme_color(theme_control::input, theme_value::background, theme_),
+        !focused_ ? theme_color(tc, tv_border, theme_) : theme_color(tc, tv_focused_border, theme_),
+        theme_color(tc, tv_background, theme_),
         1,
-        theme_dimension(theme_control::input, theme_value::round, theme_));
+        theme_dimension(tc, tv_round, theme_));
 
-    auto font_ = theme_font(theme_control::input, theme_value::font, theme_);
+    auto font_ = theme_font(tc, tv_font, theme_);
 
     /// Create memory dc for text and selection bar
     auto full_text_width = get_text_width(gr, text_, text_.size(), font_) + 1; 
@@ -89,7 +89,7 @@ void input::draw(graphic &gr)
     }
 #endif
     graphic mem_gr(ctx);
-    mem_gr.init(rect{ 0, 0, full_text_width, text_height }, theme_color(theme_control::input, theme_value::background, theme_));
+    mem_gr.init(rect{ 0, 0, full_text_width, text_height }, theme_color(tc, tv_background, theme_));
 
     /// Draw the selection bar
     if (select_start_position != select_end_position)
@@ -97,17 +97,17 @@ void input::draw(graphic &gr)
         auto start_coordinate = get_text_width(mem_gr, text_, select_start_position, font_);
         auto end_coordinate = get_text_width(mem_gr, text_, select_end_position, font_);
 
-        mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, text_height }, theme_color(theme_control::input, theme_value::selection, theme_));
+        mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, text_height }, theme_color(tc, tv_selection, theme_));
     }
 
     /// Draw the text
-    mem_gr.draw_text(rect{ 0 }, text_, theme_color(theme_control::input, theme_value::text, theme_), font_);
+    mem_gr.draw_text(rect{ 0 }, text_, theme_color(tc, tv_text, theme_), font_);
 
     /// Draw the cursor
     auto cursor_coordinate = get_text_width(mem_gr, text_, cursor_position, font_);
     mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, text_height },
-        cursor_visible ? theme_color(theme_control::input, theme_value::cursor, theme_) :
-        (select_start_position != select_end_position && cursor_position >= select_start_position && cursor_position <= select_end_position ? theme_color(theme_control::input, theme_value::selection, theme_) : theme_color(theme_control::input, theme_value::background, theme_)));
+        cursor_visible ? theme_color(tc, tv_cursor, theme_) :
+        (select_start_position != select_end_position && cursor_position >= select_start_position && cursor_position <= select_end_position ? theme_color(tc, tv_selection, theme_) : theme_color(tc, tv_background, theme_)));
     
     while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
     {
@@ -150,7 +150,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     graphic mem_gr(ctx);
     mem_gr.init(position_, 0);
 
-    auto font_ = theme_font(theme_control::input, theme_value::font, theme_);
+    auto font_ = theme_font(tc, tv_font, theme_);
 
     int32_t text_width = 0;
     size_t count = 0;

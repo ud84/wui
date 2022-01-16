@@ -8,7 +8,6 @@
 //
 
 #include <wui/theme/theme_impl.hpp>
-#include <wui/theme/theme_str.hpp>
 
 #include <nlohmann/json.hpp>
 #include <boost/nowide/fstream.hpp>
@@ -17,24 +16,24 @@
 namespace wui
 {
 
-theme_impl::theme_impl(theme theme__)
-    : theme_(theme__), ints(), strings(), fonts()
+theme_impl::theme_impl(const std::string &name_)
+    : name(name_), ints(), strings(), fonts()
 {
 }
 
-theme theme_impl::get_theme() const
+std::string theme_impl::get_name() const
 {
-    return theme_;
+    return name;
 }
 
-void theme_impl::set_color(theme_control control, theme_value value, color color_)
+void theme_impl::set_color(const std::string &control, const std::string &value, color color_)
 {
-    ints[theme_control_to_str(control) + theme_value_to_str(value)] = color_;
+    ints[control + value] = color_;
 }
 
-color theme_impl::get_color(theme_control control, theme_value value) const
+color theme_impl::get_color(const std::string &control, const std::string &value) const
 {
-    auto it = ints.find(theme_control_to_str(control) + theme_value_to_str(value));
+    auto it = ints.find(control + value);
     if (it != ints.end())
     {
         return static_cast<color>(it->second);
@@ -42,14 +41,14 @@ color theme_impl::get_color(theme_control control, theme_value value) const
     return 0;
 }
 
-void theme_impl::set_dimension(theme_control control, theme_value value, int32_t dimension)
+void theme_impl::set_dimension(const std::string &control, const std::string &value, int32_t dimension)
 {
-    ints[theme_control_to_str(control) + theme_value_to_str(value)] = dimension;
+    ints[control + value] = dimension;
 }
 
-int32_t theme_impl::get_dimension(theme_control control, theme_value value) const
+int32_t theme_impl::get_dimension(const std::string &control, const std::string &value) const
 {
-    auto it = ints.find(theme_control_to_str(control) + theme_value_to_str(value));
+    auto it = ints.find(control + value);
     if (it != ints.end())
     {
         return it->second;
@@ -57,14 +56,14 @@ int32_t theme_impl::get_dimension(theme_control control, theme_value value) cons
     return 0;
 }
 
-void theme_impl::set_string(theme_control control, theme_value value, const std::string &str)
+void theme_impl::set_string(const std::string &control, const std::string &value, const std::string &str)
 {
-    strings[theme_control_to_str(control) + theme_value_to_str(value)] = str;
+    strings[control + value] = str;
 }
 
-std::string theme_impl::get_string(theme_control control, theme_value value) const
+std::string theme_impl::get_string(const std::string &control, const std::string &value) const
 {
-    auto it = strings.find(theme_control_to_str(control) + theme_value_to_str(value));
+    auto it = strings.find(control + value);
     if (it != strings.end())
     {
         return it->second;
@@ -72,14 +71,14 @@ std::string theme_impl::get_string(theme_control control, theme_value value) con
     return "";
 }
 
-void theme_impl::set_font(theme_control control, theme_value value, const font &font_)
+void theme_impl::set_font(const std::string &control, const std::string &value, const font &font_)
 {
-    fonts[theme_control_to_str(control) + theme_value_to_str(value)] = font_;
+    fonts[control + value] = font_;
 }
 
-font theme_impl::get_font(theme_control control, theme_value value) const
+font theme_impl::get_font(const std::string &control, const std::string &value) const
 {
-    auto it = fonts.find(theme_control_to_str(control) + theme_value_to_str(value));
+    auto it = fonts.find(control + value);
     if (it != fonts.end())
     {
         return it->second;

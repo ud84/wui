@@ -69,6 +69,20 @@ public:
 
     void set_change_callback(std::function<void(const std::string&)> change_callback);
 
+public:
+    /// Control name in theme
+    static constexpr const char *tc = "input";
+
+    /// Used theme values
+    static constexpr const char *tv_background = "background";
+    static constexpr const char *tv_text = "text";
+    static constexpr const char *tv_selection = "selection";
+    static constexpr const char *tv_cursor = "cursor";
+    static constexpr const char *tv_border = "border";
+    static constexpr const char *tv_focused_border = "focused_border";
+    static constexpr const char *tv_round = "round";
+    static constexpr const char *tv_font = "font";
+
 private:
     input_view input_view_;
     std::string text_;

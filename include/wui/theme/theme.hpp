@@ -17,21 +17,26 @@ namespace wui
 {
 
 /// Set and get the current theme
-void set_default_theme(theme theme_);
+void set_default_theme_from_json(const std::string &name, const std::string &json);
+void set_default_theme_from_file(const std::string &name, const std::string &file_name);
+void set_default_theme_empty(const std::string &name);
+
 std::shared_ptr<i_theme> get_default_theme();
 
-std::shared_ptr<i_theme> make_custom_theme();
+/// Make the custom theme for the some control
+std::shared_ptr<i_theme> make_custom_theme(const std::string &name = "");
+std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json);
 
 /// Return the item's color by current theme
-color theme_color(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_ = nullptr);
+color theme_color(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's dimension by current theme
-int32_t theme_dimension(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_ = nullptr);
+int32_t theme_dimension(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's string value by current theme
-std::string theme_string(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_ = nullptr);
+std::string theme_string(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's font value by current theme
-font theme_font(theme_control control, theme_value value, std::shared_ptr<i_theme> theme_ = nullptr);
+font theme_font(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 }

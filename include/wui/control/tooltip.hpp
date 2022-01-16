@@ -59,6 +59,18 @@ public:
 
     void update_size();
 
+public:
+    /// Control name in theme
+    static constexpr const char *tc = "input";
+
+    /// Used theme values
+    static constexpr const char *tv_background = "background";
+    static constexpr const char *tv_border = "border";
+    static constexpr const char *tv_text = "text";
+    static constexpr const char *tv_text_indent = "text_indent";
+    static constexpr const char *tv_round = "round";
+    static constexpr const char *tv_font = "font";
+
 private:
     std::shared_ptr<i_theme> theme_;
 
