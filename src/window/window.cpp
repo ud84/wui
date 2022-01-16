@@ -267,9 +267,11 @@ void window::set_parent(std::shared_ptr<window> window)
     {
 #ifdef _WIN32
         DestroyWindow(context_.hwnd);
-        context_.hwnd = 0;
 #elif __linux__
-        send_destroy_event();
+        if (context_.display)
+        {
+            send_destroy_event();
+        }
 #endif
 
         for (auto &control : controls)
@@ -1447,6 +1449,9 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
             wnd->graphic_.release();
+
+            wnd->context_.hwnd = 0;
+            wnd->context_.dc = 0;
 
             if (!wnd->parent && wnd->close_callback)
             {

@@ -65,7 +65,7 @@ void graphic::init(const rect &max_size_, color background_color)
     RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
     FillRect(mem_dc, &filling_rect, background_brush);
 #elif __linux__
-    if (!context_.connection || mem_pixmap)
+    if (!context_.display || mem_pixmap)
     {
         return;
     }
@@ -118,6 +118,10 @@ void graphic::init(const rect &max_size_, color background_color)
 
     surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, visual_type, max_size.width(), max_size.height());
     cr = cairo_create(surface);
+    if (!cr)
+    {
+        fprintf(stderr, "WUI error: no cairo context created on graphic::init\n");
+    }
 
 #endif
 }
@@ -148,15 +152,16 @@ void graphic::release()
         gc = 0;
     }
 
-    if (cr)
-    {
-        cairo_destroy(cr);
-        cr = nullptr;
-    }
     if (surface)
     {
         cairo_surface_destroy(surface);
         surface = nullptr;
+    }
+
+    if (cr)
+    {
+        cairo_destroy(cr);
+        cr = nullptr;
     }
 
 #endif
@@ -306,6 +311,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
 #elif __linux__
     if (!cr)
     {
+        fprintf(stderr, "WUI error: no cairo context on graphic::measure_text\n");
         return rect{ 0 };
     }
     cairo_text_extents_t extents;
@@ -340,6 +346,12 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
     SelectObject(mem_dc, old_font);
     DeleteObject(font_);
 #elif __linux__
+
+    if (!cr)
+    {
+        fprintf(stderr, "WUI error: no cairo context on graphic::draw_text\n");
+        return;
+    }
 
     cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL,
         !flag_is_set(font__.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
