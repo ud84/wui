@@ -58,7 +58,7 @@ void graphic::init(const rect &max_size_, color background_color)
     HBITMAP mem_bitmap = CreateCompatibleBitmap(context_.dc, max_size.width(), max_size.height());
     SelectObject(mem_dc, mem_bitmap);
 
-    ::SetMapMode(mem_dc, MM_TEXT);
+    SetMapMode(mem_dc, MM_TEXT);
 
     background_brush = CreateSolidBrush(background_color);
 
