@@ -229,6 +229,44 @@ void tooltip::update_size()
 #endif
 }
 
+void tooltip::show_on_control(i_control &control)
+{
+    /*auto parent_ = parent.lock();
+    if (!parent_)
+    {
+        return;
+    }
+
+    auto parent_pos = parent_->position();
+
+    if (position_.width() == 0)
+    {
+        update_size();
+    }
+
+    auto out_pos = position_;
+
+    out_pos.put(position_.left + 5, position_.bottom + 5); // below the button
+    if (out_pos.bottom <= parent_pos.height())
+    {
+        if (out_pos.right >= parent_pos.width())
+        {
+            out_pos.put(parent_pos.width() - tt_size.width(), position_.bottom + 5);
+        }
+    }
+    else
+    {
+        out_pos.put(position_.left + 5, position_.top - out_pos.height() - 5); // above the button
+
+        if (out_pos.right >= parent_pos.width())
+        {
+            out_pos.put(parent_pos.width() - tt_size.width(), position_.top - out_pos.height() - 5);
+        }
+    }
+
+    tooltip_->set_position(out_pos);*/
+}
+
 void tooltip::redraw()
 {
     if (showed_)

@@ -55,6 +55,8 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
+    void tooltip::show_on_control(i_control &control);
+
     void set_text(const std::string &text_);
 
     void update_size();
