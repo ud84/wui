@@ -195,7 +195,7 @@ void menu::update_size()
         if (!ctx.display)
         {
             return;
-}
+        }
 #endif
     }
 
