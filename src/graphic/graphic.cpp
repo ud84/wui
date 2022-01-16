@@ -308,8 +308,9 @@ rect graphic::measure_text(const std::string &text, const font &font__)
     }
     cairo_text_extents_t extents;
 
-    cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, font__.size - 4);
+    cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL,
+        !flag_is_set(font__.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, font__.size);
     cairo_text_extents(cr, text.c_str(), &extents);
 
     return rect{ 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
@@ -337,14 +338,15 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
     SelectObject(mem_dc, old_font);
     DeleteObject(font_);
 #elif __linux__
-    cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, font__.size - 4);
+
+    cairo_font_options_t *fo = cairo_font_options_create();
+
+    cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL,
+        !flag_is_set(font__.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, font__.size);
     set_color(color_);
 
-    cairo_text_extents_t extents;
-    cairo_text_extents(cr, "QWqb", &extents);
-
-    cairo_move_to(cr, position.left, (double)position.top + (extents.height * 3 / 4));
+    cairo_move_to(cr, position.left, (double)position.top + font__.size - 4);
     cairo_show_text(cr, text.c_str());
 
     cairo_surface_flush(surface);

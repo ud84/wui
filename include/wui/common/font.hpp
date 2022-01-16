@@ -18,9 +18,10 @@ namespace wui
 enum class decorations : uint32_t
 {
     normal = 0,
-    italic = (1 << 0),
-    underline = (1 << 1),
-    strike_out = (1 << 2)
+    bold = (1 << 0),
+    italic = (2 << 0),
+    underline = (3 << 1),
+    strike_out = (4 << 2)
 };
 
 struct font
