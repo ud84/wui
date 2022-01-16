@@ -123,9 +123,6 @@
     <ClInclude Include="include\wui\theme\theme_impl.hpp">
       <Filter>Header Files\wui\theme</Filter>
     </ClInclude>
-    <ClInclude Include="include\wui\theme\theme_str.hpp">
-      <Filter>Header Files\wui\theme</Filter>
-    </ClInclude>
     <ClInclude Include="include\wui\common\font.hpp">
       <Filter>Header Files\wui\common</Filter>
     </ClInclude>
@@ -156,9 +153,6 @@
       <Filter>Source Files\control</Filter>
     </ClCompile>
     <ClCompile Include="src\theme\theme_impl.cpp">
-      <Filter>Source Files\theme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\theme\theme_str.cpp">
       <Filter>Source Files\theme</Filter>
     </ClCompile>
   </ItemGroup>

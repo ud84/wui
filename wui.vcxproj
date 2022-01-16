@@ -40,7 +40,6 @@
     <ClInclude Include="include\wui\theme\i_theme.hpp" />
     <ClInclude Include="include\wui\theme\theme.hpp" />
     <ClInclude Include="include\wui\theme\theme_impl.hpp" />
-    <ClInclude Include="include\wui\theme\theme_str.hpp" />
     <ClInclude Include="include\wui\window\i_window.hpp" />
     <ClInclude Include="include\wui\window\window.hpp" />
     <ClInclude Include="res\resource.hpp" />
@@ -54,7 +53,6 @@
     <ClCompile Include="src\system\tools.cpp" />
     <ClCompile Include="src\theme\theme.cpp" />
     <ClCompile Include="src\theme\theme_impl.cpp" />
-    <ClCompile Include="src\theme\theme_str.cpp" />
     <ClCompile Include="src\window\window.cpp" />
   </ItemGroup>
   <ItemGroup>

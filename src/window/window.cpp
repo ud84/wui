@@ -380,7 +380,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 
     if (!parent)
     {
-        graphic_.set_background_color(theme_color(theme_control::window, theme_value::background, theme_));
+        graphic_.set_background_color(theme_color(tc, tv_background, theme_));
 
         RECT client_rect;
         GetClientRect(context_.hwnd, &client_rect);
