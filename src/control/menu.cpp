@@ -13,6 +13,8 @@
 
 #include <wui/theme/theme.hpp>
 
+#include <algorithm>
+
 namespace wui
 {
 
@@ -20,6 +22,9 @@ menu::menu(const std::string &text_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent(),
+    items(),
+    item_height(20),
+    max_width(-1),
     showed_(false)
 {
 }
@@ -53,7 +58,10 @@ void menu::draw(graphic &gr)
     auto text_position = position_;
     text_position.move(text_indent, text_indent);
 
-    //gr.draw_text(text_position, text, theme_color(tc, tv_text, theme_), font_);
+    for (auto &item : items)
+    {
+        gr.draw_text(text_position, item.text, theme_color(tc, tv_text, theme_), font_);
+    }
 }
 
 void menu::receive_event(const event &)
@@ -171,11 +179,61 @@ bool menu::enabled() const
     return true;
 }
 
+void menu::append_item(const menu_item &mi)
+{
+    auto it = std::find(items.begin(), items.end(), mi.id);
+    if (it == items.end())
+    {
+        items.emplace_back(mi);
+    }
+}
+
+void menu::update_item(const menu_item &mi, int32_t id)
+{
+    auto it = std::find(items.begin(), items.end(), mi.id);
+    if (it != items.end())
+    {
+        *it = mi;
+    }
+}
+
+void menu::swap_items(int32_t first_item_id, int32_t second_item_id)
+{
+    auto first_it = std::find(items.begin(), items.end(), first_item_id);
+    if (first_it != items.end())
+    {
+        auto second_it = std::find(items.begin(), items.end(), second_item_id);
+        if (second_it != items.end())
+        {
+            std::swap(*first_it, *second_it);
+        }
+    }
+}
+
+void menu::delete_item(int32_t id)
+{
+    auto it = std::find(items.begin(), items.end(), id);
+    if (it != items.end())
+    {
+        items.erase(it);
+    }
+}
+
+void menu::set_item_height(int32_t item_height_)
+{
+    item_height = item_height_;
+}
+
+void menu::set_max_width(int32_t width)
+{
+    max_width = width;
+}
+
 void menu::update_size()
 {
-    //if (text.empty())
+    if (items.empty())
     {
-        //return;
+        return;
     }
 
     system_context ctx = { 0 };
@@ -200,7 +258,7 @@ void menu::update_size()
     }
 
     graphic mem_gr(ctx);
-    mem_gr.init(rect{ 0, 0, 1024, 50 }, 0);
+    mem_gr.init(rect{ 0, 0, 1024, 500 }, 0);
 
     auto font_ = theme_font(tc, tv_font, theme_);
 
@@ -219,7 +277,7 @@ void menu::update_size()
 #endif
 }
 
-void menu::show_on_control(i_control &control)
+void menu::show_on_control(i_control &control, int32_t relative)
 {
     auto parent_ = parent.lock();
     if (!parent_)
@@ -233,21 +291,36 @@ void menu::show_on_control(i_control &control)
 
     auto out_pos = position_;
 
-    out_pos.put(control.position().left + 5, control.position().bottom + 5); // below the control
+    if (relative > 0)
+    {
+        out_pos.put(control.position().left + relative, control.position().bottom + relative); // below the control
+    }
+    else
+    {
+        out_pos.put(control.position().left, control.position().top); // on the control
+    }
+
     if (out_pos.bottom <= parent_pos.height())
     {
         if (out_pos.right >= parent_pos.width())
         {
-            out_pos.put(parent_pos.width() - out_pos.width(), control.position().bottom + 5);
+            out_pos.put(parent_pos.width() - out_pos.width(), relative > 0 ? control.position().bottom + relative : control.position().top);
         }
     }
     else
     {
-        out_pos.put(control.position().left + 5, control.position().top - out_pos.height() - 5); // above the control
+        if (relative > 0)
+        {
+            out_pos.put(control.position().left + relative, control.position().top - out_pos.height() - relative); // above the control
+        }
+        else
+        {
+            out_pos.put(control.position().left, control.position().bottom - out_pos.height()); // on the control
+        }
 
         if (out_pos.right >= parent_pos.width())
         {
-            out_pos.put(parent_pos.width() - out_pos.width(), control.position().top - out_pos.height() - 5);
+            out_pos.put(parent_pos.width() - out_pos.width(), relative > 0 ? control.position().top - out_pos.height() - relative : control.position().bottom - out_pos.height());
         }
     }
 

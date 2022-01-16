@@ -15,21 +15,34 @@
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
 
+#include <wui/control/image.hpp>
+
 #include <string>
+#include <vector>
 #include <functional>
 #include <memory>
 
 namespace wui
 {
 
-enum class menu_item_style : uint32_t
-{
-
-};
-
 struct menu_item
 {
+    int32_t id;
 
+    std::string text;
+
+    std::string hotkey;
+
+    std::shared_ptr<image> image_;
+
+    bool visible, disabled, has_child;
+
+    std::function<void(int32_t)> click_callback;
+
+    inline bool operator==(const int32_t id_)
+    {
+        return id == id_;
+    }
 };
 
 class menu : public i_control, public std::enable_shared_from_this<menu>
@@ -65,7 +78,15 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    void show_on_control(i_control &control);
+    void append_item(const menu_item &mi);
+    void update_item(const menu_item &mi, int32_t id);
+    void swap_items(int32_t first_item_id, int32_t second_item_id);
+    void delete_item(int32_t id);
+
+    void set_item_height(int32_t item_height);
+    void set_max_width(int32_t width);
+
+    void show_on_control(i_control &control, int32_t relative); /// If relative < 0 the menu showed on control
 
 public:
     /// Control name in theme
@@ -86,6 +107,11 @@ private:
     rect position_;
 
     std::weak_ptr<window> parent;
+
+    std::vector<menu_item> items;
+
+    int32_t item_height;
+    int32_t max_width;
 
     bool showed_;
 

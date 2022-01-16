@@ -210,7 +210,7 @@ void tooltip::update_size()
     }
 
     graphic mem_gr(ctx);
-    mem_gr.init(rect{ 0, 0, 1024, 50 }, 0);
+    mem_gr.init(rect{ 0, 0, 1024, 500 }, 0);
 
     auto font_ = theme_font(tc, tv_font, theme_);
 
