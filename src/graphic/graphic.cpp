@@ -341,8 +341,6 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
     DeleteObject(font_);
 #elif __linux__
 
-    cairo_font_options_t *fo = cairo_font_options_create();
-
     cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL,
         !flag_is_set(font__.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, font__.size);
