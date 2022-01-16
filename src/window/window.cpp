@@ -246,11 +246,9 @@ void window::receive_event(const event &ev)
 
 void window::set_position(const rect &position__)
 {
-    position_ = position__;
-    normal_position = position_;
-
+    update_position(position__);
 #ifdef _WIN32
-    SetWindowPos(context_.hwnd, NULL, position_.left, position_.top, position_.right, position_.bottom, NULL);
+    SetWindowPos(context_.hwnd, NULL, position_.left, position_.top, position_.width(), position_.height(), NULL);
 #endif
 }
 
@@ -1357,7 +1355,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             auto old_position = wnd->position_;
 
-            wnd->update_position({ wnd->position_.left, wnd->position_.top, width, height });
+            wnd->update_position({ wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height });
 
             wnd->update_buttons(false);
 			
@@ -1373,7 +1371,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             RECT window_rect = { 0 };
             GetWindowRect(hwnd, &window_rect);
-            wnd->update_position({ window_rect.left, window_rect.top, window_rect.right - window_rect.left, window_rect.bottom - window_rect.top });
+            wnd->update_position({ window_rect.left, window_rect.top, window_rect.right, window_rect.bottom });
         }
         break;
         case WM_SYSCOMMAND:
