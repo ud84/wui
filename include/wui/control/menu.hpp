@@ -22,6 +22,16 @@
 namespace wui
 {
 
+enum class menu_item_style : uint32_t
+{
+
+};
+
+struct menu_item
+{
+
+};
+
 class menu : public i_control, public std::enable_shared_from_this<menu>
 {
 public:
@@ -55,7 +65,7 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    void update_size();
+    void show_on_control(i_control &control);
 
 public:
     /// Control name in theme
@@ -78,6 +88,8 @@ private:
     std::weak_ptr<window> parent;
 
     bool showed_;
+
+    void update_size();
 
     void redraw();
 };

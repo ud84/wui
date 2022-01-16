@@ -55,11 +55,9 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    void tooltip::show_on_control(i_control &control);
+    void show_on_control(i_control &control);
 
     void set_text(const std::string &text_);
-
-    void update_size();
 
 public:
     /// Control name in theme
@@ -83,6 +81,8 @@ private:
     std::weak_ptr<window> parent;
 
     bool showed_;
+
+    void update_size();
 
     void redraw();
 };

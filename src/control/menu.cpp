@@ -219,6 +219,42 @@ void menu::update_size()
 #endif
 }
 
+void menu::show_on_control(i_control &control)
+{
+    auto parent_ = parent.lock();
+    if (!parent_)
+    {
+        return;
+    }
+
+    auto parent_pos = parent_->position();
+
+    update_size();
+
+    auto out_pos = position_;
+
+    out_pos.put(control.position().left + 5, control.position().bottom + 5); // below the control
+    if (out_pos.bottom <= parent_pos.height())
+    {
+        if (out_pos.right >= parent_pos.width())
+        {
+            out_pos.put(parent_pos.width() - out_pos.width(), control.position().bottom + 5);
+        }
+    }
+    else
+    {
+        out_pos.put(control.position().left + 5, control.position().top - out_pos.height() - 5); // above the control
+
+        if (out_pos.right >= parent_pos.width())
+        {
+            out_pos.put(parent_pos.width() - out_pos.width(), control.position().top - out_pos.height() - 5);
+        }
+    }
+
+    set_position(out_pos);
+    show();
+}
+
 void menu::redraw()
 {
     if (showed_)
