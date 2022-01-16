@@ -239,10 +239,7 @@ void tooltip::show_on_control(i_control &control)
 
     auto parent_pos = parent_->position();
 
-    if (position_.width() == 0)
-    {
-        update_size();
-    }
+    update_size();
 
     auto out_pos = position_;
 
