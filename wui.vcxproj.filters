@@ -126,6 +126,9 @@
     <ClInclude Include="include\wui\control\menu.hpp">
       <Filter>Header Files\wui\control</Filter>
     </ClInclude>
+    <ClInclude Include="res\window_buttons.hpp">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">

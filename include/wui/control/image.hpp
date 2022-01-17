@@ -18,6 +18,7 @@
 #include <string>
 #include <functional>
 #include <memory>
+#include <vector>
 
 #ifdef _WIN32
 #include <gdiplus.h>
@@ -33,7 +34,7 @@ public:
     image(int32_t resource_index, std::shared_ptr<i_theme> theme_ = nullptr);
 #endif
     image(const std::string &file_name, std::shared_ptr<i_theme> theme_ = nullptr);
-    image(const uint8_t *data, size_t size);
+    image(const std::vector<uint8_t> &data);
     ~image();
 
     virtual void draw(graphic &gr);
@@ -68,7 +69,7 @@ public:
 #endif
 
     void change_image(const std::string &file_name);
-    void change_image(const uint8_t *data, size_t size);
+    void change_image(const std::vector<uint8_t> &data);
 
     int32_t width() const;
     int32_t height() const;

@@ -43,6 +43,7 @@
     <ClInclude Include="include\wui\theme\theme_impl.hpp" />
     <ClInclude Include="include\wui\window\i_window.hpp" />
     <ClInclude Include="include\wui\window\window.hpp" />
+    <ClInclude Include="res\window_buttons.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp" />

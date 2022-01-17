@@ -17,15 +17,15 @@
 
 #ifdef _WIN32
 
-void load_image_from_data(const uint8_t *data, size_t size, Gdiplus::Image **img)
+void load_image_from_data(const std::vector<uint8_t> &data, Gdiplus::Image **img)
 {
-    HGLOBAL h_buffer = ::GlobalAlloc(GMEM_MOVEABLE, size);
+    HGLOBAL h_buffer = ::GlobalAlloc(GMEM_MOVEABLE, data.size());
     if (h_buffer)
     {
         void* p_buffer = ::GlobalLock(h_buffer);
         if (p_buffer)
         {
-            CopyMemory(p_buffer, data, size);
+            CopyMemory(p_buffer, data.data(), data.size());
 
             IStream* p_stream = NULL;
             if (::CreateStreamOnHGlobal(h_buffer, FALSE, &p_stream) == S_OK)
@@ -61,7 +61,7 @@ void load_image_from_resource(WORD image_id, const std::wstring &resource_sectio
         return;
     }
 
-    load_image_from_data(static_cast<const uint8_t*>(resource_data), image_size, img);
+    load_image_from_data(std::vector<uint8_t>(static_cast<const uint8_t*>(resource_data), static_cast<const uint8_t*>(resource_data) + image_size), img);
 }
 
 void load_image_from_file(const std::wstring &file_name, const std::wstring &images_path, Gdiplus::Image **img)
@@ -115,7 +115,7 @@ image::image(const std::string &file_name_, std::shared_ptr<i_theme> theme__)
 #endif
 }
 
-image::image(const uint8_t *data, size_t size)
+image::image(const std::vector<uint8_t> &data)
     : theme_(),
     position_(),
     parent(),
@@ -127,7 +127,7 @@ image::image(const uint8_t *data, size_t size)
 #endif
 {
 #ifdef _WIN32
-    load_image_from_data(data, size, &img);
+    load_image_from_data(data, &img);
 #elif __linux__
 
 #endif
@@ -306,11 +306,11 @@ void image::change_image(const std::string &file_name_)
     redraw();
 }
 
-void image::change_image(const uint8_t *data, size_t size)
+void image::change_image(const std::vector<uint8_t> &data)
 {
 #ifdef _WIN32
     free_image(&img);
-    load_image_from_data(data, size, &img);
+    load_image_from_data(data, &img);
 #endif
 }
 

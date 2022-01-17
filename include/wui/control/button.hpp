@@ -18,6 +18,7 @@
 #include <string>
 #include <functional>
 #include <memory>
+#include <vector>
 
 #ifdef __linux__
 #endif
@@ -46,7 +47,7 @@ public:
     button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, int32_t image_resource_index, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
 #endif
     button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::string &image_file_name, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
-    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const uint8_t *image_data, size_t image_data_size, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::vector<uint8_t> &image_data, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
     ~button();
 
     virtual void draw(graphic &gr);
@@ -83,7 +84,7 @@ public:
     void set_image(int32_t resourceIndex);
 #endif
     void set_image(const std::string &fileName);
-    void set_image(const uint8_t *image_data, size_t image_data_size);
+    void set_image(const std::vector<uint8_t> &image_data);
 
     void enable_focusing();
     void disable_focusing();

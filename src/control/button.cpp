@@ -68,10 +68,10 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 {
 }
 
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const uint8_t *image_data, size_t image_data_size, int32_t image_size_, std::shared_ptr<i_theme> theme__)
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::vector<uint8_t> &image_data, int32_t image_size_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
-    image_(new image(image_data, image_data_size)),
+    image_(new image(image_data)),
     image_size(image_size_),
     tooltip_(new tooltip(caption_, theme__)),
     click_callback(click_callback_),
@@ -412,15 +412,15 @@ void button::set_image(const std::string &file_name)
     redraw();
 }
 
-void button::set_image(const uint8_t *image_data, size_t image_data_size)
+void button::set_image(const std::vector<uint8_t> &image_data)
 {
     if (image_)
     {
-        image_->change_image(image_data, image_data_size);
+        image_->change_image(image_data);
     }
     else
     {
-        image_ = std::shared_ptr<image>(new image(image_data, image_data_size));
+        image_ = std::shared_ptr<image>(new image(image_data));
     }
     redraw();
 }
