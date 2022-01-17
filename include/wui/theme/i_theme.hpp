@@ -23,7 +23,6 @@ class i_theme
 {
 public:
     virtual std::string get_name() const = 0;
-    virtual bool get_dark() const = 0;
 
     virtual void set_color(const std::string &control, const std::string &value, color color_) = 0;
     virtual color get_color(const std::string &control, const std::string &value) const = 0;

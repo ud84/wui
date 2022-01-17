@@ -108,6 +108,13 @@ public:
     static constexpr const char *tv_active_button = "active_button";
     static constexpr const char *tv_caption_font = "caption_font";
 
+    ///Used theme images
+    static constexpr const char *ti_close = "window_close";
+    static constexpr const char *ti_expand = "window_expand";
+    static constexpr const char *ti_normal = "window_normal";
+    static constexpr const char *ti_minimize = "window_minimize";
+    static constexpr const char *ti_pin = "window_pin";
+
 private:
     system_context context_;
     graphic graphic_;

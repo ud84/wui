@@ -19,10 +19,9 @@ namespace wui
 class theme_impl : public i_theme
 {
 public:
-    theme_impl(const std::string &name, bool dark);
+    theme_impl(const std::string &name);
 
     virtual std::string get_name() const;
-    virtual bool get_dark() const;
 
     virtual void set_color(const std::string &control, const std::string &value, color color_);
     virtual color get_color(const std::string &control, const std::string &value) const;
@@ -45,7 +44,6 @@ public:
 
 private:
     std::string name;
-    bool dark;
 
     std::map<std::string, int32_t> ints;
     std::map<std::string, std::string> strings;

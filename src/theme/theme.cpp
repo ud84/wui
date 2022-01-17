@@ -19,24 +19,24 @@ static std::vector<uint8_t> dummy_image;
 
 /// Interface
 
-void set_default_theme_from_json(const std::string &name, const std::string &json, bool dark)
+void set_default_theme_from_json(const std::string &name, const std::string &json)
 {
     instance.reset();
-    instance = std::shared_ptr<i_theme>(new theme_impl(name, dark));
+    instance = std::shared_ptr<i_theme>(new theme_impl(name));
     instance->load_json(json);
 }
 
-void set_default_theme_from_file(const std::string &name, const std::string &file_name, bool dark)
+void set_default_theme_from_file(const std::string &name, const std::string &file_name)
 {
     instance.reset();
-    instance = std::shared_ptr<i_theme>(new theme_impl(name, dark));
+    instance = std::shared_ptr<i_theme>(new theme_impl(name));
     instance->load_file(file_name);
 }
 
-void set_default_theme_empty(const std::string &name, bool dark)
+void set_default_theme_empty(const std::string &name)
 {
     instance.reset();
-    instance = std::shared_ptr<i_theme>(new theme_impl(name, dark));
+    instance = std::shared_ptr<i_theme>(new theme_impl(name));
 }
 
 std::shared_ptr<i_theme> get_default_theme()
@@ -44,23 +44,14 @@ std::shared_ptr<i_theme> get_default_theme()
     return instance;    
 }
 
-bool is_dark_default_theme()
+std::shared_ptr<i_theme> make_custom_theme(const std::string &name)
 {
-    if (instance)
-    {
-        return instance->get_dark();
-    }
-    return false;
+    return std::shared_ptr<i_theme>(new theme_impl(name));
 }
 
-std::shared_ptr<i_theme> make_custom_theme(const std::string &name, bool dark)
+std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json)
 {
-    return std::shared_ptr<i_theme>(new theme_impl(name, dark));
-}
-
-std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json, bool dark)
-{
-    auto ct = std::shared_ptr<i_theme>(new theme_impl(name, dark));
+    auto ct = std::shared_ptr<i_theme>(new theme_impl(name));
     ct->load_json(json);
     return ct;
 }

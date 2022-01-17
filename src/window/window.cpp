@@ -35,8 +35,6 @@
 
 #endif
 
-#include <window_buttons.hpp>
-
 // Some helpers
 #ifdef __linux__
 
@@ -109,10 +107,10 @@ window::window()
     size_change_callback(),
     pin_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
-    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, is_dark_default_theme() ? window_button_pin_dark : window_button_pin_white, 24)),
-    minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, is_dark_default_theme() ? window_button_minimize_dark : window_button_minimize_white, 24)),
-    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? (is_dark_default_theme() ? window_button_expand_dark : window_button_expand_white) : (is_dark_default_theme() ? window_button_normal_dark : window_button_normal_white), 24)),
-    close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, window_button_close_dark, 24)),
+    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, theme_image(ti_pin), 24)),
+    minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, theme_image(ti_minimize), 24)),
+    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24)),
+    close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, theme_image(ti_close), 24)),
 #ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__
@@ -525,7 +523,7 @@ void window::expand()
         }
     }
 
-    expand_button->set_image(is_dark_default_theme() ? window_button_normal_dark : window_button_normal_white);
+    expand_button->set_image(theme_image(ti_normal, theme_));
 #endif
 }
 
@@ -541,7 +539,7 @@ void window::normal()
     window_state_ = window_state::normal;
 
 #ifdef _WIN32
-    expand_button->set_image(is_dark_default_theme() ? window_button_expand_dark : window_button_expand_white);
+    expand_button->set_image(theme_image(ti_expand, theme_));
 #endif
 }
 
@@ -754,8 +752,11 @@ void window::update_buttons(bool theme_changed)
         buttons_theme->set_color(button::tc, button::tv_disabled, background_color);
         buttons_theme->set_dimension(button::tc, button::tv_round, 0);
 
+        pin_button->set_image(theme_image(ti_pin, theme_));
         pin_button->update_theme(buttons_theme);
+        minimize_button->set_image(theme_image(ti_minimize, theme_));
         minimize_button->update_theme(buttons_theme);
+        expand_button->set_image(theme_image(window_state_ == window_state::normal ? ti_expand : ti_normal, theme_));
         expand_button->update_theme(buttons_theme);
     
         close_button_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
@@ -764,6 +765,7 @@ void window::update_buttons(bool theme_changed)
         close_button_theme->set_color(button::tc, button::tv_border, background_color);
         close_button_theme->set_dimension(button::tc, button::tv_round, 0);
 
+        close_button->set_image(theme_image(ti_close, theme_));
         close_button->update_theme(close_button_theme);
     }
 

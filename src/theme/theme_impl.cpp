@@ -16,19 +16,14 @@
 namespace wui
 {
 
-theme_impl::theme_impl(const std::string &name_, bool dark_)
-    : name(name_), dark(dark_), ints(), strings(), fonts(), imgs(), dummy_string(), dummy_image()
+theme_impl::theme_impl(const std::string &name_)
+    : name(name_), ints(), strings(), fonts(), imgs(), dummy_string(), dummy_image()
 {
 }
 
 std::string theme_impl::get_name() const
 {
     return name;
-}
-
-bool theme_impl::get_dark() const
-{
-    return dark;
 }
 
 void theme_impl::set_color(const std::string &control, const std::string &value, color color_)
@@ -111,11 +106,11 @@ void theme_impl::load_json(const std::string &json_)
     auto j = nlohmann::json::parse(json_);
 
     auto controls = j.at("controls");
-    for (auto c = controls.begin(); c != controls.end(); ++c)
+    for (auto &c : controls)
     {
-        std::string control = c->at("type").get<std::string>();
+        std::string control = c.at("type").get<std::string>();
 
-        auto obj = c->get<nlohmann::json::object_t>();
+        auto obj = c.get<nlohmann::json::object_t>();
         for (auto& kvp : obj)
         {
             if (kvp.first == "type")
@@ -156,6 +151,50 @@ void theme_impl::load_json(const std::string &json_)
                 fonts[control + kvp.first] = font{ fnt.at("name").get<std::string>(), fnt.at("size").get<int32_t>(), decorations::normal };
             }
         }
+    }
+
+    auto images = j.at("images");
+    for (auto &i : images)
+    {
+        std::string image_name;
+        std::vector<uint8_t> image_data;
+
+        auto obj = i.get<nlohmann::json::object_t>();
+        for (auto& kvp : obj)
+        {
+            image_name = kvp.first;
+
+            std::string byte_val;
+            auto s = kvp.second.get<std::string>();
+            for (auto &c : s)
+            {
+                if (c == ' ')
+                {
+                    continue;
+                }
+
+                if (c != ',')
+                {
+                    byte_val += c;
+                }
+                else
+                {
+                    char *p;
+                    auto n = strtoul(byte_val.c_str(), &p, 16);
+                    if (*p != 0)
+                    {
+                        fprintf(stderr, "Error reading image: %s, value: %s\n", image_name.c_str(), byte_val.c_str());
+                    }
+                    else
+                    {
+                        image_data.emplace_back(static_cast<uint8_t>(n));
+                    }
+
+                    byte_val.clear();
+                }
+            }
+        }
+        set_image(image_name, image_data);
     }
 }
 
