@@ -14,6 +14,8 @@ namespace wui
 {
 
 static std::shared_ptr<i_theme> instance = nullptr;
+static std::string dummy_string;
+static std::vector<uint8_t> dummy_image;
 
 /// Interface
 
@@ -89,7 +91,7 @@ int32_t theme_dimension(const std::string &control, const std::string &value, st
     return 0;
 }
 
-std::string theme_string(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
+const std::string &theme_string(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {
@@ -99,7 +101,7 @@ std::string theme_string(const std::string &control, const std::string &value, s
     {
         return instance->get_string(control, value);
     }
-    return 0;
+    return dummy_string;
 }
 
 font theme_font(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
@@ -113,6 +115,20 @@ font theme_font(const std::string &control, const std::string &value, std::share
         return instance->get_font(control, value);
     }
     return font();
+}
+
+const std::vector<uint8_t> &theme_image(const std::string &name, std::shared_ptr<i_theme> theme_)
+{
+    if (theme_)
+    {
+        return theme_->get_image(name);
+    }
+    else if (instance)
+    {
+        return instance->get_image(name);
+    }
+
+    return dummy_image;
 }
 
 }

@@ -31,10 +31,13 @@ public:
     virtual int32_t get_dimension(const std::string &control, const std::string &value) const;
 
     virtual void set_string(const std::string &control, const std::string &value, const std::string &str);
-    virtual std::string get_string(const std::string &control, const std::string &value) const;
+    virtual const std::string &get_string(const std::string &control, const std::string &value) const;
 
     virtual void set_font(const std::string &control, const std::string &value, const font &font_);
     virtual font get_font(const std::string &control, const std::string &value) const;
+
+    virtual void set_image(const std::string &name, const std::vector<uint8_t> &data);
+    virtual const std::vector<uint8_t> &get_image(const std::string &name);
 
     virtual void load_json(const std::string &json);
     virtual void load_file(const std::string &file_name);
@@ -47,7 +50,10 @@ private:
     std::map<std::string, int32_t> ints;
     std::map<std::string, std::string> strings;
     std::map<std::string, font> fonts;
+    std::map<std::string, std::vector<uint8_t>> imgs;
 
+    std::string dummy_string;
+    std::vector<uint8_t> dummy_image;
 };
 
 }

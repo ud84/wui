@@ -17,7 +17,7 @@ namespace wui
 {
 
 theme_impl::theme_impl(const std::string &name_, bool dark_)
-    : name(name_), dark(dark_), ints(), strings(), fonts()
+    : name(name_), dark(dark_), ints(), strings(), fonts(), imgs(), dummy_string(), dummy_image()
 {
 }
 
@@ -66,14 +66,14 @@ void theme_impl::set_string(const std::string &control, const std::string &value
     strings[control + value] = str;
 }
 
-std::string theme_impl::get_string(const std::string &control, const std::string &value) const
+const std::string &theme_impl::get_string(const std::string &control, const std::string &value) const
 {
     auto it = strings.find(control + value);
     if (it != strings.end())
     {
         return it->second;
     }
-    return "";
+    return dummy_string;
 }
 
 void theme_impl::set_font(const std::string &control, const std::string &value, const font &font_)
@@ -89,6 +89,21 @@ font theme_impl::get_font(const std::string &control, const std::string &value) 
         return it->second;
     }
     return font();
+}
+
+void theme_impl::set_image(const std::string &name, const std::vector<uint8_t> &data)
+{
+    imgs[name] = data;
+}
+
+const std::vector<uint8_t> &theme_impl::get_image(const std::string &name)
+{
+    auto it = imgs.find(name);
+    if (it != imgs.end())
+    {
+        return it->second;
+    }
+    return dummy_image;
 }
 
 void theme_impl::load_json(const std::string &json_)

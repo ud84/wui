@@ -38,9 +38,11 @@ color theme_color(const std::string &control, const std::string &value, std::sha
 int32_t theme_dimension(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's string value by current theme
-std::string theme_string(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+const std::string &theme_string(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's font value by current theme
 font theme_font(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+
+const std::vector<uint8_t> &theme_image(const std::string &name, std::shared_ptr<i_theme> theme_ = nullptr);
 
 }

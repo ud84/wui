@@ -14,6 +14,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace wui
 {
@@ -31,10 +32,13 @@ public:
     virtual int32_t get_dimension(const std::string &control, const std::string &value) const = 0;
 
     virtual void set_string(const std::string &control, const std::string &value, const std::string &str) = 0;
-    virtual std::string get_string(const std::string &control, const std::string &value) const = 0;
+    virtual const std::string &get_string(const std::string &control, const std::string &value) const = 0;
 
     virtual void set_font(const std::string &control, const std::string &value, const font &font_) = 0;
     virtual font get_font(const std::string &control, const std::string &value) const = 0;
+
+    virtual void set_image(const std::string &name, const std::vector<uint8_t> &data) = 0;
+    virtual const std::vector<uint8_t> &get_image(const std::string &name) = 0;
 
     virtual void load_json(const std::string &json) = 0;
     virtual void load_file(const std::string &file_name) = 0;
