@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/WUI
+// Official repository: https://github.com/ud84/wui
 //
 
 #include <wui/theme/theme_impl.hpp>
@@ -16,14 +16,19 @@
 namespace wui
 {
 
-theme_impl::theme_impl(const std::string &name_)
-    : name(name_), ints(), strings(), fonts()
+theme_impl::theme_impl(const std::string &name_, bool dark_)
+    : name(name_), dark(dark_), ints(), strings(), fonts()
 {
 }
 
 std::string theme_impl::get_name() const
 {
     return name;
+}
+
+bool theme_impl::get_dark() const
+{
+    return dark;
 }
 
 void theme_impl::set_color(const std::string &control, const std::string &value, color color_)

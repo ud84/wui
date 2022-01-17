@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/WUI
+// Official repository: https://github.com/ud84/wui
 //
 
 #pragma once
@@ -33,6 +33,7 @@ public:
     image(int32_t resource_index, std::shared_ptr<i_theme> theme_ = nullptr);
 #endif
     image(const std::string &file_name, std::shared_ptr<i_theme> theme_ = nullptr);
+    image(const uint8_t *data, size_t size);
     ~image();
 
     virtual void draw(graphic &gr);
@@ -65,7 +66,9 @@ public:
 #ifdef _WIN32
     void change_image(int32_t resource_index);
 #endif
+
     void change_image(const std::string &file_name);
+    void change_image(const uint8_t *data, size_t size);
 
     int32_t width() const;
     int32_t height() const;

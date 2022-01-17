@@ -17,15 +17,19 @@ namespace wui
 {
 
 /// Set and get the current theme
-void set_default_theme_from_json(const std::string &name, const std::string &json);
-void set_default_theme_from_file(const std::string &name, const std::string &file_name);
-void set_default_theme_empty(const std::string &name);
+void set_default_theme_from_json(const std::string &name, const std::string &json, bool dark);
+void set_default_theme_from_file(const std::string &name, const std::string &file_name, bool dark);
+void set_default_theme_empty(const std::string &name, bool dark);
 
+/// Return the pointer to current default theme instance
 std::shared_ptr<i_theme> get_default_theme();
 
+/// Return true if the current default theme is dark (is used, for example, to define the shade of the window control buttons)
+bool is_dark_default_theme();
+
 /// Make the custom theme for the some control
-std::shared_ptr<i_theme> make_custom_theme(const std::string &name = "");
-std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json);
+std::shared_ptr<i_theme> make_custom_theme(const std::string &name = "", bool dark = false);
+std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json, bool dark);
 
 /// Return the item's color by current theme
 color theme_color(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);

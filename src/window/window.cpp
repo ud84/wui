@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/WUI
+// Official repository: https://github.com/ud84/wui
 //
 
 #include <wui/window/window.hpp>
@@ -25,7 +25,6 @@
 #ifdef _WIN32
 
 #include <windowsx.h>
-#include <resource.hpp>
 
 #elif __linux__
 
@@ -35,6 +34,8 @@
 #include <X11/Xutil.h>
 
 #endif
+
+#include <window_buttons.hpp>
 
 // Some helpers
 #ifdef __linux__
@@ -109,10 +110,10 @@ window::window()
     pin_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
 #ifdef _WIN32
-    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, IDB_WINDOW_PIN, 24)),
-    minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, IDB_WINDOW_MINIMIZE, 24)),
-    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? IDB_WINDOW_EXPAND : IDB_WINDOW_NORMAL, 24)),
-    close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, IDB_WINDOW_CLOSE, 24)),
+    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, is_dark_default_theme() ? window_button_pin_dark : window_button_pin_white, is_dark_default_theme() ? sizeof(window_button_pin_dark) : sizeof(window_button_pin_white), 24)),
+    minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, is_dark_default_theme() ? window_button_minimize_dark : window_button_minimize_white, is_dark_default_theme() ? sizeof(window_button_minimize_dark) : sizeof(window_button_minimize_white), 24)),
+    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? (is_dark_default_theme() ? window_button_expand_dark : window_button_expand_white, is_dark_default_theme() ? sizeof(window_button_expand_dark) : sizeof(window_button_expand_white)) : (is_dark_default_theme() ? window_button_normal_dark : window_button_normal_white, is_dark_default_theme() ? sizeof(window_button_normal_dark) : sizeof(window_button_normal_white)), 24)),
+    close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, window_button_close_dark, sizeof(window_button_close_dark), 24)),
     mouse_tracked(false)
 #elif __linux__
     pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, "", 24)),
@@ -528,7 +529,7 @@ void window::expand()
         }
     }
 
-    expand_button->set_image(IDB_WINDOW_NORMAL);
+    expand_button->set_image(is_dark_default_theme() ? window_button_normal_dark : window_button_normal_white, is_dark_default_theme() ? sizeof(window_button_normal_dark) : sizeof(window_button_normal_white));
 #endif
 }
 
@@ -544,7 +545,7 @@ void window::normal()
     window_state_ = window_state::normal;
 
 #ifdef _WIN32
-    expand_button->set_image(IDB_WINDOW_EXPAND);
+    expand_button->set_image(is_dark_default_theme() ? window_button_expand_dark : window_button_expand_white, is_dark_default_theme() ? sizeof(window_button_expand_dark) : sizeof(window_button_expand_white));
 #endif
 }
 

@@ -17,24 +17,24 @@ static std::shared_ptr<i_theme> instance = nullptr;
 
 /// Interface
 
-void set_default_theme_from_json(const std::string &theme_, const std::string &json)
+void set_default_theme_from_json(const std::string &name, const std::string &json, bool dark)
 {
     instance.reset();
-    instance = std::shared_ptr<i_theme>(new theme_impl(theme_));
+    instance = std::shared_ptr<i_theme>(new theme_impl(name, dark));
     instance->load_json(json);
 }
 
-void set_default_theme_from_file(const std::string &theme_, const std::string &file_name)
+void set_default_theme_from_file(const std::string &name, const std::string &file_name, bool dark)
 {
     instance.reset();
-    instance = std::shared_ptr<i_theme>(new theme_impl(theme_));
+    instance = std::shared_ptr<i_theme>(new theme_impl(name, dark));
     instance->load_file(file_name);
 }
 
-void set_default_theme_empty(const std::string &theme_)
+void set_default_theme_empty(const std::string &name, bool dark)
 {
     instance.reset();
-    instance = std::shared_ptr<i_theme>(new theme_impl(theme_));
+    instance = std::shared_ptr<i_theme>(new theme_impl(name, dark));
 }
 
 std::shared_ptr<i_theme> get_default_theme()
@@ -42,14 +42,23 @@ std::shared_ptr<i_theme> get_default_theme()
     return instance;    
 }
 
-std::shared_ptr<i_theme> make_custom_theme(const std::string &name)
+bool is_dark_default_theme()
 {
-    return std::shared_ptr<i_theme>(new theme_impl(name));
+    if (instance)
+    {
+        return instance->get_dark();
+    }
+    return false;
 }
 
-std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json)
+std::shared_ptr<i_theme> make_custom_theme(const std::string &name, bool dark)
 {
-    auto ct = std::shared_ptr<i_theme>(new theme_impl(name));
+    return std::shared_ptr<i_theme>(new theme_impl(name, dark));
+}
+
+std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json, bool dark)
+{
+    auto ct = std::shared_ptr<i_theme>(new theme_impl(name, dark));
     ct->load_json(json);
     return ct;
 }

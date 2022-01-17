@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 #endif
     bool runned = true;
 
-    wui::set_default_theme_from_json("dark", dark_json);
+    wui::set_default_theme_from_json("dark", dark_json, true);
 
     std::shared_ptr<wui::window> window(new wui::window());
 
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<wui::button> darkThemeButton(new wui::button("Set the dark theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
-        wui::set_default_theme_from_json("dark", dark_json);
+        wui::set_default_theme_from_json("dark", dark_json, true);
         window->update_theme();
         pluggedWindow->window->update_theme();
         dialog->update_theme(); 
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 	
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
-        wui::set_default_theme_from_json("white", white_json);
+        wui::set_default_theme_from_json("white", white_json, false);
         window->update_theme();
         pluggedWindow->window->update_theme();
         dialog->update_theme();
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
         cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });
     });
 
-    window->init("Welcome to WUI! ✌️", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame, [&runned]() {
+    window->init("Welcome to WUI!", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame, [&runned]() {
 #ifdef _WIN32
         PostQuitMessage(IDCANCEL);
 #elif __linux__

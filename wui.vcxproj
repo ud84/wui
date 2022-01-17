@@ -43,7 +43,6 @@
     <ClInclude Include="include\wui\theme\theme_impl.hpp" />
     <ClInclude Include="include\wui\window\i_window.hpp" />
     <ClInclude Include="include\wui\window\window.hpp" />
-    <ClInclude Include="res\resource.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp" />
@@ -56,9 +55,6 @@
     <ClCompile Include="src\theme\theme.cpp" />
     <ClCompile Include="src\theme\theme_impl.cpp" />
     <ClCompile Include="src\window\window.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="res\wui.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\dark.json" />

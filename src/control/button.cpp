@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/WUI
+// Official repository: https://github.com/ud84/wui
 //
 
 #include <wui/control/button.hpp>
@@ -57,6 +57,21 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     : button_view_(button_view__),
     caption(caption_),
     image_(new image(imageFileName_, theme__)),
+    image_size(image_size_),
+    tooltip_(new tooltip(caption_, theme__)),
+    click_callback(click_callback_),
+    theme_(theme__),
+    position_(),
+    parent(),
+    showed_(true), enabled_(true), active(false), focused_(false),
+    focusing_(true)
+{
+}
+
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const uint8_t *image_data, size_t image_data_size, int32_t image_size_, std::shared_ptr<i_theme> theme__)
+    : button_view_(button_view__),
+    caption(caption_),
+    image_(new image(image_data, image_data_size)),
     image_size(image_size_),
     tooltip_(new tooltip(caption_, theme__)),
     click_callback(click_callback_),
@@ -393,6 +408,19 @@ void button::set_image(const std::string &file_name)
     else
     {
         image_ = std::shared_ptr<image>(new image(file_name));
+    }
+    redraw();
+}
+
+void button::set_image(const uint8_t *image_data, size_t image_data_size)
+{
+    if (image_)
+    {
+        image_->change_image(image_data, image_data_size);
+    }
+    else
+    {
+        image_ = std::shared_ptr<image>(new image(image_data, image_data_size));
     }
     redraw();
 }

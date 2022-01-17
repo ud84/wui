@@ -18,55 +18,11 @@
 namespace wui
 {
 
-/*enum class theme
-{
-    dark,
-    white,
-    custom
-};
-
-enum class theme_control
-{
-    undefined,
-    window,
-    image,
-    button,
-    input,
-    tooltip
-};
-
-enum class theme_value
-{
-    undefined,
-
-    /// colors
-    background,
-    text,
-    calm,
-    active,
-    active_button,
-    border,
-    focused_border,
-    disabled,
-    selection,
-    cursor,
-
-    /// fonts
-    font,
-    caption_font,
-
-    /// strings
-    path,
-
-    /// ints
-    round,
-    text_indent
-};*/
-
 class i_theme
 {
 public:
     virtual std::string get_name() const = 0;
+    virtual bool get_dark() const = 0;
 
     virtual void set_color(const std::string &control, const std::string &value, color color_) = 0;
     virtual color get_color(const std::string &control, const std::string &value) const = 0;

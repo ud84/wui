@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/WUI
+// Official repository: https://github.com/ud84/wui
 //
 
 #include <wui/control/image.hpp>
@@ -16,6 +16,29 @@
 #include <boost/nowide/convert.hpp>
 
 #ifdef _WIN32
+
+void load_image_from_data(const uint8_t *data, size_t size, Gdiplus::Image **img)
+{
+    HGLOBAL h_buffer = ::GlobalAlloc(GMEM_MOVEABLE, size);
+    if (h_buffer)
+    {
+        void* p_buffer = ::GlobalLock(h_buffer);
+        if (p_buffer)
+        {
+            CopyMemory(p_buffer, data, size);
+
+            IStream* p_stream = NULL;
+            if (::CreateStreamOnHGlobal(h_buffer, FALSE, &p_stream) == S_OK)
+            {
+                *img = Gdiplus::Image::FromStream(p_stream);
+                p_stream->Release();
+            }
+
+            ::GlobalUnlock(p_buffer);
+        }
+        ::GlobalFree(h_buffer);
+    }
+}
 
 void load_image_from_resource(WORD image_id, const std::wstring &resource_section, Gdiplus::Image **img)
 {
@@ -38,25 +61,7 @@ void load_image_from_resource(WORD image_id, const std::wstring &resource_sectio
         return;
     }
 
-    HGLOBAL h_buffer = ::GlobalAlloc(GMEM_MOVEABLE, image_size);
-    if (h_buffer)
-    {
-        void* p_buffer = ::GlobalLock(h_buffer);
-        if (p_buffer)
-        {
-            CopyMemory(p_buffer, resource_data, image_size);
-
-            IStream* p_stream = NULL;
-            if (::CreateStreamOnHGlobal(h_buffer, FALSE, &p_stream) == S_OK)
-            {
-                *img = Gdiplus::Image::FromStream(p_stream);
-                p_stream->Release();
-            }
-
-            ::GlobalUnlock(p_buffer);
-        }
-        ::GlobalFree(h_buffer);
-    }
+    load_image_from_data(static_cast<const uint8_t*>(resource_data), image_size, img);
 }
 
 void load_image_from_file(const std::wstring &file_name, const std::wstring &images_path, Gdiplus::Image **img)
@@ -105,6 +110,24 @@ image::image(const std::string &file_name_, std::shared_ptr<i_theme> theme__)
 {
 #ifdef _WIN32
     load_image_from_file(boost::nowide::widen(file_name_), boost::nowide::widen(theme_string(tc, tv_path, theme_)), &img);
+#elif __linux__
+
+#endif
+}
+
+image::image(const uint8_t *data, size_t size)
+    : theme_(),
+    position_(),
+    parent(),
+    showed_(true),
+    file_name()
+#ifdef _WIN32
+    , resource_index(0),
+    img(nullptr)
+#endif
+{
+#ifdef _WIN32
+    load_image_from_data(data, size, &img);
 #elif __linux__
 
 #endif
@@ -281,6 +304,14 @@ void image::change_image(const std::string &file_name_)
 #endif
 
     redraw();
+}
+
+void image::change_image(const uint8_t *data, size_t size)
+{
+#ifdef _WIN32
+    free_image(&img);
+    load_image_from_data(data, size, &img);
+#endif
 }
 
 int32_t image::width() const
