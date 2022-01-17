@@ -109,17 +109,13 @@ window::window()
     size_change_callback(),
     pin_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
-#ifdef _WIN32
     pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, is_dark_default_theme() ? window_button_pin_dark : window_button_pin_white, is_dark_default_theme() ? sizeof(window_button_pin_dark) : sizeof(window_button_pin_white), 24)),
     minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, is_dark_default_theme() ? window_button_minimize_dark : window_button_minimize_white, is_dark_default_theme() ? sizeof(window_button_minimize_dark) : sizeof(window_button_minimize_white), 24)),
     expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? (is_dark_default_theme() ? window_button_expand_dark : window_button_expand_white, is_dark_default_theme() ? sizeof(window_button_expand_dark) : sizeof(window_button_expand_white)) : (is_dark_default_theme() ? window_button_normal_dark : window_button_normal_white, is_dark_default_theme() ? sizeof(window_button_normal_dark) : sizeof(window_button_normal_white)), 24)),
     close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, window_button_close_dark, sizeof(window_button_close_dark), 24)),
+#ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__
-    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, "", 24)),
-    minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, "", 24)),
-    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? "" : "", 24)),
-    close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, "", 24)),
     wm_protocols_event(nullptr), wm_delete_msg(nullptr),
     runned(false),
     thread()
