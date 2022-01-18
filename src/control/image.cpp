@@ -82,27 +82,61 @@ void free_image(Gdiplus::Image **img)
 
 #elif __linux__
 
-struct read_closure_t
+cairo_surface_t *cairo_image_surface_create_from_png_data(const char *data, unsigned length)
 {
-    uint8_t *buf;
-    unsigned int len;
-};
+    struct PngReaderData
+    {
+        const char *dataPtr;
+        unsigned sizeLeft;
+    };
 
-cairo_status_t reader(void *c, uint8_t *data, unsigned int len)
-{
-    read_closure_t *closure = (read_closure_t *) c;
-    memcpy(data, closure->buf + closure->len, len);
-    closure->len += len;
+    auto readSomePngData = [](void *closure,
+                              unsigned char *data,
+                              unsigned int length) noexcept -> cairo_status_t
+    {
+        PngReaderData &readerData = *reinterpret_cast<PngReaderData *>(closure);
+        if (readerData.sizeLeft < length)
+            return CAIRO_STATUS_READ_ERROR;
 
-    return CAIRO_STATUS_SUCCESS;
+        memcpy(data, readerData.dataPtr, length);
+        readerData.dataPtr += length;
+        readerData.sizeLeft -= length;
+        return CAIRO_STATUS_SUCCESS;
+    };
+
+    PngReaderData readerData;
+    readerData.dataPtr = data;
+    readerData.sizeLeft = length;
+    return cairo_image_surface_create_from_png_stream(+readSomePngData, &readerData);
 }
 
-void load_image_from_data(const std::vector<uint8_t> &data, cairo_surface_t **img)
+void load_image_from_data(const std::vector<uint8_t> &data_, cairo_surface_t **img)
 {
-    read_closure_t closure;
-    closure.buf = (uint8_t*)data.data();
-    closure.len = data.size();
-    *img = cairo_image_surface_create_from_png_stream(&reader, &closure);
+    struct png_reader_data
+    {
+        const uint8_t *data;
+        uint32_t size_left;
+    };
+
+    auto read_png_data = [](void *closure,
+        uint8_t *data,
+        uint32_t length) noexcept -> cairo_status_t
+    {
+        auto &reader_data = *reinterpret_cast<png_reader_data *>(closure);
+        if (reader_data.size_left < length)
+        {
+            return CAIRO_STATUS_READ_ERROR;
+        }
+
+        memcpy(data, reader_data.data, length);
+        reader_data.data += length;
+        reader_data.size_left -= length;
+
+        return CAIRO_STATUS_SUCCESS;
+    };
+
+    png_reader_data reader_data = { data_.data(), static_cast<uint32_t>(data_.size()) };
+    *img = cairo_image_surface_create_from_png_stream(+read_png_data, &reader_data);
 }
 
 void load_image_from_file(const std::string &file_name, const std::string &images_path, cairo_surface_t **img)

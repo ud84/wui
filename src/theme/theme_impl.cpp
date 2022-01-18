@@ -168,26 +168,28 @@ void theme_impl::load_json(const std::string &json_)
             auto s = kvp.second.get<std::string>();
             for (auto &c : s)
             {
-                if (c == ' ')
+                if (c == ' ' || c == ',')
                 {
                     continue;
                 }
 
-                if (c != ',')
+                if (byte_val.size() != 3)
                 {
                     byte_val += c;
                 }
                 else
                 {
+                    byte_val += c;
+
                     char *p;
                     auto n = strtoul(byte_val.c_str(), &p, 16);
-                    if (*p != 0)
+                    if (*p == 0)
                     {
-                        fprintf(stderr, "Error reading image: %s, value: %s\n", image_name.c_str(), byte_val.c_str());
+                        image_data.emplace_back(static_cast<uint8_t>(n));
                     }
                     else
                     {
-                        image_data.emplace_back(static_cast<uint8_t>(n));
+                        fprintf(stderr, "Error reading image: %s, value: %s\n", image_name.c_str(), byte_val.c_str());
                     }
 
                     byte_val.clear();
