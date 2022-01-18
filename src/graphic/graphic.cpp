@@ -17,6 +17,7 @@
 #include <cairo.h>
 #include <cairo-xcb.h>
 #include <cmath>
+#include <xcb/xcb_image.h>
 #endif
 
 namespace wui
@@ -436,10 +437,44 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
 #endif
 }
 
-void graphic::draw_buffer(const rect &position, uint8_t *buffer, size_t buffer_size)
+void graphic::draw_buffer(const rect &position__, uint8_t *buffer, size_t buffer_size)
 {
 #ifdef _WIN32
 #elif __linux__
+
+    auto data_pixmap = xcb_create_pixmap_from_bitmap_data(context_.connection,
+        mem_pixmap,
+        buffer,
+        position__.width(),
+        position__.height(),
+        context_.screen->root_depth,
+        context_.screen->black_pixel,
+        context_.screen->white_pixel,
+        nullptr);
+
+    if (!data_pixmap)
+    {
+        fprintf(stderr, "WUI error: graphic::draw_buffer xcb_create_pixmap_from_bitmap_data\n");
+        return;
+    }
+
+    auto copy_area_cookie = xcb_copy_area(context_.connection,
+        data_pixmap,
+        mem_pixmap,
+        gc,
+        0,
+        0,
+        position__.left,
+        position__.top,
+        position__.width(),
+        position__.height());
+
+    if (!check_cookie(copy_area_cookie, context_.connection, "graphic::draw_graphic xcb_copy_area"))
+    {
+        return;
+    }
+
+    xcb_free_pixmap(context_.connection, data_pixmap);
 #endif
 }
 

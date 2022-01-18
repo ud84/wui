@@ -22,6 +22,8 @@
 
 #ifdef _WIN32
 #include <gdiplus.h>
+#elif __linux__
+#include <cairo/cairo.h>
 #endif
 
 namespace wui
@@ -95,6 +97,8 @@ private:
 #ifdef _WIN32
     int32_t resource_index;
     Gdiplus::Image *img;
+#elif __linux__
+    cairo_surface_t *img;
 #endif
 
     void redraw();

@@ -15,6 +15,8 @@
 
 #include <boost/nowide/convert.hpp>
 
+#include <cstring>
+
 #ifdef _WIN32
 
 void load_image_from_data(const std::vector<uint8_t> &data, Gdiplus::Image **img)
@@ -64,9 +66,9 @@ void load_image_from_resource(WORD image_id, const std::wstring &resource_sectio
     load_image_from_data(std::vector<uint8_t>(static_cast<const uint8_t*>(resource_data), static_cast<const uint8_t*>(resource_data) + image_size), img);
 }
 
-void load_image_from_file(const std::wstring &file_name, const std::wstring &images_path, Gdiplus::Image **img)
+void load_image_from_file(const std::string &file_name, const std::string &images_path, Gdiplus::Image **img)
 {
-    *img = Gdiplus::Image::FromFile(std::wstring(images_path + L"\\" + file_name).c_str());
+    *img = Gdiplus::Image::FromFile(std::wstring(boost::nowide::widen(images_path) + L"\\" + boost::nowide::widen(file_name)).c_str());
 }
 
 void free_image(Gdiplus::Image **img)
@@ -74,6 +76,53 @@ void free_image(Gdiplus::Image **img)
     if (*img)
     {
         delete *img;
+        *img = nullptr;
+    }
+}
+
+#elif __linux__
+
+struct png_stream_to_byte_array_closure_t
+{
+    const uint8_t *data;
+    unsigned int max_size;
+    unsigned int pos;
+} ;
+
+cairo_status_t read_png_stream_from_byte_array(void *in_closure, unsigned char *data, unsigned int length)
+{
+    png_stream_to_byte_array_closure_t *closure = (png_stream_to_byte_array_closure_t *) in_closure;
+
+    if ((closure->pos + length) > (closure->max_size))
+    {
+        return CAIRO_STATUS_READ_ERROR;
+    }
+
+    memcpy(data, (closure->data + closure->pos), length);
+    closure->pos += length;
+
+    return CAIRO_STATUS_SUCCESS;
+}
+
+void load_image_from_data(const std::vector<uint8_t> &data, cairo_surface_t **img)
+{
+    png_stream_to_byte_array_closure_t closure;
+    closure.data = data.data();
+    closure.pos = 0;
+    closure.max_size = data.size();
+    *img = cairo_image_surface_create_from_png_stream(&read_png_stream_from_byte_array, &closure);
+}
+
+void load_image_from_file(const std::string &file_name, const std::string &images_path, cairo_surface_t **img)
+{
+    *img = cairo_image_surface_create_from_png(std::string(images_path + "/" + file_name).c_str());
+}
+
+void free_image(cairo_surface_t **img)
+{
+    if (*img)
+    {
+        cairo_surface_destroy(*img);
         *img = nullptr;
     }
 }
@@ -102,17 +151,13 @@ image::image(const std::string &file_name_, std::shared_ptr<i_theme> theme__)
     position_(),
     parent(),
     showed_(true),
-    file_name(file_name_)
+    file_name(file_name_),
 #ifdef _WIN32
-    , resource_index(0),
+    resource_index(0),
+#endif
     img(nullptr)
-#endif
 {
-#ifdef _WIN32
-    load_image_from_file(boost::nowide::widen(file_name_), boost::nowide::widen(theme_string(tc, tv_path, theme_)), &img);
-#elif __linux__
-
-#endif
+    load_image_from_file(file_name_, theme_string(tc, tv_path, theme_), &img);
 }
 
 image::image(const std::vector<uint8_t> &data)
@@ -120,24 +165,18 @@ image::image(const std::vector<uint8_t> &data)
     position_(),
     parent(),
     showed_(true),
-    file_name()
+    file_name(),
 #ifdef _WIN32
-    , resource_index(0),
+    resource_index(0),
+#endif
     img(nullptr)
-#endif
 {
-#ifdef _WIN32
     load_image_from_data(data, &img);
-#elif __linux__
-
-#endif
 }
 
 image::~image()
 {
-#ifdef _WIN32
     free_image(&img);
-#endif
 
     auto parent_ = parent.lock();
     if (parent_)
@@ -164,6 +203,20 @@ void image::draw(graphic &gr_)
             0, 0, img->GetWidth(), img->GetHeight(),
             Gdiplus::UnitPixel,
             nullptr);
+    }
+#elif __linux__
+    if (img)
+    {
+        auto fmt = cairo_image_surface_get_format(img);
+        //if (fmt == CAIRO_FORMAT_RGB24)
+        {
+            size_t size = position_.width() * position_.height() * 3;
+            gr_.draw_buffer(position_, cairo_image_surface_get_data(img), size);
+        }
+        //else
+        {
+            //fprintf(stderr, "WUI error: image::draw PNG image is not 24 bit, file_name: %s\n", file_name.c_str());
+        }
     }
 #endif
 }
@@ -298,20 +351,16 @@ void image::change_image(const std::string &file_name_)
 {
     file_name = file_name_;
 
-#ifdef _WIN32
     free_image(&img);
-    load_image_from_file(boost::nowide::widen(file_name), boost::nowide::widen(theme_string(tc, tv_path, theme_)), &img);
-#endif
+    load_image_from_file(file_name, theme_string(tc, tv_path, theme_), &img);
 
     redraw();
 }
 
 void image::change_image(const std::vector<uint8_t> &data)
 {
-#ifdef _WIN32
     free_image(&img);
     load_image_from_data(data, &img);
-#endif
 }
 
 int32_t image::width() const
