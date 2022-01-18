@@ -82,35 +82,27 @@ void free_image(Gdiplus::Image **img)
 
 #elif __linux__
 
-struct png_stream_to_byte_array_closure_t
+struct read_closure_t
 {
-    const uint8_t *data;
-    unsigned int max_size;
-    unsigned int pos;
-} ;
+    uint8_t *buf;
+    unsigned int len;
+};
 
-cairo_status_t read_png_stream_from_byte_array(void *in_closure, unsigned char *data, unsigned int length)
+cairo_status_t reader(void *c, uint8_t *data, unsigned int len)
 {
-    png_stream_to_byte_array_closure_t *closure = (png_stream_to_byte_array_closure_t *) in_closure;
-
-    if ((closure->pos + length) > (closure->max_size))
-    {
-        return CAIRO_STATUS_READ_ERROR;
-    }
-
-    memcpy(data, (closure->data + closure->pos), length);
-    closure->pos += length;
+    read_closure_t *closure = (read_closure_t *) c;
+    memcpy(data, closure->buf + closure->len, len);
+    closure->len += len;
 
     return CAIRO_STATUS_SUCCESS;
 }
 
 void load_image_from_data(const std::vector<uint8_t> &data, cairo_surface_t **img)
 {
-    png_stream_to_byte_array_closure_t closure;
-    closure.data = data.data();
-    closure.pos = 0;
-    closure.max_size = data.size();
-    *img = cairo_image_surface_create_from_png_stream(&read_png_stream_from_byte_array, &closure);
+    read_closure_t closure;
+    closure.buf = (uint8_t*)data.data();
+    closure.len = data.size();
+    *img = cairo_image_surface_create_from_png_stream(&reader, &closure);
 }
 
 void load_image_from_file(const std::string &file_name, const std::string &images_path, cairo_surface_t **img)
@@ -207,9 +199,6 @@ void image::draw(graphic &gr_)
 #elif __linux__
     if (img)
     {
-        auto w = cairo_image_surface_get_width(img);
-        auto h = cairo_image_surface_get_height(img);
-        printf ("image w: %d, h: %d\n", w, h);
         gr_.draw_surface(img, position_);
     }
 #endif
