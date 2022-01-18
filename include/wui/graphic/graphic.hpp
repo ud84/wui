@@ -56,6 +56,7 @@ public:
 #ifdef _WIN32
     HDC drawable();
 #elif __linux__
+    void draw_surface(_cairo_surface *surface, const rect &position);
     xcb_drawable_t drawable();
 #endif
 
@@ -76,9 +77,6 @@ private:
     xcb_gcontext_t gc;
 
     _cairo_surface *surface;
-    _cairo *cr;
-
-    void set_color(color color_);
 #endif
 
 };

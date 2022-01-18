@@ -207,16 +207,10 @@ void image::draw(graphic &gr_)
 #elif __linux__
     if (img)
     {
-        auto fmt = cairo_image_surface_get_format(img);
-        //if (fmt == CAIRO_FORMAT_RGB24)
-        {
-            size_t size = position_.width() * position_.height() * 3;
-            gr_.draw_buffer(position_, cairo_image_surface_get_data(img), size);
-        }
-        //else
-        {
-            //fprintf(stderr, "WUI error: image::draw PNG image is not 24 bit, file_name: %s\n", file_name.c_str());
-        }
+        auto w = cairo_image_surface_get_width(img);
+        auto h = cairo_image_surface_get_height(img);
+        printf ("image w: %d, h: %d\n", w, h);
+        gr_.draw_surface(img, position_);
     }
 #endif
 }
@@ -365,23 +359,27 @@ void image::change_image(const std::vector<uint8_t> &data)
 
 int32_t image::width() const
 {
-#ifdef _WIN32
     if (img)
     {
+#ifdef _WIN32
         return img->GetWidth();
-    }
+#elif __linux__
+        return cairo_image_surface_get_width(img);
 #endif
+    }
     return 0;
 }
 
 int32_t image::height() const
 {
-#ifdef _WIN32
     if (img)
     {
+#ifdef _WIN32
         return img->GetHeight();
-    }
+#elif __linux__
+        return cairo_image_surface_get_height(img);
 #endif
+    }
     return 0;
 }
 

@@ -18,6 +18,32 @@
 #include <cairo-xcb.h>
 #include <cmath>
 #include <xcb/xcb_image.h>
+
+xcb_visualtype_t *default_visual_type(wui::system_context &context_)
+{
+    auto depth_iter = xcb_screen_allowed_depths_iterator(context_.screen);
+    for (; depth_iter.rem; xcb_depth_next(&depth_iter))
+    {
+        auto visual_iter = xcb_depth_visuals_iterator(depth_iter.data);
+        for (; visual_iter.rem; xcb_visualtype_next(&visual_iter))
+        {
+            if (context_.screen->root_visual == visual_iter.data->visual_id)
+            {
+                return visual_iter.data;
+            }
+        }
+    }
+    return nullptr;
+}
+
+void set_color(cairo_t *cr, wui::color color_)
+{
+    cairo_set_source_rgb(cr,
+        static_cast<double>(wui::get_red(color_)) / 255,
+        static_cast<double>(wui::get_green(color_)) / 255,
+        static_cast<double>(wui::get_blue(color_)) / 255);
+}
+
 #endif
 
 namespace wui
@@ -33,8 +59,7 @@ graphic::graphic(system_context &context__)
 #elif __linux__
     , mem_pixmap(0),
     gc(0),
-    surface(nullptr),
-    cr(nullptr)
+    surface(nullptr)
 #endif
 {
 }
@@ -100,29 +125,7 @@ void graphic::init(const rect &max_size_, color background_color)
         static_cast<uint16_t>(max_size.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
 
-    xcb_visualtype_t *visual_type;
-
-    auto depth_iter = xcb_screen_allowed_depths_iterator(context_.screen);
-    for (; depth_iter.rem; xcb_depth_next(&depth_iter))
-    {
-        auto visual_iter = xcb_depth_visuals_iterator(depth_iter.data);
-        for (; visual_iter.rem; xcb_visualtype_next(&visual_iter))
-        {
-            if (context_.screen->root_visual == visual_iter.data->visual_id)
-            {
-                visual_type = visual_iter.data;
-                goto visual_found;
-            }
-        }
-    }
-    visual_found: ;
-
-    surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, visual_type, max_size.width(), max_size.height());
-    cr = cairo_create(surface);
-    if (!cr)
-    {
-        fprintf(stderr, "WUI error: no cairo context created on graphic::init\n");
-    }
+    surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, default_visual_type(context_), max_size.width(), max_size.height());
 
 #endif
 }
@@ -157,12 +160,6 @@ void graphic::release()
     {
         cairo_surface_destroy(surface);
         surface = nullptr;
-    }
-
-    if (cr)
-    {
-        cairo_destroy(cr);
-        cr = nullptr;
     }
 
 #endif
@@ -310,6 +307,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
 
     return rect {0, 0, text_rect.right, text_rect.bottom};
 #elif __linux__
+    auto cr = cairo_create(surface);
     if (!cr)
     {
         fprintf(stderr, "WUI error: no cairo context on graphic::measure_text\n");
@@ -321,6 +319,8 @@ rect graphic::measure_text(const std::string &text, const font &font__)
         !flag_is_set(font__.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, font__.size);
     cairo_text_extents(cr, text.c_str(), &extents);
+
+    cairo_destroy(cr);
 
     return rect{ 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
 #endif
@@ -347,6 +347,7 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
     SelectObject(mem_dc, old_font);
     DeleteObject(font_);
 #elif __linux__
+    auto cr = cairo_create(surface);
 
     if (!cr)
     {
@@ -354,15 +355,16 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
         return;
     }
 
+    set_color(cr, color_);
+
     cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL,
         !flag_is_set(font__.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, font__.size);
-    set_color(color_);
 
     cairo_move_to(cr, position.left, (double)position.top + font__.size * 5 / 6);
     cairo_show_text(cr, text.c_str());
 
-    cairo_surface_flush(surface);
+    cairo_destroy(cr);
 #endif
 }
 
@@ -526,13 +528,16 @@ xcb_drawable_t graphic::drawable()
     return mem_pixmap;
 }
 
-void graphic::set_color(color color_)
+void graphic::draw_surface(_cairo_surface *surface_, const rect &position__)
 {
-    cairo_set_source_rgb(cr,
-        static_cast<double>(get_red(color_)) / 255,
-        static_cast<double>(get_green(color_)) / 255,
-        static_cast<double>(get_blue(color_)) / 255);
+    auto cr = cairo_create(surface);
+
+    cairo_set_source_surface(cr, surface_, position__.left, position__.top);
+    cairo_paint(cr);
+
+    cairo_destroy(cr);
 }
+
 #endif
 
 }
