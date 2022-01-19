@@ -530,17 +530,18 @@ void window::expand()
         xcb_intern_atom_cookie_t *cookie = xcb_ewmh_init_atoms(context_.connection, &ewmh_connection);
         xcb_ewmh_init_atoms_replies(&ewmh_connection, cookie, nullptr);
 
-        auto get_wa_cookie = xcb_ewmh_get_workarea(&ewmh_connection, 0);
-
         xcb_ewmh_get_workarea_reply_t wa;
-        auto ret = xcb_ewmh_get_workarea_reply(&ewmh_connection,
-            get_wa_cookie,
+        auto ok = xcb_ewmh_get_workarea_reply(&ewmh_connection,
+            xcb_ewmh_get_workarea(&ewmh_connection, 0),
             &wa,
             nullptr);
 
-        uint32_t values[] = { wa.workarea->x, wa.workarea->y, wa.workarea->width, wa.workarea->height };
+        if (ok)
+        {
+            uint32_t values[] = { wa.workarea->x, wa.workarea->y, wa.workarea->width, wa.workarea->height };
             xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
-            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+                XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+        }
 
         xcb_ewmh_get_workarea_reply_wipe(&wa);
     }
