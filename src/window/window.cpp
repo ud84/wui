@@ -30,6 +30,7 @@
 
 #include <stdlib.h>
 #include <xcb/xcb_atom.h>
+#include <xcb/xcb_ewmh.h>
 
 #include <X11/Xutil.h>
 
@@ -522,9 +523,35 @@ void window::expand()
                 SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
         }
     }
+#elif __linux__
+    if (flag_is_set(window_style_, window_style::title_showed)) // normal window maximization
+    {
+        xcb_ewmh_connection_t ewmh_connection;
+        xcb_intern_atom_cookie_t *cookie = xcb_ewmh_init_atoms(context_.connection, &ewmh_connection);
+        xcb_ewmh_init_atoms_replies(&ewmh_connection, cookie, nullptr);
 
-    expand_button->set_image(theme_image(ti_normal, theme_));
+        auto get_wa_cookie = xcb_ewmh_get_workarea(&ewmh_connection, 0);
+
+        xcb_ewmh_get_workarea_reply_t wa;
+        auto ret = xcb_ewmh_get_workarea_reply(&ewmh_connection,
+            get_wa_cookie,
+            &wa,
+            nullptr);
+
+        uint32_t values[] = { wa.workarea->x, wa.workarea->y, wa.workarea->width, wa.workarea->height };
+            xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+
+        xcb_ewmh_get_workarea_reply_wipe(&wa);
+    }
+    else // fullscreen
+    {
+        uint32_t values[] = { 0, 0, context_.screen->width_in_pixels, context_.screen->height_in_pixels };
+        xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+    }
 #endif
+    expand_button->set_image(theme_image(ti_normal, theme_));
 }
 
 void window::normal()
@@ -538,9 +565,7 @@ void window::normal()
 
     window_state_ = window_state::normal;
 
-#ifdef _WIN32
     expand_button->set_image(theme_image(ti_expand, theme_));
-#endif
 }
 
 window_state window::state() const
