@@ -82,34 +82,6 @@ void free_image(Gdiplus::Image **img)
 
 #elif __linux__
 
-cairo_surface_t *cairo_image_surface_create_from_png_data(const char *data, unsigned length)
-{
-    struct PngReaderData
-    {
-        const char *dataPtr;
-        unsigned sizeLeft;
-    };
-
-    auto readSomePngData = [](void *closure,
-                              unsigned char *data,
-                              unsigned int length) noexcept -> cairo_status_t
-    {
-        PngReaderData &readerData = *reinterpret_cast<PngReaderData *>(closure);
-        if (readerData.sizeLeft < length)
-            return CAIRO_STATUS_READ_ERROR;
-
-        memcpy(data, readerData.dataPtr, length);
-        readerData.dataPtr += length;
-        readerData.sizeLeft -= length;
-        return CAIRO_STATUS_SUCCESS;
-    };
-
-    PngReaderData readerData;
-    readerData.dataPtr = data;
-    readerData.sizeLeft = length;
-    return cairo_image_surface_create_from_png_stream(+readSomePngData, &readerData);
-}
-
 void load_image_from_data(const std::vector<uint8_t> &data_, cairo_surface_t **img)
 {
     struct png_reader_data
