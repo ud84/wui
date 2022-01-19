@@ -126,7 +126,7 @@ private:
     rect position_, normal_position;
     int32_t min_width, min_height;
     window_style window_style_;
-    wui::window_state window_state_;
+    wui::window_state window_state_, prev_window_state_;
     std::shared_ptr<i_theme> theme_;
 
     bool showed_, enabled_;

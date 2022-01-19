@@ -97,7 +97,7 @@ window::window()
     position_(), normal_position(),
     min_width(0), min_height(0),
     window_style_(window_style::frame),
-    window_state_(window_state::normal),
+    window_state_(window_state::normal), prev_window_state_(window_state_),
     theme_(),
     showed_(true), enabled_(true),
     focused_index(0),
@@ -491,6 +491,8 @@ void window::minimize()
         return;
     }
 
+    prev_window_state_ = window_state_;
+
 #ifdef _WIN32
     ShowWindow(context_.hwnd, SW_MINIMIZE);
 #endif
@@ -501,6 +503,7 @@ void window::minimize()
 void window::expand()
 {
     window_state_ = window_state::maximized;
+    normal_position = position_;
 
 #ifdef _WIN32
     if (flag_is_set(window_style_, window_style::title_showed)) // normal window maximization
@@ -564,9 +567,9 @@ void window::normal()
 
     set_position(normal_position);
 
-    window_state_ = window_state::normal;
-
     expand_button->set_image(theme_image(ti_expand, theme_));
+
+    window_state_ = window_state::normal;
 }
 
 window_state window::state() const
@@ -857,13 +860,9 @@ void window::update_buttons(bool theme_changed)
 
 void window::update_position(const rect &new_position)
 {   
-    if (new_position.width() != 0 && new_position.height() != 0)
+    if (new_position.width() > 0 && new_position.height() > 0)
     {
         position_ = new_position;
-        if (window_state_ != window_state::maximized)
-        {
-            normal_position = position_;
-        }
     }
 }
 
@@ -873,7 +872,6 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     caption = caption_;
     position_ = position__;
-    normal_position = position_;
     window_style_ = style;
     close_callback = close_callback_;
     theme_ = theme__;
@@ -1403,7 +1401,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             if (w_param == SC_RESTORE)
             {
                 window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-                wnd->window_state_ = window_state::normal;
+                wnd->window_state_ = wnd->prev_window_state_;
             }
             return DefWindowProc(hwnd, message, w_param, l_param);
         break;
