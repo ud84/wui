@@ -184,8 +184,6 @@ private:
     std::shared_ptr<i_control> get_focused();
 
     void update_buttons(bool theme_changed);
-
-    void update_position(const rect &new_position);
 };
 
 }

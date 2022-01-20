@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <xcb/xcb_atom.h>
 #include <xcb/xcb_ewmh.h>
+#include <xcb/xcb_icccm.h>
 
 #include <X11/Xutil.h>
 
@@ -247,10 +248,6 @@ void window::set_position(const rect &position__)
     {
         SetWindowPos(context_.hwnd, NULL, position__.left, position__.top, position__.width(), position__.height(), NULL);
     }
-    else
-    {
-        update_position(position__);
-    }
 #elif __linux__
     if (context_.connection && context_.wnd)
     {
@@ -259,11 +256,8 @@ void window::set_position(const rect &position__)
         xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
             XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
     }
-    else
-    {
-        update_position(position__);
-    }
 #endif
+    position_ = position__;
 }
 
 rect window::position() const
@@ -278,7 +272,10 @@ void window::set_parent(std::shared_ptr<window> window)
     if (parent)
     {
 #ifdef _WIN32
-        DestroyWindow(context_.hwnd);
+        if (context_.hwnd)
+        {
+            DestroyWindow(context_.hwnd);
+        }
 #elif __linux__
         if (context_.display)
         {
@@ -513,6 +510,20 @@ void window::minimize()
 
 #ifdef _WIN32
     ShowWindow(context_.hwnd, SW_MINIMIZE);
+#elif __linux__
+
+    auto minimize_atom = xcb_intern_atom_reply(context_.connection,
+            xcb_intern_atom(context_.connection, 1, 15,"WM_CHANGE_STATE"), 0);
+
+    xcb_client_message_event_t event = { 0 };
+
+    event.response_type = XCB_CLIENT_MESSAGE;
+    event.format = 32;
+    event.window = context_.wnd;
+    event.type = minimize_atom->atom;
+    event.data.data32[0] = XCB_ICCCM_WM_STATE_ICONIC;
+
+    xcb_send_event(context_.connection, 0, context_.wnd, XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT, (const char *) &event);
 #endif
 
     window_state_ = window_state::minimized;
@@ -548,24 +559,27 @@ void window::expand()
     if (flag_is_set(window_style_, window_style::title_showed)) // normal window maximization
     {
         xcb_ewmh_connection_t ewmh_connection;
-        xcb_intern_atom_cookie_t *cookie = xcb_ewmh_init_atoms(context_.connection, &ewmh_connection);
-        xcb_ewmh_init_atoms_replies(&ewmh_connection, cookie, nullptr);
 
-        xcb_ewmh_get_workarea_reply_t wa;
-        auto ok = xcb_ewmh_get_workarea_reply(&ewmh_connection,
-            xcb_ewmh_get_workarea(&ewmh_connection, 0),
-            &wa,
-            nullptr);
-
-        if (ok)
+        if (xcb_ewmh_init_atoms_replies(&ewmh_connection,
+            xcb_ewmh_init_atoms(context_.connection, &ewmh_connection),
+            nullptr))
         {
-            uint32_t values[] = { wa.workarea->x, wa.workarea->y, wa.workarea->width, wa.workarea->height };
-            xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
-                XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-        }
+            xcb_ewmh_get_workarea_reply_t wa;
+            auto ok = xcb_ewmh_get_workarea_reply(&ewmh_connection,
+                xcb_ewmh_get_workarea(&ewmh_connection, 0),
+                &wa,
+                nullptr);
 
-        xcb_ewmh_get_workarea_reply_wipe(&wa);
-        xcb_ewmh_connection_wipe(&ewmh_connection);
+            if (ok)
+            {
+                uint32_t values[] = { wa.workarea->x, wa.workarea->y, wa.workarea->width, wa.workarea->height };
+                xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+                    XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+            }
+
+            xcb_ewmh_get_workarea_reply_wipe(&wa);
+            xcb_ewmh_connection_wipe(&ewmh_connection);
+        }
     }
     else // fullscreen
     {
@@ -874,14 +888,6 @@ void window::update_buttons(bool theme_changed)
     else
     {
         pin_button->hide();
-    }
-}
-
-void window::update_position(const rect &new_position)
-{   
-    if (new_position.width() > 0 && new_position.height() > 0)
-    {
-        position_ = new_position;
     }
 }
 
@@ -1397,7 +1403,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             auto old_position = wnd->position_;
 
-            wnd->update_position({ wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height });
+            wnd->position_ = rect{ wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height };
 
             wnd->update_buttons(false);
 			
@@ -1413,7 +1419,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             RECT window_rect = { 0 };
             GetWindowRect(hwnd, &window_rect);
-            wnd->update_position({ window_rect.left, window_rect.top, window_rect.right, window_rect.bottom });
+            wnd->position_ = rect{ window_rect.left, window_rect.top, window_rect.right, window_rect.bottom };
         }
         break;
         case WM_SYSCOMMAND:
@@ -1881,22 +1887,21 @@ void window::process_events()
             {
                 auto ev = (*(xcb_configure_notify_event_t*)e);
 
-                printf ("cne %d, %d, %d, %d\n", ev.x, ev.y, ev.x + ev.width, ev.y + ev.height);
-
                 auto old_position = position_;
 
-                update_position(rect{ ev.x, ev.y, ev.x + ev.width, ev.y + ev.height });
-
-                if (ev.width != old_position.width())
+                if (ev.width > 0 && ev.height > 0)
                 {
-                    printf ("bu\n");
-                    update_buttons(false);
-                }
+                    position_ = rect{ ev.x, ev.y, ev.x + ev.width, ev.y + ev.height };
 
-                if ((ev.width != old_position.width() || ev.height != old_position.height()) && size_change_callback)
-                {
-                    printf ("sccc\n");
-                    size_change_callback(ev.width, ev.height);
+                    if (ev.width != old_position.width())
+                    {
+                        update_buttons(false);
+                    }
+
+                    if ((ev.width != old_position.width() || ev.height != old_position.height()) && size_change_callback)
+                    {
+                        size_change_callback(ev.width, ev.height);
+                    }
                 }
             }
             break;
