@@ -178,14 +178,9 @@ bool menu::enabled() const
     return true;
 }
 
-void menu::append_item(const menu_item &mi)
+void menu::set_items(const menu_items_t &items_)
 {
-    auto it = std::find(items.begin(), items.end(), mi.id);
-    if (it == items.end())
-    {
-        items.emplace_back(mi);
-        size_updated = false;
-    }
+    items = items_;
 }
 
 void menu::update_item(const menu_item &mi, int32_t id)

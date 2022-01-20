@@ -25,6 +25,10 @@
 namespace wui
 {
 
+struct menu_item;
+
+typedef std::vector<menu_item> menu_items_t;
+
 struct menu_item
 {
     int32_t id;
@@ -35,7 +39,9 @@ struct menu_item
 
     std::shared_ptr<image> image_;
 
-    bool visible, disabled, has_child;
+    menu_items_t children;
+
+    bool visible, disabled;
 
     std::function<void(int32_t)> click_callback;
 
@@ -78,7 +84,7 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    void append_item(const menu_item &mi);
+    void set_items(const menu_items_t &mi);
     void update_item(const menu_item &mi, int32_t id);
     void swap_items(int32_t first_item_id, int32_t second_item_id);
     void delete_item(int32_t id);
