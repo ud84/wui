@@ -28,6 +28,8 @@
 
 #elif __linux__
 
+#include <cstring>
+
 #include <stdlib.h>
 #include <xcb/xcb_atom.h>
 #include <xcb/xcb_ewmh.h>
@@ -992,6 +994,14 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
         XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, caption.size(), caption.c_str());
+
+    size_t class_len = caption.size() + 1 + caption.size() + 1;
+    char *class_hint = (char *)malloc(class_len);
+    strcpy(class_hint, caption.c_str());
+    strcpy(class_hint + caption.size() + 1, caption.c_str());
+
+    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
+        XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, class_len, class_hint);
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
         XCB_ATOM_WM_ICON_NAME, XCB_ATOM_STRING, 8, caption.size(), caption.c_str());
