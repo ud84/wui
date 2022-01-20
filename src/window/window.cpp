@@ -138,9 +138,6 @@ window::~window()
 #ifdef __linux__
     send_destroy_event();
     if (thread.joinable()) thread.join();
-
-    free(wm_protocols_event);
-    free(wm_delete_msg);
 #endif
 }
 
@@ -525,14 +522,11 @@ void window::minimize()
     ShowWindow(context_.hwnd, SW_MINIMIZE);
 #elif __linux__
 
-    auto change_state = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 15, "WM_CHANGE_STATE"), NULL);
-
     xcb_client_message_event_t event = { 0 };
 
     event.window = context_.wnd;
     event.response_type = XCB_CLIENT_MESSAGE;
-    event.type = change_state->atom;
+    event.type = wm_change_state->atom;
     event.format = 32;
     event.data.data32[0] = IconicState;
 
@@ -1015,6 +1009,9 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     wm_delete_msg = xcb_intern_atom_reply(context_.connection,
         xcb_intern_atom(context_.connection, 0, 16, "WM_DELETE_WINDOW"), NULL);
+
+    wm_change_state = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 15, "WM_CHANGE_STATE"), NULL);
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd, (*wm_protocols_event).atom, 4, 32, 1, &(*wm_delete_msg).atom);
 
@@ -1939,6 +1936,10 @@ void window::process_events()
                     context_.screen = nullptr;
                     context_.connection = nullptr;
                     context_.display = nullptr;
+
+                    free(wm_protocols_event);
+                    free(wm_delete_msg);
+                    free(wm_change_state);
 
                     runned = false;
 
