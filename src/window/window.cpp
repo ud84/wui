@@ -138,6 +138,9 @@ window::~window()
 #ifdef __linux__
     send_destroy_event();
     if (thread.joinable()) thread.join();
+
+    free(wm_protocols_event);
+    free(wm_delete_msg);
 #endif
 }
 
@@ -522,18 +525,19 @@ void window::minimize()
     ShowWindow(context_.hwnd, SW_MINIMIZE);
 #elif __linux__
 
-    auto minimize_atom = xcb_intern_atom_reply(context_.connection,
-            xcb_intern_atom(context_.connection, 1, 15,"WM_CHANGE_STATE"), 0);
+    auto change_state = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 15, "WM_CHANGE_STATE"), NULL);
 
     xcb_client_message_event_t event = { 0 };
 
-    event.response_type = XCB_CLIENT_MESSAGE;
-    event.format = 32;
     event.window = context_.wnd;
-    event.type = minimize_atom->atom;
-    event.data.data32[0] = XCB_ICCCM_WM_STATE_ICONIC;
+    event.response_type = XCB_CLIENT_MESSAGE;
+    event.type = change_state->atom;
+    event.format = 32;
+    event.data.data32[0] = IconicState;
 
-    xcb_send_event(context_.connection, 0, context_.wnd, XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT, (const char *) &event);
+    xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+    xcb_flush(context_.connection);
 #endif
 
     window_state_ = window_state::minimized;
