@@ -242,9 +242,27 @@ void window::receive_event(const event &ev)
 
 void window::set_position(const rect &position__)
 {
-    update_position(position__);
 #ifdef _WIN32
-    SetWindowPos(context_.hwnd, NULL, position_.left, position_.top, position_.width(), position_.height(), NULL);
+    if (context_.hwnd)
+    {
+        SetWindowPos(context_.hwnd, NULL, position__.left, position__.top, position__.width(), position__.height(), NULL);
+    }
+    else
+    {
+        update_position(position__);
+    }
+#elif __linux__
+    if (context_.connection && context_.wnd)
+    {
+        uint32_t values[] = { static_cast<uint32_t>(position__.left), static_cast<uint32_t>(position__.top),
+            static_cast<uint32_t>(position__.width()), static_cast<uint32_t>(position__.height()) };
+        xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+    }
+    else
+    {
+        update_position(position__);
+    }
 #endif
 }
 
@@ -547,6 +565,7 @@ void window::expand()
         }
 
         xcb_ewmh_get_workarea_reply_wipe(&wa);
+        xcb_ewmh_connection_wipe(&ewmh_connection);
     }
     else // fullscreen
     {
@@ -942,7 +961,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
         XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
         XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
         XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE    |
-        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE };
+        XCB_EVENT_MASK_STRUCTURE_NOTIFY };
 
     xcb_create_window(context_.connection,
                       XCB_COPY_FROM_PARENT,
@@ -1862,17 +1881,21 @@ void window::process_events()
             {
                 auto ev = (*(xcb_configure_notify_event_t*)e);
 
+                printf ("cne %d, %d, %d, %d\n", ev.x, ev.y, ev.x + ev.width, ev.y + ev.height);
+
                 auto old_position = position_;
 
                 update_position(rect{ ev.x, ev.y, ev.x + ev.width, ev.y + ev.height });
 
                 if (ev.width != old_position.width())
                 {
+                    printf ("bu\n");
                     update_buttons(false);
                 }
 
                 if ((ev.width != old_position.width() || ev.height != old_position.height()) && size_change_callback)
                 {
+                    printf ("sccc\n");
                     size_change_callback(ev.width, ev.height);
                 }
             }
