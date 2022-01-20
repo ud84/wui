@@ -243,6 +243,11 @@ void window::receive_event(const event &ev)
 
 void window::set_position(const rect &position__)
 {
+    set_position(position__, true);
+}
+
+void window::set_position(const rect &position__, bool change_value)
+{
 #ifdef _WIN32
     if (context_.hwnd)
     {
@@ -257,7 +262,10 @@ void window::set_position(const rect &position__)
             XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
     }
 #endif
-    position_ = position__;
+    if (change_value)
+    {
+        position_ = position__;
+    }
 }
 
 rect window::position() const
@@ -598,7 +606,7 @@ void window::normal()
         return;
     }
 
-    set_position(normal_position);
+    set_position(normal_position, false);
 
     expand_button->set_image(theme_image(ti_expand, theme_));
 

@@ -177,6 +177,8 @@ private:
 
 #endif
 
+    void set_position(const rect &position, bool change_value);
+
     bool send_mouse_event(const mouse_event &ev);
     void change_focus();
     void execute_focused();
