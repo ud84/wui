@@ -1030,9 +1030,9 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     xcb_flush(context_.connection);
 
-    graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tc, tv_background, theme_));
+    graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tc, tv_background, theme_)); // todo: need calc real desktop resolution
 #ifdef __linux__
-    graphic_.start_cairo_device();
+    graphic_.start_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
 #endif
 
     runned = true;
@@ -1972,7 +1972,7 @@ void window::process_events()
             	if ((*(xcb_client_message_event_t*)e).data.data32[0] == (*wm_delete_msg).atom)
                 {
 #ifdef __linux__
-            	    graphic_.end_cairo_device();
+            	    graphic_.end_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
 #endif
             	    graphic_.release();
 
