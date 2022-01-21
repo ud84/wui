@@ -118,7 +118,7 @@ window::window()
 #ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__
-    wm_protocols_event(nullptr), wm_delete_msg(nullptr),
+    wm_protocols_event(nullptr), wm_delete_msg(nullptr), wm_change_state(nullptr), net_wm_state(nullptr), net_wm_state_focused(nullptr),
     runned(false),
     thread()
 #endif
@@ -975,7 +975,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
         XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
         XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
         XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE    |
-        XCB_EVENT_MASK_STRUCTURE_NOTIFY };
+        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE };
 
     xcb_create_window(context_.connection,
                       XCB_COPY_FROM_PARENT,
@@ -1012,6 +1012,12 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     wm_change_state = xcb_intern_atom_reply(context_.connection,
         xcb_intern_atom(context_.connection, 0, 15, "WM_CHANGE_STATE"), NULL);
+
+    net_wm_state = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 13, "_NET_WM_STATE"), NULL);
+
+    net_wm_state_focused = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 21, "_NET_WM_STATE_FOCUSED"), NULL);
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd, (*wm_protocols_event).atom, 4, 32, 1, &(*wm_delete_msg).atom);
 
@@ -1924,8 +1930,36 @@ void window::process_events()
                 }
             }
             break;
+            case XCB_PROPERTY_NOTIFY:
+            {
+                auto ev = (*(xcb_property_notify_event_t*)e);
+
+                if (ev.atom == net_wm_state->atom)
+                {
+                    auto get_prop_cookie = xcb_get_property (context_.connection,
+                        0,
+                        context_.wnd,
+                        ev.atom,
+                        XCB_GET_PROPERTY_TYPE_ANY,
+                        0,
+                        1);
+
+                    auto property_reply = xcb_get_property_reply(context_.connection, get_prop_cookie, nullptr);
+
+                    if (property_reply->type == XCB_ATOM_ATOM && xcb_get_property_value_length(property_reply) > 0)
+                    {
+                        auto val = (xcb_atom_t*)xcb_get_property_value(property_reply);
+
+                        if (*val == net_wm_state_focused->atom && window_state_ == window_state::minimized)
+                        {
+                            window_state_ = prev_window_state_;
+                        }
+                    }
+                }
+            }
+            break;
             case XCB_CLIENT_MESSAGE:
-            	if((*(xcb_client_message_event_t*)e).data.data32[0] == (*wm_delete_msg).atom)
+            	if ((*(xcb_client_message_event_t*)e).data.data32[0] == (*wm_delete_msg).atom)
                 {
             	    xcb_destroy_window(context_.connection, context_.wnd);
             	    XCloseDisplay(context_.display);
@@ -1940,6 +1974,8 @@ void window::process_events()
                     free(wm_protocols_event);
                     free(wm_delete_msg);
                     free(wm_change_state);
+                    free(net_wm_state);
+                    free(net_wm_state_focused);
 
                     runned = false;
 

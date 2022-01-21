@@ -167,7 +167,8 @@ private:
 
 #elif __linux__
 
-    xcb_intern_atom_reply_t *wm_protocols_event, *wm_delete_msg, *wm_change_state;
+    xcb_intern_atom_reply_t *wm_protocols_event, *wm_delete_msg, *wm_change_state,
+        *net_wm_state, *net_wm_state_focused;
 
     bool runned;
     std::thread thread;
