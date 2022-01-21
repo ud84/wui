@@ -18,7 +18,7 @@
 
 #ifdef __linux__
 struct _cairo_surface;
-struct _cairo;
+struct _cairo_device;
 #endif
 
 namespace wui
@@ -77,6 +77,7 @@ private:
     xcb_gcontext_t gc;
 
     _cairo_surface *surface;
+    _cairo_device *device;
 #endif
 
 };

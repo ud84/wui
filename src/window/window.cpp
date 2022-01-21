@@ -977,7 +977,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
         XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE    |
         XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE };
 
-    xcb_create_window(context_.connection,
+    auto window_cookie = xcb_create_window(context_.connection,
                       XCB_COPY_FROM_PARENT,
                       context_.wnd,
 					  context_.screen->root, // parent window
@@ -987,6 +987,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
                       XCB_WINDOW_CLASS_INPUT_OUTPUT,
                       context_.screen->root_visual,
                       mask, values);
+
+    if (!check_cookie(window_cookie, context_.connection, "WUI error, can't create a new window\n"))
+    {
+        return false;
+    }
 
     remove_window_decorations(context_);
 
@@ -1963,10 +1968,10 @@ void window::process_events()
             case XCB_CLIENT_MESSAGE:
             	if ((*(xcb_client_message_event_t*)e).data.data32[0] == (*wm_delete_msg).atom)
                 {
+            	    graphic_.release();
+
             	    xcb_destroy_window(context_.connection, context_.wnd);
             	    XCloseDisplay(context_.display);
-
-            	    graphic_.release();
 
                     context_.wnd = 0;
                     context_.screen = nullptr;

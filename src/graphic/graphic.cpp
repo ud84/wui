@@ -58,7 +58,8 @@ graphic::graphic(system_context &context__)
 #elif __linux__
     , mem_pixmap(0),
     gc(0),
-    surface(nullptr)
+    surface(nullptr),
+    device(nullptr)
 #endif
 {
 }
@@ -125,6 +126,12 @@ void graphic::init(const rect &max_size_, color background_color)
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
 
     surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, default_visual_type(context_), max_size.width(), max_size.height());
+    if (!surface)
+    {
+        fprintf(stderr, "WUI error can't create the cairo surface on graphic::init()");
+    }
+
+    device = cairo_device_reference(cairo_surface_get_device(surface));
 
 #endif
 }
@@ -145,6 +152,9 @@ void graphic::release()
     {
         cairo_surface_destroy(surface);
         surface = nullptr;
+
+        cairo_device_finish(device);
+        cairo_device_destroy(device);
     }
 
     if (gc)
@@ -305,6 +315,12 @@ rect graphic::measure_text(const std::string &text, const font &font__)
 
     return rect {0, 0, text_rect.right, text_rect.bottom};
 #elif __linux__
+    if (!surface)
+    {
+        fprintf(stderr, "WUI error no cairo on graphic::measure_text()");
+        return rect{ 0 };
+    }
+
     auto cr = cairo_create(surface);
     if (!cr)
     {
@@ -345,6 +361,12 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
     SelectObject(mem_dc, old_font);
     DeleteObject(font_);
 #elif __linux__
+    if (!surface)
+    {
+        fprintf(stderr, "WUI error no cairo on graphic::draw_text()");
+        return;
+    }
+
     auto cr = cairo_create(surface);
 
     if (!cr)
@@ -494,6 +516,12 @@ xcb_drawable_t graphic::drawable()
 
 void graphic::draw_surface(_cairo_surface *surface_, const rect &position__)
 {
+    if (!surface)
+    {
+        fprintf(stderr, "WUI error no cairo on graphic::draw_surface()");
+        return;
+    }
+
     auto cr = cairo_create(surface);
 
     cairo_set_source_surface(cr, surface_, position__.left, position__.top);
