@@ -18,6 +18,8 @@
 #include <cairo-xcb.h>
 #include <cmath>
 
+#include <algorithm>
+
 xcb_visualtype_t *default_visual_type(wui::system_context &context_)
 {
     auto depth_iter = xcb_screen_allowed_depths_iterator(context_.screen);
@@ -315,6 +317,9 @@ rect graphic::measure_text(const std::string &text, const font &font__)
         return rect{ 0 };
     }
 
+    auto text_ = text; /// workaround to correct measure spaces
+    std::replace(text_.begin(), text_.end(), ' ', 'i');
+
     auto cr = cairo_create(surface);
     if (!cr)
     {
@@ -326,7 +331,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
     cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL,
         !flag_is_set(font__.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, font__.size);
-    cairo_text_extents(cr, text.c_str(), &extents);
+    cairo_text_extents(cr, text_.c_str(), &extents);
 
     cairo_destroy(cr);
 

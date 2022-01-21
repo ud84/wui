@@ -119,6 +119,7 @@ window::window()
     mouse_tracked(false)
 #elif __linux__
     wm_protocols_event(nullptr), wm_delete_msg(nullptr), wm_change_state(nullptr), net_wm_state(nullptr), net_wm_state_focused(nullptr),
+    prev_button_click(0),
     runned(false),
     thread()
 #endif
@@ -1787,7 +1788,7 @@ void window::process_events()
             case XCB_BUTTON_PRESS:
             {
                 auto *ev = (xcb_button_press_event_t *)e;
-                if (ev->detail == 1)
+                if (ev->detail == 1 && ev->time - prev_button_click > 200)
                 {
                     x_click = ev->event_x;
                     y_click = ev->event_y;
@@ -1845,7 +1846,9 @@ void window::process_events()
                 auto *ev = (xcb_button_press_event_t *)e;
                 if (ev->detail == 1)
                 {
-                    send_mouse_event({ mouse_event_type::left_up, ev->event_x, ev->event_y });
+                    send_mouse_event({ ev->time - prev_button_click > 300 ? mouse_event_type::left_up : mouse_event_type::left_double, ev->event_x, ev->event_y });
+
+                    prev_button_click = ev->time;
                 }
             }
             break;

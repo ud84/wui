@@ -170,6 +170,8 @@ private:
     xcb_intern_atom_reply_t *wm_protocols_event, *wm_delete_msg, *wm_change_state,
         *net_wm_state, *net_wm_state_focused;
 
+    time_t prev_button_click;
+
     bool runned;
     std::thread thread;
     void process_events();

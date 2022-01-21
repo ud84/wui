@@ -232,17 +232,17 @@ void input::select_current_word(int32_t x)
     select_start_position = cursor_position;
     select_end_position = cursor_position;
 
-    while (select_start_position != 0 && text_[select_start_position] != L' ')
+    while (select_start_position != 0 && text_[select_start_position] != ' ')
     {
         --select_start_position;
     }
 
-    if (text_[select_start_position] == L' ') // remove first space from selection
+    if (text_[select_start_position] == ' ') // remove first space from selection
     {
         ++select_start_position;
     }
 
-    while (select_end_position != text_.size() && text_[select_end_position] != L' ')
+    while (select_end_position != text_.size() && text_[select_end_position] != ' ')
     {
         ++select_end_position;
     }
