@@ -1954,6 +1954,8 @@ void window::process_events()
                         {
                             window_state_ = prev_window_state_;
                         }
+
+                        free(property_reply);
                     }
                 }
             }
