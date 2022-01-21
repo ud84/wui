@@ -130,9 +130,6 @@ void graphic::init(const rect &max_size_, color background_color)
     {
         fprintf(stderr, "WUI error can't create the cairo surface on graphic::init()");
     }
-
-    device = cairo_device_reference(cairo_surface_get_device(surface));
-
 #endif
 }
 
@@ -152,9 +149,6 @@ void graphic::release()
     {
         cairo_surface_destroy(surface);
         surface = nullptr;
-
-        cairo_device_finish(device);
-        cairo_device_destroy(device);
     }
 
     if (gc)
@@ -512,6 +506,25 @@ HDC graphic::drawable()
 xcb_drawable_t graphic::drawable()
 {
     return mem_pixmap;
+}
+
+/// workarounds
+void graphic::start_cairo_device()
+{
+    if (!device)
+    {
+        device = cairo_device_reference(cairo_surface_get_device(surface));
+    }
+}
+
+void graphic::end_cairo_device()
+{
+    if (device)
+    {
+        cairo_device_finish(device);
+        cairo_device_destroy(device);
+        device = nullptr;
+    }
 }
 
 void graphic::draw_surface(_cairo_surface *surface_, const rect &position__)

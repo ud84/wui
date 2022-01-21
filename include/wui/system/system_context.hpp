@@ -18,19 +18,21 @@
 namespace wui
 {
 
+class graphic;
+
 #ifdef _WIN32
 
 struct system_context
 {
-    HWND hwnd;
-    HDC dc;
+    HWND    hwnd;
+    HDC     dc;
 };
 
 #elif __linux__
 
 struct system_context
 {
-    Display         *display;
+    Display          *display;
 
     xcb_connection_t *connection;
     xcb_screen_t     *screen;

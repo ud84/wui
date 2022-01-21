@@ -1031,6 +1031,9 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     xcb_flush(context_.connection);
 
     graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tc, tv_background, theme_));
+#ifdef __linux__
+    graphic_.start_cairo_device();
+#endif
 
     runned = true;
     if (thread.joinable()) thread.join();
@@ -1968,6 +1971,9 @@ void window::process_events()
             case XCB_CLIENT_MESSAGE:
             	if ((*(xcb_client_message_event_t*)e).data.data32[0] == (*wm_delete_msg).atom)
                 {
+#ifdef __linux__
+            	    graphic_.end_cairo_device();
+#endif
             	    graphic_.release();
 
             	    xcb_destroy_window(context_.connection, context_.wnd);
