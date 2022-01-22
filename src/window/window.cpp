@@ -397,7 +397,7 @@ bool window::remove_focus()
         return true;
     }
 
-    controls[focused_index]->set_focus();
+    set_focused(focused_index);
 
     return false;
 }
@@ -806,21 +806,8 @@ void window::change_focus()
     {
         focused_index = 0;
     }
-
-    size_t index = 0;
-    for (auto &control : controls)
-    {
-        if (control->focusing())
-        {
-            if (index == focused_index)
-            {
-                control->set_focus();
-                break;
-            }
-			
-            ++index;
-        }
-    }
+    
+    set_focused(focused_index);
 }
 
 void window::execute_focused()
@@ -860,6 +847,24 @@ void window::set_focused(std::shared_ptr<i_control> &control)
     }
 
     control->set_focus();
+}
+
+void window::set_focused(size_t focused_index_)
+{
+    size_t index = 0;
+    for (auto &control : controls)
+    {
+        if (control->focusing())
+        {
+            if (index == focused_index_)
+            {
+                control->set_focus();
+                break;
+            }
+
+            ++index;
+        }
+    }
 }
 
 std::shared_ptr<i_control> window::get_focused()

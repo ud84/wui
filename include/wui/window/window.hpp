@@ -201,6 +201,7 @@ private:
     void change_focus();
     void execute_focused();
     void set_focused(std::shared_ptr<i_control> &control);
+    void set_focused(size_t index);
     std::shared_ptr<i_control> get_focused();
 
     void update_buttons(bool theme_changed);
