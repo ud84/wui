@@ -11,7 +11,6 @@
 
 #include <wui/control/i_control.hpp>
 #include <wui/graphic/graphic.hpp>
-#include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
 
@@ -29,8 +28,6 @@ public:
     ~tooltip();
 
     virtual void draw(graphic &gr);
-
-    virtual void receive_event(const event &ev);
 
     virtual void set_position(const rect &position);
     virtual rect position() const;

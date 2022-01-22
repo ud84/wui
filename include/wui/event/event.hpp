@@ -16,12 +16,14 @@
 namespace wui
 {
 
-enum class event_type
+enum class event_type : uint32_t
 {
-    system,
-    mouse,
-    keyboard,
-    internal
+    system = (1 << 0),
+    mouse = (1 << 1),
+    keyboard = (1 << 2),
+    internal = (1 << 3),
+
+    all = system | mouse | keyboard | internal
 };
 
 struct event

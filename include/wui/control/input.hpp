@@ -37,8 +37,6 @@ public:
 
     virtual void draw(graphic &gr);
 
-    virtual void receive_event(const event &ev);
-
     virtual void set_position(const rect &position);
     virtual rect position() const;
 
@@ -93,6 +91,7 @@ private:
     size_t cursor_position, select_start_position, select_end_position;
     
     std::weak_ptr<window> parent;
+    int32_t my_subscriber_id;
 
     timer timer_;
 
@@ -103,6 +102,8 @@ private:
     bool selecting;
 
     int32_t left_shift;
+
+    void receive_event(const event &ev);
 
     void redraw();
 

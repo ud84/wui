@@ -59,8 +59,6 @@ public:
 
     virtual void draw(graphic &gr);
 
-    virtual void receive_event(const event &ev);
-
     virtual void set_position(const rect &position);
     virtual rect position() const;
 
@@ -121,6 +119,8 @@ private:
 
     bool showed_;
     bool size_updated;
+
+    void receive_event(const event &ev);
 
     void update_size();
 

@@ -31,6 +31,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     theme_(theme__),
     position_(),
     parent(),
+    my_subscriber_id(-1),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true)
 {
@@ -274,10 +275,18 @@ void button::set_parent(std::shared_ptr<window> window_)
 {
     parent = window_;
     window_->add_control(tooltip_, tooltip_->position());
+    my_subscriber_id = window_->subscribe(std::bind(&button::receive_event, this, std::placeholders::_1),
+        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse)),
+        shared_from_this());
 }
 
 void button::clear_parent()
 {
+    auto parent_ = parent.lock();
+    if (parent_)
+    {
+        parent_->unsubscribe(my_subscriber_id);
+    }
     parent.reset();
 }
 

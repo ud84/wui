@@ -50,9 +50,8 @@ public:
     button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::vector<uint8_t> &image_data, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
     ~button();
 
+    /// i_control impl
     virtual void draw(graphic &gr);
-
-    virtual void receive_event(const event &ev);
 
     virtual void set_position(const rect &position);
     virtual rect position() const;
@@ -77,6 +76,7 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
+    /// button's interface
     void set_caption(const std::string &caption);
 
     void set_button_view(button_view button_view_);
@@ -117,10 +117,13 @@ private:
     rect position_;
 
     std::weak_ptr<window> parent;
+    int32_t my_subscriber_id;
 
     bool showed_, enabled_;
     bool active, focused_;
     bool focusing_;
+
+    void receive_event(const event &ev);
 
     void redraw();
 };

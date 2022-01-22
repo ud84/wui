@@ -210,10 +210,6 @@ void image::draw(graphic &gr_)
 #endif
 }
 
-void image::receive_event(const event &)
-{
-}
-
 void image::set_position(const rect &position__)
 {
     auto prev_position = position_;

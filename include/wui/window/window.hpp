@@ -49,6 +49,9 @@ public:
 
     virtual void redraw(const rect &position, bool clear = false);
 
+    virtual int32_t subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr);
+    virtual void unsubscribe(int32_t subscriber_id);
+
     virtual system_context &context();
 
 	/// IControl
@@ -134,6 +137,15 @@ private:
     size_t focused_index;
 
     std::shared_ptr<window> parent;
+    int32_t my_subscriber_id;
+
+    struct event_subscriber
+    {
+        std::function<void(const event&)> receive_callback;
+        event_type event_types;
+        std::shared_ptr<i_control> control;
+    };
+    std::vector<event_subscriber> subscribers_;
 
     enum class moving_mode
     {
@@ -181,6 +193,8 @@ private:
 #endif
 
     void set_position(const rect &position, bool change_value);
+
+    void send_event_to_control(std::shared_ptr<i_control> &control, const event &ev);
 
     bool send_mouse_event(const mouse_event &ev);
     void change_focus();

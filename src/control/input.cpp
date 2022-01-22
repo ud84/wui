@@ -31,6 +31,7 @@ input::input(const std::string &text__, input_view input_view__, std::shared_ptr
     position_(),
     cursor_position(0), select_start_position(0), select_end_position(0),
     parent(),
+    my_subscriber_id(-1),
     timer_(std::bind(&input::redraw_cursor, this)),
     showed_(true), enabled_(true),
     focused_(false),
@@ -517,10 +518,18 @@ rect input::position() const
 void input::set_parent(std::shared_ptr<window> window_)
 {
     parent = window_;
+    my_subscriber_id = window_->subscribe(std::bind(&input::receive_event, this, std::placeholders::_1),
+        static_cast<event_type>(static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
+        shared_from_this());
 }
 
 void input::clear_parent()
 {
+    auto parent_ = parent.lock();
+    if (parent_)
+    {
+        parent_->unsubscribe(my_subscriber_id);
+    }
     parent.reset();
 }
 

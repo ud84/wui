@@ -21,6 +21,7 @@
 #include <boost/nowide/convert.hpp>
 
 #include <algorithm>
+#include <set>
 
 #ifdef _WIN32
 
@@ -105,6 +106,8 @@ window::window()
     showed_(true), enabled_(true),
     focused_index(0),
     parent(),
+    my_subscriber_id(-1),
+    subscribers_(),
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
     close_callback(),
@@ -195,6 +198,20 @@ void window::redraw(const rect &redraw_position, bool clear)
             xcb_flush(context_.connection);
         }
 #endif
+    }
+}
+
+int32_t window::subscribe(std::function<void(const event&)> receive_callback_, event_type event_types_, std::shared_ptr<i_control> control_)
+{
+    subscribers_.emplace_back(event_subscriber{ receive_callback_, event_types_, control_ });
+    return static_cast<int32_t>(subscribers_.size() - 1);
+}
+
+void window::unsubscribe(int32_t subscriber_id)
+{
+    if (subscriber_id > 0 && subscribers_.size() > subscriber_id)
+    {
+        subscribers_.erase(subscribers_.begin() + subscriber_id);
     }
 }
 
@@ -294,6 +311,8 @@ void window::set_parent(std::shared_ptr<window> window)
         }
 #endif
 
+        my_subscriber_id = window->subscribe(std::bind(&window::receive_event, this, std::placeholders::_1), event_type::all, shared_from_this());
+
         for (auto &control : controls)
         {
             control->set_position({ control->position().left + position_.left,
@@ -312,6 +331,8 @@ void window::clear_parent()
 {
     if (parent)
     {
+        parent->unsubscribe(my_subscriber_id);
+
         for (auto &control : controls)
         {
             control->set_position({ control->position().left - position_.left,
@@ -498,7 +519,7 @@ void window::pin()
     if (active_control)
     {
         mouse_event me{ mouse_event_type::leave, 0, 0 };
-        active_control->receive_event({ event_type::mouse, me });
+        send_event_to_control(active_control, { event_type::mouse, me });
         active_control.reset();
     }
 
@@ -659,12 +680,23 @@ void window::set_pin_callback(std::function<void(std::string &tooltip_text)> pin
     pin_callback = pin_callback_;
 }
 
+void window::send_event_to_control(std::shared_ptr<i_control> &control_, const event &ev)
+{
+    auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [control_, ev](const event_subscriber &es) {
+        return flag_is_set(es.event_types, ev.type) && es.control == control_;
+    });
+    if (it != subscribers_.end())
+    {
+        it->receive_callback(ev);
+    }
+}
+
 bool window::send_mouse_event(const mouse_event &ev)
 {
     if (active_control && !active_control->position().in(ev.x, ev.y))
     {
         mouse_event me{ mouse_event_type::leave, 0, 0 };
-        active_control->receive_event({ event_type::mouse, me });
+        send_event_to_control(active_control, { event_type::mouse, me });
 
         active_control.reset();
     }
@@ -681,20 +713,20 @@ bool window::send_mouse_event(const mouse_event &ev)
                     set_focused(*control);
                 }
 
-                (*control)->receive_event({ event_type::mouse, ev });
+                send_event_to_control((*control), { event_type::mouse, ev });
             }
             else
             {
                 if (active_control)
                 {
                     mouse_event me{ mouse_event_type::leave, 0, 0 };
-                    active_control->receive_event({ event_type::mouse, me });
+                    send_event_to_control(active_control, { event_type::mouse, me });
                 }
 
                 active_control = *control;
 
                 mouse_event me{ mouse_event_type::enter, 0, 0 };
-                (*control)->receive_event({ event_type::mouse, me });
+                send_event_to_control((*control), { event_type::mouse, me });
             }
 
             return true;
@@ -764,9 +796,9 @@ void window::execute_focused()
     {
         event ev;
         ev.type = event_type::internal;
-        ev.internal_event_ = internal_event{ internal_event_type::execute_focused };;
+        ev.internal_event_ = internal_event{ internal_event_type::execute_focused };
 
-        control->receive_event(ev);
+        send_event_to_control(control, ev);
     }
 }
 
@@ -1484,7 +1516,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, get_key_modifier(), 0 };
                 ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
 
-                control->receive_event(ev);
+                wnd->send_event_to_control(control, ev);
             }
         }
         break;
@@ -1499,7 +1531,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, get_key_modifier(), 0 };
                 ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
 
-                control->receive_event(ev);
+                wnd->send_event_to_control(control, ev);
             }
         }
         break;
@@ -1518,7 +1550,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     memcpy(ev.keyboard_event_.key, narrow_str.c_str(), narrow_str.size());
                     ev.keyboard_event_.key_size = static_cast<uint8_t>(narrow_str.size());
                     
-                    control->receive_event(ev);
+                    wnd->send_event_to_control(control, ev);
                 }
                 break;
             }
@@ -1877,7 +1909,7 @@ void window::process_events()
                         ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, normalize_modifier(ev_.state), 0 };
                         ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
 
-                        control->receive_event(ev);
+                        send_event_to_control(control, ev);
                     }
                 }
                 else
@@ -1897,7 +1929,7 @@ void window::process_events()
                         ev.keyboard_event_.key_size = static_cast<uint8_t>(XLookupString(&keyev, ev.keyboard_event_.key, sizeof(ev.keyboard_event_.key), nullptr, nullptr));
                         if (ev.keyboard_event_.key_size)
                         {
-                            control->receive_event(ev);
+                            send_event_to_control(control, ev);
                         }
                     }
                 }
@@ -1915,7 +1947,7 @@ void window::process_events()
                     ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, normalize_modifier(ev_.state), 0 };
                     ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
 
-                    control->receive_event(ev);
+                    send_event_to_control(control, ev);
                 }
             }
             break;

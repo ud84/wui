@@ -14,7 +14,6 @@
 namespace wui
 {
 
-struct event;
 struct rect;
 class graphic;
 class window;
@@ -25,8 +24,6 @@ class i_control
 public:
     virtual void draw(graphic &gr) = 0;
 
-    virtual void receive_event(const event &ev) = 0; /// Events from parent window
-
     virtual void set_position(const rect &position) = 0;
     virtual rect position() const = 0;
 
@@ -36,8 +33,8 @@ public:
     virtual bool topmost() const = 0;
 
     virtual void set_focus() = 0;
-    virtual bool remove_focus() = 0; /// Returns false if the control changes focus within its internal controls
-    virtual bool focused() const = 0; /// Returns true if the control is focused
+    virtual bool remove_focus() = 0;   /// Returns false if the control changes focus within its internal controls
+    virtual bool focused() const = 0;  /// Returns true if the control is focused
     virtual bool focusing() const = 0; /// Returns true if the control receives focus
 
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) = 0;

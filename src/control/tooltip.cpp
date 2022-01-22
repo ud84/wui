@@ -58,10 +58,6 @@ void tooltip::draw(graphic &gr)
     gr.draw_text(text_position, text, theme_color(tc, tv_text, theme_), font_);
 }
 
-void tooltip::receive_event(const event &)
-{
-}
-
 void tooltip::set_position(const rect &position__)
 {
     auto prev_position = position_;

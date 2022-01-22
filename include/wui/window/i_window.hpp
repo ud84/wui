@@ -38,6 +38,8 @@ enum class window_style : uint32_t
 };
 
 struct system_context;
+struct event;
+enum class event_type : uint32_t;
 
 class i_window
 {
@@ -49,6 +51,9 @@ public:
     virtual void remove_control(std::shared_ptr<i_control> control) = 0;
 
     virtual void redraw(const rect &position, bool clear = false) = 0;
+
+    virtual int32_t subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr) = 0;
+    virtual void unsubscribe(int32_t subscriber_id) = 0;
 
     virtual system_context &context() = 0;
 
