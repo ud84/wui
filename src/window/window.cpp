@@ -740,7 +740,7 @@ bool window::send_mouse_event(const mouse_event &ev)
         {
             if (active_control == *control)
             {
-                if (ev.type == mouse_event_type::left_up)
+                if ((*control)->focusing() && ev.type == mouse_event_type::left_up)
                 {
                     set_focused(*control);
                 }
@@ -806,6 +806,10 @@ void window::change_focus()
     {
         focused_index = 0;
     }
+
+    OutputDebugStringA("focused_index: ");
+    OutputDebugStringA(std::to_string(focused_index).c_str());
+    OutputDebugStringA("\n");
     
     set_focused(focused_index);
 }
@@ -828,9 +832,13 @@ void window::set_focused(std::shared_ptr<i_control> &control)
     size_t index = 0;
     for (auto &c : controls)
     {
-        if (c == control && c->focused())
+        if (c == control)
         {
-            return;
+            if (c->focused())
+            {
+                return;
+            }
+            focused_index = index;
         }
 
         if (c->focused())
@@ -838,13 +846,15 @@ void window::set_focused(std::shared_ptr<i_control> &control)
             c->remove_focus();
         }
 
-        if (c == control)
+        if (c->focusing())
         {
-            focused_index = index;
+            ++index;
         }
-
-        ++index;
     }
+
+    OutputDebugStringA("focused_index: ");
+    OutputDebugStringA(std::to_string(focused_index).c_str());
+    OutputDebugStringA("\n");
 
     control->set_focus();
 }
