@@ -807,10 +807,6 @@ void window::change_focus()
         focused_index = 0;
     }
 
-    OutputDebugStringA("focused_index: ");
-    OutputDebugStringA(std::to_string(focused_index).c_str());
-    OutputDebugStringA("\n");
-    
     set_focused(focused_index);
 }
 
@@ -851,10 +847,6 @@ void window::set_focused(std::shared_ptr<i_control> &control)
             ++index;
         }
     }
-
-    OutputDebugStringA("focused_index: ");
-    OutputDebugStringA(std::to_string(focused_index).c_str());
-    OutputDebugStringA("\n");
 
     control->set_focus();
 }
