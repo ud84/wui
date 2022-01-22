@@ -194,9 +194,9 @@ private:
 
     void set_position(const rect &position, bool change_value);
 
-    void send_event_to_control(std::shared_ptr<i_control> &control, const event &ev);
-
+    bool send_event_to_control(std::shared_ptr<i_control> &control, const event &ev);
     bool send_mouse_event(const mouse_event &ev);
+
     void change_focus();
     void execute_focused();
     void set_focused(std::shared_ptr<i_control> &control);

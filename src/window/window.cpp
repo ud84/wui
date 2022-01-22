@@ -680,7 +680,7 @@ void window::set_pin_callback(std::function<void(std::string &tooltip_text)> pin
     pin_callback = pin_callback_;
 }
 
-void window::send_event_to_control(std::shared_ptr<i_control> &control_, const event &ev)
+bool window::send_event_to_control(std::shared_ptr<i_control> &control_, const event &ev)
 {
     auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [control_, ev](const event_subscriber &es) {
         return flag_is_set(es.event_types, ev.type) && es.control == control_;
@@ -688,7 +688,9 @@ void window::send_event_to_control(std::shared_ptr<i_control> &control_, const e
     if (it != subscribers_.end())
     {
         it->receive_callback(ev);
+        return true;
     }
+    return false;
 }
 
 bool window::send_mouse_event(const mouse_event &ev)
@@ -713,7 +715,7 @@ bool window::send_mouse_event(const mouse_event &ev)
                     set_focused(*control);
                 }
 
-                send_event_to_control((*control), { event_type::mouse, ev });
+                return send_event_to_control((*control), { event_type::mouse, ev });
             }
             else
             {
@@ -726,10 +728,8 @@ bool window::send_mouse_event(const mouse_event &ev)
                 active_control = *control;
 
                 mouse_event me{ mouse_event_type::enter, 0, 0 };
-                send_event_to_control((*control), { event_type::mouse, me });
+                return send_event_to_control((*control), { event_type::mouse, me });
             }
-
-            return true;
         }
     }
 
