@@ -755,7 +755,7 @@ bool window::send_mouse_event(const mouse_event &ev)
                     send_event_to_control(active_control, { event_type::mouse, me });
                 }
                 
-                if (ev.y < 5)
+                if (ev.y < 5 || (ev.y < 24 && ev.x > position_.width() - 5)) /// control buttons border
                 {
                     active_control.reset();
                     return false;
