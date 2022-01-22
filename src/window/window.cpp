@@ -754,6 +754,12 @@ bool window::send_mouse_event(const mouse_event &ev)
                     mouse_event me{ mouse_event_type::leave, 0, 0 };
                     send_event_to_control(active_control, { event_type::mouse, me });
                 }
+                
+                if (ev.y < 5)
+                {
+                    active_control.reset();
+                    return false;
+                }
 
                 active_control = *control;
 
