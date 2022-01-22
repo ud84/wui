@@ -249,8 +249,27 @@ void window::receive_event(const event &ev)
 
     switch (ev.type)
     {
+        case event_type::system:
+            send_event_to_plains(ev);
+        break;
         case event_type::mouse:
             send_mouse_event(ev.mouse_event_);
+        break;
+        case event_type::keyboard:
+        {
+            auto control = get_focused();
+            if (control)
+            {
+                if (!send_event_to_control(control, ev))
+                {
+                    send_event_to_plains(ev);
+                }
+            }
+            else
+            {
+                send_event_to_plains(ev);
+            }
+        }
         break;
         case event_type::internal:
             if (ev.internal_event_.type == internal_event_type::execute_focused)
@@ -693,6 +712,17 @@ bool window::send_event_to_control(std::shared_ptr<i_control> &control_, const e
     return false;
 }
 
+void window::send_event_to_plains(const event &ev)
+{
+    for (auto &s : subscribers_)
+    {
+        if (!s.control && flag_is_set(s.event_types, ev.type))
+        {
+            s.receive_callback(ev);
+        }
+    }
+}
+
 bool window::send_mouse_event(const mouse_event &ev)
 {
     if (active_control && !active_control->position().in(ev.x, ev.y))
@@ -730,6 +760,10 @@ bool window::send_mouse_event(const mouse_event &ev)
                 mouse_event me{ mouse_event_type::enter, 0, 0 };
                 return send_event_to_control((*control), { event_type::mouse, me });
             }
+        }
+        else
+        {
+            send_event_to_plains({ event_type::mouse, ev });
         }
     }
 
@@ -1508,30 +1542,39 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 wnd->execute_focused();
             }
 
+            event ev;
+            ev.type = event_type::keyboard;
+            ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, get_key_modifier(), 0 };
+            ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
+
             auto control = wnd->get_focused();
             if (control)
             {
-                event ev;
-                ev.type = event_type::keyboard;
-                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, get_key_modifier(), 0 };
-                ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
-
                 wnd->send_event_to_control(control, ev);
+            }
+            else
+            {
+                wnd->send_event_to_plains(ev);
             }
         }
         break;
         case WM_KEYUP:
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+            event ev;
+            ev.type = event_type::keyboard;
+            ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, get_key_modifier(), 0 };
+            ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
+
             auto control = wnd->get_focused();
             if (control)
             {
-                event ev;
-                ev.type = event_type::keyboard;
-                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, get_key_modifier(), 0 };
-                ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
-
                 wnd->send_event_to_control(control, ev);
+            }
+            else
+            {
+                wnd->send_event_to_plains(ev);
             }
         }
         break;
@@ -1539,20 +1582,23 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             if (w_param != VK_BACK && w_param != VK_DELETE && w_param != VK_END && w_param != VK_HOME && w_param != VK_LEFT && w_param != VK_RIGHT && w_param != VK_SHIFT)
             {
                 window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+                event ev;
+                ev.type = event_type::keyboard;
+                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, get_key_modifier(), 0 };
+                auto narrow_str = boost::nowide::narrow(reinterpret_cast<const wchar_t*>(&w_param));
+                memcpy(ev.keyboard_event_.key, narrow_str.c_str(), narrow_str.size());
+                ev.keyboard_event_.key_size = static_cast<uint8_t>(narrow_str.size());
+
                 auto control = wnd->get_focused();
                 if (control)
                 {
-                    event ev;
-                    ev.type = event_type::keyboard;
-                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, get_key_modifier(), 0 };
-                    
-                    auto narrow_str = boost::nowide::narrow(reinterpret_cast<const wchar_t*>(&w_param));
-                    memcpy(ev.keyboard_event_.key, narrow_str.c_str(), narrow_str.size());
-                    ev.keyboard_event_.key_size = static_cast<uint8_t>(narrow_str.size());
-                    
                     wnd->send_event_to_control(control, ev);
                 }
-                break;
+                else
+                {
+                    wnd->send_event_to_plains(ev);
+                }
             }
         break;
         case WM_DESTROY:
@@ -1901,35 +1947,43 @@ void window::process_events()
                 }
                 else if (ev_.detail == vk_back || ev_.detail == vk_del || ev_.detail == vk_end || ev_.detail == vk_home || ev_.detail == vk_left || ev_.detail == vk_right || ev_.detail == vk_up || ev_.detail == vk_down || ev_.detail == vk_shift)
                 {
+                    event ev;
+                    ev.type = event_type::keyboard;
+                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, normalize_modifier(ev_.state), 0 };
+                    ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
+
                     auto control = get_focused();
                     if (control)
                     {
-                        event ev;
-                        ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, normalize_modifier(ev_.state), 0 };
-                        ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
-
                         send_event_to_control(control, ev);
+                    }
+                    else
+                    {
+                        send_event_to_plains(ev);
                     }
                 }
                 else
                 {
-                    auto control = get_focused();
-                    if (control)
-                    {
-                        event ev;
-                        ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, normalize_modifier(ev_.state), 0 };
-                        
-                        XKeyPressedEvent keyev;
-                        keyev.display = context_.display;
-                        keyev.keycode = ev_.detail;
-                        keyev.state = ev_.state;
+                    event ev;
+                    ev.type = event_type::keyboard;
+                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, normalize_modifier(ev_.state), 0 };
 
-                        ev.keyboard_event_.key_size = static_cast<uint8_t>(XLookupString(&keyev, ev.keyboard_event_.key, sizeof(ev.keyboard_event_.key), nullptr, nullptr));
-                        if (ev.keyboard_event_.key_size)
+                    XKeyPressedEvent keyev;
+                    keyev.display = context_.display;
+                    keyev.keycode = ev_.detail;
+                    keyev.state = ev_.state;
+
+                    ev.keyboard_event_.key_size = static_cast<uint8_t>(XLookupString(&keyev, ev.keyboard_event_.key, sizeof(ev.keyboard_event_.key), nullptr, nullptr));
+                    if (ev.keyboard_event_.key_size)
+                    {
+                        auto control = get_focused();
+                        if (control)
                         {
                             send_event_to_control(control, ev);
+                        }
+                        else
+                        {
+                            send_event_to_plains(ev);
                         }
                     }
                 }
@@ -1939,15 +1993,19 @@ void window::process_events()
             {
                 auto ev_ = *(xcb_key_press_event_t *)e;
 
+                event ev;
+                ev.type = event_type::keyboard;
+                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, normalize_modifier(ev_.state), 0 };
+                ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
+
                 auto control = get_focused();
                 if (control)
                 {
-                    event ev;
-                    ev.type = event_type::keyboard;
-                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, normalize_modifier(ev_.state), 0 };
-                    ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
-
                     send_event_to_control(control, ev);
+                }
+                else
+                {
+                    send_event_to_plains(ev);
                 }
             }
             break;

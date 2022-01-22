@@ -26,8 +26,8 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     std::shared_ptr<wui::window> window;
     std::shared_ptr<wui::button> plugButton, unplugButton;
-
-    std::weak_ptr<wui::button> createPluggedButton;
+    std::shared_ptr<wui::input> input;
+    std::weak_ptr<wui::button> creationButton;
 
     bool plugged;
 
@@ -54,16 +54,16 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         plugged = !plugged;
     }
 
-    void SetPluggedButton(std::shared_ptr<wui::button> &createPluggedButton_)
+    void SetCreationButton(std::shared_ptr<wui::button> &creationButton_)
     {
-        createPluggedButton = createPluggedButton_;
+        creationButton = creationButton_;
     }
 
     void Init()
     {
         window->init("Child window plugged!", wui::rect{ 20, 30, 190, 190 }, wui::window_style::pinned, [this]() {
-            if (createPluggedButton.lock())
-                createPluggedButton.lock()->enable();
+            if (creationButton.lock())
+                creationButton.lock()->enable();
         });
     }
 
@@ -72,11 +72,13 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         window(new wui::window()),
         plugButton(new wui::button("Plug Window", std::bind(&PluggedWindow::Plug, this))),
         unplugButton(new wui::button("Unplug Window", std::bind(&PluggedWindow::Unplug, this))),
-        createPluggedButton(),
+        input(new wui::input()),
+        creationButton(),
         plugged(true)
     {
         window->add_control(unplugButton, wui::rect{ 10, 40, 110, 65 });
         window->add_control(plugButton, wui::rect{ 10, 85, 110, 110 });
+        window->add_control(input, wui::rect{ 10, 130, 150, 155 });
 
         window->set_pin_callback([this](std::string &tooltip_text) {
             if (plugged)
@@ -154,10 +156,10 @@ int main(int argc, char *argv[])
     createPluggedButton->set_callback([&window, &pluggedWindow, &createPluggedButton]() {
         pluggedWindow.reset();
         pluggedWindow = std::shared_ptr<PluggedWindow>(new PluggedWindow(window));
-        pluggedWindow->SetPluggedButton(createPluggedButton);
+        pluggedWindow->SetCreationButton(createPluggedButton);
         createPluggedButton->disable(); });
     createPluggedButton->disable();
-    pluggedWindow->SetPluggedButton(createPluggedButton);
+    pluggedWindow->SetCreationButton(createPluggedButton);
 
     window->add_control(createPluggedButton, wui::rect{ 270, 50, 380, 75 });
     
