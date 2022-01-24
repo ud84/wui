@@ -121,7 +121,7 @@ window::window()
 #ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__
-    wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(),
+    wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_active_window(),
     prev_button_click(0),
     runned(false),
     thread()
@@ -2190,6 +2190,11 @@ void window::init_atoms()
         xcb_intern_atom(context_.connection, 0, 26, "_NET_WM_STATE_SKIP_TASKBAR"), NULL);
     net_wm_state_skip_taskbar = net_wm_state_skip_taskbar_reply->atom;
     free(net_wm_state_skip_taskbar_reply);
+
+    auto net_active_window_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 18, "_NET_ACTIVE_WINDOW"), NULL);
+    net_active_window = net_active_window_reply->atom;
+    free(net_active_window_reply);
 }
 
 void window::send_destroy_event()
@@ -2234,6 +2239,10 @@ void window::update_window_style()
     change_style(net_wm_state, flag_is_set(window_style_, window_style::topmost) ? 1 : 0, net_wm_state_above);
     change_style(net_wm_state, showed_ ? 0 : 1, net_wm_state_skip_taskbar);
     change_style(wm_change_state, showed_ ? XCB_ICCCM_WM_STATE_NORMAL : XCB_ICCCM_WM_STATE_ICONIC, 0);
+    if (showed_)
+    {
+        change_style(net_active_window, 0, 0);
+    }
 }
 
 #endif
