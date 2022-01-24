@@ -32,7 +32,6 @@
 #include <cstring>
 
 #include <stdlib.h>
-#include <xcb/xcb_atom.h>
 #include <xcb/xcb_ewmh.h>
 #include <xcb/xcb_icccm.h>
 
@@ -49,8 +48,10 @@ void remove_window_decorations(wui::system_context &context)
     xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(context.connection,
         xcb_intern_atom(context.connection, 0, mwh.size(), mwh.c_str()),
         NULL);
+    auto mwh_atom = reply->atom;
+    free(reply);
 
-    struct WMHints
+    struct motif_hints
     {
         uint32_t flags;
         uint32_t functions;
@@ -59,81 +60,17 @@ void remove_window_decorations(wui::system_context &context)
         uint32_t status;
     };
 
-    WMHints hints = { 0 };
+    motif_hints hints = { 0 };
     hints.flags = 2;
 
     xcb_change_property(context.connection,
         XCB_PROP_MODE_REPLACE,
         context.wnd,
-        reply->atom,
+        mwh_atom,
         XCB_ATOM_WM_HINTS,
         32,
         5,
         &hints);
-
-    free(reply);
-}
-
-enum class internal_window_style
-{
-    above,
-    below,
-    modal,
-    hidden
-};
-
-void set_window_style(wui::system_context &context, internal_window_style ws)
-{
-    if (!context.wnd)
-    {
-        return;
-    }
-
-    std::string nws = "_NET_WM_STATE";
-    xcb_intern_atom_reply_t *nws_reply = xcb_intern_atom_reply(context.connection,
-        xcb_intern_atom(context.connection, 0, nws.size(), nws.c_str()),
-        NULL);
-
-    std::string prop;
-    switch (ws)
-    {
-        case internal_window_style::above:
-            prop = "_NET_WM_STATE_ABOVE";
-        break;
-        case internal_window_style::below:
-            prop = "_NET_WM_STATE_BELOW";
-        break;
-        case internal_window_style::modal:
-            prop = "_NET_WM_STATE_MODAL";
-        break;
-        case internal_window_style::hidden:
-            prop = "_NET_WM_STATE_HIDDEN";
-        break;
-    }
-
-    xcb_intern_atom_reply_t *prop_reply = xcb_intern_atom_reply(context.connection,
-        xcb_intern_atom(context.connection, 0, prop.size(), prop.c_str()),
-        NULL);
-
-    xcb_atom_t values[] = { prop_reply->atom };
-
-    xcb_change_property(context.connection, XCB_PROP_MODE_REPLACE, context.wnd,
-        nws_reply->atom, XCB_ATOM_ATOM, 32, 1, values);
-
-    /*xcb_client_message_event_t event = { 0 };
-
-    event.window = context.wnd;
-    event.response_type = XCB_CLIENT_MESSAGE;
-    event.type = nws_reply->atom;
-    event.format = 32;
-    event.data.data32[0] = 2;
-    event.data.data32[1] = prop_reply->atom;
-
-    xcb_send_event(context.connection, false, context.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
-    xcb_flush(context.connection);*/
-
-    free(prop_reply);
-    free(nws_reply);
 }
 
 wui::rect get_window_size(wui::system_context &context)
@@ -184,7 +121,7 @@ window::window()
 #ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__
-    wm_protocols_event(nullptr), wm_delete_msg(nullptr), wm_change_state(nullptr), net_wm_state(nullptr), net_wm_state_focused(nullptr),
+    wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_hidden(),
     prev_button_click(0),
     runned(false),
     thread()
@@ -508,11 +445,6 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
         RECT client_rect;
         GetClientRect(context_.hwnd, &client_rect);
         InvalidateRect(context_.hwnd, &client_rect, TRUE);
-
-        if (topmost())
-        {
-            SetWindowPos(context_.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-        }
     }
 #elif __linux__
     if (!parent && context_.connection)
@@ -547,7 +479,7 @@ void window::show()
         ShowWindow(context_.hwnd, SW_SHOW);
     }
 #elif __linux__
-    xcb_delete_property(context_.connection, context_.wnd, net_wm_state->atom);
+    xcb_delete_property(context_.connection, context_.wnd, net_wm_state);
 #endif
 }
 
@@ -566,7 +498,7 @@ void window::hide()
         ShowWindow(context_.hwnd, SW_HIDE);
     }
 #elif __linux__
-    set_window_style(context_, internal_window_style::hidden);
+    update_window_style();
 #endif
 }
 
@@ -643,7 +575,7 @@ void window::minimize()
 
     event.window = context_.wnd;
     event.response_type = XCB_CLIENT_MESSAGE;
-    event.type = wm_change_state->atom;
+    event.type = wm_change_state;
     event.format = 32;
     event.data.data32[0] = IconicState;
 
@@ -742,17 +674,14 @@ void window::set_style(window_style style)
     update_buttons(false);
 
 #ifdef _WIN32
+    if (topmost())
+    {
+        SetWindowPos(context_.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    }
 #elif __linux__
-    xcb_delete_property(context_.connection, context_.wnd, net_wm_state->atom);
+    xcb_delete_property(context_.connection, context_.wnd, net_wm_state);
 
-    if (flag_is_set(window_style_, window_style::above))
-    {
-        set_window_style(context_, internal_window_style::above);
-    }
-    if (flag_is_set(window_style_, window_style::below))
-    {
-        set_window_style(context_, internal_window_style::below);
-    }
+    update_window_style();
 
     redraw({ 0, 0, position_.width(), 30 }, false);
 #endif
@@ -1126,6 +1055,8 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     XSetEventQueueOwner(context_.display, XCBOwnsEventQueue);
     context_.connection = XGetXCBConnection(context_.display);
 
+    init_atoms();
+
     context_.screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
 
     context_.wnd = xcb_generate_id(context_.connection);
@@ -1156,58 +1087,29 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     remove_window_decorations(context_);
 
-    if (!showed_)
-    {
-        set_window_style(context_, internal_window_style::hidden);
-    }
-    if (flag_is_set(window_style_, window_style::above))
-    {
-        set_window_style(context_, internal_window_style::above);
-    }
-    if (flag_is_set(window_style_, window_style::below))
-    {
-        set_window_style(context_, internal_window_style::below);
-    }
-    if (flag_is_set(window_style_, window_style::modal))
-    {
-        set_window_style(context_, internal_window_style::modal);
-    }
+    update_window_style();
 
     if (transient_window)
     {
-        XSetTransientForHint(context_.display, context_.wnd, transient_window->context().wnd);
+        xcb_icccm_set_wm_transient_for(context_.connection, context_.wnd, transient_window->context().wnd);
     }
 
-    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
-        XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, caption.size(), caption.c_str());
+    xcb_icccm_set_wm_name(context_.connection, context_.wnd,
+        XCB_ATOM_STRING, 8,
+        caption.size(), caption.c_str());
+
+    xcb_icccm_set_wm_icon_name(context_.connection, context_.wnd,
+        XCB_ATOM_STRING, 8,
+        caption.size(), caption.c_str());
 
     size_t class_len = caption.size() + 1 + caption.size() + 1;
     char *class_hint = (char *)malloc(class_len);
     strncpy(class_hint, caption.c_str(), caption.size());
     strncpy(class_hint + caption.size() + 1, caption.c_str(), caption.size());
 
-    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
-        XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, class_len, class_hint);
+    xcb_icccm_set_wm_class(context_.connection, context_.wnd, class_len, class_hint);
 
-    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
-        XCB_ATOM_WM_ICON_NAME, XCB_ATOM_STRING, 8, caption.size(), caption.c_str());
-
-    wm_protocols_event = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 1, 12,"WM_PROTOCOLS"), 0);
-
-    wm_delete_msg = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 16, "WM_DELETE_WINDOW"), NULL);
-
-    wm_change_state = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 15, "WM_CHANGE_STATE"), NULL);
-
-    net_wm_state = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 13, "_NET_WM_STATE"), NULL);
-
-    net_wm_state_focused = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 21, "_NET_WM_STATE_FOCUSED"), NULL);
-
-    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd, (*wm_protocols_event).atom, 4, 32, 1, &(*wm_delete_msg).atom);
+    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd, wm_protocols_event, 4, 32, 1, &wm_delete_msg);
 
     xcb_map_window(context_.connection, context_.wnd);
 
@@ -2176,7 +2078,7 @@ void window::process_events()
             {
                 auto ev = (*(xcb_property_notify_event_t*)e);
 
-                if (ev.atom == net_wm_state->atom)
+                if (ev.atom == net_wm_state)
                 {
                     auto get_prop_cookie = xcb_get_property (context_.connection,
                         0,
@@ -2192,7 +2094,7 @@ void window::process_events()
                     {
                         auto val = (xcb_atom_t*)xcb_get_property_value(property_reply);
 
-                        if (*val == net_wm_state_focused->atom && window_state_ == window_state::minimized)
+                        if (*val == net_wm_state_focused && window_state_ == window_state::minimized)
                         {
                             window_state_ = prev_window_state_;
                         }
@@ -2203,7 +2105,7 @@ void window::process_events()
             }
             break;
             case XCB_CLIENT_MESSAGE:
-            	if ((*(xcb_client_message_event_t*)e).data.data32[0] == (*wm_delete_msg).atom)
+            	if ((*(xcb_client_message_event_t*)e).data.data32[0] == wm_delete_msg)
                 {
 #ifdef __linux__
             	    graphic_.end_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
@@ -2218,12 +2120,6 @@ void window::process_events()
                     context_.connection = nullptr;
                     context_.display = nullptr;
 
-                    free(wm_protocols_event);
-                    free(wm_delete_msg);
-                    free(wm_change_state);
-                    free(net_wm_state);
-                    free(net_wm_state_focused);
-
                     runned = false;
 
                     if (!parent && close_callback)
@@ -2237,6 +2133,44 @@ void window::process_events()
     }
 }
 
+void window::init_atoms()
+{
+    auto wm_protocols_event_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 1, 12,"WM_PROTOCOLS"), 0);
+    wm_protocols_event = wm_protocols_event_reply->atom;
+    free(wm_protocols_event_reply);
+
+    auto wm_delete_msg_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 16, "WM_DELETE_WINDOW"), NULL);
+    wm_delete_msg = wm_delete_msg_reply->atom;
+    free(wm_delete_msg_reply);
+
+    auto wm_change_state_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 15, "WM_CHANGE_STATE"), NULL);
+    wm_change_state = wm_change_state_reply->atom;
+    free(wm_change_state_reply);
+
+    auto net_wm_state_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 13, "_NET_WM_STATE"), NULL);
+    net_wm_state = net_wm_state_reply->atom;
+    free(net_wm_state_reply);
+
+    auto net_wm_state_focused_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 21, "_NET_WM_STATE_FOCUSED"), NULL);
+    net_wm_state_focused = net_wm_state_focused_reply->atom;
+    free(net_wm_state_focused_reply);
+
+    auto net_wm_state_above_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 19, "_NET_WM_STATE_ABOVE"), NULL);
+    net_wm_state_above = net_wm_state_above_reply->atom;
+    free(net_wm_state_above_reply);
+
+    auto net_wm_state_hidden_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 20, "_NET_WM_STATE_HIDDEN"), NULL);
+    net_wm_state_hidden = net_wm_state_above_reply->atom;
+    free(net_wm_state_hidden_reply);
+}
+
 void window::send_destroy_event()
 {
     if (context_.connection)
@@ -2247,11 +2181,49 @@ void window::send_destroy_event()
     	event.response_type = XCB_CLIENT_MESSAGE;
     	event.type = XCB_ATOM_WM_COMMAND;
     	event.format = 32;
-    	event.data.data32[0] = (*wm_delete_msg).atom;
+    	event.data.data32[0] = wm_delete_msg;
 
     	xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_NO_EVENT, (const char*)&event);
     	xcb_flush(context_.connection);
     }
+}
+
+void window::update_window_style()
+{
+    if (!context_.wnd)
+    {
+        return;
+    }
+
+    xcb_atom_t values[2] = { 0 };
+    uint32_t len = 0;
+
+    if (flag_is_set(window_style_, window_style::topmost))
+    {
+        values[0] = net_wm_state_above;
+        ++len;
+    }
+
+    if (!showed_)
+    {
+        values[1] = net_wm_state_hidden;
+        ++len;
+    }
+
+    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
+        net_wm_state, XCB_ATOM_ATOM, 32, len, values);
+
+    /*xcb_client_message_event_t event = { 0 };
+
+    event.window = context.wnd;
+    event.response_type = XCB_CLIENT_MESSAGE;
+    event.type = nws_reply->atom;
+    event.format = 32;
+    event.data.data32[0] = 2;
+    event.data.data32[1] = prop_reply->atom;
+
+    xcb_send_event(context.connection, false, context.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+    xcb_flush(context.connection);*/
 }
 
 #endif

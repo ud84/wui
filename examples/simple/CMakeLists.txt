@@ -10,6 +10,7 @@ target_link_libraries(simple
 	xcb
 	xcb-cursor
 	xcb-ewmh
+	xcb-icccm
 	X11
 	X11-xcb
 	pangocairo-1.0

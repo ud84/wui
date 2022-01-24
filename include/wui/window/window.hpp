@@ -179,8 +179,8 @@ private:
 
 #elif __linux__
 
-    xcb_intern_atom_reply_t *wm_protocols_event, *wm_delete_msg, *wm_change_state,
-        *net_wm_state, *net_wm_state_focused;
+    xcb_atom_t wm_protocols_event, wm_delete_msg, wm_change_state,
+        net_wm_state, net_wm_state_focused, net_wm_state_above, net_wm_state_hidden;
 
     time_t prev_button_click;
 
@@ -188,7 +188,11 @@ private:
     std::thread thread;
     void process_events();
 
+    void init_atoms();
+
     void send_destroy_event();
+
+    void update_window_style();
 
 #endif
 
