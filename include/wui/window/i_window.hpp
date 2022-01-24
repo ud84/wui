@@ -32,6 +32,10 @@ enum class window_style : uint32_t
 
     topmost = (1 << 7),
 
+    above = (1 << 8),
+    below = (1 << 9),
+    modal = (1 << 10),
+
     frame = title_showed | close_button | expand_button | minimize_button | resizable | moving,
     dialog = title_showed | close_button | moving,
     pinned = pin_button | close_button | resizable | moving

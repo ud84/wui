@@ -172,11 +172,15 @@ int main(int argc, char *argv[])
     std::shared_ptr<wui::button> okButton(new wui::button("OK", [window, &dialog]()
     {
         window->disable();
+        window->set_style((wui::window_style)((uint32_t)wui::window_style::frame | (uint32_t)wui::window_style::below));
 
         std::shared_ptr<wui::button> dialogButton(new wui::button("Close", [&dialog]() { dialog->destroy(); }));
         dialog->add_control(dialogButton, wui::rect{ 10, 200, 100, 235 });
 
-        dialog->init("Modal dialog", wui::rect{ 50, 50, 350, 350 }, wui::window_style::dialog, [window, &dialog]() { window->enable(); /*dialog.reset();*/ });
+        dialog->set_transient_for(window);
+        dialog->init("Modal dialog", wui::rect{ 50, 50, 350, 350 },
+                wui::window_style::dialog,//(wui::window_style)((uint32_t)wui::window_style::dialog | (uint32_t)wui::window_style::modal),
+                [window, &dialog]() { window->enable(); window->set_style(wui::window_style::frame); /*dialog.reset();*/ });
     }));
 
     std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::only_image, IDB_ACCOUNT, 24, MakeRedButtonTheme()));

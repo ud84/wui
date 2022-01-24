@@ -74,6 +74,68 @@ void remove_window_decorations(wui::system_context &context)
     free(reply);
 }
 
+enum class internal_window_style
+{
+    above,
+    below,
+    modal,
+    hidden
+};
+
+void set_window_style(wui::system_context &context, internal_window_style ws)
+{
+    if (!context.wnd)
+    {
+        return;
+    }
+
+    std::string nws = "_NET_WM_STATE";
+    xcb_intern_atom_reply_t *nws_reply = xcb_intern_atom_reply(context.connection,
+        xcb_intern_atom(context.connection, 0, nws.size(), nws.c_str()),
+        NULL);
+
+    std::string prop;
+    switch (ws)
+    {
+        case internal_window_style::above:
+            prop = "_NET_WM_STATE_ABOVE";
+        break;
+        case internal_window_style::below:
+            prop = "_NET_WM_STATE_BELOW";
+        break;
+        case internal_window_style::modal:
+            prop = "_NET_WM_STATE_MODAL";
+        break;
+        case internal_window_style::hidden:
+            prop = "_NET_WM_STATE_HIDDEN";
+        break;
+    }
+
+    xcb_intern_atom_reply_t *prop_reply = xcb_intern_atom_reply(context.connection,
+        xcb_intern_atom(context.connection, 0, prop.size(), prop.c_str()),
+        NULL);
+
+    xcb_atom_t values[] = { prop_reply->atom };
+
+    xcb_change_property(context.connection, XCB_PROP_MODE_REPLACE, context.wnd,
+        nws_reply->atom, XCB_ATOM_ATOM, 32, 1, values);
+
+    /*xcb_client_message_event_t event = { 0 };
+
+    event.window = context.wnd;
+    event.response_type = XCB_CLIENT_MESSAGE;
+    event.type = nws_reply->atom;
+    event.format = 32;
+    event.data.data32[0] = 2;
+    event.data.data32[1] = prop_reply->atom;
+
+    xcb_send_event(context.connection, false, context.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+    xcb_flush(context.connection);*/
+
+    free(prop_reply);
+    free(nws_reply);
+}
+
 wui::rect get_window_size(wui::system_context &context)
 {
     auto geom = xcb_get_geometry_reply(context.connection, xcb_get_geometry(context.connection, context.wnd), NULL);
@@ -107,6 +169,7 @@ window::window()
     focused_index(0),
     parent(),
     my_subscriber_id(-1),
+    transient_window(),
     subscribers_(),
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
@@ -483,6 +546,8 @@ void window::show()
     {
         ShowWindow(context_.hwnd, SW_SHOW);
     }
+#elif __linux__
+    xcb_delete_property(context_.connection, context_.wnd, net_wm_state->atom);
 #endif
 }
 
@@ -500,6 +565,8 @@ void window::hide()
     {
         ShowWindow(context_.hwnd, SW_HIDE);
     }
+#elif __linux__
+    set_window_style(context_, internal_window_style::hidden);
 #endif
 }
 
@@ -674,13 +741,32 @@ void window::set_style(window_style style)
 
     update_buttons(false);
 
+#ifdef _WIN32
+#elif __linux__
+    xcb_delete_property(context_.connection, context_.wnd, net_wm_state->atom);
+
+    if (flag_is_set(window_style_, window_style::above))
+    {
+        set_window_style(context_, internal_window_style::above);
+    }
+    if (flag_is_set(window_style_, window_style::below))
+    {
+        set_window_style(context_, internal_window_style::below);
+    }
+
     redraw({ 0, 0, position_.width(), 30 }, false);
+#endif
 }
 
 void window::set_min_size(int32_t width, int32_t height)
 {
     min_width = width;
     min_height = height;
+}
+
+void window::set_transient_for(std::shared_ptr<i_window> window_)
+{
+    transient_window = window_;
 }
 
 void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback_)
@@ -1055,7 +1141,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto window_cookie = xcb_create_window(context_.connection,
                       XCB_COPY_FROM_PARENT,
                       context_.wnd,
-					  context_.screen->root, // parent window
+					  context_.screen->root,
                       position_.left, position_.top,
                       position_.width(), position_.height(),
                       0,
@@ -1069,6 +1155,28 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     }
 
     remove_window_decorations(context_);
+
+    if (!showed_)
+    {
+        set_window_style(context_, internal_window_style::hidden);
+    }
+    if (flag_is_set(window_style_, window_style::above))
+    {
+        set_window_style(context_, internal_window_style::above);
+    }
+    if (flag_is_set(window_style_, window_style::below))
+    {
+        set_window_style(context_, internal_window_style::below);
+    }
+    if (flag_is_set(window_style_, window_style::modal))
+    {
+        set_window_style(context_, internal_window_style::modal);
+    }
+
+    if (transient_window)
+    {
+        XSetTransientForHint(context_.display, context_.wnd, transient_window->context().wnd);
+    }
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
         XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, caption.size(), caption.c_str());
