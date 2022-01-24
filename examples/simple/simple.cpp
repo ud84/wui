@@ -33,13 +33,15 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     void Plug()
     {
-        if (parentWindow.lock())
+        parentWindow.lock()->show();
+
+        /*if (parentWindow.lock())
             parentWindow.lock()->add_control(window, wui::rect{ 20, 30, 190, 190 });
 
         plugButton->disable();
         unplugButton->enable();
 
-        plugged = !plugged;
+        plugged = !plugged;*/
     }
 
     void Unplug()
@@ -52,6 +54,8 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         unplugButton->disable();
 
         plugged = !plugged;
+
+        parentWindow.lock()->hide();
     }
 
     void SetCreationButton(std::shared_ptr<wui::button> &creationButton_)
@@ -172,8 +176,6 @@ int main(int argc, char *argv[])
     std::shared_ptr<wui::button> okButton(new wui::button("OK", [window, &dialog]()
     {
         window->disable();
-        window->set_style(wui::window_style::frame);
-        window->hide();
 
         std::shared_ptr<wui::button> dialogButton(new wui::button("Close", [&dialog]() { dialog->destroy(); }));
         dialog->add_control(dialogButton, wui::rect{ 10, 200, 100, 235 });
@@ -215,9 +217,8 @@ int main(int argc, char *argv[])
         cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });
     });
 
-    window->init("Welcome to WUI!", wui::rect{ 100, 100, 600, 600 },
-            (wui::window_style)((uint32_t)wui::window_style::frame | (uint32_t)wui::window_style::topmost),
-            [&runned]() {
+    window->init("Welcome to WUI!", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame,
+        [&runned]() {
 #ifdef _WIN32
         PostQuitMessage(IDCANCEL);
 #elif __linux__

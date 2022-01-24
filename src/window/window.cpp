@@ -121,7 +121,7 @@ window::window()
 #ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__
-    wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_hidden(),
+    wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(),
     prev_button_click(0),
     runned(false),
     thread()
@@ -468,38 +468,42 @@ void window::show()
 {
     showed_ = true;
 
-    for (auto &control : controls)
-    {
-        control->show();
-    }
-
-#ifdef _WIN32
     if (!parent)
     {
+#ifdef _WIN32
         ShowWindow(context_.hwnd, SW_SHOW);
-    }
 #elif __linux__
-    xcb_delete_property(context_.connection, context_.wnd, net_wm_state);
+        update_window_style();
 #endif
+    }
+    else
+    {
+        for (auto &control : controls)
+        {
+            control->show();
+        }
+    }
 }
 
 void window::hide()
 {
     showed_ = false;
 
-    for (auto &control : controls)
-    {
-        control->hide();
-    }
-
-#ifdef _WIN32
     if (!parent)
     {
+#ifdef _WIN32
         ShowWindow(context_.hwnd, SW_HIDE);
-    }
 #elif __linux__
-    update_window_style();
+        update_window_style();
 #endif
+    }
+    else
+    {
+        for (auto &control : controls)
+        {
+            control->hide();
+        }
+    }
 }
 
 bool window::showed() const
@@ -577,7 +581,7 @@ void window::minimize()
     event.response_type = XCB_CLIENT_MESSAGE;
     event.type = wm_change_state;
     event.format = 32;
-    event.data.data32[0] = IconicState;
+    event.data.data32[0] = XCB_ICCCM_WM_STATE_ICONIC;
 
     xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
     xcb_flush(context_.connection);
@@ -679,8 +683,6 @@ void window::set_style(window_style style)
         SetWindowPos(context_.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     }
 #elif __linux__
-    xcb_delete_property(context_.connection, context_.wnd, net_wm_state);
-
     update_window_style();
 
     redraw({ 0, 0, position_.width(), 30 }, false);
@@ -1043,6 +1045,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     UpdateWindow(context_.hwnd);
 
+    if (!showed_)
+    {
+        ShowWindow(context_.hwnd, SW_HIDE);
+    }
+
 #elif __linux__
 
     context_.display = XOpenDisplay(NULL);
@@ -1087,7 +1094,21 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     remove_window_decorations(context_);
 
-    update_window_style();
+    xcb_atom_t styles[2] = { 0 };
+    uint32_t styles_count = 0;
+    if (flag_is_set(window_style_, window_style::topmost))
+    {
+        styles[0] = net_wm_state_above;
+        ++styles_count;
+    }
+    if (!showed_)
+    {
+        styles[1] = net_wm_state_skip_taskbar;
+        ++styles_count;
+        minimize();
+    }
+    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
+        net_wm_state, XCB_ATOM_ATOM, 32, styles_count, styles);
 
     if (transient_window)
     {
@@ -2165,10 +2186,10 @@ void window::init_atoms()
     net_wm_state_above = net_wm_state_above_reply->atom;
     free(net_wm_state_above_reply);
 
-    auto net_wm_state_hidden_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 20, "_NET_WM_STATE_HIDDEN"), NULL);
-    net_wm_state_hidden = net_wm_state_above_reply->atom;
-    free(net_wm_state_hidden_reply);
+    auto net_wm_state_skip_taskbar_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 26, "_NET_WM_STATE_SKIP_TASKBAR"), NULL);
+    net_wm_state_skip_taskbar = net_wm_state_skip_taskbar_reply->atom;
+    free(net_wm_state_skip_taskbar_reply);
 }
 
 void window::send_destroy_event()
@@ -2195,35 +2216,24 @@ void window::update_window_style()
         return;
     }
 
-    xcb_atom_t values[2] = { 0 };
-    uint32_t len = 0;
-
-    if (flag_is_set(window_style_, window_style::topmost))
+    auto change_style = [this](xcb_atom_t type, xcb_atom_t action, xcb_atom_t style) noexcept -> void
     {
-        values[0] = net_wm_state_above;
-        ++len;
-    }
+        xcb_client_message_event_t event = { 0 };
 
-    if (!showed_)
-    {
-        values[1] = net_wm_state_hidden;
-        ++len;
-    }
+        event.window = context_.wnd;
+        event.response_type = XCB_CLIENT_MESSAGE;
+        event.type = type;
+        event.format = 32;
+        event.data.data32[0] = action;
+        event.data.data32[1] = style;
 
-    xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
-        net_wm_state, XCB_ATOM_ATOM, 32, len, values);
+        xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+        xcb_flush(context_.connection);
+    };
 
-    /*xcb_client_message_event_t event = { 0 };
-
-    event.window = context.wnd;
-    event.response_type = XCB_CLIENT_MESSAGE;
-    event.type = nws_reply->atom;
-    event.format = 32;
-    event.data.data32[0] = 2;
-    event.data.data32[1] = prop_reply->atom;
-
-    xcb_send_event(context.connection, false, context.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
-    xcb_flush(context.connection);*/
+    change_style(net_wm_state, flag_is_set(window_style_, window_style::topmost) ? 1 : 0, net_wm_state_above);
+    change_style(net_wm_state, showed_ ? 0 : 1, net_wm_state_skip_taskbar);
+    change_style(wm_change_state, showed_ ? XCB_ICCCM_WM_STATE_NORMAL : XCB_ICCCM_WM_STATE_ICONIC, 0);
 }
 
 #endif
