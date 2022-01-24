@@ -93,10 +93,6 @@ public:
     void normal();
     window_state state() const;
 
-    /// Methods used to block the window while a modal dialog is displayed
-    void block();
-    void unlock();
-
     /// Callbacks
     void set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback);
     void set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback);

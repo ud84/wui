@@ -516,6 +516,11 @@ void window::enable()
     {
         control->enable();
     }
+
+#ifdef _WIN32
+    EnableWindow(context_.hwnd, TRUE);
+    SetWindowPos(context_.hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+#endif
 }
 
 void window::disable()
@@ -526,6 +531,10 @@ void window::disable()
     {
         control->disable();
     }
+
+#ifdef _WIN32
+    EnableWindow(context_.hwnd, FALSE);
+#endif
 }
 
 bool window::enabled() const
@@ -672,21 +681,6 @@ void window::set_min_size(int32_t width, int32_t height)
 {
     min_width = width;
     min_height = height;
-}
-
-void window::block()
-{
-#ifdef _WIN32
-    EnableWindow(context_.hwnd, FALSE);
-#endif
-}
-
-void window::unlock()
-{
-#ifdef _WIN32
-    EnableWindow(context_.hwnd, TRUE);
-    SetWindowPos(context_.hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-#endif
 }
 
 void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback_)
@@ -1711,6 +1705,11 @@ void window::process_events()
             break;
             case XCB_MOTION_NOTIFY:
             {
+                if (!enabled_)
+                {
+                    continue;
+                }
+
             	auto *ev = (xcb_motion_notify_event_t *)e;
 
             	int16_t x_mouse = ev->event_x;
@@ -1878,6 +1877,11 @@ void window::process_events()
             break;
             case XCB_BUTTON_PRESS:
             {
+                if (!enabled_)
+                {
+                    continue;
+                }
+
                 auto *ev = (xcb_button_press_event_t *)e;
                 if (ev->detail == 1 && ev->time - prev_button_click > 200)
                 {
@@ -1932,6 +1936,11 @@ void window::process_events()
             break;
             case XCB_BUTTON_RELEASE:
             {
+                if (!enabled_)
+                {
+                    continue;
+                }
+
                 moving_mode_ = moving_mode::none;
 
                 auto *ev = (xcb_button_press_event_t *)e;
@@ -1948,6 +1957,11 @@ void window::process_events()
             break;
             case XCB_KEY_PRESS:
             {
+                if (!enabled_)
+                {
+                    continue;
+                }
+
                 auto ev_ = *(xcb_key_press_event_t *)e;
 
                 if (ev_.detail == vk_tab)
@@ -2004,6 +2018,11 @@ void window::process_events()
             break;
             case XCB_KEY_RELEASE:
             {
+                if (!enabled_)
+                {
+                    continue;
+                }
+
                 auto ev_ = *(xcb_key_press_event_t *)e;
 
                 event ev;
