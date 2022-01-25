@@ -2214,12 +2214,12 @@ void window::process_events()
                         update_buttons(false);
                     }
 
-                    if ((ev.width != old_position.width())
+                    if (ev.width != old_position.width())
                     {
-                        event ev;
-                        ev.type = event_type::internal;
-                        ev.internal_event_ = internal_event{ internal_event_type::size_changed, ev.width, ev.height };
-                        send_event_to_plains(ev);
+                        event ev_;
+                        ev_.type = event_type::internal;
+                        ev_.internal_event_ = internal_event{ internal_event_type::size_changed, ev.width, ev.height };
+                        send_event_to_plains(ev_);
                     }
                 }
             }
