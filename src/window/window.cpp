@@ -237,6 +237,8 @@ void window::draw(graphic &gr)
         return;
     }
 
+    gr.draw_rect(position_, theme_color(tc, tv_background, theme_));
+
     for (auto &control : controls)
     {
         control->draw(gr);
@@ -1017,7 +1019,9 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto transient_window_ = transient_window.lock();
     if (transient_window_ && docked_)
     {
-        set_parent(transient_window_);
+        int32_t left = (transient_window_->position().width() - position_.width()) / 2;
+        int32_t top = (transient_window_->position().height() - position_.height()) / 2;
+        transient_window_->add_control(shared_from_this(), wui::rect{ left, top, left + position_.width(), top + position_.height() });
     }
 
     auto parent_ = parent.lock();
@@ -1680,7 +1684,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             }
 
             auto transient_window_ = wnd->transient_window.lock();
-            if (transient_window_)
+            if (transient_window_ && !wnd->docked_)
             {
                 transient_window_->enable();
             }
@@ -2181,7 +2185,7 @@ void window::process_events()
                     }
 
                     auto transient_window_ = transient_window.lock();
-                    if (transient_window_)
+                    if (transient_window_ && !docked_)
                     {
                         transient_window_->enable();
                     }

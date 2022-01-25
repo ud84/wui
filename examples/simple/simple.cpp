@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
         std::shared_ptr<wui::button> dialogButton(new wui::button("Close", [&dialog]() { dialog->destroy(); }));
         dialog->add_control(dialogButton, wui::rect{ 10, 200, 100, 235 });
 
-        dialog->set_transient_for(window, false);
+        dialog->set_transient_for(window);
         dialog->init("Modal dialog", wui::rect{ 50, 50, 350, 350 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
     }));
 
