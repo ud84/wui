@@ -713,6 +713,8 @@ void window::start_docking()
     {
         control->disable();
     }
+
+    window_style_ = static_cast<window_style>(static_cast<uint32_t>(window_style_) & ~static_cast<uint32_t>(window_style::resizable));
 }
 
 void window::end_docking()
@@ -721,6 +723,8 @@ void window::end_docking()
     {
         control->enable();
     }
+
+    window_style_ = static_cast<window_style>(static_cast<uint32_t>(window_style_) | static_cast<uint32_t>(window_style::resizable));
 }
 
 void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback_)

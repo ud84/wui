@@ -57,8 +57,6 @@ public:
 	/// IControl
     virtual void draw(graphic &gr);
 
-    virtual void receive_event(const event &ev);
-
     virtual void set_position(const rect &position);
     virtual rect position() const;
 
@@ -202,6 +200,8 @@ private:
 #endif
 
     void set_position(const rect &position, bool change_value);
+
+    void receive_event(const event &ev);
 
     bool send_event_to_control(std::shared_ptr<i_control> &control, const event &ev);
     void send_event_to_plains(const event &ev);
