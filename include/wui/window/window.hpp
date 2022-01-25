@@ -87,6 +87,8 @@ public:
     void set_min_size(int32_t width, int32_t height);
 
     void set_transient_for(std::shared_ptr<window> window_, bool docked = true);
+    void start_docking();
+    void end_docking();
 
     /// Window state methods
     void pin();

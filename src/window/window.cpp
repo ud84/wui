@@ -442,27 +442,24 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-#ifdef _WIN32
-
     if (!parent.lock())
     {
         graphic_.set_background_color(theme_color(tc, tv_background, theme_));
 
+#ifdef _WIN32
+        
         RECT client_rect;
         GetClientRect(context_.hwnd, &client_rect);
         InvalidateRect(context_.hwnd, &client_rect, TRUE);
-    }
-#elif __linux__
-    auto parent_ = parent.lock();
-    if (!parent_ && context_.connection)
-    {
-        graphic_.set_background_color(theme_color(tc, tv_background, theme_));
 
+#elif __linux__
+        
         auto ws = get_window_size(context_);
         redraw(rect{ 0, 0, ws.width(), ws.height() }, true);
-    }
-#endif
 
+#endif
+    }
+    
     for (auto &control : controls)
     {
         control->update_theme(theme_);
@@ -708,6 +705,22 @@ void window::set_transient_for(std::shared_ptr<window> window_, bool docked__)
     docked_ = docked__;
 }
 
+void window::start_docking()
+{
+    for (auto &control : controls)
+    {
+        control->disable();
+    }
+}
+
+void window::end_docking()
+{
+    for (auto &control : controls)
+    {
+        control->enable();
+    }
+}
+
 void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback_)
 {
     size_change_callback = size_change_callback_;
@@ -806,7 +819,7 @@ void window::change_focus()
     {
         if (control->focused())
         {
-            if (control->remove_focus()) // Need to change the focus inside the internal elements of the control
+            if (control->remove_focus()) /// need to change the focus inside the internal elements of the control
             {
                 ++focused_index;
             }
@@ -1017,11 +1030,20 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     update_buttons(true);
 
     auto transient_window_ = transient_window.lock();
-    if (transient_window_ && docked_)
+    if (transient_window_)
     {
-        int32_t left = (transient_window_->position().width() - position_.width()) / 2;
-        int32_t top = (transient_window_->position().height() - position_.height()) / 2;
-        transient_window_->add_control(shared_from_this(), wui::rect{ left, top, left + position_.width(), top + position_.height() });
+        if (docked_)
+        {
+            transient_window_->start_docking();
+
+            int32_t left = (transient_window_->position().width() - position_.width()) / 2;
+            int32_t top = (transient_window_->position().height() - position_.height()) / 2;
+            transient_window_->add_control(shared_from_this(), wui::rect{ left, top, left + position_.width(), top + position_.height() });
+        }
+        else
+        {
+            transient_window_->disable();
+        }
     }
 
     auto parent_ = parent.lock();
@@ -1065,11 +1087,6 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     if (!showed_)
     {
         ShowWindow(context_.hwnd, SW_HIDE);
-    }
-
-    if (transient_window_)
-    {
-        transient_window_->disable();
     }
 
 #elif __linux__
@@ -1163,11 +1180,6 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     graphic_.start_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
 #endif
 
-    if (transient_window_)
-    {
-        transient_window_->disable();
-    }
-
     runned = true;
     if (thread.joinable()) thread.join();
     thread = std::thread(std::bind(&window::process_events, this));
@@ -1194,6 +1206,12 @@ void window::destroy()
         if (close_callback)
         {
             close_callback();
+        }
+
+        auto transient_window_ = transient_window.lock();
+        if (transient_window_)
+        {
+            transient_window_->end_docking();
         }
     }
     else
@@ -1684,7 +1702,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             }
 
             auto transient_window_ = wnd->transient_window.lock();
-            if (transient_window_ && !wnd->docked_)
+            if (transient_window_)
             {
                 transient_window_->enable();
             }
@@ -2185,7 +2203,7 @@ void window::process_events()
                     }
 
                     auto transient_window_ = transient_window.lock();
-                    if (transient_window_ && !docked_)
+                    if (transient_window_)
                     {
                         transient_window_->enable();
                     }
