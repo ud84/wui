@@ -1016,21 +1016,37 @@ void window::update_buttons(bool theme_changed)
 
 void window::draw_border(graphic &gr)
 {
-    auto l = 0;
-    auto t = 0;
-    auto h = position_.height();
-    auto w = position_.width();
-
-    if (parent.lock())
-    {
-        l = position_.left;
-        t = position_.top;
-        h = position_.bottom;
-        w = position_.right;
-    }
-
     auto c = theme_color(tc, tv_border, theme_);
     auto x = theme_dimension(tc, tv_border_width, theme_);
+
+    int32_t l = x, t = x, h = 0, w = 0;
+
+    if (!parent.lock())
+    {
+#ifdef _WIN32
+
+        RECT client_rect;
+        GetClientRect(context_.hwnd, &client_rect);
+
+        h = client_rect.bottom - x;
+        w = client_rect.right - x;
+
+#elif __linux__
+
+        auto ws = get_window_size(context_);
+
+        h = ws.height();
+        w = ws.width();
+
+#endif
+    }
+    else
+    {
+        l = position_.left + x;
+        t = position_.top + x;
+        h = position_.bottom - x;
+        w = position_.right - x;
+    }   
 
     if (flag_is_set(window_style_, window_style::border_left))
     {
@@ -1042,11 +1058,11 @@ void window::draw_border(graphic &gr)
     }
     if (flag_is_set(window_style_, window_style::border_right))
     {
-        gr.draw_line(rect{ w - x, t, w - x, h }, c, x);
+        gr.draw_line(rect{ w, t, w, h }, c, x);
     }
     if (flag_is_set(window_style_, window_style::border_bottom))
     {
-        gr.draw_line(rect{ l, h - x, w, h - x }, c, x);
+        gr.draw_line(rect{ l, h, w, h }, c, x);
     }
 }
 
