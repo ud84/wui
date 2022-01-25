@@ -444,7 +444,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-    if (context_.wnd && !parent.lock())
+    if (context_.valid() && !parent.lock())
     {
         graphic_.set_background_color(theme_color(tc, tv_background, theme_));
 
@@ -1016,10 +1016,18 @@ void window::update_buttons(bool theme_changed)
 
 void window::draw_border(graphic &gr)
 {
-    auto l = position_.left;
-    auto t = position_.top;
+    auto l = 0;
+    auto t = 0;
     auto h = position_.height();
     auto w = position_.width();
+
+    if (parent.lock())
+    {
+        l = position_.left;
+        t = position_.top;
+        h = position_.bottom;
+        w = position_.right;
+    }
 
     auto c = theme_color(tc, tv_border, theme_);
     auto x = theme_dimension(tc, tv_border_width, theme_);
@@ -1354,7 +1362,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 control->draw(wnd->graphic_);
             }
 
-            draw_border(wnd->graphic_);
+            wnd->draw_border(wnd->graphic_);
 
             wnd->graphic_.flush(paint_rect);
 
@@ -2310,7 +2318,7 @@ void window::send_destroy_event()
 
 void window::update_window_style()
 {
-    if (!context_.wnd)
+    if (!context_.valid())
     {
         return;
     }

@@ -26,6 +26,11 @@ struct system_context
 {
     HWND    hwnd;
     HDC     dc;
+
+    bool valid() const
+    {
+        return hwnd != 0;
+    }
 };
 
 #elif __linux__
@@ -37,6 +42,11 @@ struct system_context
     xcb_connection_t *connection;
     xcb_screen_t     *screen;
     xcb_window_t     wnd;
+
+    bool valid() const
+    {
+        return display != nullptr;
+    }
 };
 
 #endif
