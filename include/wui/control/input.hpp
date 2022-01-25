@@ -77,6 +77,7 @@ public:
     static constexpr const char *tv_selection = "selection";
     static constexpr const char *tv_cursor = "cursor";
     static constexpr const char *tv_border = "border";
+    static constexpr const char *tv_border_width = "border_width";
     static constexpr const char *tv_focused_border = "focused_border";
     static constexpr const char *tv_round = "round";
     static constexpr const char *tv_font = "font";

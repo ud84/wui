@@ -180,7 +180,7 @@ void button::draw(graphic &gr)
         (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_calm, theme_) : theme_color(window::tc, window::tv_background, theme_))) :
         button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_);
 
-    gr.draw_rect(position_, border_color, fill_color, 1, theme_dimension(tc, tv_round, theme_));
+    gr.draw_rect(position_, border_color, fill_color, theme_dimension(tc, tv_border_width, theme_), theme_dimension(tc, tv_round, theme_));
 	
     if (button_view_ != button_view::only_text && image_)
     {

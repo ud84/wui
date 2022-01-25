@@ -107,6 +107,8 @@ public:
 
     /// Used theme values
     static constexpr const char *tv_background = "background";
+    static constexpr const char *tv_border = "border";
+    static constexpr const char *tv_border_width = "border_width";
     static constexpr const char *tv_text = "text";
     static constexpr const char *tv_active_button = "active_button";
     static constexpr const char *tv_caption_font = "caption_font";
@@ -212,6 +214,8 @@ private:
     std::shared_ptr<i_control> get_focused();
 
     void update_buttons(bool theme_changed);
+
+    void draw_border(graphic &gr);
 };
 
 }

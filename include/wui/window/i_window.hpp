@@ -38,8 +38,8 @@ enum class window_style : uint32_t
     border_bottom = (1 << 11),
     border_all = border_left | border_top | border_right | border_bottom,
 
-    frame = title_showed | close_button | expand_button | minimize_button | resizable | moving,
-    dialog = title_showed | close_button | moving,
+    frame = title_showed | close_button | expand_button | minimize_button | resizable | moving | border_all,
+    dialog = title_showed | close_button | moving | border_all,
     pinned = pin_button | close_button | resizable | moving
 };
 

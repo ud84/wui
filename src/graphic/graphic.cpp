@@ -179,6 +179,11 @@ void graphic::set_background_color(color background_color)
     RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
     FillRect(mem_dc, &filling_rect, background_brush);
 #elif __linux__
+    if (!context_.display || !mem_pixmap)
+    {
+        return;
+    }
+
     if (gc)
     {
         auto free_gc_cookie = xcb_free_gc(context_.connection, gc);

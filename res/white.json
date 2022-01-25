@@ -3,6 +3,8 @@
     {
       "type": "window",
       "background": "#f0f0f0",
+      "border": "#00a0d2",
+      "border_width": 1,
       "text": "#191914",
       "active_button": "#dcdcdc",
       "caption_font": {
@@ -19,6 +21,7 @@
       "calm": "#06a5df",
       "active": "#1aafe9",
       "border": "#00a0d2",
+      "border_width": 1,
       "focused_border": "#140a14",
       "text": "#181818",
       "disabled": "#cdcdc8",
@@ -35,6 +38,7 @@
       "selection": "#99c9ef",
       "cursor": "#141414",
       "border": "#28788c",
+      "border_width": 1,
       "focused_border": "#140a14",
       "round": 0,
       "font": {
@@ -46,6 +50,7 @@
       "type": "tooltip",
       "background": "#f1f2f7",
       "border": "#767676",
+      "border_width": 1,
       "text": "#061912",
       "round": 0,
       "text_indent": 3,

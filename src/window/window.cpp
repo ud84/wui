@@ -243,6 +243,8 @@ void window::draw(graphic &gr)
     {
         control->draw(gr);
     }
+
+    draw_border(gr);
 }
 
 void window::receive_event(const event &ev)
@@ -442,7 +444,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-    if (!parent.lock())
+    if (context_.wnd && !parent.lock())
     {
         graphic_.set_background_color(theme_color(tc, tv_background, theme_));
 
@@ -1012,6 +1014,34 @@ void window::update_buttons(bool theme_changed)
     }
 }
 
+void window::draw_border(graphic &gr)
+{
+    auto l = position_.left;
+    auto t = position_.top;
+    auto h = position_.height();
+    auto w = position_.width();
+
+    auto c = theme_color(tc, tv_border, theme_);
+    auto x = theme_dimension(tc, tv_border_width, theme_);
+
+    if (flag_is_set(window_style_, window_style::border_left))
+    {
+        gr.draw_line(rect{ l, t, l, h }, c, x);
+    }
+    if (flag_is_set(window_style_, window_style::border_top))
+    {
+        gr.draw_line(rect{ l, t, w, t }, c, x);
+    }
+    if (flag_is_set(window_style_, window_style::border_right))
+    {
+        gr.draw_line(rect{ w - x, t, w - x, h }, c, x);
+    }
+    if (flag_is_set(window_style_, window_style::border_bottom))
+    {
+        gr.draw_line(rect{ l, h - x, w, h - x }, c, x);
+    }
+}
+
 bool window::init(const std::string &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
 {
     auto old_position = position_;
@@ -1149,9 +1179,9 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
         net_wm_state, XCB_ATOM_ATOM, 32, styles_count, styles);
 
-    if (transient_window)
+    if (transient_window_)
     {
-        xcb_icccm_set_wm_transient_for(context_.connection, context_.wnd, transient_window->context().wnd);
+        xcb_icccm_set_wm_transient_for(context_.connection, context_.wnd, transient_window_->context().wnd);
     }
 
     xcb_icccm_set_wm_name(context_.connection, context_.wnd,
@@ -1323,6 +1353,8 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 control->draw(wnd->graphic_);
             }
+
+            draw_border(wnd->graphic_);
 
             wnd->graphic_.flush(paint_rect);
 
@@ -1782,6 +1814,8 @@ void window::process_events()
                 {
                     control->draw(graphic_);
                 }
+
+                draw_border(graphic_);
 
 	            graphic_.flush(paint_rect);
 

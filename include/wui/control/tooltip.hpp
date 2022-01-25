@@ -63,6 +63,7 @@ public:
     /// Used theme values
     static constexpr const char *tv_background = "background";
     static constexpr const char *tv_border = "border";
+    static constexpr const char *tv_border_width = "border_width";
     static constexpr const char *tv_text = "text";
     static constexpr const char *tv_text_indent = "text_indent";
     static constexpr const char *tv_round = "round";

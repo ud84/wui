@@ -49,7 +49,7 @@ void menu::draw(graphic &gr)
     gr.draw_rect(position_,
         theme_color(tc, tv_border, theme_),
         theme_color(tc, tv_background, theme_),
-        1,
+        theme_dimension(tc, tv_border_width, theme_),
         theme_dimension(tc, tv_round, theme_));
 
     auto font_ = theme_font(tc, tv_font, theme_);
