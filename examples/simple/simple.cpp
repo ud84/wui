@@ -212,7 +212,9 @@ int main(int argc, char *argv[])
         cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });
     });
 
-    window->init("Welcome to WUI!", wui::rect{ 100, 100, 600, 600 }, wui::window_style::frame,
+    window->init("Welcome to WUI!", wui::rect{ 100, 100, 600, 600 }, 
+        static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) | static_cast<uint32_t>(wui::window_style::border_all)),
+        //wui::window_style::frame,
         [&runned]() {
 #ifdef _WIN32
         PostQuitMessage(IDCANCEL);

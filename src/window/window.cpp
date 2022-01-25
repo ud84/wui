@@ -713,8 +713,6 @@ void window::start_docking()
     {
         control->disable();
     }
-
-    window_style_ = static_cast<window_style>(static_cast<uint32_t>(window_style_) & ~static_cast<uint32_t>(window_style::resizable));
 }
 
 void window::end_docking()
@@ -723,8 +721,6 @@ void window::end_docking()
     {
         control->enable();
     }
-
-    window_style_ = static_cast<window_style>(static_cast<uint32_t>(window_style_) | static_cast<uint32_t>(window_style::resizable));
 }
 
 void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback_)
@@ -1324,7 +1320,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             PAINTSTRUCT ps;
             BeginPaint(hwnd, &ps);
 
-            const rect paint_rect{ ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom };
+            const rect paint_rect{ ps.rcPaint.left - 20,
+                ps.rcPaint.top,
+                ps.rcPaint.right,
+                ps.rcPaint.bottom + 20 };
 
             if (ps.fErase)
             {
