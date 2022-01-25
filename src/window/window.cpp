@@ -135,9 +135,10 @@ window::window()
 
 window::~window()
 {
-    if (parent)
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent->remove_control(shared_from_this());
+        parent_->remove_control(shared_from_this());
     }
 #ifdef __linux__
     send_destroy_event();
@@ -172,9 +173,10 @@ void window::remove_control(std::shared_ptr<i_control> control)
 
 void window::redraw(const rect &redraw_position, bool clear)
 {
-    if (parent)
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent->redraw(redraw_position, clear);
+        parent_->redraw(redraw_position, clear);
     }
     else
     {
@@ -217,13 +219,14 @@ void window::unsubscribe(int32_t subscriber_id)
 
 system_context &window::context()
 {
-	if (!parent)
+    auto parent_ = parent.lock();
+	if (!parent_)
 	{
         return context_;
 	}
 	else
 	{
-        return parent->context();
+        return parent_->context();
 	}
 }
 
@@ -316,7 +319,7 @@ void window::set_parent(std::shared_ptr<window> window)
 {
     parent = window;
 
-    if (parent)
+    if (window)
     {
 #ifdef _WIN32
         if (context_.hwnd)
@@ -348,9 +351,10 @@ void window::set_parent(std::shared_ptr<window> window)
 
 void window::clear_parent()
 {
-    if (parent)
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent->unsubscribe(my_subscriber_id);
+        parent_->unsubscribe(my_subscriber_id);
 
         for (auto &control : controls)
         {
@@ -438,7 +442,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 
 #ifdef _WIN32
 
-    if (!parent)
+    if (!parent.lock())
     {
         graphic_.set_background_color(theme_color(tc, tv_background, theme_));
 
@@ -447,7 +451,8 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
         InvalidateRect(context_.hwnd, &client_rect, TRUE);
     }
 #elif __linux__
-    if (!parent && context_.connection)
+    auto parent_ = parent.lock();
+    if (!parent_ && context_.connection)
     {
         graphic_.set_background_color(theme_color(tc, tv_background, theme_));
 
@@ -468,7 +473,7 @@ void window::show()
 {
     showed_ = true;
 
-    if (!parent)
+    if (!parent.lock())
     {
 #ifdef _WIN32
         ShowWindow(context_.hwnd, SW_SHOW);
@@ -489,7 +494,7 @@ void window::hide()
 {
     showed_ = false;
 
-    if (!parent)
+    if (!parent.lock())
     {
 #ifdef _WIN32
         ShowWindow(context_.hwnd, SW_HIDE);
@@ -933,8 +938,8 @@ void window::update_buttons(bool theme_changed)
     }
 
     auto btn_size = 26;
-    auto left = !parent ? position_.width() - btn_size : position_.right - btn_size;
-    auto top = !parent ? 0 : position_.top;
+    auto left = !parent.lock() ? position_.width() - btn_size : position_.right - btn_size;
+    auto top = !parent.lock() ? 0 : position_.top;
 
     if (flag_is_set(window_style_, window_style::close_button))
     {
@@ -1009,15 +1014,17 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     update_buttons(true);
 
-    if (transient_window && docked_)
+    auto transient_window_ = transient_window.lock();
+    if (transient_window_ && docked_)
     {
-        set_parent(transient_window);
+        set_parent(transient_window_);
     }
 
-    if (parent)
+    auto parent_ = parent.lock();
+    if (parent_)
     {
         showed_ = true;
-        parent->redraw(position_);
+        parent_->redraw(position_);
 
         return true;
     }
@@ -1056,9 +1063,9 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
         ShowWindow(context_.hwnd, SW_HIDE);
     }
 
-    if (transient_window)
+    if (transient_window_)
     {
-        transient_window->disable();
+        transient_window_->disable();
     }
 
 #elif __linux__
@@ -1152,6 +1159,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     graphic_.start_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
 #endif
 
+    if (transient_window_)
+    {
+        transient_window_->disable();
+    }
+
     runned = true;
     if (thread.joinable()) thread.join();
     thread = std::thread(std::bind(&window::process_events, this));
@@ -1170,9 +1182,10 @@ void window::destroy()
     active_control.reset();
     controls.clear();
 
-    if (parent)
+    auto parent_ = parent.lock();
+    if (parent_)
     {
-        parent->remove_control(shared_from_this());
+        parent_->remove_control(shared_from_this());
 
         if (close_callback)
         {
@@ -1660,14 +1673,16 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->context_.hwnd = 0;
             wnd->context_.dc = 0;
 
-            if (!wnd->parent && wnd->close_callback)
+            auto parent_ = wnd->parent.lock();
+            if (!parent_ && wnd->close_callback)
             {
                 wnd->close_callback();
             }
 
-            if (wnd->transient_window)
+            auto transient_window_ = wnd->transient_window.lock();
+            if (transient_window_)
             {
-                wnd->transient_window->enable();
+                transient_window_->enable();
             }
         }
         break;
@@ -2159,9 +2174,16 @@ void window::process_events()
 
                     runned = false;
 
-                    if (!parent && close_callback)
+                    auto parent_ = parent.lock();
+                    if (!parent_ && close_callback)
                     {
                         close_callback();
+                    }
+
+                    auto transient_window_ = transient_window.lock();
+                    if (transient_window_)
+                    {
+                        transient_window_->enable();
                     }
                 }
             break;

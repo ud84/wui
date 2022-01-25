@@ -134,10 +134,10 @@ private:
 
     size_t focused_index;
 
-    std::shared_ptr<window> parent;
+    std::weak_ptr<window> parent;
     int32_t my_subscriber_id;
 
-    std::shared_ptr<window> transient_window;
+    std::weak_ptr<window> transient_window;
     bool docked_;
 
     struct event_subscriber
