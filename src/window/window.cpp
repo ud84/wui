@@ -1019,34 +1019,21 @@ void window::draw_border(graphic &gr)
     auto c = theme_color(tc, tv_border, theme_);
     auto x = theme_dimension(tc, tv_border_width, theme_);
 
-    int32_t l = x, t = x, h = 0, w = 0;
+    int32_t l = 0, t = 0, w = 0, h = 0;
 
-    if (!parent.lock())
+    if (parent.lock())
     {
-#ifdef _WIN32
+        l = position_.left;
+        t = position_.top;
+        w = position_.right - x;
+        h = position_.bottom - x;
 
-        RECT client_rect;
-        GetClientRect(context_.hwnd, &client_rect);
-
-        h = client_rect.bottom - x;
-        w = client_rect.right - x;
-
-#elif __linux__
-
-        auto ws = get_window_size(context_);
-
-        h = ws.height();
-        w = ws.width();
-
-#endif
     }
     else
     {
-        l = position_.left + x;
-        t = position_.top + x;
-        h = position_.bottom - x;
-        w = position_.right - x;
-    }   
+        w = position_.width() - x;
+        h = position_.height() - x;
+    }
 
     if (flag_is_set(window_style_, window_style::border_left))
     {
@@ -1382,7 +1369,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->graphic_.flush(paint_rect);
 
-            EndPaint(wnd->context_.hwnd, &ps);
+            EndPaint(hwnd, &ps);
         }
         break;
         case WM_MOUSEMOVE:
@@ -1838,10 +1825,10 @@ void window::process_events()
                 {
                     control->draw(graphic_);
                 }
-
+                
                 draw_border(graphic_);
 
-	            graphic_.flush(paint_rect);
+                graphic_.flush(paint_rect);
 
                 xcb_flush(context_.connection);
             }
