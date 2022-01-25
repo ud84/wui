@@ -106,7 +106,7 @@ window::window()
     focused_index(0),
     parent(),
     my_subscriber_id(-1),
-    transient_window(), docked_(false),
+    transient_window(), docked_(false), transient_subscriber_id_(0),
     subscribers_(),
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
@@ -309,6 +309,18 @@ void window::set_position(const rect &position__, bool change_value)
 #endif
     if (change_value)
     {
+        if (parent.lock())
+        {
+            for (auto &control : controls)
+            {
+                auto pos = control->position();
+
+                pos.move(-position_.left, -position_.top);
+                pos.move(position__.left, position__.top);
+
+                control->set_position(pos);
+            }
+        }
         position_ = position__;
     }
 }
@@ -358,6 +370,7 @@ void window::clear_parent()
     if (parent_)
     {
         parent_->unsubscribe(my_subscriber_id);
+        my_subscriber_id = 0;
 
         for (auto &control : controls)
         {
@@ -1075,17 +1088,18 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
             int32_t top = (transient_window_->position().height() - position_.height()) / 2;
             transient_window_->add_control(shared_from_this(), wui::rect{ left, top, left + position_.width(), top + position_.height() });
 
-            /*auto sid = transient_window_->subscribe([this, &transient_window_](const wui::event &e) {
+            transient_subscriber_id_ = transient_window_->subscribe([this, &transient_window_](const wui::event &e) {
                 if (e.internal_event_.type == wui::internal_event_type::size_changed)
                 {
                     int32_t w = e.internal_event_.x, h = e.internal_event_.y;
                     int32_t left = (w - position_.width()) / 2;
                     int32_t top = (h - position_.height()) / 2;
 
-                    //position_.put(left, top);
-                    //set_position(position_);
+                    auto new_position = position_;
+                    new_position.put(left, top);
+                    set_position(new_position);
                 }
-            }, wui::event_type::internal);*/
+            }, wui::event_type::internal);
         }
         else
         {
@@ -1248,17 +1262,22 @@ void window::destroy()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->remove_control(shared_from_this());
+        parent_->unsubscribe(my_subscriber_id);
+        my_subscriber_id = 0;
 
-        if (close_callback)
-        {
-            close_callback();
-        }
+        parent_->remove_control(shared_from_this());
 
         auto transient_window_ = transient_window.lock();
         if (transient_window_)
         {
             transient_window_->end_docking();
+            transient_window_->unsubscribe(transient_subscriber_id_);
+            transient_subscriber_id_ = 0;
+        }
+
+        if (close_callback)
+        {
+            close_callback();
         }
     }
     else

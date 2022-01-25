@@ -140,6 +140,7 @@ private:
 
     std::weak_ptr<window> transient_window;
     bool docked_;
+    int32_t transient_subscriber_id_;
 
     struct event_subscriber
     {
