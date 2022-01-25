@@ -111,7 +111,6 @@ window::window()
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
     close_callback(),
-    size_change_callback(),
     pin_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
     pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, theme_image(ti_pin), 24)),
@@ -723,11 +722,6 @@ void window::end_docking()
     }
 }
 
-void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback_)
-{
-    size_change_callback = size_change_callback_;
-}
-
 void window::set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback_)
 {
     pin_callback = pin_callback_;
@@ -1080,6 +1074,18 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
             int32_t left = (transient_window_->position().width() - position_.width()) / 2;
             int32_t top = (transient_window_->position().height() - position_.height()) / 2;
             transient_window_->add_control(shared_from_this(), wui::rect{ left, top, left + position_.width(), top + position_.height() });
+
+            /*auto sid = transient_window_->subscribe([this, &transient_window_](const wui::event &e) {
+                if (e.internal_event_.type == wui::internal_event_type::size_changed)
+                {
+                    int32_t w = e.internal_event_.x, h = e.internal_event_.y;
+                    int32_t left = (w - position_.width()) / 2;
+                    int32_t top = (h - position_.height()) / 2;
+
+                    //position_.put(left, top);
+                    //set_position(position_);
+                }
+            }, wui::event_type::internal);*/
         }
         else
         {
@@ -1637,11 +1643,11 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->position_ = rect{ wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height };
 
             wnd->update_buttons(false);
-			
-            if (wnd->size_change_callback)
-            {
-                wnd->size_change_callback(LOWORD(l_param), HIWORD(l_param));
-            }
+
+            event ev;
+            ev.type = event_type::internal;
+            ev.internal_event_ = internal_event{ internal_event_type::size_changed, LOWORD(l_param), HIWORD(l_param) };
+            wnd->send_event_to_plains(ev);
         }
         break;
         case WM_MOVE:
@@ -2189,9 +2195,12 @@ void window::process_events()
                         update_buttons(false);
                     }
 
-                    if ((ev.width != old_position.width() || ev.height != old_position.height()) && size_change_callback)
+                    if ((ev.width != old_position.width())
                     {
-                        size_change_callback(ev.width, ev.height);
+                        event ev;
+                        ev.type = event_type::internal;
+                        ev.internal_event_ = internal_event{ internal_event_type::size_changed, ev.width, ev.height };
+                        send_event_to_plains(ev);
                     }
                 }
             }

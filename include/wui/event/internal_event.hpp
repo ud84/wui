@@ -14,12 +14,16 @@ namespace wui
 
 enum class internal_event_type
 {
-    execute_focused
+    execute_focused,
+    size_changed,
+    position_changed,
+    pin_clicked
 };
 
 struct internal_event
 {
     internal_event_type type;
+    int32_t x, y;
 };
 
 }

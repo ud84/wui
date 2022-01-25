@@ -96,7 +96,6 @@ public:
     window_state state() const;
 
     /// Callbacks
-    void set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback);
     void set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback);
 
 public:
@@ -168,7 +167,6 @@ private:
     int16_t x_click, y_click;
 
     std::function<void(void)> close_callback;
-    std::function<void(int32_t, int32_t)> size_change_callback;
     std::function<void(std::string &tooltip_text)> pin_callback;
 
     std::shared_ptr<i_theme> buttons_theme, close_button_theme;

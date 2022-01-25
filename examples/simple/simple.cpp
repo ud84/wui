@@ -206,11 +206,15 @@ int main(int argc, char *argv[])
 
     window->set_min_size(100, 100);
 
-    window->set_size_change_callback([&nameInput, &okButton, &cancelButton](int32_t w, int32_t h) {
-        nameInput->set_position({ 10, 250, w - 10, 275 });
-        okButton->set_position({ w - 250, h - 50, w - 150, h - 20});
-        cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });
-    });
+    auto sid = window->subscribe([&nameInput, &okButton, &cancelButton](const wui::event &e) {
+        if (e.internal_event_.type == wui::internal_event_type::size_changed)
+        {
+            int32_t w = e.internal_event_.x, h = e.internal_event_.y;
+            nameInput->set_position({ 10, 250, w - 10, 275 });
+            okButton->set_position({ w - 250, h - 50, w - 150, h - 20 });
+            cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });
+        }
+    }, wui::event_type::internal);
 
     window->init("Welcome to WUI!", wui::rect{ 100, 100, 600, 600 }, 
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) | static_cast<uint32_t>(wui::window_style::border_all)),
