@@ -2214,7 +2214,12 @@ void window::process_events()
                         update_buttons(false);
                     }
 
-                    if (ev.width != old_position.width())
+                    if (ev.width != old_position.width() || ev.height != old_position.height())
+                    {
+                        graphic_.clear(rect{ 0, 0, position_.width(), position_.height() });
+                    }
+
+                    if (ev.width != old_position.width() || ev.height != old_position.height())
                     {
                         event ev_;
                         ev_.type = event_type::internal;

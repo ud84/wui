@@ -132,6 +132,8 @@ void graphic::init(const rect &max_size_, color background_color)
     {
         fprintf(stderr, "WUI error can't create the cairo surface on graphic::init()");
     }
+
+    xcb_flush(context_.connection);
 #endif
 }
 
@@ -205,6 +207,7 @@ void graphic::set_background_color(color background_color)
         static_cast<uint16_t>(max_size.width()),
         static_cast<uint16_t>(max_size.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+    xcb_flush(context_.connection);
 #endif
 }
 
@@ -229,6 +232,7 @@ void graphic::clear(const rect &position)
         static_cast<uint16_t>(position.width()),
         static_cast<uint16_t>(position.height()) };
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+    xcb_flush(context_.connection);
 #endif
 }
 
@@ -266,6 +270,7 @@ void graphic::flush(const rect &updated_size)
             return;
         }
     }
+    xcb_flush(context_.connection);
 #endif
 }
 
@@ -292,6 +297,8 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
     xcb_poly_line(context_.connection, XCB_COORD_MODE_ORIGIN, mem_pixmap, gc_, 2, polyline);
 
     xcb_free_gc(context_.connection, gc_);
+
+    xcb_flush(context_.connection);
 #endif
 }
 
@@ -425,6 +432,8 @@ void graphic::draw_rect(const rect &position, color fill_color)
     xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc_, 1, &rct);
 
     xcb_free_gc(context_.connection, gc_);
+
+    xcb_flush(context_.connection);
 #endif
 }
 
@@ -460,6 +469,8 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
     xcb_poly_rectangle(context_.connection, mem_pixmap, gc_, 1, &rct);
 
     xcb_free_gc(context_.connection, gc_);
+
+    xcb_flush(context_.connection);
 #endif
 }
 
@@ -504,6 +515,7 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
             return;
         }
     }
+    xcb_flush(context_.connection);
 #endif
 }
 

@@ -342,17 +342,23 @@ void button::update_theme(std::shared_ptr<i_theme> theme__)
 
 void button::show()
 {
-    showed_ = true;
-    redraw();
+    if (!showed_)
+    {
+        showed_ = true;
+        redraw();
+    }
 }
 
 void button::hide()
 {
-    showed_ = false;
-    auto parent_ = parent.lock();
-    if (parent_)
+    if (showed_)
     {
-        parent_->redraw(position_, true);
+        showed_ = false;
+        auto parent_ = parent.lock();
+        if (parent_)
+        {
+            parent_->redraw(position_, true);
+        }
     }
 }
 
