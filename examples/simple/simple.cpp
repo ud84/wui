@@ -33,29 +33,26 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     void Plug()
     {
-        parentWindow.lock()->show();
-
-        /*if (parentWindow.lock())
+        if (parentWindow.lock())
             parentWindow.lock()->add_control(window, wui::rect{ 20, 30, 190, 190 });
 
         plugButton->disable();
         unplugButton->enable();
 
-        plugged = !plugged;*/
+        plugged = !plugged;
     }
 
     void Unplug()
     {
         if (parentWindow.lock())
             parentWindow.lock()->remove_control(window);
+
         Init();
 		
         plugButton->enable();
         unplugButton->disable();
 
         plugged = !plugged;
-
-        parentWindow.lock()->hide();
     }
 
     void SetCreationButton(std::shared_ptr<wui::button> &creationButton_)
@@ -175,13 +172,11 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<wui::button> okButton(new wui::button("OK", [window, &dialog]()
     {
-        window->disable();
-
         std::shared_ptr<wui::button> dialogButton(new wui::button("Close", [&dialog]() { dialog->destroy(); }));
         dialog->add_control(dialogButton, wui::rect{ 10, 200, 100, 235 });
 
-        dialog->set_transient_for(window);
-        dialog->init("Modal dialog", wui::rect{ 50, 50, 350, 350 }, wui::window_style::dialog, [window, &dialog]() { window->enable(); window->set_style(wui::window_style::frame); /*dialog.reset();*/ });
+        dialog->set_transient_for(window, false);
+        dialog->init("Modal dialog", wui::rect{ 50, 50, 350, 350 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
     }));
 
     std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::only_image, IDB_ACCOUNT, 24, MakeRedButtonTheme()));

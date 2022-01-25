@@ -106,7 +106,7 @@ window::window()
     focused_index(0),
     parent(),
     my_subscriber_id(-1),
-    transient_window(),
+    transient_window(), docked_(false),
     subscribers_(),
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
@@ -695,9 +695,10 @@ void window::set_min_size(int32_t width, int32_t height)
     min_height = height;
 }
 
-void window::set_transient_for(std::shared_ptr<i_window> window_)
+void window::set_transient_for(std::shared_ptr<window> window_, bool docked__)
 {
     transient_window = window_;
+    docked_ = docked__;
 }
 
 void window::set_size_change_callback(std::function<void(int32_t, int32_t)> size_change_callback_)
@@ -1008,6 +1009,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     update_buttons(true);
 
+    if (transient_window && docked_)
+    {
+        set_parent(transient_window);
+    }
+
     if (parent)
     {
         showed_ = true;
@@ -1048,6 +1054,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     if (!showed_)
     {
         ShowWindow(context_.hwnd, SW_HIDE);
+    }
+
+    if (transient_window)
+    {
+        transient_window->disable();
     }
 
 #elif __linux__
@@ -1652,6 +1663,11 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             if (!wnd->parent && wnd->close_callback)
             {
                 wnd->close_callback();
+            }
+
+            if (wnd->transient_window)
+            {
+                wnd->transient_window->enable();
             }
         }
         break;

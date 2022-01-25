@@ -86,7 +86,7 @@ public:
     void set_style(window_style style);
     void set_min_size(int32_t width, int32_t height);
 
-    void set_transient_for(std::shared_ptr<i_window> window_);
+    void set_transient_for(std::shared_ptr<window> window_, bool docked = true);
 
     /// Window state methods
     void pin();
@@ -137,7 +137,8 @@ private:
     std::shared_ptr<window> parent;
     int32_t my_subscriber_id;
 
-    std::shared_ptr<i_window> transient_window;
+    std::shared_ptr<window> transient_window;
+    bool docked_;
 
     struct event_subscriber
     {
