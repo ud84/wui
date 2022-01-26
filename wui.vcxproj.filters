@@ -126,6 +126,9 @@
     <ClInclude Include="include\wui\control\menu.hpp">
       <Filter>Header Files\wui\control</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\control\list.hpp">
+      <Filter>Header Files\wui\control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -156,6 +159,9 @@
       <Filter>Source Files\theme</Filter>
     </ClCompile>
     <ClCompile Include="src\control\menu.cpp">
+      <Filter>Source Files\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\list.cpp">
       <Filter>Source Files\control</Filter>
     </ClCompile>
   </ItemGroup>
