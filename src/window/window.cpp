@@ -285,23 +285,6 @@ void window::receive_event(const event &ev)
                 case internal_event_type::execute_focused:
                     execute_focused();
                 break;
-                case internal_event_type::size_changed:
-                {
-                    auto parent_ = parent.lock();
-                    if (parent_)
-                    {
-                        auto processed_ev = ev;
-                        
-                        double scale_x = (double)position_.width() / parent_->position().width();
-                        double scale_y = (double)position_.height() / parent_->position().height();
-
-                        processed_ev.internal_event_.x = position_.left + (double)ev.internal_event_.x * scale_x;
-                        processed_ev.internal_event_.y = position_.top + (double)ev.internal_event_.y * scale_y;
-
-                        send_event_to_plains(processed_ev);
-                    }
-                }
-                break;
             }
         break;
     }
@@ -332,6 +315,11 @@ void window::set_position(const rect &position__, bool change_value)
     {
         if (parent.lock())
         {
+            event ev;
+            ev.type = event_type::internal;
+            ev.internal_event_ = internal_event{ internal_event_type::size_changed, position__.width(), position__.height() };
+            send_event_to_plains(ev);
+
             for (auto &control : controls)
             {
                 auto pos = control->position();
@@ -382,10 +370,6 @@ void window::set_parent(std::shared_ptr<window> window)
                     auto new_position = position_;
                     new_position.put(left, top);
                     set_position(new_position);
-                }
-                else
-                {
-                    receive_event(e);
                 }
             }
         }, wui::event_type::internal);
@@ -1138,7 +1122,17 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto parent_ = parent.lock();
     if (parent_)
     {
-        showed_ = true;
+        if (!docked_)
+        {
+            for (auto &control : controls)
+            {
+                control->set_position({ control->position().left + position_.left,
+                    control->position().top + position_.top,
+                    control->position().right + position_.left,
+                    control->position().bottom + position_.top });
+            }
+        }
+
         parent_->redraw(position_);
 
         return true;

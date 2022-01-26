@@ -98,9 +98,8 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             }
         }, wui::event_type::internal);
 
-        Init();
-
         Plug();
+        Init();
     }
 };
 
