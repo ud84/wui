@@ -13,6 +13,8 @@
 
 #include <wui/theme/theme.hpp>
 
+#include <wui/system/tools.hpp>
+
 #include <algorithm>
 
 namespace wui
@@ -71,24 +73,12 @@ void menu::receive_event(const event &)
 
 void menu::set_position(const rect &position__)
 {
-    auto prev_position = position_;
-    position_ = position__;
-
-    if (showed_)
-    {
-        auto parent_ = parent.lock();
-        if (parent_)
-        {
-            parent_->redraw(prev_position, true);
-        }
-    }
-	
-    redraw();
+    update_control_position(position_, position__, showed_, parent);
 }
 
 rect menu::position() const
 {
-	return position_;
+    return get_control_position(position_, parent);
 }
 
 void menu::set_parent(std::shared_ptr<window> window)

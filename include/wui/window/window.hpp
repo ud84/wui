@@ -88,6 +88,8 @@ public:
     void start_docking();
     void end_docking();
 
+    bool child() const;
+
     /// Window state methods
     void pin();
     void minimize();

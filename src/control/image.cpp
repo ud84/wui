@@ -13,6 +13,8 @@
 
 #include <wui/theme/theme.hpp>
 
+#include <wui/system/tools.hpp>
+
 #include <boost/nowide/convert.hpp>
 
 #include <cstring>
@@ -212,24 +214,12 @@ void image::draw(graphic &gr_)
 
 void image::set_position(const rect &position__)
 {
-    auto prev_position = position_;
-    position_ = position__;
-
-    if (showed_)
-    {
-        auto parent_ = parent.lock();
-        if (parent_)
-        {
-            parent_->redraw(prev_position, true);
-        }
-    }
-	
-    redraw();
+    update_control_position(position_, position__, showed_, parent);
 }
 
 rect image::position() const
 {
-	return position_;
+    return get_control_position(position_, parent);
 }
 
 void image::set_parent(std::shared_ptr<window> window)

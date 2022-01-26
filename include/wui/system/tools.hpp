@@ -9,10 +9,15 @@
 
 #pragma once
 
+#include <memory>
+
+#include <wui/common/rect.hpp>
 #include <wui/system/system_context.hpp>
 
 namespace wui
 {
+
+class window;
 
 enum class cursor
 {
@@ -27,6 +32,13 @@ enum class cursor
 };
 
 void set_cursor(system_context &context, cursor cursor_);
+
+void update_control_position(rect &control_position,
+    const rect &new_control_position,
+    bool showed,
+    std::weak_ptr<window> parent);
+
+rect get_control_position(const rect &control_position, std::weak_ptr<window> parent);
 
 #ifdef __linux__
 bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message);

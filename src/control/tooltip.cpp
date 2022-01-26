@@ -13,6 +13,8 @@
 
 #include <wui/theme/theme.hpp>
 
+#include <wui/system/tools.hpp>
+
 namespace wui
 {
 
@@ -42,7 +44,7 @@ void tooltip::draw(graphic &gr)
         return;
     }
 
-    gr.draw_rect(position_,
+    gr.draw_rect(position(),
         theme_color(tc, tv_border, theme_),
         theme_color(tc, tv_background, theme_),
         theme_dimension(tc, tv_border_width, theme_),
@@ -52,7 +54,7 @@ void tooltip::draw(graphic &gr)
 
     auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
 
-    auto text_position = position_;
+    auto text_position = position();
     text_position.move(text_indent, text_indent);
 
     gr.draw_text(text_position, text, theme_color(tc, tv_text, theme_), font_);
@@ -60,24 +62,12 @@ void tooltip::draw(graphic &gr)
 
 void tooltip::set_position(const rect &position__)
 {
-    auto prev_position = position_;
-    position_ = position__;
-
-    if (showed_)
-    {
-        auto parent_ = parent.lock();
-        if (parent_)
-        {
-            parent_->redraw(prev_position, true);
-        }
-    }
-	
-    redraw();
+    update_control_position(position_, position__, showed_, parent);
 }
 
 rect tooltip::position() const
 {
-	return position_;
+    return get_control_position(position_, parent);
 }
 
 void tooltip::set_parent(std::shared_ptr<window> window)
@@ -145,7 +135,7 @@ void tooltip::hide()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->redraw(position_, true);
+        parent_->redraw(position(), true);
     }
 }
 
@@ -209,7 +199,7 @@ void tooltip::update_size()
 
     auto font_ = theme_font(tc, tv_font, theme_);
 
-    auto old_position = position_;
+    auto old_position = position();
 
     position_ = mem_gr.measure_text(text, font_);
 
@@ -240,7 +230,7 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
 
     auto parent_pos = parent_->position();
 
-    auto out_pos = position_;
+    auto out_pos = position();
 
     out_pos.put(control.position().left + indent, control.position().bottom + indent); // below the control
     if (out_pos.bottom <= parent_pos.height())
@@ -271,7 +261,7 @@ void tooltip::redraw()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position_);
+            parent_->redraw(position());
         }
     }
 }

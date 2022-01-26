@@ -149,8 +149,8 @@ void window::add_control(std::shared_ptr<i_control> control, const rect &control
 {
     if (std::find(controls.begin(), controls.end(), control) == controls.end())
     {
-        control->set_position(control_position);
         control->set_parent(shared_from_this());
+        control->set_position(control_position);
         controls.emplace_back(control);
 
         redraw(control->position());
@@ -311,26 +311,19 @@ void window::set_position(const rect &position__, bool change_value)
             XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
     }
 #endif
-    if (change_value)
+    if (change_value) /// change_value is false only when the window is normalized
     {
+        position_ = position__;
+
         if (parent.lock())
         {
+            redraw(position_, false);
+
             event ev;
             ev.type = event_type::internal;
             ev.internal_event_ = internal_event{ internal_event_type::size_changed, position__.width(), position__.height() };
             send_event_to_plains(ev);
-
-            for (auto &control : controls)
-            {
-                auto pos = control->position();
-
-                pos.move(-position_.left, -position_.top);
-                pos.move(position__.left, position__.top);
-
-                control->set_position(pos);
-            }
         }
-        position_ = position__;
     }
 }
 
@@ -374,14 +367,6 @@ void window::set_parent(std::shared_ptr<window> window)
             }
         }, wui::event_type::internal);
 
-        for (auto &control : controls)
-        {
-            control->set_position({ control->position().left + position_.left,
-                control->position().top + position_.top,
-                control->position().right + position_.left,
-                control->position().bottom + position_.top });
-        }
-
         pin_button->set_caption("Unpin the window");
     }
 }
@@ -396,14 +381,6 @@ void window::clear_parent()
 
         parent_->unsubscribe(my_plain_sid);
         my_plain_sid = -1;
-
-        for (auto &control : controls)
-        {
-            control->set_position({ control->position().left - position_.left,
-                control->position().top - position_.top,
-                control->position().right - position_.left,
-                control->position().bottom - position_.top });
-        }
     }
 
     parent.reset();
@@ -411,7 +388,7 @@ void window::clear_parent()
 
 bool window::topmost() const
 {
-    return flag_is_set(window_style_, window_style::topmost);
+    return docked_ || flag_is_set(window_style_, window_style::topmost);
 }
 
 void window::set_focus()
@@ -758,6 +735,11 @@ void window::end_docking()
     {
         control->enable();
     }
+}
+
+bool window::child() const
+{
+    return parent.lock() != nullptr;
 }
 
 void window::set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback_)
@@ -1122,17 +1104,6 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto parent_ = parent.lock();
     if (parent_)
     {
-        if (!docked_)
-        {
-            for (auto &control : controls)
-            {
-                control->set_position({ control->position().left + position_.left,
-                    control->position().top + position_.top,
-                    control->position().right + position_.left,
-                    control->position().bottom + position_.top });
-            }
-        }
-
         parent_->redraw(position_);
 
         return true;

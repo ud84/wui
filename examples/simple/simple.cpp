@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 
             if (pluggedWindow->plugged)
             {
-                pluggedWindow->window->set_position({ 0, 30, 300, h });
+                pluggedWindow->window->set_position({ 0, h - 300, w - 500, h });
             }
 
             nameInput->set_position({ 320, 250, w - 10, 275 });
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
         }
     }, wui::event_type::internal);
 
-    window->init("Welcome to WUI!", wui::rect{ 100, 100, 900, 600 }, 
+    window->init("Welcome to WUI!", wui::rect{ 0, 0, 900, 600 }, 
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) | static_cast<uint32_t>(wui::window_style::border_all)),
         //wui::window_style::frame,
         [&runned]() {

@@ -9,6 +9,8 @@
 
 #include <wui/system/tools.hpp>
 
+#include <wui/window/window.hpp>
+
 #ifdef _WIN32
 
 #include <windows.h>
@@ -117,5 +119,47 @@ bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const 
 }
 
 #endif
+
+void update_control_position(rect &control_position,
+    const rect &new_control_position,
+    bool showed,
+    std::weak_ptr<window> parent)
+{
+    auto prev_position = control_position;
+    control_position = new_control_position;
+
+    if (showed)
+    {
+        auto parent_ = parent.lock();
+        if (parent_)
+        {
+            if (parent_->child())
+            {
+                prev_position.move(parent_->position().left, parent_->position().top);
+            }
+            parent_->redraw(prev_position, true);
+
+            auto new_position = control_position;
+            if (parent_->child())
+            {
+                new_position.move(parent_->position().left, parent_->position().top);
+            }
+            parent_->redraw(new_position);
+        }
+    }
+}
+
+rect get_control_position(const rect &control_position, std::weak_ptr<window> parent)
+{
+    auto out_pos = control_position;
+
+    auto parent_ = parent.lock();
+    if (parent_ && parent_->child())
+    {
+        out_pos.move(parent_->position().left, parent_->position().top);
+    }
+
+    return out_pos;
+}
 
 }

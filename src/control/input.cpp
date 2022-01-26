@@ -67,7 +67,7 @@ void input::draw(graphic &gr)
     }
 
     /// Draw the frame
-    gr.draw_rect(position_,
+    gr.draw_rect(position(),
         !focused_ ? theme_color(tc, tv_border, theme_) : theme_color(tc, tv_focused_border, theme_),
         theme_color(tc, tv_background, theme_),
         theme_dimension(tc, tv_border_width, theme_),
@@ -122,10 +122,10 @@ void input::draw(graphic &gr)
 
     int32_t input_vertical_indent = position_.height() > text_height ? (position_.height() - text_height) / 2 : 0;
     
-    gr.draw_graphic(rect{ position_.left + input_horizontal_indent,
-            position_.top + input_vertical_indent,
-            position_.width() - input_horizontal_indent * 2,
-            position_.height() - input_vertical_indent * 2 },
+    gr.draw_graphic(rect{ position().left + input_horizontal_indent,
+            position().top + input_vertical_indent,
+            position().width() - input_horizontal_indent * 2,
+            position().height() - input_vertical_indent * 2 },
         mem_gr, left_shift, 0);
 }
 
@@ -136,7 +136,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
         return 0;
     }
 
-    x -= position_.left + input_horizontal_indent - left_shift;
+    x -= position().left + input_horizontal_indent - left_shift;
 
     system_context ctx = { 0 };
     auto parent_ = parent.lock();
@@ -495,24 +495,12 @@ void input::receive_event(const event &ev)
 
 void input::set_position(const rect &position__)
 {
-    auto prev_position = position_;
-    position_ = position__;
-
-    if (showed_)
-    {
-        auto parent_ = parent.lock();
-        if (parent_)
-        {
-            parent_->redraw(prev_position, true);
-        }
-    }
-	
-    redraw();
+    update_control_position(position_, position__, showed_, parent);
 }
 
 rect input::position() const
 {
-    return position_;
+    return get_control_position(position_, parent);
 }
 
 void input::set_parent(std::shared_ptr<window> window_)
@@ -597,7 +585,7 @@ void input::hide()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->redraw(position_, true);
+        parent_->redraw(position(), true);
     }
 }
 
@@ -651,7 +639,7 @@ void input::redraw()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position_);
+            parent_->redraw(position());
         }
     }
 }

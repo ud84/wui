@@ -109,28 +109,28 @@ void button::draw(graphic &gr)
     switch (button_view_)
     {
         case button_view::only_text:
-            if (text_rect.right + 10 > position_.width())
+            if (text_rect.right + 10 > position().width())
             {
-                position_.right = position_.left + text_rect.right + 10;
+                position_.right = position().left + text_rect.right + 10;
             }
 
-            text_top = position_.top + ((position_.height() - text_rect.bottom) / 2);
-            text_left = position_.left + ((position_.width() - text_rect.right) / 2);
+            text_top = position().top + ((position().height() - text_rect.bottom) / 2);
+            text_left = position().left + ((position().width() - text_rect.right) / 2);
         break;
         case button_view::only_image:
             if (image_)
 	        {
-                if (image_size > position_.width())
+                if (image_size > position().width())
                 {
-                    position_.right = position_.left + image_size;
+                    position_.right = position().left + image_size;
                 }
-                if (image_size > position_.height())
+                if (image_size > position().height())
                 {
-                    position_.bottom = position_.top + image_size;
+                    position_.bottom = position().top + image_size;
                 }
 
-                image_top = position_.top + ((position_.height() - image_size) / 2);
-                image_left = position_.left + ((position_.width() - image_size) / 2);
+                image_top = position().top + ((position().height() - image_size) / 2);
+                image_left = position().left + ((position().width() - image_size) / 2);
             }
         break;
         case button_view::image_right_text: case button_view::image_right_text_no_frame:
@@ -138,35 +138,35 @@ void button::draw(graphic &gr)
             {
                 if (image_size + text_rect.right + 6 > position_.width())
                 {
-                    position_.right = position_.left + text_rect.right + image_size + 6;
+                    position_.right = position().left + text_rect.right + image_size + 6;
                 }
-                if (image_size + 6 > position_.height())
+                if (image_size + 6 > position().height())
                 {
-                    position_.bottom = position_.top + image_size + 6;
+                    position_.bottom = position().top + image_size + 6;
                 }
 
-                text_top = position_.top + ((position_.height() - text_rect.bottom) / 2);
-                image_left = position_.left + ((position_.width() - text_rect.right - image_size - 5) / 2);
-                image_top = position_.top + ((position_.height() - image_size) / 2);
+                text_top = position().top + ((position().height() - text_rect.bottom) / 2);
+                image_left = position().left + ((position().width() - text_rect.right - image_size - 5) / 2);
+                image_top = position().top + ((position().height() - image_size) / 2);
                 text_left = image_left + image_size + 5;
             }
         break;
         case button_view::image_bottom_text:
             if (image_)
             {
-                if (image_size + 6 > position_.width())
+                if (image_size + 6 > position().width())
                 {
-                    position_.right = position_.left + image_size + 6;
+                    position_.right = position().left + image_size + 6;
                 }
-                if (image_size + text_rect.bottom + 6 > position_.height())
+                if (image_size + text_rect.bottom + 6 > position().height())
                 {
-                    position_.bottom = position_.top + text_rect.bottom + image_size + 6;
+                    position_.bottom = position().top + text_rect.bottom + image_size + 6;
                 }
 
-                image_top = position_.top + ((position_.height() - text_rect.bottom - image_size - 5) / 2);
+                image_top = position().top + ((position().height() - text_rect.bottom - image_size - 5) / 2);
                 text_top = image_top + image_size + 5;
-                text_left = position_.left + ((position_.width() - text_rect.right) / 2);
-                image_left = position_.left + ((position_.width() - image_size) / 2);
+                text_left = position().left + ((position().width() - text_rect.right) / 2);
+                image_left = position().left + ((position().width() - image_size) / 2);
             }
         break;
     }
@@ -180,7 +180,7 @@ void button::draw(graphic &gr)
         (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_calm, theme_) : theme_color(window::tc, window::tv_background, theme_))) :
         button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_);
 
-    gr.draw_rect(position_, border_color, fill_color, theme_dimension(tc, tv_border_width, theme_), theme_dimension(tc, tv_round, theme_));
+    gr.draw_rect(position(), border_color, fill_color, theme_dimension(tc, tv_border_width, theme_), theme_dimension(tc, tv_round, theme_));
 	
     if (button_view_ != button_view::only_text && image_)
     {
@@ -251,24 +251,12 @@ void button::receive_event(const event &ev)
 
 void button::set_position(const rect &position__)
 {
-    auto prev_position = position_;
-    position_ = position__;
-
-    if (showed_)
-    {
-        auto parent_ = parent.lock();
-        if (parent_)
-        {
-            parent_->redraw(prev_position, true);
-        }
-
-        redraw();
-    }
+    update_control_position(position_, position__, showed_, parent);
 }
 
 rect button::position() const
 {
-    return position_;
+    return get_control_position(position_, parent);
 }
 
 void button::set_parent(std::shared_ptr<window> window_)
@@ -357,7 +345,7 @@ void button::hide()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position_, true);
+            parent_->redraw(position(), true);
         }
     }
 }
@@ -462,7 +450,7 @@ void button::redraw()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position_);
+            parent_->redraw(position());
         }
     }
 }
