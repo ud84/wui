@@ -1003,8 +1003,6 @@ void window::update_buttons(bool theme_changed)
     }
 
     auto btn_size = 26;
-    //auto left = !parent.lock() ? position_.width() - btn_size : position_.right - btn_size;
-    //auto top = !parent.lock() ? 0 : position_.top;
     auto left = position_.width() - btn_size;
     auto top = 0;
 
