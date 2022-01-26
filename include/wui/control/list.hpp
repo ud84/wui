@@ -84,10 +84,7 @@ public:
     static constexpr const char *tv_title_text = "title_text";
     static constexpr const char *tv_scrollbar = "scrollbar";
     static constexpr const char *tv_scrollbar_slider = "scrollbar_slider";
-    static constexpr const char *tv_scrollbar_arrow_left_shadow = "scrollbar_arrow_left_shadow";
-    static constexpr const char *tv_scrollbar_arrow_right_shadow = "scrollbar_arrow_right_shadow";
-    static constexpr const char *tv_selected = "selected";
-    static constexpr const char *tv_select_active = "select_active";
+    static constexpr const char *tv_scrollbar_slider_acive = "scrollbar_slider_active";
     static constexpr const char *tv_round = "round";
     static constexpr const char *tv_font = "font";
 
