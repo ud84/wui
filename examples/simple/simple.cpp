@@ -5,6 +5,7 @@
 #include <wui/window/window.hpp>
 #include <wui/control/button.hpp>
 #include <wui/control/input.hpp>
+#include <wui/control/list.hpp>
 #include <wui/control/image.hpp>
 
 #ifdef _WIN32
@@ -25,19 +26,18 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     std::weak_ptr<wui::window> parentWindow;
 
     std::shared_ptr<wui::window> window;
-    std::shared_ptr<wui::button> plugButton, unplugButton;
-    std::shared_ptr<wui::input> input;
+    std::shared_ptr<wui::list> list;
     std::weak_ptr<wui::button> creationButton;
 
     bool plugged;
 
     void Plug()
     {
-        if (parentWindow.lock())
-            parentWindow.lock()->add_control(window, wui::rect{ 20, 30, 190, 190 });
-
-        plugButton->disable();
-        unplugButton->enable();
+        auto parentWindow_ = parentWindow.lock();
+        if (parentWindow_)
+        {
+            parentWindow_->add_control(window, wui::rect{ 0, 30, window->position().width(), parentWindow_->position().height() });
+        }
 
         plugged = !plugged;
     }
@@ -49,9 +49,6 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
         Init();
 		
-        plugButton->enable();
-        unplugButton->disable();
-
         plugged = !plugged;
     }
 
@@ -62,7 +59,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     void Init()
     {
-        window->init("Child window plugged!", wui::rect{ 20, 30, 190, 190 }, wui::window_style::pinned, [this]() {
+        window->init("Child window plugged!", wui::rect{ 0, 30, 300, 500 }, 
+            static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::pinned) | static_cast<uint32_t>(wui::window_style::border_right)),
+            [this]() {
             if (creationButton.lock())
                 creationButton.lock()->enable();
         });
@@ -71,15 +70,11 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     PluggedWindow(std::shared_ptr<wui::window> &parentWindow_)
         : parentWindow(parentWindow_),
         window(new wui::window()),
-        plugButton(new wui::button("Plug Window", std::bind(&PluggedWindow::Plug, this))),
-        unplugButton(new wui::button("Unplug Window", std::bind(&PluggedWindow::Unplug, this))),
-        input(new wui::input()),
+        list(new wui::list()),
         creationButton(),
-        plugged(true)
+        plugged(false)
     {
-        window->add_control(unplugButton, wui::rect{ 10, 40, 110, 65 });
-        window->add_control(plugButton, wui::rect{ 10, 85, 110, 110 });
-        window->add_control(input, wui::rect{ 10, 130, 150, 155 });
+        window->add_control(list, wui::rect{ 10, 30, 290, 490 });
 
         window->set_pin_callback([this](std::string &tooltip_text) {
             if (plugged)
@@ -94,12 +89,18 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             }
         });
 
-        plugButton->disable();
+        auto sid = window->subscribe([this](const wui::event &e) {
+            if (e.internal_event_.type == wui::internal_event_type::size_changed)
+            {
+                int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-        if (parentWindow.lock())
-            parentWindow.lock()->add_control(window, wui::rect{ 20, 30, 190, 190 });
+                list->set_position({ 10, 30, w - 10, h - 10 });
+            }
+        }, wui::event_type::internal);
 
         Init();
+
+        Plug();
     }
 };
 
@@ -150,7 +151,7 @@ int main(int argc, char *argv[])
     std::shared_ptr<wui::window> window(new wui::window());
 
     std::shared_ptr<wui::image> accountImage(new wui::image(IDB_ACCOUNT));
-    window->add_control(accountImage, wui::rect{ 250, 100, 314, 164 });
+    window->add_control(accountImage, wui::rect{ 350, 100, 414, 164 });
 
     std::shared_ptr<PluggedWindow> pluggedWindow(new PluggedWindow(window));
     std::shared_ptr<wui::button> createPluggedButton(new wui::button("Create plugged window", []() {}));
@@ -162,11 +163,11 @@ int main(int argc, char *argv[])
     createPluggedButton->disable();
     pluggedWindow->SetCreationButton(createPluggedButton);
 
-    window->add_control(createPluggedButton, wui::rect{ 270, 50, 380, 75 });
+    window->add_control(createPluggedButton, wui::rect{ 320, 50, 400, 75 });
     
     std::shared_ptr<wui::input> nameInput(new wui::input());
     //nameInput->set_text("Hello world!");
-    window->add_control(nameInput, wui::rect{ 10, 250, 400, 275 });
+    window->add_control(nameInput, wui::rect{ 320, 250, 890, 275 });
 
     std::shared_ptr<wui::window> dialog(new wui::window());
 
@@ -189,7 +190,7 @@ int main(int argc, char *argv[])
         dialog->update_theme(); 
         cancelButton->update_theme(MakeRedButtonTheme());
     }));
-    window->add_control(darkThemeButton, wui::rect{ 140, 350, 260, 375 });
+    window->add_control(darkThemeButton, wui::rect{ 320, 350, 440, 375 });
 	
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
@@ -199,24 +200,30 @@ int main(int argc, char *argv[])
         dialog->update_theme();
         cancelButton->update_theme(MakeRedButtonTheme());
     }));
-    window->add_control(whiteThemeButton, wui::rect{ 290, 350, 380, 375 });
+    window->add_control(whiteThemeButton, wui::rect{ 460, 350, 580, 375 });
 
     window->add_control(okButton, wui::rect{ 240, 450, 350, 480 });
     window->add_control(cancelButton, wui::rect{ 370, 450, 480, 480 });
 
     window->set_min_size(100, 100);
 
-    auto sid = window->subscribe([&nameInput, &okButton, &cancelButton](const wui::event &e) {
+    auto sid = window->subscribe([&pluggedWindow, &nameInput, &okButton, &cancelButton](const wui::event &e) {
         if (e.internal_event_.type == wui::internal_event_type::size_changed)
         {
             int32_t w = e.internal_event_.x, h = e.internal_event_.y;
-            nameInput->set_position({ 10, 250, w - 10, 275 });
+
+            if (pluggedWindow->plugged)
+            {
+                pluggedWindow->window->set_position({ 0, 30, 300, h });
+            }
+
+            nameInput->set_position({ 320, 250, w - 10, 275 });
             okButton->set_position({ w - 250, h - 50, w - 150, h - 20 });
             cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });
         }
     }, wui::event_type::internal);
 
-    window->init("Welcome to WUI!", wui::rect{ 100, 100, 600, 600 }, 
+    window->init("Welcome to WUI!", wui::rect{ 100, 100, 900, 600 }, 
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) | static_cast<uint32_t>(wui::window_style::border_all)),
         //wui::window_style::frame,
         [&runned]() {

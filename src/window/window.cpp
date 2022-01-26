@@ -105,8 +105,8 @@ window::window()
     showed_(true), enabled_(true),
     focused_index(0),
     parent(),
-    my_subscriber_id(-1),
-    transient_window(), docked_(false), transient_subscriber_id_(0),
+    my_control_sid(-1), my_plain_sid(-1),
+    transient_window(), docked_(false),
     subscribers_(),
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
@@ -248,6 +248,8 @@ void window::draw(graphic &gr)
 
 void window::receive_event(const event &ev)
 {
+    /// Here we receive events from the parent window and relay them to our child controls
+
     if (!showed_)
     {
         return;
@@ -278,9 +280,28 @@ void window::receive_event(const event &ev)
         }
         break;
         case event_type::internal:
-            if (ev.internal_event_.type == internal_event_type::execute_focused)
+            switch (ev.internal_event_.type)
             {
-                execute_focused();
+                case internal_event_type::execute_focused:
+                    execute_focused();
+                break;
+                case internal_event_type::size_changed:
+                {
+                    auto parent_ = parent.lock();
+                    if (parent_)
+                    {
+                        auto processed_ev = ev;
+                        
+                        double scale_x = (double)position_.width() / parent_->position().width();
+                        double scale_y = (double)position_.height() / parent_->position().height();
+
+                        processed_ev.internal_event_.x = position_.left + (double)ev.internal_event_.x * scale_x;
+                        processed_ev.internal_event_.y = position_.top + (double)ev.internal_event_.y * scale_y;
+
+                        send_event_to_plains(processed_ev);
+                    }
+                }
+                break;
             }
         break;
     }
@@ -348,7 +369,26 @@ void window::set_parent(std::shared_ptr<window> window)
         }
 #endif
 
-        my_subscriber_id = window->subscribe(std::bind(&window::receive_event, this, std::placeholders::_1), event_type::all, shared_from_this());
+        my_control_sid = window->subscribe(std::bind(&window::receive_event, this, std::placeholders::_1), event_type::all, shared_from_this());
+        my_plain_sid = window->subscribe([this](const wui::event &e) {
+            if (e.internal_event_.type == wui::internal_event_type::size_changed)
+            {
+                int32_t w = e.internal_event_.x, h = e.internal_event_.y;
+                if (docked_)
+                {
+                    int32_t left = (w - position_.width()) / 2;
+                    int32_t top = (h - position_.height()) / 2;
+
+                    auto new_position = position_;
+                    new_position.put(left, top);
+                    set_position(new_position);
+                }
+                else
+                {
+                    receive_event(e);
+                }
+            }
+        }, wui::event_type::internal);
 
         for (auto &control : controls)
         {
@@ -359,8 +399,6 @@ void window::set_parent(std::shared_ptr<window> window)
         }
 
         pin_button->set_caption("Unpin the window");
-
-        update_buttons(false);
     }
 }
 
@@ -369,8 +407,11 @@ void window::clear_parent()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->unsubscribe(my_subscriber_id);
-        my_subscriber_id = 0;
+        parent_->unsubscribe(my_control_sid);
+        my_control_sid = -1;
+
+        parent_->unsubscribe(my_plain_sid);
+        my_plain_sid = -1;
 
         for (auto &control : controls)
         {
@@ -962,8 +1003,10 @@ void window::update_buttons(bool theme_changed)
     }
 
     auto btn_size = 26;
-    auto left = !parent.lock() ? position_.width() - btn_size : position_.right - btn_size;
-    auto top = !parent.lock() ? 0 : position_.top;
+    //auto left = !parent.lock() ? position_.width() - btn_size : position_.right - btn_size;
+    //auto top = !parent.lock() ? 0 : position_.top;
+    auto left = position_.width() - btn_size;
+    auto top = 0;
 
     if (flag_is_set(window_style_, window_style::close_button))
     {
@@ -1087,19 +1130,6 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
             int32_t left = (transient_window_->position().width() - position_.width()) / 2;
             int32_t top = (transient_window_->position().height() - position_.height()) / 2;
             transient_window_->add_control(shared_from_this(), wui::rect{ left, top, left + position_.width(), top + position_.height() });
-
-            transient_subscriber_id_ = transient_window_->subscribe([this, &transient_window_](const wui::event &e) {
-                if (e.internal_event_.type == wui::internal_event_type::size_changed)
-                {
-                    int32_t w = e.internal_event_.x, h = e.internal_event_.y;
-                    int32_t left = (w - position_.width()) / 2;
-                    int32_t top = (h - position_.height()) / 2;
-
-                    auto new_position = position_;
-                    new_position.put(left, top);
-                    set_position(new_position);
-                }
-            }, wui::event_type::internal);
         }
         else
         {
@@ -1262,17 +1292,12 @@ void window::destroy()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->unsubscribe(my_subscriber_id);
-        my_subscriber_id = 0;
-
         parent_->remove_control(shared_from_this());
 
         auto transient_window_ = transient_window.lock();
         if (transient_window_)
         {
             transient_window_->end_docking();
-            transient_window_->unsubscribe(transient_subscriber_id_);
-            transient_subscriber_id_ = 0;
         }
 
         if (close_callback)

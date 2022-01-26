@@ -22,7 +22,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent(),
-    showed_(false), enabled_(false), focused_(false),
+    showed_(true), enabled_(true), focused_(false),
     columns(),
     item_height(0), item_count(0), selected_item_(0), start_item(0),
     draw_callback(),
@@ -288,6 +288,21 @@ void list::redraw()
             parent_->redraw(position_);
         }
     }
+}
+
+void list::draw_titles(graphic &gr_)
+{
+
+}
+
+void list::draw_items(graphic &gr_)
+{
+
+}
+
+void list::draw_scrollbar(graphic &gr_)
+{
+
 }
 
 int32_t list::get_title_height() const

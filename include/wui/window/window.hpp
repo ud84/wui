@@ -136,11 +136,10 @@ private:
     size_t focused_index;
 
     std::weak_ptr<window> parent;
-    int32_t my_subscriber_id;
+    int32_t my_control_sid, my_plain_sid;
 
     std::weak_ptr<window> transient_window;
     bool docked_;
-    int32_t transient_subscriber_id_;
 
     struct event_subscriber
     {
