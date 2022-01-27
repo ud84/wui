@@ -229,24 +229,30 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
     }
 
     auto parent_pos = parent_->position();
+    if (!parent_->child())
+    {
+        parent_pos = { 0, 0, parent_pos.width(), parent_pos.height() };
+    }
+
+    auto control_pos = control.position();
 
     auto out_pos = position_;
 
-    out_pos.put(control.position().left + indent, control.position().bottom + indent); // below the control
+    out_pos.put(control_pos.left + indent, control_pos.bottom + indent); // below the control
     if (out_pos.bottom <= parent_pos.bottom)
     {
         if (out_pos.right >= parent_pos.width())
         {
-            out_pos.put(parent_pos.width() - out_pos.width(), control.position().bottom + indent);
+            out_pos.put(parent_pos.width() - out_pos.width(), control_pos.bottom + indent);
         }
     }
     else
     {
-        out_pos.put(control.position().left + indent, control.position().top - out_pos.height() - indent); // above the control
+        out_pos.put(control_pos.left + indent, control_pos.top - out_pos.height() - indent); // above the control
 
         if (out_pos.right >= parent_pos.width())
         {
-            out_pos.put(parent_pos.width() - out_pos.width(), control.position().top - out_pos.height() - indent);
+            out_pos.put(parent_pos.width() - out_pos.width(), control_pos.top - out_pos.height() - indent);
         }
     }
 
