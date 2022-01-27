@@ -57,7 +57,7 @@ public:
     menu(const std::string &text, std::shared_ptr<i_theme> theme_ = nullptr);
     ~menu();
 
-    virtual void draw(graphic &gr);
+    virtual void draw(graphic &gr, const rect &);
 
     virtual void set_position(const rect &position);
     virtual rect position() const;

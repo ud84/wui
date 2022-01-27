@@ -29,7 +29,7 @@ public:
     list(std::shared_ptr<i_theme> theme_ = nullptr);
     ~list();
 
-    virtual void draw(graphic &gr);
+    virtual void draw(graphic &gr, const rect &);
 
     virtual void set_position(const rect &position);
     virtual rect position() const;

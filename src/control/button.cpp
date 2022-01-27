@@ -93,7 +93,7 @@ button::~button()
     }
 }
 
-void button::draw(graphic &gr)
+void button::draw(graphic &gr, const rect &)
 {
     if (!showed_)
     {
@@ -185,7 +185,7 @@ void button::draw(graphic &gr)
     if (button_view_ != button_view::only_text && image_)
     {
         image_->set_position( { image_left, image_top, image_left + image_size, image_top + image_size } );
-        image_->draw(gr);
+        image_->draw(gr, rect{ 0 });
     }
 
     if (button_view_ != button_view::only_image)

@@ -45,7 +45,7 @@ list::~list()
     }
 }
 
-void list::draw(graphic &gr)
+void list::draw(graphic &gr, const rect &)
 {
     if (!showed_)
     {

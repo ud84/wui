@@ -59,7 +59,7 @@ int32_t get_text_width(graphic &gr, std::string text, size_t text_length, const 
     return text_rect.right;
 }
 
-void input::draw(graphic &gr)
+void input::draw(graphic &gr, const rect &)
 {
     if (!showed_ || position_.width() == 0 || position_.height() == 0 || position_.width() <= input_horizontal_indent * 2)
     {

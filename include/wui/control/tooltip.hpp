@@ -27,7 +27,7 @@ public:
     tooltip(const std::string &text, std::shared_ptr<i_theme> theme_ = nullptr);
     ~tooltip();
 
-    virtual void draw(graphic &gr);
+    virtual void draw(graphic &gr, const rect &);
 
     virtual void set_position(const rect &position);
     virtual rect position() const;

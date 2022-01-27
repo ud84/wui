@@ -55,7 +55,7 @@ public:
     virtual system_context &context();
 
 	/// IControl
-    virtual void draw(graphic &gr);
+    virtual void draw(graphic &gr, const rect &paint_rect);
 
     virtual void set_position(const rect &position);
     virtual rect position() const;

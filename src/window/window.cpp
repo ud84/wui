@@ -229,7 +229,7 @@ system_context &window::context()
 	}
 }
 
-void window::draw(graphic &gr)
+void window::draw(graphic &gr, const rect &paint_rect)
 {
     if (!showed_)
     {
@@ -237,10 +237,27 @@ void window::draw(graphic &gr)
     }
 
     gr.draw_rect(position(), theme_color(tc, tv_background, theme_));
-
+    
+    std::vector<std::shared_ptr<i_control>> topmost_controls;
+    
     for (auto &control : controls)
     {
-        control->draw(gr);
+        if (control->position().in(paint_rect))
+        {
+            if (!control->topmost())
+            {
+                control->draw(gr, paint_rect);
+            }
+            else
+            {
+                topmost_controls.emplace_back(control);
+            }
+        }
+    }
+
+    for (auto &control : topmost_controls)
+    {
+        control->draw(gr, paint_rect);
     }
 
     draw_border(gr);
@@ -1373,7 +1390,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 {
                     if (!control->topmost())
                     {
-                        control->draw(wnd->graphic_);
+                        control->draw(wnd->graphic_, paint_rect);
                     }
                     else
                     {
@@ -1384,7 +1401,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             for (auto &control : topmost_controls)
             {
-                control->draw(wnd->graphic_);
+                control->draw(wnd->graphic_, paint_rect);
             }
 
             wnd->draw_border(wnd->graphic_);
@@ -1835,7 +1852,7 @@ void window::process_events()
                     {
                         if (!control->topmost())
                         {
-                            control->draw(graphic_);
+                            control->draw(graphic_, paint_rect);
                         }
                         else
                         {
@@ -1846,7 +1863,7 @@ void window::process_events()
 
                 for (auto &control : topmost_controls)
                 {
-                    control->draw(graphic_);
+                    control->draw(graphic_, paint_rect);
                 }
                 
                 draw_border(graphic_);

@@ -51,7 +51,7 @@ public:
     ~button();
 
     /// i_control impl
-    virtual void draw(graphic &gr);
+    virtual void draw(graphic &gr, const rect &);
 
     virtual void set_position(const rect &position);
     virtual rect position() const;

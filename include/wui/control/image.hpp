@@ -38,7 +38,7 @@ public:
     image(const std::vector<uint8_t> &data);
     ~image();
 
-    virtual void draw(graphic &gr);
+    virtual void draw(graphic &gr, const rect &);
 
     virtual void set_position(const rect &position);
     virtual rect position() const;

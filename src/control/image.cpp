@@ -185,7 +185,7 @@ image::~image()
     }
 }
 
-void image::draw(graphic &gr_)
+void image::draw(graphic &gr_, const rect &)
 {
     if (!showed_)
     {

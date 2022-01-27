@@ -35,7 +35,7 @@ public:
     input(const std::string &text = "", input_view input_view_ = input_view::singleline, std::shared_ptr<i_theme> theme_ = nullptr);
     ~input();
 
-    virtual void draw(graphic &gr);
+    virtual void draw(graphic &gr, const rect &);
 
     virtual void set_position(const rect &position);
     virtual rect position() const;

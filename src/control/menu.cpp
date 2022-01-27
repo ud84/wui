@@ -41,7 +41,7 @@ menu::~menu()
     }
 }
 
-void menu::draw(graphic &gr)
+void menu::draw(graphic &gr, const rect &)
 {
     if (!showed_)
     {

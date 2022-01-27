@@ -37,7 +37,7 @@ tooltip::~tooltip()
     }
 }
 
-void tooltip::draw(graphic &gr)
+void tooltip::draw(graphic &gr, const rect &)
 {
     if (!showed_)
     {
@@ -238,6 +238,8 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
 
     auto out_pos = position_;
 
+    out_pos.put(control_pos.left + indent, control_pos.top + indent); // on the control
+
     bool position_finded = false;
 
     out_pos.put(control_pos.left + indent, control_pos.bottom + indent); // below the control
@@ -272,6 +274,20 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
         }
     }
 
+    if (!position_finded)
+    {
+        out_pos.put(control_pos.left - out_pos.width() - indent, control_pos.top + indent); // to the left of the control
+        if (out_pos.left >= parent_pos.left)
+        {
+            position_finded = true;
+        }
+    }
+
+    if (!position_finded)
+    {
+        out_pos.put(control_pos.left + indent, control_pos.top + indent); // on the control
+    }
+
     set_position(out_pos);
     show();
 }
@@ -283,7 +299,7 @@ void tooltip::redraw()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position_);
+            parent_->redraw(position());
         }
     }
 }
