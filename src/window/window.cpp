@@ -1800,6 +1800,9 @@ void window::process_events()
 	        {
 	            auto expose = (*(xcb_expose_event_t*)e);
 
+	            if (expose.count != 0)
+	                break;
+
 	            const rect paint_rect{ expose.x, expose.y, expose.x + expose.width, expose.y + expose.height };
 
                 if (expose.pad0 != 0)
@@ -2208,7 +2211,8 @@ void window::process_events()
 
                     if (ev.width != old_position.width() || ev.height != old_position.height())
                     {
-                        graphic_.clear(rect{ 0, 0, position_.width(), position_.height() });
+                        //graphic_.clear(rect{ 0, 0, position_.width(), position_.height() });
+                        graphic_.clear(rect{ 0, 0, 1920, 1080 });
                     }
 
                     if (ev.width != old_position.width() || ev.height != old_position.height())
