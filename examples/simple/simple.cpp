@@ -82,9 +82,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     {
         window->add_control(list, wui::rect{ 10, 130, 290, 490 });
 
-        window1->add_control(button1, wui::rect{10, 30, 50, 70});
+        window1->add_control(button1, wui::rect{10, 20, 50, 70});
 
-        window->add_control(window1, wui::rect{ 10, 30, 120, 110 });
+        window->add_control(window1, wui::rect{ 10, 30, 100, 110 });
 
         window->set_pin_callback([this](std::string &tooltip_text) {
             if (plugged)
@@ -104,7 +104,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             {
                 int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                window1->set_position({ 10, 30, w - 10, 120 });
+                window1->set_position({ 10, 30, w - 10, 100 });
 
                 list->set_position({ 10, 130, w - 10, h - 10 });
             }

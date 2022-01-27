@@ -238,6 +238,8 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
 
     auto out_pos = position_;
 
+    bool position_finded = false;
+
     out_pos.put(control_pos.left + indent, control_pos.bottom + indent); // below the control
     if (out_pos.bottom <= parent_pos.bottom)
     {
@@ -245,14 +247,28 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
         {
             out_pos.put(parent_pos.width() - out_pos.width(), control_pos.bottom + indent);
         }
+        position_finded = true;
     }
-    else
+    
+    if (!position_finded)
     {
         out_pos.put(control_pos.left + indent, control_pos.top - out_pos.height() - indent); // above the control
-
-        if (out_pos.right >= parent_pos.width())
+        if (out_pos.top >= parent_pos.top)
         {
-            out_pos.put(parent_pos.width() - out_pos.width(), control_pos.top - out_pos.height() - indent);
+            if (out_pos.right >= parent_pos.width())
+            {
+                out_pos.put(parent_pos.width() - out_pos.width(), control_pos.top - out_pos.height() - indent);
+            }
+            position_finded = true;
+        }
+    }
+
+    if (!position_finded)
+    {
+        out_pos.put(control_pos.right + indent, control_pos.top + indent); // to the right of the control
+        if (out_pos.right <= parent_pos.width())
+        {
+            position_finded = true;
         }
     }
 
