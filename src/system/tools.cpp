@@ -137,14 +137,14 @@ void update_control_position(rect &control_position,
             {
                 prev_position.move(parent_->position().left, parent_->position().top);
             }
-            //parent_->redraw(prev_position, true);
+            parent_->redraw(prev_position, true);
 
             auto new_position = control_position;
             if (parent_->child())
             {
                 new_position.move(parent_->position().left, parent_->position().top);
             }
-            //parent_->redraw(new_position);
+            parent_->redraw(new_position);
         }
     }
 }
