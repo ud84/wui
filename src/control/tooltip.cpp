@@ -44,7 +44,7 @@ void tooltip::draw(graphic &gr)
         return;
     }
 
-    gr.draw_rect(position(),
+    gr.draw_rect(position_,
         theme_color(tc, tv_border, theme_),
         theme_color(tc, tv_background, theme_),
         theme_dimension(tc, tv_border_width, theme_),
@@ -54,7 +54,7 @@ void tooltip::draw(graphic &gr)
 
     auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
 
-    auto text_position = position();
+    auto text_position = position_;
     text_position.move(text_indent, text_indent);
 
     gr.draw_text(text_position, text, theme_color(tc, tv_text, theme_), font_);
@@ -135,7 +135,7 @@ void tooltip::hide()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->redraw(position(), true);
+        parent_->redraw(position_, true);
     }
 }
 
@@ -199,7 +199,7 @@ void tooltip::update_size()
 
     auto font_ = theme_font(tc, tv_font, theme_);
 
-    auto old_position = position();
+    auto old_position = position_;
 
     position_ = mem_gr.measure_text(text, font_);
 
@@ -261,7 +261,7 @@ void tooltip::redraw()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position());
+            parent_->redraw(position_);
         }
     }
 }

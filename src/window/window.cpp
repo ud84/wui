@@ -318,6 +318,7 @@ void window::set_position(const rect &position__, bool change_value)
 
         if (parent.lock())
         {
+            redraw(old_position, true);
             redraw(position_, false);
 
             event ev;
@@ -1651,14 +1652,9 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             auto width = LOWORD(l_param), height = HIWORD(l_param);
 
-            auto old_position = wnd->position_;
-
             wnd->position_ = rect{ wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height };
 
-            if (old_position.width() != wnd->position_.width())
-            {
-                wnd->update_buttons(false);
-            }
+            wnd->update_buttons(false);
 
             event ev;
             ev.type = event_type::internal;
