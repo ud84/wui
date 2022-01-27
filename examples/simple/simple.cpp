@@ -25,7 +25,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 {
     std::weak_ptr<wui::window> parentWindow;
 
-    std::shared_ptr<wui::window> window;
+    std::shared_ptr<wui::window> window, window1;
     std::shared_ptr<wui::list> list;
     std::weak_ptr<wui::button> creationButton;
 
@@ -59,6 +59,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     void Init()
     {
+        window1->init("double child window", wui::rect{ 10, 30, 100, 100 },
+            static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::pinned) | static_cast<uint32_t>(wui::window_style::border_all)), []() {});
+
         window->init("Child window plugged!", wui::rect{ 0, 30, 300, 500 }, 
             static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::pinned) | static_cast<uint32_t>(wui::window_style::border_right)),
             [this]() {
@@ -70,11 +73,14 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     PluggedWindow(std::shared_ptr<wui::window> &parentWindow_)
         : parentWindow(parentWindow_),
         window(new wui::window()),
+        window1(new wui::window()),
         list(new wui::list()),
         creationButton(),
         plugged(false)
     {
-        window->add_control(list, wui::rect{ 10, 30, 290, 490 });
+        window->add_control(list, wui::rect{ 10, 110, 290, 490 });
+
+        window->add_control(window1, wui::rect{ 10, 30, 110, 110 });
 
         window->set_pin_callback([this](std::string &tooltip_text) {
             if (plugged)
@@ -94,7 +100,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             {
                 int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                list->set_position({ 10, 30, w - 10, h - 10 });
+                window1->set_position({ 10, 30, w - 10, 100 });
+
+                list->set_position({ 10, 130, w - 10, h - 10 });
             }
         }, wui::event_type::internal);
 
@@ -213,7 +221,7 @@ int main(int argc, char *argv[])
 
             if (pluggedWindow->plugged)
             {
-                pluggedWindow->window->set_position({ 0, 30, 300, h });
+                pluggedWindow->window->set_position({ 0, h - 500, w - 500, h });
             }
 
             nameInput->set_position({ 320, 250, w - 10, 275 });

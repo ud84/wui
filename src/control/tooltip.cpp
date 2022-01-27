@@ -230,10 +230,10 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
 
     auto parent_pos = parent_->position();
 
-    auto out_pos = position();
+    auto out_pos = position_;
 
     out_pos.put(control.position().left + indent, control.position().bottom + indent); // below the control
-    if (out_pos.bottom <= parent_pos.height())
+    if (out_pos.bottom <= parent_pos.bottom)
     {
         if (out_pos.right >= parent_pos.width())
         {

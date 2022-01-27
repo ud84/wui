@@ -236,7 +236,7 @@ void window::draw(graphic &gr)
         return;
     }
 
-    gr.draw_rect(position_, theme_color(tc, tv_background, theme_));
+    gr.draw_rect(position(), theme_color(tc, tv_background, theme_));
 
     for (auto &control : controls)
     {
@@ -314,13 +314,10 @@ void window::set_position(const rect &position__, bool change_value)
     if (change_value) /// change_value is false only when the window is normalized
     {
         auto old_position = position_;
-        position_ = position__;
+        update_control_position(position_, position__, showed_, parent);
 
         if (parent.lock())
         {
-            redraw(old_position, true);
-            redraw(position_, false);
-
             event ev;
             ev.type = event_type::internal;
             ev.internal_event_ = internal_event{ internal_event_type::size_changed, position__.width(), position__.height() };
@@ -336,7 +333,7 @@ void window::set_position(const rect &position__, bool change_value)
 
 rect window::position() const
 {
-    return position_;
+    return get_control_position(position_, parent);
 }
 
 void window::set_parent(std::shared_ptr<window> window)
@@ -620,7 +617,7 @@ void window::minimize()
 void window::expand()
 {
     window_state_ = window_state::maximized;
-    normal_position = position_;
+    normal_position = position();
 
 #ifdef _WIN32
     if (flag_is_set(window_style_, window_style::title_showed)) // normal window maximization
@@ -712,7 +709,7 @@ void window::set_style(window_style style)
 #elif __linux__
     update_window_style();
 
-    redraw({ 0, 0, position_.width(), 30 }, false);
+    //redraw({ 0, 0, position_.width(), 30 }, false);
 #endif
 }
 
@@ -810,7 +807,7 @@ bool window::send_mouse_event(const mouse_event &ev)
                     send_event_to_control(active_control, { event_type::mouse, me });
                 }
                 
-                if (ev.y < 5 || (ev.y < 24 && ev.x > position_.width() - 5)) /// control buttons border
+                if (ev.y < 5 || (ev.y < 24 && ev.x > position().width() - 5)) /// control buttons border
                 {
                     active_control.reset();
                     return false;
@@ -976,7 +973,7 @@ void window::update_buttons(bool theme_changed)
     }
 
     auto btn_size = 26;
-    auto left = position_.width() - btn_size;
+    auto left = position().width() - btn_size;
     auto top = 0;
 
     if (flag_is_set(window_style_, window_style::close_button))
@@ -1042,12 +1039,14 @@ void window::draw_border(graphic &gr)
 
     int32_t l = 0, t = 0, w = 0, h = 0;
 
+    auto pos = position();
+
     if (parent.lock())
     {
-        l = position_.left;
-        t = position_.top;
-        w = position_.right - x;
-        h = position_.bottom - x;
+        l = pos.left;
+        t = pos.top;
+        w = pos.right - x;
+        h = pos.bottom - x;
 
     }
     else
@@ -1111,7 +1110,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->redraw(position_);
+        parent_->redraw(position());
 
         return true;
     }
