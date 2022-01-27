@@ -313,6 +313,7 @@ void window::set_position(const rect &position__, bool change_value)
 #endif
     if (change_value) /// change_value is false only when the window is normalized
     {
+        auto old_position = position_;
         position_ = position__;
 
         if (parent.lock())
@@ -323,6 +324,11 @@ void window::set_position(const rect &position__, bool change_value)
             ev.type = event_type::internal;
             ev.internal_event_ = internal_event{ internal_event_type::size_changed, position__.width(), position__.height() };
             send_event_to_plains(ev);
+
+            if (old_position.width() != position_.width())
+            {
+                update_buttons(false);
+            }
         }
     }
 }
@@ -1649,7 +1655,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->position_ = rect{ wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height };
 
-            wnd->update_buttons(false);
+            if (old_position.width() != wnd->position_.width())
+            {
+                wnd->update_buttons(false);
+            }
 
             event ev;
             ev.type = event_type::internal;
