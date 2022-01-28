@@ -50,6 +50,7 @@
       "type": "list",
       "background": "#dcdcdc",
       "border": "#9a9a9a",
+      "focused_border": "#140a14",
       "border_width": 1,
       "title": "#eeeef2",
       "title_text": "#191914",

@@ -53,7 +53,7 @@ void list::draw(graphic &gr, const rect &)
     }
 
     gr.draw_rect(position(),
-        theme_color(tc, tv_border, theme_),
+        !focused_ ? theme_color(tc, tv_border, theme_) : theme_color(tc, tv_focused_border, theme_),
         theme_color(tc, tv_background, theme_),
         theme_dimension(tc, tv_border_width, theme_),
         theme_dimension(tc, tv_round, theme_));
