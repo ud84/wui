@@ -28,6 +28,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     std::shared_ptr<wui::window> window;
     std::shared_ptr<wui::list> list;
+    std::shared_ptr<wui::button> button1, button2, button3;
     std::weak_ptr<wui::button> creationButton;
 
     bool plugged;
@@ -72,10 +73,16 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         : parentWindow(parentWindow_),
         window(new wui::window()),
         list(new wui::list()),
+        button1(new wui::button("Button 1", []() { }, wui::button_view::only_image, IDB_ACCOUNT, 16)),
+        button2(new wui::button("Button 2", []() {}, wui::button_view::only_image, IDB_ACCOUNT, 16)),
+        button3(new wui::button("Button 3", []() {}, wui::button_view::only_image, IDB_ACCOUNT, 16)),
         creationButton(),
         plugged(false)
     {
         window->add_control(list, { 0 });
+        window->add_control(button1, { 0 });
+        window->add_control(button2, { 0 });
+        window->add_control(button3, { 0 });
 
         window->set_pin_callback([this](std::string &tooltip_text) {
             if (plugged)
@@ -95,7 +102,10 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             {
                 int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                list->set_position({ 10, 30, w - 10, h - 10 }, false);
+                list->set_position({ 10, 30, w - 10, h - 40 }, false);
+                button1->set_position({ 10, h - 30, 30, h - 10 }, false);
+                button2->set_position({ 40, h - 30, 60, h - 10 }, false);
+                button3->set_position({ 70, h - 30, 90, h - 10 }, false);
             }
         }, wui::event_type::internal);
 
