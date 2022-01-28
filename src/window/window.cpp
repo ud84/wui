@@ -196,7 +196,6 @@ void window::redraw(const rect &redraw_position, bool clear)
             event.pad0 = clear ? 1 : 0;
 
             xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_EXPOSURE, (const char*)&event);
-            xcb_flush(context_.connection);
         }
 #endif
     }
@@ -625,7 +624,6 @@ void window::minimize()
     event.data.data32[0] = XCB_ICCCM_WM_STATE_ICONIC;
 
     xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
-    xcb_flush(context_.connection);
 #endif
 
     window_state_ = window_state::minimized;
@@ -1866,8 +1864,6 @@ void window::process_events()
                 draw_border(graphic_);
 
                 graphic_.flush(paint_rect);
-
-                xcb_flush(context_.connection);
             }
             break;
             case XCB_MOTION_NOTIFY:
@@ -1921,7 +1917,6 @@ void window::process_events()
 
                             uint32_t values[] = { x_window, y_window };
                             xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, values);
-                            xcb_flush(context_.connection);
                         }
                         break;
                         case moving_mode::size_we_left:
@@ -1935,7 +1930,6 @@ void window::process_events()
                                 uint32_t values[] = { static_cast<uint32_t>(ev->root_x), width };
                                 xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X |
                                     XCB_CONFIG_WINDOW_WIDTH, values);
-                                xcb_flush(context_.connection);
                             }
                         }
             	        break;
@@ -1947,7 +1941,6 @@ void window::process_events()
                             {
                                 uint32_t values[] = { width };
                                 xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_WIDTH, values);
-                                xcb_flush(context_.connection);
                             }
             	        }
             	        break;
@@ -1961,7 +1954,6 @@ void window::process_events()
             	            {
                                 uint32_t values[] = { static_cast<uint32_t>(ev->root_y), height };
                                 xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_HEIGHT, values);
-                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
@@ -1973,7 +1965,6 @@ void window::process_events()
             	            {
                                 uint32_t values[] = { height };
                                 xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_HEIGHT, values);
-                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
@@ -1986,7 +1977,6 @@ void window::process_events()
             	            	uint32_t values[] = { static_cast<uint32_t>(ws.left), static_cast<uint32_t>(ev->root_y), width, height };
                                 xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
                                     XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
@@ -1998,7 +1988,6 @@ void window::process_events()
             	            {
                                 uint32_t values[] = { width, height };
                                 xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
@@ -2014,7 +2003,6 @@ void window::process_events()
             	            	uint32_t values[] = { static_cast<uint32_t>(ev->root_x), static_cast<uint32_t>(ev->root_y), width, height };
                                 xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
                                     XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
@@ -2030,7 +2018,6 @@ void window::process_events()
             	            	uint32_t values[] = { static_cast<uint32_t>(ev->root_x), width, height };
                                 xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X |
                                     XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-                                xcb_flush(context_.connection);
             	            }
             	        }
             	        break;
@@ -2225,7 +2212,8 @@ void window::process_events()
 
                     if (ev.width != old_position.width() || ev.height != old_position.height())
                     {
-                        graphic_.clear(rect{ 0, 0, position_.width(), position_.height() });
+                        //graphic_.clear(rect{ 0, 0, position_.width(), position_.height() });
+                        graphic_.clear(rect{ 0, 0, 1920, 1080 });
                     }
 
                     if (ev.width != old_position.width() || ev.height != old_position.height())
@@ -2360,7 +2348,6 @@ void window::send_destroy_event()
     	event.data.data32[0] = wm_delete_msg;
 
     	xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_NO_EVENT, (const char*)&event);
-    	xcb_flush(context_.connection);
     }
 }
 
@@ -2383,7 +2370,6 @@ void window::update_window_style()
         event.data.data32[1] = style;
 
         xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
-        xcb_flush(context_.connection);
     };
 
     change_style(net_wm_state, flag_is_set(window_style_, window_style::topmost) ? 1 : 0, net_wm_state_above);
