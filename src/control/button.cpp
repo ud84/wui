@@ -342,6 +342,7 @@ void button::hide()
     if (showed_)
     {
         showed_ = false;
+        tooltip_->hide();
         auto parent_ = parent.lock();
         if (parent_)
         {
