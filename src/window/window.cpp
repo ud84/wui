@@ -1817,9 +1817,6 @@ void window::process_events()
 	        {
 	            auto expose = (*(xcb_expose_event_t*)e);
 
-	            if (expose.count != 0)
-	                break;
-
 	            const rect paint_rect{ expose.x, expose.y, expose.x + expose.width, expose.y + expose.height };
 
                 if (expose.pad0 != 0)

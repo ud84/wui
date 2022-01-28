@@ -67,7 +67,7 @@ void tooltip::set_position(const rect &position__)
 
 rect tooltip::position() const
 {
-    return get_control_position(position_, parent);
+    return position_;
 }
 
 void tooltip::set_parent(std::shared_ptr<window> window)
@@ -299,7 +299,7 @@ void tooltip::redraw()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position());
+            parent_->redraw(position_);
         }
     }
 }

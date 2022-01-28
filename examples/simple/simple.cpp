@@ -28,7 +28,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     std::shared_ptr<wui::window> window, window1;
     std::shared_ptr<wui::list> list;
-    std::shared_ptr<wui::button> button1;
+    std::shared_ptr<wui::button> button1, button2;
     std::weak_ptr<wui::button> creationButton;
 
     bool plugged;
@@ -77,13 +77,16 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         window(new wui::window()),
         window1(new wui::window()),
         list(new wui::list()),
-        button1(new wui::button("Test", []() {}, wui::button_view::only_image, IDB_ACCOUNT, 24)),
+        button1(new wui::button("Test", [this]() { button1->hide(); button2->show(); }, wui::button_view::only_image, IDB_ACCOUNT, 24)),
+        button2(new wui::button("Test", [this]() { button2->hide(); button1->show(); }, wui::button_view::only_image, IDB_ACCOUNT, 24)),
         creationButton(),
         plugged(false)
     {
         window->add_control(list, wui::rect{ 10, 130, 290, 490 });
 
         window1->add_control(button1, wui::rect{10, 20, 50, 70});
+
+        window1->add_control(button2, wui::rect{70, 20, 110, 70});
 
         window->add_control(window1, wui::rect{ 10, 30, 100, 110 });
 
