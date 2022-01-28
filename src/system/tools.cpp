@@ -128,7 +128,7 @@ void update_control_position(rect &control_position,
     auto prev_position = control_position;
     control_position = new_control_position;
 
-    if (showed)
+    /*if (showed)
     {
         auto parent_ = parent.lock();
         if (parent_)
@@ -146,7 +146,7 @@ void update_control_position(rect &control_position,
             }
             parent_->redraw(new_position);
         }
-    }
+    }*/
 }
 
 rect get_control_position(const rect &control_position, std::weak_ptr<window> parent)
