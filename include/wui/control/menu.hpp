@@ -59,7 +59,7 @@ public:
 
     virtual void draw(graphic &gr, const rect &);
 
-    virtual void set_position(const rect &position);
+    virtual void set_position(const rect &position, bool redraw = true);
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);

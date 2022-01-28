@@ -35,7 +35,7 @@ void set_cursor(system_context &context, cursor cursor_);
 
 void update_control_position(rect &control_position,
     const rect &new_control_position,
-    bool showed,
+    bool redraw,
     std::weak_ptr<window> parent);
 
 rect get_control_position(const rect &control_position, std::weak_ptr<window> parent);

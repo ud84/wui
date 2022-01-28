@@ -306,12 +306,12 @@ void window::receive_event(const event &ev)
     }
 }
 
-void window::set_position(const rect &position__)
+void window::set_position(const rect &position__, bool redraw)
 {
-    set_position(position__, true);
+    set_position(position__, redraw, true);
 }
 
-void window::set_position(const rect &position__, bool change_value)
+void window::set_position(const rect &position__, bool redraw, bool change_value)
 {
 #ifdef _WIN32
     if (context_.hwnd)
@@ -330,7 +330,7 @@ void window::set_position(const rect &position__, bool change_value)
     if (change_value) /// change_value is false only when the window is normalized
     {
         auto old_position = position_;
-        update_control_position(position_, position__, showed_, parent);
+        update_control_position(position_, position__, showed_ && redraw, parent);
 
         if (parent.lock())
         {

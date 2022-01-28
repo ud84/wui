@@ -71,9 +71,9 @@ void menu::receive_event(const event &)
 {
 }
 
-void menu::set_position(const rect &position__)
+void menu::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent);
 }
 
 rect menu::position() const

@@ -73,9 +73,9 @@ void list::receive_event(const event &)
     }
 }
 
-void list::set_position(const rect &position__)
+void list::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent);
 }
 
 rect list::position() const

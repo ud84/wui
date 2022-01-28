@@ -57,7 +57,7 @@ public:
 	/// IControl
     virtual void draw(graphic &gr, const rect &paint_rect);
 
-    virtual void set_position(const rect &position);
+    virtual void set_position(const rect &position, bool redraw = true);
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);
@@ -199,7 +199,7 @@ private:
 
 #endif
 
-    void set_position(const rect &position, bool change_value);
+    void set_position(const rect &position, bool redraw, bool change_value);
 
     void receive_event(const event &ev);
 

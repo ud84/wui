@@ -108,9 +108,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             {
                 int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                window1->set_position({ 10, 30, w - 10, 100 });
+                window1->set_position({ 10, 30, w - 10, 100 }, false);
 
-                list->set_position({ 10, 130, w - 10, h - 10 });
+                list->set_position({ 10, 130, w - 10, h - 10 }, false);
             }
         }, wui::event_type::internal);
 
@@ -215,6 +215,21 @@ int main(int argc, char *argv[])
     }));
     window->add_control(whiteThemeButton, wui::rect{ 460, 350, 580, 375 });
 
+    std::shared_ptr<wui::button> movingButton(new wui::button("Move me!", [&cancelButton]()
+    {
+        static bool moved = false;
+        if (!moved)
+        {
+            cancelButton->set_position({ 100, 100, 150, 125 });
+        }
+        else
+        {
+            cancelButton->set_position({ 370, 450, 480, 480 });
+        }
+        moved = !moved;
+    }));
+    window->add_control(movingButton, wui::rect{ 460, 400, 580, 425 });
+
     window->add_control(okButton, wui::rect{ 240, 450, 350, 480 });
     window->add_control(cancelButton, wui::rect{ 370, 450, 480, 480 });
 
@@ -227,12 +242,12 @@ int main(int argc, char *argv[])
 
             if (pluggedWindow->plugged)
             {
-                pluggedWindow->window->set_position({ 0, h - 500, w - 500, h });
+                pluggedWindow->window->set_position({ 0, h - 500, w - 500, h }, false);
             }
 
-            nameInput->set_position({ 320, 250, w - 10, 275 });
-            okButton->set_position({ w - 250, h - 50, w - 150, h - 20 });
-            cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 });
+            nameInput->set_position({ 320, 250, w - 10, 275 }, false);
+            okButton->set_position({ w - 250, h - 50, w - 150, h - 20 }, false);
+            cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 }, false);
         }
     }, wui::event_type::internal);
 

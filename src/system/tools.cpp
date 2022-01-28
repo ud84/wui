@@ -122,13 +122,13 @@ bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const 
 
 void update_control_position(rect &control_position,
     const rect &new_control_position,
-    bool showed,
+    bool redraw,
     std::weak_ptr<window> parent)
 {
     auto prev_position = control_position;
     control_position = new_control_position;
 
-    /*if (showed)
+    if (redraw)
     {
         auto parent_ = parent.lock();
         if (parent_)
@@ -146,7 +146,7 @@ void update_control_position(rect &control_position,
             }
             parent_->redraw(new_position);
         }
-    }*/
+    }
 }
 
 rect get_control_position(const rect &control_position, std::weak_ptr<window> parent)

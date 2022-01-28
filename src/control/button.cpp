@@ -249,9 +249,9 @@ void button::receive_event(const event &ev)
     }
 }
 
-void button::set_position(const rect &position__)
+void button::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent);
 }
 
 rect button::position() const
