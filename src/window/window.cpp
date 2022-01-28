@@ -1103,7 +1103,10 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto old_position = position_;
 
     caption = caption_;
-    position_ = position__;
+    if (!position__.is_null())
+    {
+        position_ = position__;
+    }
     window_style_ = style;
     close_callback = close_callback_;
     theme_ = theme__;

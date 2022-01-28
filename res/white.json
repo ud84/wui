@@ -3,7 +3,7 @@
     {
       "type": "window",
       "background": "#f0f0f0",
-      "border": "#00a0d2",
+      "border": "#9a9a9a",
       "border_width": 1,
       "text": "#191914",
       "active_button": "#dcdcdc",
@@ -46,16 +46,16 @@
         "size": 18
       }
     },
-	{
+    {
       "type": "list",
       "background": "#dcdcdc",
-      "border": "#28788c",
+      "border": "#9a9a9a",
       "border_width": 1,
-	  "title": "#eeeef2",
+      "title": "#eeeef2",
       "title_text": "#191914",
-	  "scrollbar": "#e8e8ec",
-	  "scrollbar_slider": "#c2c3c9",
-	  "scrollbar_slider_active": "#686868",
+      "scrollbar": "#e8e8ec",
+      "scrollbar_slider": "#c2c3c9",
+      "scrollbar_slider_active": "#686868",
       "round": 0,
       "font": {
         "name": "Segoe UI",
