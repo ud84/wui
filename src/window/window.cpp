@@ -162,11 +162,13 @@ void window::remove_control(std::shared_ptr<i_control> control)
     auto exist = std::find(controls.begin(), controls.end(), control);
     if (exist != controls.end())
     {
-        (*exist)->clear_parent();
-		
-        redraw((*exist)->position(), true);
+        auto clear_pos = (*exist)->position();
 
-        controls.erase(exist);
+        (*exist)->clear_parent();
+		controls.erase(exist);
+
+        redraw(clear_pos, true);
+
     }
 }
 
