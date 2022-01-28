@@ -703,6 +703,8 @@ void window::normal()
     expand_button->set_image(theme_image(ti_expand, theme_));
 
     window_state_ = window_state::normal;
+
+    redraw({ 0, 0, normal_position.width(), normal_position.height() });
 }
 
 window_state window::state() const
