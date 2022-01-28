@@ -249,6 +249,10 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
         {
             out_pos.put(parent_pos.width() - out_pos.width(), control_pos.bottom + indent);
         }
+        if (out_pos.left < 0)
+        {
+            out_pos.put(0, control_pos.bottom + indent);
+        }
         position_finded = true;
     }
     

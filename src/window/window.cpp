@@ -381,7 +381,7 @@ void window::set_parent(std::shared_ptr<window> window)
 
                     auto new_position = position_;
                     new_position.put(left, top);
-                    set_position(new_position);
+                    set_position(new_position, false);
                 }
             }
         }, wui::event_type::internal);
