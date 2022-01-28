@@ -168,7 +168,6 @@ void window::remove_control(std::shared_ptr<i_control> control)
 		controls.erase(exist);
 
         redraw(clear_pos, true);
-
     }
 }
 
@@ -198,6 +197,7 @@ void window::redraw(const rect &redraw_position, bool clear)
             event.pad0 = clear ? 1 : 0;
 
             xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_EXPOSURE, (const char*)&event);
+            xcb_flush(context_.connection);
         }
 #endif
     }
@@ -336,10 +336,7 @@ void window::set_position(const rect &position__, bool redraw, bool change_value
 
         if (parent.lock())
         {
-            event ev;
-            ev.type = event_type::internal;
-            ev.internal_event_ = internal_event{ internal_event_type::size_changed, position__.width(), position__.height() };
-            send_event_to_plains(ev);
+            send_size(position__.width(), position__.height());
 
             if (old_position.width() != position_.width())
             {
@@ -626,6 +623,7 @@ void window::minimize()
     event.data.data32[0] = XCB_ICCCM_WM_STATE_ICONIC;
 
     xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+    xcb_flush(context_.connection);
 #endif
 
     window_state_ = window_state::minimized;
@@ -677,6 +675,8 @@ void window::expand()
                 uint32_t values[] = { wa.workarea->x, wa.workarea->y, wa.workarea->width, wa.workarea->height };
                 xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
                     XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+
+                xcb_flush(context_.connection);
             }
 
             xcb_ewmh_get_workarea_reply_wipe(&wa);
@@ -688,6 +688,8 @@ void window::expand()
         uint32_t values[] = { 0, 0, context_.screen->width_in_pixels, context_.screen->height_in_pixels };
         xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
             XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+
+        xcb_flush(context_.connection);
     }
 #endif
     expand_button->set_image(theme_image(ti_normal, theme_));
@@ -706,7 +708,11 @@ void window::normal()
 
     window_state_ = window_state::normal;
 
-    redraw({ 0, 0, normal_position.width(), normal_position.height() });
+    send_size(normal_position.width(), normal_position.height());
+
+    update_buttons(false);
+
+    redraw({ 0, 0, normal_position.width(), normal_position.height() }, true);
 }
 
 window_state window::state() const
@@ -728,7 +734,7 @@ void window::set_style(window_style style)
 #elif __linux__
     update_window_style();
 
-    //redraw({ 0, 0, position_.width(), 30 }, false);
+    redraw({ 0, 0, position_.width(), 30 }, true);
 #endif
 }
 
@@ -997,7 +1003,7 @@ void window::update_buttons(bool theme_changed)
 
     if (flag_is_set(window_style_, window_style::close_button))
     {
-        close_button->set_position({ left, top, left + btn_size, top + btn_size });
+        close_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
         close_button->show();
 
         left -= btn_size;
@@ -1009,7 +1015,7 @@ void window::update_buttons(bool theme_changed)
 
     if (flag_is_set(window_style_, window_style::expand_button) || flag_is_set(window_style_, window_style::minimize_button))
     {
-        expand_button->set_position({ left, top, left + btn_size, top + btn_size });
+        expand_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
         expand_button->show();
 
         left -= btn_size;
@@ -1030,7 +1036,7 @@ void window::update_buttons(bool theme_changed)
 
     if (flag_is_set(window_style_, window_style::minimize_button))
     {
-        minimize_button->set_position({ left, top, left + btn_size, top + btn_size });
+        minimize_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
         minimize_button->show();
 
         left -= btn_size;
@@ -1042,7 +1048,7 @@ void window::update_buttons(bool theme_changed)
 
     if (flag_is_set(window_style_, window_style::pin_button))
     {
-        pin_button->set_position({ left, top, left + btn_size, top + btn_size });
+        pin_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
         pin_button->show();
     }
     else
@@ -1092,6 +1098,14 @@ void window::draw_border(graphic &gr)
     }
 }
 
+void window::send_size(int32_t width, int32_t height)
+{
+    event ev_;
+    ev_.type = event_type::internal;
+    ev_.internal_event_ = internal_event{ internal_event_type::size_changed, width, height };
+    send_event_to_plains(ev_);
+}
+
 bool window::init(const std::string &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
 {
     auto old_position = position_;
@@ -1129,6 +1143,8 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto parent_ = parent.lock();
     if (parent_)
     {
+        send_size(position_.width(), position_.height());
+
         parent_->redraw(position());
 
         return true;
@@ -1162,6 +1178,8 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     SetWindowText(context_.hwnd, boost::nowide::widen(caption).c_str());
 
     UpdateWindow(context_.hwnd);
+
+    send_size(position_.width(), position_.height());
 
     if (!showed_)
     {
@@ -1253,6 +1271,8 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     xcb_map_window(context_.connection, context_.wnd);
 
     xcb_flush(context_.connection);
+
+    send_size(position_.width(), position_.height());
 
     graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tc, tv_background, theme_)); // todo: need calc real desktop resolution
 #ifdef __linux__
@@ -1676,10 +1696,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->update_buttons(false);
 
-            event ev;
-            ev.type = event_type::internal;
-            ev.internal_event_ = internal_event{ internal_event_type::size_changed, width, height };
-            wnd->send_event_to_plains(ev);
+            wnd->send_size(width, height);
 
             if (width != old_position.width() || height != old_position.height())
             {
@@ -2229,10 +2246,7 @@ void window::process_events()
 
                     if (ev.width != old_position.width() || ev.height != old_position.height())
                     {
-                        event ev_;
-                        ev_.type = event_type::internal;
-                        ev_.internal_event_ = internal_event{ internal_event_type::size_changed, ev.width, ev.height };
-                        send_event_to_plains(ev_);
+                        send_size(ev.width, ev.height);
                     }
                 }
             }
@@ -2359,6 +2373,7 @@ void window::send_destroy_event()
     	event.data.data32[0] = wm_delete_msg;
 
     	xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_NO_EVENT, (const char*)&event);
+    	xcb_flush(context_.connection);
     }
 }
 
@@ -2381,6 +2396,7 @@ void window::update_window_style()
         event.data.data32[1] = style;
 
         xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+        xcb_flush(context_.connection);
     };
 
     change_style(net_wm_state, flag_is_set(window_style_, window_style::topmost) ? 1 : 0, net_wm_state_above);

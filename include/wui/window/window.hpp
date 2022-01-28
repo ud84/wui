@@ -216,6 +216,8 @@ private:
     void update_buttons(bool theme_changed);
 
     void draw_border(graphic &gr);
+
+    void send_size(int32_t width, int32_t height);
 };
 
 }
