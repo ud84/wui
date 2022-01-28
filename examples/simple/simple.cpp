@@ -26,9 +26,8 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 {
     std::weak_ptr<wui::window> parentWindow;
 
-    std::shared_ptr<wui::window> window, window1;
+    std::shared_ptr<wui::window> window;
     std::shared_ptr<wui::list> list;
-    std::shared_ptr<wui::button> button1, button2;
     std::weak_ptr<wui::button> creationButton;
 
     bool plugged;
@@ -61,9 +60,6 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     void Init()
     {
-        window1->init("double child window", wui::rect{ 10, 30, 100, 100 },
-            static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::pinned) | static_cast<uint32_t>(wui::window_style::border_all)), []() {});
-
         window->init("Child window plugged!", wui::rect{ 0, 30, 300, 500 }, 
             static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::pinned) | static_cast<uint32_t>(wui::window_style::border_right)),
             [this]() {
@@ -75,20 +71,11 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     PluggedWindow(std::shared_ptr<wui::window> &parentWindow_)
         : parentWindow(parentWindow_),
         window(new wui::window()),
-        window1(new wui::window()),
         list(new wui::list()),
-        button1(new wui::button("Test", [this]() { button1->hide(); button2->show(); }, wui::button_view::only_image, IDB_ACCOUNT, 24)),
-        button2(new wui::button("Test", [this]() { button2->hide(); button1->show(); }, wui::button_view::only_image, IDB_ACCOUNT, 24)),
         creationButton(),
         plugged(false)
     {
         window->add_control(list, wui::rect{ 10, 130, 290, 490 });
-
-        window1->add_control(button1, wui::rect{10, 20, 50, 70});
-
-        window1->add_control(button2, wui::rect{70, 20, 110, 70});
-
-        window->add_control(window1, wui::rect{ 10, 30, 100, 110 });
 
         window->set_pin_callback([this](std::string &tooltip_text) {
             if (plugged)
@@ -108,9 +95,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             {
                 int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                window1->set_position({ 10, 30, w - 10, 100 }, false);
-
-                list->set_position({ 10, 130, w - 10, h - 10 }, false);
+                list->set_position({ 10, 30, w - 10, h - 10 }, false);
             }
         }, wui::event_type::internal);
 
@@ -215,21 +200,6 @@ int main(int argc, char *argv[])
     }));
     window->add_control(whiteThemeButton, wui::rect{ 460, 350, 580, 375 });
 
-    std::shared_ptr<wui::button> movingButton(new wui::button("Move me!", [&cancelButton]()
-    {
-        static bool moved = false;
-        if (!moved)
-        {
-            cancelButton->set_position({ 100, 100, 150, 125 });
-        }
-        else
-        {
-            cancelButton->set_position({ 370, 450, 480, 480 });
-        }
-        moved = !moved;
-    }));
-    window->add_control(movingButton, wui::rect{ 460, 400, 580, 425 });
-
     window->add_control(okButton, wui::rect{ 240, 450, 350, 480 });
     window->add_control(cancelButton, wui::rect{ 370, 450, 480, 480 });
 
@@ -242,7 +212,7 @@ int main(int argc, char *argv[])
 
             if (pluggedWindow->plugged)
             {
-                pluggedWindow->window->set_position({ 0, h - 500, w - 500, h }, false);
+                pluggedWindow->window->set_position({ 0, 30, 300, h }, false);
             }
 
             nameInput->set_position({ 320, 250, w - 10, 275 }, false);
