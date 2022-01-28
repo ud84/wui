@@ -150,7 +150,7 @@ void window::add_control(std::shared_ptr<i_control> control, const rect &control
     if (std::find(controls.begin(), controls.end(), control) == controls.end())
     {
         control->set_parent(shared_from_this());
-        control->set_position(control_position);
+        control->set_position(control_position, false);
         controls.emplace_back(control);
 
         redraw(control->position());
@@ -310,11 +310,6 @@ void window::receive_event(const event &ev)
 
 void window::set_position(const rect &position__, bool redraw)
 {
-    set_position(position__, redraw, true);
-}
-
-void window::set_position(const rect &position__, bool redraw, bool change_value)
-{
 #ifdef _WIN32
     if (context_.hwnd)
     {
@@ -329,19 +324,16 @@ void window::set_position(const rect &position__, bool redraw, bool change_value
             XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
     }
 #endif
-    if (change_value) /// change_value is false only when the window is normalized
+    auto old_position = position_;
+    update_control_position(position_, position__, showed_ && redraw, parent);
+
+    if (parent.lock())
     {
-        auto old_position = position_;
-        update_control_position(position_, position__, showed_ && redraw, parent);
+        send_size(position__.width(), position__.height());
 
-        if (parent.lock())
+        if (old_position.width() != position_.width())
         {
-            send_size(position__.width(), position__.height());
-
-            if (old_position.width() != position_.width())
-            {
-                update_buttons(false);
-            }
+            update_buttons(false);
         }
     }
 }

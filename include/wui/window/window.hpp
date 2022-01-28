@@ -198,9 +198,6 @@ private:
     void update_window_style();
 
 #endif
-
-    void set_position(const rect &position, bool redraw, bool change_value);
-
     void receive_event(const event &ev);
 
     bool send_event_to_control(std::shared_ptr<i_control> &control, const event &ev);

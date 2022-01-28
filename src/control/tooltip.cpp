@@ -168,7 +168,7 @@ void tooltip::set_text(const std::string &text_)
 
 void tooltip::update_size()
 {
-    if (text.empty())
+    if (size_updated || text.empty())
     {
         return;
     }
@@ -222,12 +222,8 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
         return;
     }
 
-    if (!size_updated)
-    {
-        update_size();
-        size_updated = true;
-    }
-
+    update_size();
+    
     auto parent_pos = parent_->position();
     if (!parent_->child())
     {
@@ -292,7 +288,7 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
         out_pos.put(control_pos.left + indent, control_pos.top + indent); // on the control
     }
 
-    set_position(out_pos);
+    set_position(out_pos, false);
     show();
 }
 

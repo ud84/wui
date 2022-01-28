@@ -184,7 +184,7 @@ void button::draw(graphic &gr, const rect &)
 	
     if (button_view_ != button_view::only_text && image_)
     {
-        image_->set_position( { image_left, image_top, image_left + image_size, image_top + image_size } );
+        image_->set_position( { image_left, image_top, image_left + image_size, image_top + image_size }, false );
         image_->draw(gr, rect{ 0 });
     }
 
