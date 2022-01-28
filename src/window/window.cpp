@@ -1354,10 +1354,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             PAINTSTRUCT ps;
             BeginPaint(hwnd, &ps);
 
-            const rect paint_rect{ ps.rcPaint.left - 20,
+            const rect paint_rect{ ps.rcPaint.left,
                 ps.rcPaint.top,
                 ps.rcPaint.right,
-                ps.rcPaint.bottom + 20 };
+                ps.rcPaint.bottom };
 
             if (ps.fErase)
             {
@@ -1666,14 +1666,22 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             auto width = LOWORD(l_param), height = HIWORD(l_param);
 
+            auto old_position = wnd->position_;
+
             wnd->position_ = rect{ wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height };
 
             wnd->update_buttons(false);
 
             event ev;
             ev.type = event_type::internal;
-            ev.internal_event_ = internal_event{ internal_event_type::size_changed, LOWORD(l_param), HIWORD(l_param) };
+            ev.internal_event_ = internal_event{ internal_event_type::size_changed, width, height };
             wnd->send_event_to_plains(ev);
+
+            if (width != old_position.width() || height != old_position.height())
+            {
+                RECT invalidatingRect = { 0, 0, width, height };
+                InvalidateRect(hwnd, &invalidatingRect, FALSE);
+            }
         }
         break;
         case WM_MOVE:
