@@ -197,9 +197,11 @@ void image::draw(graphic &gr_, const rect &)
     {
         Gdiplus::Graphics gr(gr_.drawable());
 
+        auto pos = position();
+
         gr.DrawImage(
             img->Clone(),
-            Gdiplus::Rect(position_.left, position_.top, position_.width(), position_.height()),
+            Gdiplus::Rect(pos.left, pos.top, pos.width(), pos.height()),
             0, 0, img->GetWidth(), img->GetHeight(),
             Gdiplus::UnitPixel,
             nullptr);
@@ -207,7 +209,7 @@ void image::draw(graphic &gr_, const rect &)
 #elif __linux__
     if (img)
     {
-        gr_.draw_surface(img, position_);
+        gr_.draw_surface(img, position());
     }
 #endif
 }
@@ -289,7 +291,7 @@ void image::hide()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->redraw(position_, true);
+        parent_->redraw(position(), true);
     }
 }
 
@@ -371,7 +373,7 @@ void image::redraw()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position_);
+            parent_->redraw(position());
         }
     }
 }

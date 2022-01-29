@@ -275,7 +275,7 @@ void list::redraw()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position_);
+            parent_->redraw(position());
         }
     }
 }
