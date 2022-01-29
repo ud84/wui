@@ -1394,7 +1394,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->graphic_.clear(paint_rect);
             }
-            if (flag_is_set(wnd->window_style_, window_style::title_showed) && !child())
+            if (flag_is_set(wnd->window_style_, window_style::title_showed) && !wnd->child())
             {
                 auto caption_font = theme_font(tc, tv_caption_font, wnd->theme_);
 
