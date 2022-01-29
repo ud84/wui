@@ -73,15 +73,20 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         : parentWindow(parentWindow_),
         window(new wui::window()),
         list(new wui::list()),
-        button1(new wui::button("Button 1", []() { }, wui::button_view::only_image, IDB_ACCOUNT, 16)),
+        button1(new wui::button("Button 1", []() {}, wui::button_view::only_image, IDB_ACCOUNT, 16)),
         button2(new wui::button("Button 2", []() {}, wui::button_view::only_image, IDB_ACCOUNT, 16)),
         button3(new wui::button("Button 3", []() {}, wui::button_view::only_image, IDB_ACCOUNT, 16)),
         creationButton(),
         plugged(false)
     {
+        list->set_draw_callback(std::bind(&PluggedWindow::DrawListItem, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+
         list->add_column(30, "##");
         list->add_column(100, "Name");
         list->add_column(100, "Role");
+
+        list->set_item_height(24);
+        list->set_item_count(100);
 
         window->add_control(list, { 0 });
         window->add_control(button1, { 0 });
@@ -115,6 +120,63 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
         Plug();
         Init();
+    }
+
+    void DrawListItem(wui::graphic &gr, int32_t nItem, const wui::rect &itemRect, bool selected)
+    {
+        if (selected)
+        {
+            gr.draw_rect(itemRect, wui::make_color(100, 100, 100));
+        }
+
+        auto textColor = wui::theme_color(wui::input::tc, wui::input::tv_text);
+        auto font = wui::theme_font(wui::list::tc, wui::list::tv_font);
+        
+        auto textHeight = gr.measure_text("Qq", font).height();
+        auto textRect = itemRect;
+        textRect.move(5, (itemRect.height() - textHeight) / 2);
+
+        gr.draw_text(textRect, "Item " + std::to_string(nItem) , textColor, font);
+
+        /*auto *item = GetItem(nItem);
+        if (item == nullptr)
+        {
+            return;
+        }
+
+        TEXTMETRIC tm = { 0 };
+
+        const uint32_t XBITMAP = 32;
+
+        SetMapMode(dc, MM_ANISOTROPIC);
+        FillRect(dc, &rcItem, selected ? selectionBrush : unselectedBrush);
+        SetBkColor(dc, selected ? selectionColor : listBoxColor);
+
+        auto name = Common::toWideChar(item->name);
+        auto number = Common::toWideChar(item->number);
+
+        SetTextColor(dc, textColor);
+
+        GetTextMetrics(dc, &tm);
+        auto yPos = (rcItem.bottom + rcItem.top - tm.tmHeight) / 2;
+        TextOut(dc, XBITMAP + 6, yPos, name.c_str(), static_cast<int>(name.size()));
+
+        TextOut(dc, rcItem.right - 40, yPos, number.c_str(), static_cast<int>(number.size()));
+
+        Gdiplus::Graphics gr(dc);
+
+        Gdiplus::ImageAttributes attr;
+        attr.SetColorKey(Gdiplus::Color(255, 255, 255), Gdiplus::Color(255, 255, 255),
+            Gdiplus::ColorAdjustTypeBitmap);
+
+        size_t imgN = item->state == Proto::sOffline ? 0 : 1;
+
+        gr.DrawImage(
+            itemImages[imgN]->bitmap,
+            Gdiplus::Rect(rcItem.left, rcItem.top, itemImages[imgN]->bitmap->GetWidth(), itemImages[imgN]->bitmap->GetHeight()),
+            0, 0, itemImages[imgN]->bitmap->GetWidth(), itemImages[imgN]->bitmap->GetHeight(),
+            Gdiplus::UnitPixel,
+            &attr);*/
     }
 };
 

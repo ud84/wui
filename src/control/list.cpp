@@ -286,8 +286,9 @@ void list::redraw()
 
 void list::draw_titles(graphic &gr_)
 {
-    int32_t top = position().top + theme_dimension(tc, tv_border_width, theme_),
-        pos = position().left + theme_dimension(tc, tv_border_width, theme_);
+    auto control_position = position();
+    int32_t top = control_position.top + theme_dimension(tc, tv_border_width, theme_),
+        pos = control_position.left + theme_dimension(tc, tv_border_width, theme_);
     for (auto &c : columns)
     {
         gr_.draw_rect({ pos, top, pos + c.width - 1, top + get_title_height() }, theme_color(tc, tv_title, theme_));
@@ -299,7 +300,34 @@ void list::draw_titles(graphic &gr_)
 
 void list::draw_items(graphic &gr_)
 {
+    if (!draw_callback)
+    {
+        return;
+    }
 
+    auto visible_item_count = get_visible_item_count();
+    if (visible_item_count > item_count)
+    {
+        visible_item_count = item_count;
+    }
+
+    if (visible_item_count > item_count - start_item)
+    {
+        start_item = item_count - visible_item_count;
+    }
+
+    auto control_position = position();
+    int32_t top_ = control_position.top + theme_dimension(tc, tv_border_width, theme_),
+        left = control_position.left + theme_dimension(tc, tv_border_width, theme_),
+        right = control_position.right - theme_dimension(tc, tv_border_width, theme_);
+
+    for (auto i = 0; i != visible_item_count; ++i)
+    {
+        auto top = (i * item_height) + top_;
+        rect item_rect = { left, get_title_height() + top, right - 20, get_title_height() + top + item_height };
+        int32_t item = start_item + i;
+        draw_callback(gr_, item, item_rect, item == selected_item_);
+    }
 }
 
 void list::draw_scrollbar(graphic &gr_)
@@ -319,7 +347,11 @@ int32_t list::get_title_height() const
 
 int32_t list::get_visible_item_count() const
 {
-    return static_cast<int32_t>(position_.height() / item_height);
+    if (item_height == 0)
+    {
+        return 0;
+    }
+    return static_cast<int32_t>(floor(static_cast<double>(position_.height()) / item_height));
 }
 
 void list::scroll_up()
