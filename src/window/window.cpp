@@ -232,13 +232,25 @@ system_context &window::context()
 
 void window::draw(graphic &gr, const rect &paint_rect)
 {
+    /// drawing the child window
+
     if (!showed_)
     {
         return;
     }
 
-    gr.draw_rect(position(), theme_color(tc, tv_background, theme_));
+    auto window_pos = position();
+
+    gr.draw_rect(window_pos, theme_color(tc, tv_background, theme_));
     
+    if (flag_is_set(window_style_, window_style::title_showed))
+    {
+        gr.draw_text({ window_pos.left + 5, window_pos.top + 5, 0, 0 },
+            caption,
+            theme_color(tc, tv_text, theme_),
+            theme_font(tc, tv_caption_font, theme_));
+    }
+
     std::vector<std::shared_ptr<i_control>> topmost_controls;
     
     for (auto &control : controls)
@@ -1382,7 +1394,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->graphic_.clear(paint_rect);
             }
-            if (flag_is_set(wnd->window_style_, window_style::title_showed))
+            if (flag_is_set(wnd->window_style_, window_style::title_showed) && !child())
             {
                 auto caption_font = theme_font(tc, tv_caption_font, wnd->theme_);
 
@@ -1846,7 +1858,7 @@ void window::process_events()
                     graphic_.clear(paint_rect);
                 }
 
-                if (flag_is_set(window_style_, window_style::title_showed))
+                if (flag_is_set(window_style_, window_style::title_showed) && !child())
 	            {
                     auto caption_font = theme_font(tc, tv_caption_font, theme_);
 
