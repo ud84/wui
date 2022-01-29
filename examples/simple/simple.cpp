@@ -79,6 +79,10 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         creationButton(),
         plugged(false)
     {
+        list->add_column(30, "##");
+        list->add_column(100, "Name");
+        list->add_column(100, "Role");
+
         window->add_control(list, { 0 });
         window->add_control(button1, { 0 });
         window->add_control(button2, { 0 });

@@ -14,6 +14,7 @@
 #include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
+#include <wui/system/timer.hpp>
 
 #include <string>
 #include <vector>
@@ -106,6 +107,22 @@ private:
     std::vector<column> columns;
 
     int32_t item_height, item_count, selected_item_, start_item;
+
+    enum class timer_action
+    {
+        undefined = 0,
+
+        scroll_up,
+        scroll_down,
+        select_up,
+        select_down
+    };
+
+    timer_action timer_action_;
+    timer timer_;
+
+    bool slider_scrolling;
+    int32_t prev_scroll_pos;
 
     std::function<void(graphic&, int32_t, const rect&, bool selected)> draw_callback;
     std::function<void(int32_t)> item_change_callback;

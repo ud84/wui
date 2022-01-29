@@ -27,6 +27,10 @@ list::list(std::shared_ptr<i_theme> theme__)
     showed_(true), enabled_(true), focused_(false),
     columns(),
     item_height(0), item_count(0), selected_item_(0), start_item(0),
+    timer_action_(timer_action::undefined),
+    timer_(std::bind([this]() { /* todo */ })),
+    slider_scrolling(false),
+    prev_scroll_pos(0),
     draw_callback(),
     item_change_callback(),
     column_click_callback(),
@@ -155,7 +159,7 @@ void list::hide()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position_, true);
+            parent_->redraw(position(), true);
         }
     }
 }
@@ -282,7 +286,15 @@ void list::redraw()
 
 void list::draw_titles(graphic &gr_)
 {
-
+    int32_t top = position().top + theme_dimension(tc, tv_border_width, theme_),
+        pos = position().left + theme_dimension(tc, tv_border_width, theme_);
+    for (auto &c : columns)
+    {
+        gr_.draw_rect({ pos, top, pos + c.width - 1, top + get_title_height() }, theme_color(tc, tv_title, theme_));
+        gr_.draw_text({ pos + 3, top + 3, 0, 0 }, c.caption, theme_color(tc, tv_title_text, theme_), theme_font(tc, tv_font, theme_));
+        
+        pos += c.width + 1;
+    }
 }
 
 void list::draw_items(graphic &gr_)
