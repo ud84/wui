@@ -287,12 +287,16 @@ void list::redraw()
 void list::draw_titles(graphic &gr_)
 {
     auto control_position = position();
+    
     int32_t top = control_position.top + theme_dimension(tc, tv_border_width, theme_),
         pos = control_position.left + theme_dimension(tc, tv_border_width, theme_);
+
+    auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
+
     for (auto &c : columns)
     {
         gr_.draw_rect({ pos, top, pos + c.width - 1, top + get_title_height() }, theme_color(tc, tv_title, theme_));
-        gr_.draw_text({ pos + 3, top + 3, 0, 0 }, c.caption, theme_color(tc, tv_title_text, theme_), theme_font(tc, tv_font, theme_));
+        gr_.draw_text({ pos + text_indent, top + text_indent, 0, 0 }, c.caption, theme_color(tc, tv_title_text, theme_), theme_font(tc, tv_font, theme_));
         
         pos += c.width + 1;
     }
@@ -330,16 +334,33 @@ void list::draw_items(graphic &gr_)
     }
 }
 
-void list::draw_scrollbar(graphic &gr_)
+void list::draw_scrollbar(graphic &gr)
 {
+    rect bar_rect = { 0 }, top_button_rect = { 0 }, bottom_button_rect = { 0 }, slider_rect = { 0 };
+    calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
 
+    if (slider_rect.bottom == 0)
+    {
+        return;
+    }
+
+    gr.draw_rect(bar_rect, theme_color(tc, tv_scrollbar, theme_));
+
+    gr.draw_rect(top_button_rect, theme_color(tc, tv_scrollbar_slider, theme_));
+
+    //DrawArrowUp(dc, { topButtonRect.right - 11, 7 });
+
+    gr.draw_rect(bottom_button_rect, theme_color(tc, tv_scrollbar_slider, theme_));
+    //DrawArrowDown(dc, { bottomButtonRect.right - 11, bottomButtonRect.bottom - 9 });
+
+    gr.draw_rect(slider_rect, theme_color(tc, tv_scrollbar_slider, theme_));
 }
 
 int32_t list::get_title_height() const
 {
     if (!columns.empty())
     {
-        return 20;
+        return 25; // todo!
     }
 
     return 0;
@@ -351,7 +372,7 @@ int32_t list::get_visible_item_count() const
     {
         return 0;
     }
-    return static_cast<int32_t>(floor(static_cast<double>(position_.height()) / item_height));
+    return static_cast<int32_t>(ceil(static_cast<double>(position_.height() - get_title_height()) / item_height));
 }
 
 void list::scroll_up()
@@ -376,6 +397,55 @@ void list::scroll_down()
 
     ++start_item;
     redraw();
+}
+
+void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bottom_button_rect, rect *slider_rect, double *item_on_scroll_height)
+{
+    const int32_t SB_WIDTH = 18, SB_HEIGHT = 18, SB_INDENT = 2, SB_SILDER_MIN_WIDTH = 5,
+        SB_BUTTON_WIDTH = SB_WIDTH - SB_INDENT, SB_BUTTON_HEIGHT = SB_HEIGHT - SB_INDENT;
+
+    auto control_pos = position();
+
+    double client_height = control_pos.height() - (SB_HEIGHT * 2);
+    auto visible_item_count = get_visible_item_count();
+    if (visible_item_count >= item_count)
+    {
+        return;
+    }
+
+    double item_on_scroll_height_ = client_height / item_count;
+    if (item_on_scroll_height)
+    {
+        *item_on_scroll_height = item_on_scroll_height_;
+    }
+
+    if (bar_rect)
+    {
+        *bar_rect = { control_pos.right - SB_WIDTH, control_pos.top, control_pos.right, control_pos.bottom };
+    }
+
+    if (top_button_rect)
+    {
+        *top_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.top + SB_INDENT, control_pos.right - SB_INDENT, control_pos.top + SB_BUTTON_HEIGHT };
+    }
+
+    if (bottom_button_rect)
+    {
+        *bottom_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.bottom - SB_BUTTON_HEIGHT, control_pos.right - SB_INDENT, control_pos.bottom - SB_INDENT };
+    }
+
+    if (slider_rect)
+    {
+        auto slider_top = control_pos.top + static_cast<int32_t>(round(item_on_scroll_height_ * start_item));
+        auto slider_height = static_cast<int32_t>(round(item_on_scroll_height_ * (visible_item_count + 1)));
+
+        if (slider_height < SB_SILDER_MIN_WIDTH)
+        {
+            slider_height = SB_SILDER_MIN_WIDTH;
+        }
+
+        *slider_rect = { control_pos.right - SB_BUTTON_WIDTH, SB_HEIGHT + slider_top, control_pos.right - SB_INDENT, SB_HEIGHT + slider_top + slider_height };
+    }
 }
 
 }

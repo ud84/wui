@@ -52,6 +52,7 @@
       "border": "#404040",
       "focused_border": "#8c8c8c",
       "border_width": 1,
+	  "text_indent": 5,
       "title": "#292929",
       "title_text": "#f0ebf0",
       "scrollbar": "#3e3e42",
