@@ -30,6 +30,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     item_height(0), item_count(0), selected_item_(0), start_item(0),
     timer_action_(timer_action::undefined),
     timer_(std::bind([this]() { /* todo */ })),
+    mouse_on_control(false), mouse_on_scrollbar(false),
     slider_scrolling(false),
     prev_scroll_pos(0),
     title_height(-1),
@@ -78,19 +79,38 @@ void list::receive_event(const event &ev)
         return;
     }
 
-        if (ev.type == event_type::mouse)
+    if (ev.type == event_type::mouse)
     {
         switch (ev.mouse_event_.type)
         {
             case mouse_event_type::enter:
+                mouse_on_control = true;
+                redraw();
             break;
             case mouse_event_type::leave:
+                mouse_on_control = false;
+                redraw();
             break;
             case mouse_event_type::left_up:
-                /*if (click_callback && enabled_)
+                
+            break;
+            case mouse_event_type::move:
+                if (ev.mouse_event_.x > position().right - full_scrollbar_width)
                 {
-                    click_callback();
-                }*/
+                    if (!mouse_on_scrollbar)
+                    {
+                        mouse_on_scrollbar = true;
+                        redraw();
+                    }
+                }
+                else
+                {
+                    if (mouse_on_scrollbar)
+                    {
+                        mouse_on_scrollbar = false;
+                        redraw();
+                    }
+                }
             break;
             case mouse_event_type::wheel:
                 if (ev.mouse_event_.wheel_delta > 0)
@@ -390,8 +410,19 @@ void list::draw_items(graphic &gr_)
 
     for (auto i = 0; i != visible_item_count; ++i)
     {
+        int32_t scrollbar_width = 0;
+        if (mouse_on_control)
+        {
+            scrollbar_width = tiny_scrollbar_width;
+
+            if (mouse_on_scrollbar)
+            {
+                scrollbar_width = full_scrollbar_width;
+            }
+        }
+
         auto top = (i * item_height) + top_;
-        rect item_rect = { left, title_height + top, right - 20, title_height + top + item_height };
+        rect item_rect = { left, title_height + top, right - scrollbar_width, title_height + top + item_height };
         int32_t item = start_item + i;
         draw_callback(gr_, item, item_rect, item == selected_item_, columns);
     }
@@ -454,9 +485,24 @@ void list::scroll_down()
 
 void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bottom_button_rect, rect *slider_rect, double *item_on_scroll_height)
 {
+    int32_t scrollbar_width = 0;
+    if (mouse_on_control)
+    {
+        scrollbar_width = tiny_scrollbar_width;
+    }
+    else
+    {
+        return;
+    }
+    if (mouse_on_scrollbar)
+    {
+        scrollbar_width = full_scrollbar_width;
+    }
+
     auto border_width = theme_dimension(tc, tv_border_width, theme_);
 
-    const int32_t SB_WIDTH = 18, SB_HEIGHT = 18, SB_INDENT = 1, SB_SILDER_MIN_WIDTH = 5,
+    const int32_t SB_WIDTH = scrollbar_width,
+        SB_HEIGHT = 18, SB_INDENT = 1, SB_SILDER_MIN_WIDTH = 5,
         SB_BUTTON_WIDTH = SB_WIDTH - SB_INDENT, SB_BUTTON_HEIGHT = SB_HEIGHT - SB_INDENT;
 
     auto control_pos = position();
@@ -479,12 +525,12 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
         *bar_rect = { control_pos.right - SB_WIDTH - border_width, control_pos.top + border_width, control_pos.right - border_width, control_pos.bottom - border_width };
     }
 
-    if (top_button_rect)
+    if (top_button_rect && mouse_on_scrollbar)
     {
         *top_button_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, control_pos.top + SB_INDENT + border_width, control_pos.right - SB_INDENT - border_width, control_pos.top + SB_BUTTON_HEIGHT + border_width };
     }
 
-    if (bottom_button_rect)
+    if (bottom_button_rect && mouse_on_scrollbar)
     {
         *bottom_button_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, control_pos.bottom - SB_BUTTON_HEIGHT - border_width, control_pos.right - SB_INDENT - border_width, control_pos.bottom - SB_INDENT - border_width };
     }

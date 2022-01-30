@@ -124,10 +124,15 @@ private:
     timer_action timer_action_;
     timer timer_;
 
+    bool mouse_on_control, mouse_on_scrollbar;
+
     bool slider_scrolling;
     int32_t prev_scroll_pos;
 
     int32_t title_height;
+
+    static const int32_t tiny_scrollbar_width = 5;
+    static const int32_t full_scrollbar_width = 18;
 
     std::function<void(graphic&, int32_t, const rect&, bool selected, const std::vector<column> &columns)> draw_callback;
     std::function<void(int32_t)> item_change_callback;
