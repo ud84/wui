@@ -25,7 +25,8 @@ enum class mouse_event_type
     center_up,
     left_down,
     left_up,
-    left_double
+    left_double,
+    wheel
 };
 
 struct mouse_event
@@ -33,6 +34,8 @@ struct mouse_event
     mouse_event_type type;
 
     int32_t x, y;
+
+    int32_t wheel_delta;
 };
 
 }

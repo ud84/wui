@@ -92,6 +92,16 @@ void list::receive_event(const event &ev)
                     click_callback();
                 }*/
             break;
+            case mouse_event_type::wheel:
+                if (ev.mouse_event_.wheel_delta > 0)
+                {
+                    scroll_up();
+                }
+                else
+                {
+                    scroll_down();
+                }
+            break;
         }
     }
     else if (ev.type == event_type::internal)

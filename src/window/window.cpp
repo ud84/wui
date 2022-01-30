@@ -592,7 +592,7 @@ void window::pin()
 {
     if (active_control)
     {
-        mouse_event me{ mouse_event_type::leave, 0, 0 };
+        mouse_event me{ mouse_event_type::leave };
         send_event_to_control(active_control, { event_type::mouse, me });
         active_control.reset();
     }
@@ -808,7 +808,7 @@ bool window::send_mouse_event(const mouse_event &ev)
 {
     if (active_control && !active_control->position().in(ev.x, ev.y))
     {
-        mouse_event me{ mouse_event_type::leave, 0, 0 };
+        mouse_event me{ mouse_event_type::leave };
         send_event_to_control(active_control, { event_type::mouse, me });
 
         active_control.reset();
@@ -832,7 +832,7 @@ bool window::send_mouse_event(const mouse_event &ev)
             {
                 if (active_control)
                 {
-                    mouse_event me{ mouse_event_type::leave, 0, 0 };
+                    mouse_event me{ mouse_event_type::leave };
                     send_event_to_control(active_control, { event_type::mouse, me });
                 }
                 
@@ -844,7 +844,7 @@ bool window::send_mouse_event(const mouse_event &ev)
 
                 active_control = *control;
 
-                mouse_event me{ mouse_event_type::enter, 0, 0 };
+                mouse_event me{ mouse_event_type::enter };
                 return send_event_to_control((*control), { event_type::mouse, me });
             }
         }
@@ -1301,6 +1301,12 @@ void window::destroy()
         control->clear_parent();
     }
 
+    if (active_control)
+    {
+        mouse_event me{ mouse_event_type::leave };
+        send_event_to_control(active_control, { event_type::mouse, me });
+    }
+
     active_control.reset();
     controls.clear();
 
@@ -1688,7 +1694,15 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             wnd->mouse_tracked = false;
-            wnd->send_mouse_event({ mouse_event_type::leave, -1, -1 });
+            wnd->send_mouse_event({ mouse_event_type::leave });
+        }
+        break;
+        case WM_MOUSEWHEEL:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            POINT p = { GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param) };
+            ScreenToClient(hwnd, &p);
+            wnd->send_mouse_event({ mouse_event_type::wheel, p.x, p.y, GET_WHEEL_DELTA_WPARAM(w_param) });
         }
         break;
         case WM_SIZE:
@@ -2143,7 +2157,7 @@ void window::process_events()
             }
             break;
             case XCB_LEAVE_NOTIFY:
-            	send_mouse_event({ mouse_event_type::leave, -1, -1 });
+            	send_mouse_event({ mouse_event_type::leave });
             break;
             case XCB_KEY_PRESS:
             {
