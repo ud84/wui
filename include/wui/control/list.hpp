@@ -56,7 +56,13 @@ public:
     virtual bool enabled() const;
 
     /// list interface
-    void add_column(int32_t width, const std::string &caption);
+    struct column
+    {
+        int32_t width;
+        std::string caption;
+    };
+
+    void update_columns(const std::vector<column> &columns);
     
     void select_item(int32_t n_item);
     int32_t selected_item() const;
@@ -66,7 +72,7 @@ public:
     
     void set_item_count(int32_t count);
 
-    void set_draw_callback(std::function<void(graphic&, int32_t, const rect&, bool selected)> draw_callback_);
+    void set_draw_callback(std::function<void(graphic&, int32_t, const rect&, bool selected, const std::vector<column> &columns)> draw_callback_);
     void set_item_change_callback(std::function<void(int32_t)> item_change_callback_);
     void set_column_click_callback(std::function<void(int32_t)> column_click_callback_);
     void set_item_click_callback(std::function<void(int32_t)> item_click_callback_);
@@ -97,14 +103,10 @@ private:
     rect position_;
 
     std::weak_ptr<window> parent;
+    int32_t my_subscriber_id;
 
     bool showed_, enabled_, focused_;
 
-    struct column
-    {
-        int32_t width;
-        std::string caption;
-    };
     std::vector<column> columns;
 
     int32_t item_height, item_count, selected_item_, start_item;
@@ -125,7 +127,9 @@ private:
     bool slider_scrolling;
     int32_t prev_scroll_pos;
 
-    std::function<void(graphic&, int32_t, const rect&, bool selected)> draw_callback;
+    int32_t title_height;
+
+    std::function<void(graphic&, int32_t, const rect&, bool selected, const std::vector<column> &columns)> draw_callback;
     std::function<void(int32_t)> item_change_callback;
     std::function<void(int32_t)> column_click_callback;
     std::function<void(int32_t)> item_click_callback;
@@ -142,7 +146,6 @@ private:
 
     void draw_scrollbar(graphic &gr_);
 
-    int32_t get_title_height() const;
     int32_t get_visible_item_count() const;
     
     void scroll_up();

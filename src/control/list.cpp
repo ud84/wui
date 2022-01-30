@@ -24,6 +24,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent(),
+    my_subscriber_id(-1),
     showed_(true), enabled_(true), focused_(false),
     columns(),
     item_height(0), item_count(0), selected_item_(0), start_item(0),
@@ -31,6 +32,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     timer_(std::bind([this]() { /* todo */ })),
     slider_scrolling(false),
     prev_scroll_pos(0),
+    title_height(-1),
     draw_callback(),
     item_change_callback(),
     column_click_callback(),
@@ -69,11 +71,35 @@ void list::draw(graphic &gr, const rect &)
     draw_scrollbar(gr);
 }
 
-void list::receive_event(const event &)
+void list::receive_event(const event &ev)
 {
     if (!showed_ || !enabled_)
     {
         return;
+    }
+
+        if (ev.type == event_type::mouse)
+    {
+        switch (ev.mouse_event_.type)
+        {
+            case mouse_event_type::enter:
+            break;
+            case mouse_event_type::leave:
+            break;
+            case mouse_event_type::left_up:
+                /*if (click_callback && enabled_)
+                {
+                    click_callback();
+                }*/
+            break;
+        }
+    }
+    else if (ev.type == event_type::internal)
+    {
+        if (ev.internal_event_.type == internal_event_type::execute_focused && item_double_click_callback)
+        {
+            item_double_click_callback(selected_item_);
+        }
     }
 }
 
@@ -90,10 +116,18 @@ rect list::position() const
 void list::set_parent(std::shared_ptr<window> window)
 {
     parent = window;
+    my_subscriber_id = window->subscribe(std::bind(&list::receive_event, this, std::placeholders::_1),
+        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
+        shared_from_this());
 }
 
 void list::clear_parent()
 {
+    auto parent_ = parent.lock();
+    if (parent_)
+    {
+        parent_->unsubscribe(my_subscriber_id);
+    }
     parent.reset();
 }
 
@@ -186,9 +220,11 @@ bool list::enabled() const
     return enabled_;
 }
 
-void list::add_column(int32_t width, const std::string &caption)
+void list::update_columns(const std::vector<column> &columns_)
 {
-    columns.emplace_back(column{ width, caption });
+    columns = columns_;
+    title_height = -1;
+    redraw();
 }
 
 void list::select_item(int32_t n_item)
@@ -242,7 +278,7 @@ void list::set_item_count(int32_t count)
     redraw();
 }
 
-void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, bool selected)> draw_callback_)
+void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, bool selected, const std::vector<column> &columns)> draw_callback_)
 {
     draw_callback = draw_callback_;
 }
@@ -286,17 +322,34 @@ void list::redraw()
 
 void list::draw_titles(graphic &gr_)
 {
+    auto font = theme_font(tc, tv_font, theme_);
+    auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
+
+    if (title_height == -1)
+    {
+        if (columns.empty())
+        {
+            title_height = 0;
+            return;
+        }
+
+        auto text_dimensions = gr_.measure_text("Qq", font);
+
+        title_height = text_dimensions.width() + text_indent * 2;
+    }
+
     auto control_position = position();
     
     int32_t top = control_position.top + theme_dimension(tc, tv_border_width, theme_),
         pos = control_position.left + theme_dimension(tc, tv_border_width, theme_);
 
-    auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
+    auto title_color = theme_color(tc, tv_title, theme_);
+    auto title_text_color = theme_color(tc, tv_title_text, theme_);
 
     for (auto &c : columns)
     {
-        gr_.draw_rect({ pos, top, pos + c.width - 1, top + get_title_height() }, theme_color(tc, tv_title, theme_));
-        gr_.draw_text({ pos + text_indent, top + text_indent, 0, 0 }, c.caption, theme_color(tc, tv_title_text, theme_), theme_font(tc, tv_font, theme_));
+        gr_.draw_rect({ pos, top, pos + c.width - 1, top + title_height }, title_color);
+        gr_.draw_text({ pos + text_indent, top + text_indent, 0, 0 }, c.caption, title_text_color, font);
         
         pos += c.width + 1;
     }
@@ -328,9 +381,9 @@ void list::draw_items(graphic &gr_)
     for (auto i = 0; i != visible_item_count; ++i)
     {
         auto top = (i * item_height) + top_;
-        rect item_rect = { left, get_title_height() + top, right - 20, get_title_height() + top + item_height };
+        rect item_rect = { left, title_height + top, right - 20, title_height + top + item_height };
         int32_t item = start_item + i;
-        draw_callback(gr_, item, item_rect, item == selected_item_);
+        draw_callback(gr_, item, item_rect, item == selected_item_, columns);
     }
 }
 
@@ -356,23 +409,13 @@ void list::draw_scrollbar(graphic &gr)
     gr.draw_rect(slider_rect, theme_color(tc, tv_scrollbar_slider, theme_));
 }
 
-int32_t list::get_title_height() const
-{
-    if (!columns.empty())
-    {
-        return 25; // todo!
-    }
-
-    return 0;
-}
-
 int32_t list::get_visible_item_count() const
 {
-    if (item_height == 0)
+    if (item_height == 0 || title_height == -1)
     {
         return 0;
     }
-    return static_cast<int32_t>(ceil(static_cast<double>(position_.height() - get_title_height()) / item_height));
+    return static_cast<int32_t>(ceil(static_cast<double>(position_.height() - title_height) / item_height));
 }
 
 void list::scroll_up()
@@ -401,7 +444,9 @@ void list::scroll_down()
 
 void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bottom_button_rect, rect *slider_rect, double *item_on_scroll_height)
 {
-    const int32_t SB_WIDTH = 18, SB_HEIGHT = 18, SB_INDENT = 2, SB_SILDER_MIN_WIDTH = 5,
+    auto border_width = theme_dimension(tc, tv_border_width, theme_);
+
+    const int32_t SB_WIDTH = 18, SB_HEIGHT = 18, SB_INDENT = 1, SB_SILDER_MIN_WIDTH = 5,
         SB_BUTTON_WIDTH = SB_WIDTH - SB_INDENT, SB_BUTTON_HEIGHT = SB_HEIGHT - SB_INDENT;
 
     auto control_pos = position();
@@ -421,22 +466,22 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
 
     if (bar_rect)
     {
-        *bar_rect = { control_pos.right - SB_WIDTH, control_pos.top, control_pos.right, control_pos.bottom };
+        *bar_rect = { control_pos.right - SB_WIDTH - border_width, control_pos.top + border_width, control_pos.right - border_width, control_pos.bottom - border_width };
     }
 
     if (top_button_rect)
     {
-        *top_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.top + SB_INDENT, control_pos.right - SB_INDENT, control_pos.top + SB_BUTTON_HEIGHT };
+        *top_button_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, control_pos.top + SB_INDENT + border_width, control_pos.right - SB_INDENT - border_width, control_pos.top + SB_BUTTON_HEIGHT + border_width };
     }
 
     if (bottom_button_rect)
     {
-        *bottom_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.bottom - SB_BUTTON_HEIGHT, control_pos.right - SB_INDENT, control_pos.bottom - SB_INDENT };
+        *bottom_button_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, control_pos.bottom - SB_BUTTON_HEIGHT - border_width, control_pos.right - SB_INDENT - border_width, control_pos.bottom - SB_INDENT - border_width };
     }
 
     if (slider_rect)
     {
-        auto slider_top = control_pos.top + static_cast<int32_t>(round(item_on_scroll_height_ * start_item));
+        auto slider_top = control_pos.top + static_cast<int32_t>(round(item_on_scroll_height_ * start_item)) + border_width;
         auto slider_height = static_cast<int32_t>(round(item_on_scroll_height_ * (visible_item_count + 1)));
 
         if (slider_height < SB_SILDER_MIN_WIDTH)
@@ -444,7 +489,7 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
             slider_height = SB_SILDER_MIN_WIDTH;
         }
 
-        *slider_rect = { control_pos.right - SB_BUTTON_WIDTH, SB_HEIGHT + slider_top, control_pos.right - SB_INDENT, SB_HEIGHT + slider_top + slider_height };
+        *slider_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, SB_HEIGHT + slider_top, control_pos.right - SB_INDENT - border_width, SB_HEIGHT + slider_top + slider_height };
     }
 }
 

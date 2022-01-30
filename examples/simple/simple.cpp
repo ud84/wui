@@ -79,12 +79,10 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         creationButton(),
         plugged(false)
     {
-        list->set_draw_callback(std::bind(&PluggedWindow::DrawListItem, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+        list->set_draw_callback(std::bind(&PluggedWindow::DrawListItem, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 
-        list->add_column(30, "##");
-        list->add_column(100, "Name");
-        list->add_column(100, "Role");
-
+        list->update_columns({ { 30, "##" }, { 100, "Name" }, { 100, "Role" } });
+        
         list->set_item_height(32);
         list->set_item_count(100);
 
@@ -122,7 +120,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         Init();
     }
 
-    void DrawListItem(wui::graphic &gr, int32_t nItem, const wui::rect &itemRect_, bool selected)
+    void DrawListItem(wui::graphic &gr, int32_t nItem, const wui::rect &itemRect_, bool selected, const std::vector<wui::list::column> &columns)
     {
         auto border_width = wui::theme_dimension(wui::list::tc, wui::list::tv_border_width);
 
