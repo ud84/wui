@@ -447,7 +447,7 @@ void list::draw_scrollbar(graphic &gr)
     gr.draw_rect(bottom_button_rect, theme_color(tc, tv_scrollbar_slider, theme_));
     //DrawArrowDown(dc, { bottomButtonRect.right - 11, bottomButtonRect.bottom - 9 });
 
-    gr.draw_rect(slider_rect, theme_color(tc, tv_scrollbar_slider, theme_));
+    gr.draw_rect(slider_rect, theme_color(tc, mouse_on_scrollbar ? tv_scrollbar_slider_acive : tv_scrollbar_slider, theme_));
 }
 
 int32_t list::get_visible_item_count() const
@@ -502,7 +502,7 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
     auto border_width = theme_dimension(tc, tv_border_width, theme_);
 
     const int32_t SB_WIDTH = scrollbar_width,
-        SB_HEIGHT = 18, SB_INDENT = 1, SB_SILDER_MIN_WIDTH = 5,
+        SB_HEIGHT = full_scrollbar_width, SB_INDENT = 0, SB_SILDER_MIN_WIDTH = 5,
         SB_BUTTON_WIDTH = SB_WIDTH - SB_INDENT, SB_BUTTON_HEIGHT = SB_HEIGHT - SB_INDENT;
 
     auto control_pos = position();

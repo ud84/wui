@@ -131,8 +131,8 @@ private:
 
     int32_t title_height;
 
-    static const int32_t tiny_scrollbar_width = 5;
-    static const int32_t full_scrollbar_width = 18;
+    static const int32_t tiny_scrollbar_width = 3;
+    static const int32_t full_scrollbar_width = 14;
 
     std::function<void(graphic&, int32_t, const rect&, bool selected, const std::vector<column> &columns)> draw_callback;
     std::function<void(int32_t)> item_change_callback;
