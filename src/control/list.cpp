@@ -29,7 +29,59 @@ list::list(std::shared_ptr<i_theme> theme__)
     columns(),
     item_height(0), item_count(0), selected_item_(0), start_item(0),
     timer_action_(timer_action::undefined),
-    timer_(std::bind([this]() { /* todo */ })),
+    timer_(std::bind([this]() { 
+        switch (timer_action_)
+		{
+            case timer_action::scroll_up:
+				scroll_up();
+			break;
+			case timer_action::scroll_down:
+				scroll_down();
+			break;
+			case timer_action::select_up:
+				if (selected_item_ != 0)
+				{
+					--selected_item_;
+
+					if (selected_item_ != 0 && selected_item_ < start_item + 1)
+					{
+						scroll_up();
+					}
+					else
+					{
+						redraw();
+					}
+
+					if (item_change_callback)
+					{
+                        item_change_callback(selected_item_);
+					}
+				}
+			break;
+            case timer_action::select_down:
+				if (selected_item_ != item_count)
+				{
+					++selected_item_;
+					
+					auto visible_item_count = get_visible_item_count();
+
+					if (selected_item_ > visible_item_count + start_item - 1)
+					{
+						scroll_down();
+					}
+					else
+					{
+                        redraw();
+					}
+
+                    if (item_change_callback)
+                    {
+                        item_change_callback(selected_item_);
+                    }
+				}
+			break;
+		}
+})),
     mouse_on_control(false), mouse_on_scrollbar(false),
     slider_scrolling(false),
     prev_scroll_pos(0),
@@ -99,13 +151,13 @@ void list::receive_event(const event &ev)
 
                     if (ev.mouse_event_.y <= top_button_rect.bottom)
                     {
-                        //timerAction = taScrollUp;
-                        //timer.start(100);
+                        timer_action_ = timer_action::scroll_up;
+                        timer_.start(100);
                     }
                     else if (ev.mouse_event_.y >= bottom_button_rect.top)
                     {
-                        //timerAction = taScrollDown;
-                        //timer.start(100);
+                        timer_action_ = timer_action::scroll_down;
+                        timer_.start(100);
                     }
                     else if (ev.mouse_event_.y < slider_rect.top)
                     {
@@ -144,7 +196,7 @@ void list::receive_event(const event &ev)
                 {
                     release_pointer(parent_->context());
                 }
-                //timer.stop();
+                timer_.stop();
 
                 if (!is_click_on_scrollbar(ev.mouse_event_.x))
                 {
@@ -234,6 +286,67 @@ void list::receive_event(const event &ev)
                 else
                 {
                     scroll_down();
+                }
+            break;
+        }
+    }
+    else if (ev.type == event_type::keyboard)
+    {
+        switch (ev.keyboard_event_.type)
+        {
+            case keyboard_event_type::down:
+                switch (ev.keyboard_event_.key[0])
+                {
+                    case vk_home:
+                    {
+                        while (selected_item_ != 0)
+                        {
+                            --selected_item_;
+
+                            if (selected_item_ < start_item + 1)
+                            {
+                                scroll_up();
+                            }
+                            else
+                            {
+                                redraw();
+                            }
+                        }
+                    }
+                    break;
+                    case vk_end:
+                    {
+                        auto visible_item_count = get_visible_item_count();
+
+                        while (selected_item_ != item_count)
+                        {
+                            ++selected_item_;
+
+                            if (selected_item_ > visible_item_count + start_item - 1)
+                            {
+                                scroll_down();
+                            }
+                            else
+                            {
+                                redraw();
+                            }
+                        }
+                    }
+                    break;
+                    case vk_up:
+                        timer_action_ = timer_action::select_up;
+                        timer_.start(100);
+                    break;
+                    case vk_down:
+                        timer_action_ = timer_action::select_down;
+                        timer_.start(100);
+                    break;
+                }
+            break;
+            case keyboard_event_type::up:
+                if (ev.keyboard_event_.key[0] == vk_up || ev.keyboard_event_.key[0] == vk_down)
+                {
+                    timer_.stop();
                 }
             break;
         }
