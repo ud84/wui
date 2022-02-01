@@ -716,13 +716,50 @@ void list::draw_scrollbar(graphic &gr)
     gr.draw_rect(bar_rect, theme_color(tc, tv_scrollbar, theme_));
 
     gr.draw_rect(top_button_rect, theme_color(tc, tv_scrollbar_slider, theme_));
-
-    //DrawArrowUp(dc, { topButtonRect.right - 11, 7 });
+    if (mouse_on_scrollbar)
+    {
+        draw_arrow_up(gr, top_button_rect);
+    }
 
     gr.draw_rect(bottom_button_rect, theme_color(tc, tv_scrollbar_slider, theme_));
-    //DrawArrowDown(dc, { bottomButtonRect.right - 11, bottomButtonRect.bottom - 9 });
+    if (mouse_on_scrollbar)
+    {
+        draw_arrow_down(gr, bottom_button_rect);
+    }
 
     gr.draw_rect(slider_rect, theme_color(tc, mouse_on_scrollbar ? tv_scrollbar_slider_acive : tv_scrollbar_slider, theme_));
+}
+
+void list::draw_arrow_up(graphic &gr, rect button_pos)
+{
+    auto color = theme_color(tc, tv_scrollbar_slider_acive, theme_);
+
+    int w = 8, h = 4;
+
+    for (int j = 0; j != h; ++j)
+    {
+        for (int i = 0; i != w; ++i)
+        {
+            gr.draw_pixel({ button_pos.left + 3 + j + i, button_pos.top + 8 - j }, color);
+        }
+        w -= 2;
+    }
+}
+
+void list::draw_arrow_down(graphic &gr, rect button_pos)
+{
+    auto color = theme_color(tc, tv_scrollbar_slider_acive, theme_);
+
+    int w = 8, h = 4;
+
+    for (int j = 0; j != h; ++j)
+    {
+        for (int i = 0; i != w; ++i)
+        {
+            gr.draw_pixel({ button_pos.left + 3 + j + i, button_pos.top + 5 + j }, color);
+        }
+        w -= 2;
+    }
 }
 
 int32_t list::get_visible_item_count() const

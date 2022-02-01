@@ -269,6 +269,23 @@ void graphic::flush(const rect &updated_size)
 #endif
 }
 
+void graphic::draw_pixel(const rect &position, color color_)
+{
+#ifdef _WIN32
+    SetPixel(mem_dc, position.left, position.top, color_);
+#elif __linux__
+    auto gc_ = xcb_generate_id(context_.connection);
+
+    uint32_t mask = XCB_GC_FOREGROUND;
+    uint32_t value[] = { static_cast<uint32_t>(color_) };
+    auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
+
+    // todo
+
+    xcb_free_gc(context_.connection, gc_);
+#endif
+}
+
 void graphic::draw_line(const rect &position, color color_, uint32_t width)
 {
 #ifdef _WIN32

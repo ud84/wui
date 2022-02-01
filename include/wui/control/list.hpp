@@ -160,6 +160,8 @@ private:
     void draw_items(graphic &gr_);
 
     void draw_scrollbar(graphic &gr_);
+    void draw_arrow_up(graphic &gr, rect button_pos);
+    void draw_arrow_down(graphic &gr, rect button_pos);
 
     int32_t get_visible_item_count() const;
     

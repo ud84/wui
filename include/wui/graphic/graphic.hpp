@@ -39,6 +39,8 @@ public:
 
     void flush(const rect &updated_size);
 
+    void draw_pixel(const rect &position, color color_);
+
     void draw_line(const rect &position, color color_, uint32_t width = 1);
 
     rect measure_text(const std::string &text, const font &font_);
