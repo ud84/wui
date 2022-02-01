@@ -40,6 +40,9 @@ void update_control_position(rect &control_position,
 
 rect get_control_position(const rect &control_position, std::weak_ptr<window> parent);
 
+void grab_pointer(system_context &context, const rect &position);
+void release_pointer(system_context &context);
+
 #ifdef __linux__
 bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message);
 #endif

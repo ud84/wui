@@ -162,4 +162,28 @@ rect get_control_position(const rect &control_position, std::weak_ptr<window> pa
     return out_pos;
 }
 
+void grab_pointer(system_context &context, const rect &position)
+{
+#ifdef _WIN32
+    RECT clipRect;
+    
+    POINT pt = { position.left, position.top };
+    POINT pt2 = { position.right, position.bottom };
+    ClientToScreen(context.hwnd, &pt);
+    ClientToScreen(context.hwnd, &pt2);
+    SetRect(&clipRect, pt.x, pt.y, pt2.x, pt2.y);
+
+    ClipCursor(&clipRect);
+#elif
+#endif
+}
+
+void release_pointer(system_context &context)
+{
+#ifdef _WIN32
+    ClipCursor(NULL);
+#elif
+#endif
+}
+
 }

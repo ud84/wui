@@ -91,11 +91,95 @@ void list::receive_event(const event &ev)
                 mouse_on_control = false;
                 redraw();
             break;
+            case mouse_event_type::left_down:
+                if (is_click_on_scrollbar(ev.mouse_event_.x))
+                {
+                    rect bar_rect = { 0 }, top_button_rect = { 0 }, bottom_button_rect = { 0 }, slider_rect = { 0 };
+                    calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+
+                    if (ev.mouse_event_.y <= top_button_rect.bottom)
+                    {
+                        //timerAction = taScrollUp;
+                        //timer.start(100);
+                    }
+                    else if (ev.mouse_event_.y >= bottom_button_rect.top)
+                    {
+                        //timerAction = taScrollDown;
+                        //timer.start(100);
+                    }
+                    else if (ev.mouse_event_.y < slider_rect.top)
+                    {
+                        while (ev.mouse_event_.y < slider_rect.top)
+                        {
+                            scroll_up();
+                            calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+                        }
+                    }
+                    else if (ev.mouse_event_.y > slider_rect.bottom)
+                    {
+                        while (ev.mouse_event_.y > slider_rect.bottom)
+                        {
+                            scroll_down();
+                            calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+                        }
+                    }
+                    else if (ev.mouse_event_.y >= slider_rect.top && ev.mouse_event_.y <= slider_rect.bottom)
+                    {
+                        auto parent_ = parent.lock();
+                        if (parent_)
+                        {
+                            grab_pointer(parent_->context(), bar_rect);
+                        }
+
+                        slider_scrolling = true;
+                        prev_scroll_pos = ev.mouse_event_.y;
+                    }
+                }
+            break;
             case mouse_event_type::left_up:
-                
+            {
+                slider_scrolling = false;
+                auto parent_ = parent.lock();
+                if (parent_)
+                {
+                    release_pointer(parent_->context());
+                }
+                //timer.stop();
+
+                if (!is_click_on_scrollbar(ev.mouse_event_.x))
+                {
+                    if (ev.mouse_event_.y <= title_height)
+                    {
+                        int32_t pos = 0, n = 0;
+                        for (auto &c : columns)
+                        {
+                            if (ev.mouse_event_.x >= pos && ev.mouse_event_.x < pos + c.width)
+                            {
+                                if (column_click_callback)
+                                {
+                                    column_click_callback(n);
+                                }
+                                return;
+                            }
+
+                            pos += c.width;
+                            ++n;
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        update_selected_item(ev.mouse_event_.y);
+                        if (item_click_callback)
+                        {
+                            item_click_callback(selected_item_);
+                        }
+                    }
+                }
+            }
             break;
             case mouse_event_type::move:
-                if (ev.mouse_event_.x > position().right - full_scrollbar_width)
+                if (ev.mouse_event_.x > position().right - full_scrollbar_width - theme_dimension(tc, tv_border_width, theme_) * 2)
                 {
                     if (!mouse_on_scrollbar)
                     {
@@ -109,6 +193,36 @@ void list::receive_event(const event &ev)
                     {
                         mouse_on_scrollbar = false;
                         redraw();
+                    }
+                }
+
+                if (slider_scrolling)
+                {
+                    int32_t diff = prev_scroll_pos - ev.mouse_event_.y;
+
+                    double item_on_scroll_height = 0.;
+                    calc_scrollbar_params(nullptr, nullptr, nullptr, nullptr, &item_on_scroll_height);
+                    double diff_abs = labs(diff);
+                    int32_t count = static_cast<int32_t>(diff_abs / item_on_scroll_height);
+
+                    if (diff > 0)
+                    {
+                        for (auto i = 0; i != count; ++i)
+                        {
+                            scroll_up();
+                        }
+                    }
+                    else
+                    {
+                        for (auto i = 0; i != count; ++i)
+                        {
+                            scroll_down();
+                        }
+                    }
+
+                    if (count != 0)
+                    {
+                        prev_scroll_pos = ev.mouse_event_.y;
                     }
                 }
             break;
@@ -350,6 +464,22 @@ void list::redraw()
     }
 }
 
+void list::redraw_item(int32_t item)
+{
+    if (showed_)
+    {
+        auto control_pos = position();
+
+        auto top = control_pos.top + (item_height * item) + title_height;
+
+        auto parent_ = parent.lock();
+        if (parent_)
+        {
+            parent_->redraw({ control_pos.left, top, control_pos.right, top + item_height + 1 });
+        }
+    }
+}
+
 void list::draw_titles(graphic &gr_)
 {
     auto font = theme_font(tc, tv_font, theme_);
@@ -553,6 +683,36 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
         if (mouse_on_scrollbar && slider_rect->bottom > bottom_button_rect->top)
         {
             slider_rect->move(0, bottom_button_rect->top - slider_rect->bottom);
+        }
+    }
+}
+
+bool list::is_click_on_scrollbar(int32_t x)
+{
+    return x >= position().right - full_scrollbar_width;
+}
+
+void list::update_selected_item(int32_t y)
+{
+    auto item = static_cast<int32_t>(round((double)(y - position().top) / item_height)) - 1 + start_item;
+
+    if (item > item_count)
+    {
+        item = -1;
+    }
+
+    if (item != selected_item_)
+    {
+        auto old_selected = selected_item_;
+
+        selected_item_ = item;
+
+        redraw_item(item - start_item);
+        redraw_item(old_selected - start_item);
+
+        if (item_change_callback)
+        {
+            item_change_callback(selected_item_);
         }
     }
 }

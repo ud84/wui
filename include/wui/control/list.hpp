@@ -145,6 +145,8 @@ private:
 
     void redraw();
 
+    void redraw_item(int32_t item);
+
     void draw_titles(graphic &gr_);
 
     void draw_items(graphic &gr_);
@@ -157,6 +159,8 @@ private:
     void scroll_down();
 
     void calc_scrollbar_params(rect *bar_rect = nullptr, rect *top_button_rect = nullptr, rect *bottom_button_rect = nullptr, rect *slider_rect = nullptr, double *item_on_scroll_height = nullptr);
+    bool is_click_on_scrollbar(int32_t x);
+    void update_selected_item(int32_t y);
 };
 
 }
