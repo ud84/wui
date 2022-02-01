@@ -72,11 +72,17 @@ public:
     
     void set_item_count(int32_t count);
 
-    void set_draw_callback(std::function<void(graphic&, int32_t, const rect&, bool selected, const std::vector<column> &columns)> draw_callback_);
+    enum item_state
+    {
+        normal,
+        active,
+        selected
+    };
+
+    void set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state, const std::vector<column> &columns)> draw_callback_);
     void set_item_change_callback(std::function<void(int32_t)> item_change_callback_);
+    void set_item_activate_callback(std::function<void(int32_t)> item_activate_callback_);
     void set_column_click_callback(std::function<void(int32_t)> column_click_callback_);
-    void set_item_click_callback(std::function<void(int32_t)> item_click_callback_);
-    void set_item_double_click_callback(std::function<void(int32_t)> item_double_click_callback_);
     void set_item_right_click_callback(std::function<void(int32_t)> item_right_click_callback_);
     
 public:
@@ -94,6 +100,8 @@ public:
     static constexpr const char *tv_scrollbar = "scrollbar";
     static constexpr const char *tv_scrollbar_slider = "scrollbar_slider";
     static constexpr const char *tv_scrollbar_slider_acive = "scrollbar_slider_active";
+    static constexpr const char *tv_selected_item = "selected_item";
+    static constexpr const char *tv_active_item = "active_item";
     static constexpr const char *tv_round = "round";
     static constexpr const char *tv_font = "font";
 
@@ -109,7 +117,7 @@ private:
 
     std::vector<column> columns;
 
-    int32_t item_height, item_count, selected_item_, start_item;
+    int32_t item_height, item_count, selected_item_, active_item_, start_item;
 
     enum class timer_action
     {
@@ -134,11 +142,10 @@ private:
     static const int32_t tiny_scrollbar_width = 3;
     static const int32_t full_scrollbar_width = 14;
 
-    std::function<void(graphic&, int32_t, const rect&, bool selected, const std::vector<column> &columns)> draw_callback;
+    std::function<void(graphic&, int32_t, const rect&, item_state state, const std::vector<column> &columns)> draw_callback;
     std::function<void(int32_t)> item_change_callback;
+    std::function<void(int32_t)> item_activate_callback;
     std::function<void(int32_t)> column_click_callback;
-    std::function<void(int32_t)> item_click_callback;
-    std::function<void(int32_t)> item_double_click_callback;
     std::function<void(int32_t)> item_right_click_callback;
     
     void receive_event(const event &ev);
@@ -161,6 +168,7 @@ private:
     void calc_scrollbar_params(rect *bar_rect = nullptr, rect *top_button_rect = nullptr, rect *bottom_button_rect = nullptr, rect *slider_rect = nullptr, double *item_on_scroll_height = nullptr);
     bool is_click_on_scrollbar(int32_t x);
     void update_selected_item(int32_t y);
+    void update_active_item(int32_t y);
 };
 
 }

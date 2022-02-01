@@ -27,7 +27,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     my_subscriber_id(-1),
     showed_(true), enabled_(true), focused_(false),
     columns(),
-    item_height(0), item_count(0), selected_item_(0), start_item(0),
+    item_height(0), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
     timer_action_(timer_action::undefined),
     timer_(std::bind([this]() { 
         switch (timer_action_)
@@ -89,8 +89,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     draw_callback(),
     item_change_callback(),
     column_click_callback(),
-    item_click_callback(),
-    item_double_click_callback(),
+    item_activate_callback(),
     item_right_click_callback()
 {
 }
@@ -136,16 +135,26 @@ void list::receive_event(const event &ev)
         switch (ev.mouse_event_.type)
         {
             case mouse_event_type::enter:
+            {
+                auto parent_ = parent.lock();
+                if (parent_)
+                {
+                    set_cursor(parent_->context(), cursor::default_);
+                }
                 mouse_on_control = true;
                 redraw();
+            }
             break;
             case mouse_event_type::leave:
                 mouse_on_control = false;
+                active_item_ = -1;
                 redraw();
             break;
             case mouse_event_type::left_down:
                 if (is_click_on_scrollbar(ev.mouse_event_.x))
                 {
+                    active_item_ = -1;
+
                     rect bar_rect = { 0 }, top_button_rect = { 0 }, bottom_button_rect = { 0 }, slider_rect = { 0 };
                     calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
 
@@ -221,10 +230,13 @@ void list::receive_event(const event &ev)
                     }
                     else
                     {
+                        auto prev_selected = selected_item_;
+                        
                         update_selected_item(ev.mouse_event_.y);
-                        if (item_click_callback)
+                        
+                        if (item_change_callback && prev_selected != selected_item_)
                         {
-                            item_click_callback(selected_item_);
+                            item_change_callback(selected_item_);
                         }
                     }
                 }
@@ -256,6 +268,8 @@ void list::receive_event(const event &ev)
                 }
                 else
                 {
+                    update_active_item(ev.mouse_event_.y);
+
                     if (mouse_on_scrollbar)
                     {
                         mouse_on_scrollbar = false;
@@ -302,6 +316,7 @@ void list::receive_event(const event &ev)
                 {
                     scroll_down();
                 }
+                update_active_item(ev.mouse_event_.y);
             break;
         }
     }
@@ -310,6 +325,7 @@ void list::receive_event(const event &ev)
         switch (ev.keyboard_event_.type)
         {
             case keyboard_event_type::down:
+                active_item_ = -1;
                 switch (ev.keyboard_event_.key[0])
                 {
                     case vk_home: case vk_page_up:
@@ -362,9 +378,9 @@ void list::receive_event(const event &ev)
     }
     else if (ev.type == event_type::internal)
     {
-        if (ev.internal_event_.type == internal_event_type::execute_focused && item_double_click_callback)
+        if (ev.internal_event_.type == internal_event_type::execute_focused && item_activate_callback)
         {
-            item_double_click_callback(selected_item_);
+            item_activate_callback(selected_item_);
         }
     }
 }
@@ -544,7 +560,7 @@ void list::set_item_count(int32_t count)
     redraw();
 }
 
-void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, bool selected, const std::vector<column> &columns)> draw_callback_)
+void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state, const std::vector<column> &columns)> draw_callback_)
 {
     draw_callback = draw_callback_;
 }
@@ -554,19 +570,14 @@ void list::set_item_change_callback(std::function<void(int32_t)> item_change_cal
     item_change_callback = item_change_callback_;
 }
 
+void list::set_item_activate_callback(std::function<void(int32_t)> item_activate_callback_)
+{
+    item_activate_callback = item_activate_callback_;
+}
+
 void list::set_column_click_callback(std::function<void(int32_t)> column_click_callback_)
 {
     column_click_callback = column_click_callback_;
-}
-
-void list::set_item_click_callback(std::function<void(int32_t)> item_click_callback_)
-{
-    item_click_callback = item_click_callback_;
-}
-
-void list::set_item_double_click_callback(std::function<void(int32_t)> item_double_click_callback_)
-{
-    item_double_click_callback = item_double_click_callback_;
 }
 
 void list::set_item_right_click_callback(std::function<void(int32_t)> item_right_click_callback_)
@@ -676,7 +687,19 @@ void list::draw_items(graphic &gr_)
         auto top = (i * item_height) + top_;
         rect item_rect = { left, title_height + top, right - scrollbar_width, title_height + top + item_height };
         int32_t item = start_item + i;
-        draw_callback(gr_, item, item_rect, item == selected_item_, columns);
+
+        item_state state = item_state::normal;
+
+        if (item == active_item_)
+        {
+            state = item_state::active;
+        }
+        if (item == selected_item_)
+        {
+            state = item_state::selected;
+        }
+
+        draw_callback(gr_, item, item_rect, state, columns);
     }
 }
 
@@ -836,6 +859,20 @@ void list::update_selected_item(int32_t y)
         {
             item_change_callback(selected_item_);
         }
+    }
+}
+
+void list::update_active_item(int32_t y)
+{
+    auto prev_active_item_ = active_item_;
+    active_item_ = static_cast<int32_t>(round((double)(y - position().top) / item_height)) - 1 + start_item;
+    if (active_item_ > item_count)
+    {
+        active_item_ = -1;
+    }
+    if (prev_active_item_ != active_item_)
+    {
+        redraw();
     }
 }
 
