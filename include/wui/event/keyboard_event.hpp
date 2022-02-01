@@ -31,6 +31,8 @@ static const uint8_t vk_del = 0x2E;
 
 static const uint8_t vk_end = 0x23;
 static const uint8_t vk_home = 0x24;
+static const uint8_t vk_page_up = 0x21;
+static const uint8_t vk_page_down = 0x22;
 
 static const uint8_t vk_up = 0x26;
 static const uint8_t vk_down = 0x28;
@@ -53,6 +55,8 @@ static const uint8_t vk_del = 0x77;
 
 static const uint8_t vk_end = 0x73;
 static const uint8_t vk_home = 0x6E;
+static const uint8_t vk_page_up = 0x21;
+static const uint8_t vk_page_down = 0x22;
 
 static const uint8_t vk_up = 0x6F;
 static const uint8_t vk_down = 0x74;

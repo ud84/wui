@@ -230,6 +230,21 @@ void list::receive_event(const event &ev)
                 }
             }
             break;
+            case mouse_event_type::right_up:
+            {
+                if (ev.mouse_event_.y <= title_height || is_click_on_scrollbar(ev.mouse_event_.x))
+                {
+                    return;
+                }
+
+                update_selected_item(ev.mouse_event_.y);
+
+                if (item_right_click_callback)
+                {
+                    item_right_click_callback(selected_item_);
+                }
+            }
+            break;
             case mouse_event_type::move:
                 if (ev.mouse_event_.x > position().right - full_scrollbar_width - theme_dimension(tc, tv_border_width, theme_) * 2)
                 {
@@ -297,7 +312,7 @@ void list::receive_event(const event &ev)
             case keyboard_event_type::down:
                 switch (ev.keyboard_event_.key[0])
                 {
-                    case vk_home:
+                    case vk_home: case vk_page_up:
                     {
                         while (selected_item_ != 0)
                         {
@@ -307,18 +322,15 @@ void list::receive_event(const event &ev)
                             {
                                 scroll_up();
                             }
-                            else
-                            {
-                                redraw();
-                            }
                         }
+                        redraw();
                     }
                     break;
-                    case vk_end:
+                    case vk_end: case vk_page_down:
                     {
                         auto visible_item_count = get_visible_item_count();
 
-                        while (selected_item_ != item_count)
+                        while (selected_item_ != item_count - 1)
                         {
                             ++selected_item_;
 
@@ -326,11 +338,8 @@ void list::receive_event(const event &ev)
                             {
                                 scroll_down();
                             }
-                            else
-                            {
-                                redraw();
-                            }
                         }
+                        redraw();
                     }
                     break;
                     case vk_up:
