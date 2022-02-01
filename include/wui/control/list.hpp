@@ -128,11 +128,16 @@ private:
         scroll_down,
         
         select_up,
-        select_down
+        select_down,
+
+        scrollbar_show,
+        scrollbar_hide
     };
 
     timer_action timer_action_;
     timer timer_;
+
+    int32_t progress;
 
     enum class scrollbar_state
     {

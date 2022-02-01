@@ -80,8 +80,37 @@ list::list(std::shared_ptr<i_theme> theme__)
                     }
 				}
 			break;
+            case timer_action::scrollbar_show:
+                if (progress < full_scrollbar_width)
+                {
+                    progress += 4;
+
+                    auto parent_ = parent.lock();
+                    if (parent_)
+                    {
+                        auto control_pos = position();
+
+                        parent_->redraw({ control_pos.right - progress, control_pos.top, control_pos.right, control_pos.bottom });
+                    }
+                }
+            break;
+            case timer_action::scrollbar_hide:
+                if (progress > 0)
+                {
+                    auto parent_ = parent.lock();
+                    if (parent_)
+                    {
+                        auto control_pos = position();
+
+                        parent_->redraw({ control_pos.right - progress, control_pos.top, control_pos.right, control_pos.bottom });
+                    }
+
+                    progress -= 4;
+                }
+            break;
 		}
 })),
+    progress(0),
     scrollbar_state_(scrollbar_state::hide),
     slider_scrolling(false),
     prev_scroll_pos(0),
@@ -262,8 +291,12 @@ void list::receive_event(const event &ev)
                 {
                     if (scrollbar_state_ != scrollbar_state::full)
                     {
+                        //scrollbar_state_ = scrollbar_state::full;
+                        //redraw();
                         scrollbar_state_ = scrollbar_state::full;
-                        redraw();
+                        timer_action_ = timer_action::scrollbar_show;
+                        progress = 0;
+                        timer_.start(20);
                     }
                 }
                 else
@@ -273,7 +306,11 @@ void list::receive_event(const event &ev)
                     if (scrollbar_state_ == scrollbar_state::full)
                     {
                         scrollbar_state_ = scrollbar_state::tiny;
-                        redraw();
+                        timer_action_ = timer_action::scrollbar_hide;
+                        progress = full_scrollbar_width + 1;
+                        timer_.start(100);
+                        //scrollbar_state_ = scrollbar_state::tiny;
+                        //redraw();
                     }
                 }
 
