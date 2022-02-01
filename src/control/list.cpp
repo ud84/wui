@@ -200,7 +200,7 @@ void list::receive_event(const event &ev)
 
                 if (!is_click_on_scrollbar(ev.mouse_event_.x))
                 {
-                    if (ev.mouse_event_.y <= title_height)
+                    if (ev.mouse_event_.y - position().top <= title_height)
                     {
                         int32_t pos = 0, n = 0;
                         for (auto &c : columns)
@@ -232,7 +232,7 @@ void list::receive_event(const event &ev)
             break;
             case mouse_event_type::right_up:
             {
-                if (ev.mouse_event_.y <= title_height || is_click_on_scrollbar(ev.mouse_event_.x))
+                if (ev.mouse_event_.y - position().top <= title_height || is_click_on_scrollbar(ev.mouse_event_.x))
                 {
                     return;
                 }

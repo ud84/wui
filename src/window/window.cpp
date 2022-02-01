@@ -1679,6 +1679,17 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->send_mouse_event({ mouse_event_type::left_up, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param) });
         }
         break;
+        case WM_RBUTTONDOWN:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            wnd->send_mouse_event({ mouse_event_type::right_down, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param) });
+        }
+        case WM_RBUTTONUP:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            wnd->send_mouse_event({ mouse_event_type::right_up, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param) });
+        }
+        break;
         case WM_LBUTTONDBLCLK:
         {
             ReleaseCapture();
