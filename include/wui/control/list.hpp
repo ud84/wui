@@ -126,6 +126,7 @@ private:
 
         scroll_up,
         scroll_down,
+        
         select_up,
         select_down
     };
@@ -133,7 +134,13 @@ private:
     timer_action timer_action_;
     timer timer_;
 
-    bool mouse_on_control, mouse_on_scrollbar;
+    enum class scrollbar_state
+    {
+        hide,
+        tiny,
+        full
+    };
+    scrollbar_state scrollbar_state_;
 
     bool slider_scrolling;
     int32_t prev_scroll_pos;

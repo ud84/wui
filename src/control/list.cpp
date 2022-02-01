@@ -29,7 +29,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     columns(),
     item_height(0), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
     timer_action_(timer_action::undefined),
-    timer_(std::bind([this]() { 
+    timer_(std::bind([this]() {
         switch (timer_action_)
 		{
             case timer_action::scroll_up:
@@ -82,7 +82,7 @@ list::list(std::shared_ptr<i_theme> theme__)
 			break;
 		}
 })),
-    mouse_on_control(false), mouse_on_scrollbar(false),
+    scrollbar_state_(scrollbar_state::hide),
     slider_scrolling(false),
     prev_scroll_pos(0),
     title_height(-1),
@@ -141,12 +141,12 @@ void list::receive_event(const event &ev)
                 {
                     set_cursor(parent_->context(), cursor::default_);
                 }
-                mouse_on_control = true;
+                scrollbar_state_ = scrollbar_state::tiny;
                 redraw();
             }
             break;
             case mouse_event_type::leave:
-                mouse_on_control = false;
+                scrollbar_state_ = scrollbar_state::hide;
                 active_item_ = -1;
                 redraw();
             break;
@@ -260,9 +260,9 @@ void list::receive_event(const event &ev)
             case mouse_event_type::move:
                 if (ev.mouse_event_.x > position().right - full_scrollbar_width - theme_dimension(tc, tv_border_width, theme_) * 2)
                 {
-                    if (!mouse_on_scrollbar)
+                    if (scrollbar_state_ != scrollbar_state::full)
                     {
-                        mouse_on_scrollbar = true;
+                        scrollbar_state_ = scrollbar_state::full;
                         redraw();
                     }
                 }
@@ -270,9 +270,9 @@ void list::receive_event(const event &ev)
                 {
                     update_active_item(ev.mouse_event_.y);
 
-                    if (mouse_on_scrollbar)
+                    if (scrollbar_state_ == scrollbar_state::full)
                     {
-                        mouse_on_scrollbar = false;
+                        scrollbar_state_ = scrollbar_state::tiny;
                         redraw();
                     }
                 }
@@ -674,14 +674,13 @@ void list::draw_items(graphic &gr_)
     for (auto i = 0; i != visible_item_count; ++i)
     {
         int32_t scrollbar_width = 0;
-        if (mouse_on_control)
+        if (scrollbar_state_ == scrollbar_state::tiny)
         {
             scrollbar_width = tiny_scrollbar_width;
-
-            if (mouse_on_scrollbar)
-            {
-                scrollbar_width = full_scrollbar_width;
-            }
+        }
+        else if (scrollbar_state_ == scrollbar_state::full)
+        {
+            scrollbar_width = full_scrollbar_width;
         }
 
         auto top = (i * item_height) + top_;
@@ -716,18 +715,18 @@ void list::draw_scrollbar(graphic &gr)
     gr.draw_rect(bar_rect, theme_color(tc, tv_scrollbar, theme_));
 
     gr.draw_rect(top_button_rect, theme_color(tc, tv_scrollbar_slider, theme_));
-    if (mouse_on_scrollbar)
+    if (scrollbar_state_ == scrollbar_state::full)
     {
         draw_arrow_up(gr, top_button_rect);
     }
 
     gr.draw_rect(bottom_button_rect, theme_color(tc, tv_scrollbar_slider, theme_));
-    if (mouse_on_scrollbar)
+    if (scrollbar_state_ == scrollbar_state::full)
     {
         draw_arrow_down(gr, bottom_button_rect);
     }
 
-    gr.draw_rect(slider_rect, theme_color(tc, mouse_on_scrollbar ? tv_scrollbar_slider_acive : tv_scrollbar_slider, theme_));
+    gr.draw_rect(slider_rect, theme_color(tc, scrollbar_state_ == scrollbar_state::full ? tv_scrollbar_slider_acive : tv_scrollbar_slider, theme_));
 }
 
 void list::draw_arrow_up(graphic &gr, rect button_pos)
@@ -798,17 +797,17 @@ void list::scroll_down()
 void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bottom_button_rect, rect *slider_rect, double *item_on_scroll_height)
 {
     int32_t scrollbar_width = 0;
-    if (mouse_on_control)
+    if (scrollbar_state_ == scrollbar_state::tiny)
     {
         scrollbar_width = tiny_scrollbar_width;
+    }
+    else if (scrollbar_state_ == scrollbar_state::full)
+    {
+        scrollbar_width = full_scrollbar_width;
     }
     else
     {
         return;
-    }
-    if (mouse_on_scrollbar)
-    {
-        scrollbar_width = full_scrollbar_width;
     }
 
     auto border_width = theme_dimension(tc, tv_border_width, theme_);
@@ -837,12 +836,12 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
         *bar_rect = { control_pos.right - SB_WIDTH - border_width, control_pos.top + border_width, control_pos.right - border_width, control_pos.bottom - border_width };
     }
 
-    if (top_button_rect && mouse_on_scrollbar)
+    if (top_button_rect && scrollbar_state_ == scrollbar_state::full)
     {
         *top_button_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, control_pos.top + SB_INDENT + border_width, control_pos.right - SB_INDENT - border_width, control_pos.top + SB_BUTTON_HEIGHT + border_width };
     }
 
-    if (bottom_button_rect && mouse_on_scrollbar)
+    if (bottom_button_rect && scrollbar_state_ == scrollbar_state::full)
     {
         *bottom_button_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, control_pos.bottom - SB_BUTTON_HEIGHT - border_width, control_pos.right - SB_INDENT - border_width, control_pos.bottom - SB_INDENT - border_width };
     }
@@ -862,7 +861,7 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
             control_pos.right - SB_INDENT - border_width,
             SB_HEIGHT + slider_top + slider_height };
 
-        if (mouse_on_scrollbar && slider_rect->bottom > bottom_button_rect->top)
+        if (scrollbar_state_ == scrollbar_state::full && slider_rect->bottom > bottom_button_rect->top)
         {
             slider_rect->move(0, bottom_button_rect->top - slider_rect->bottom);
         }
