@@ -230,7 +230,7 @@ void list::receive_event(const event &ev)
                     }
                     else
                     {
-                        auto prev_selected = selected_item_;
+                        int32_t prev_selected = selected_item_;
                         
                         update_selected_item(ev.mouse_event_.y);
                         
@@ -848,7 +848,7 @@ void list::update_selected_item(int32_t y)
 
     if (item != selected_item_)
     {
-        auto old_selected = selected_item_;
+        int32_t old_selected = selected_item_;
 
         selected_item_ = item;
 
@@ -864,12 +864,15 @@ void list::update_selected_item(int32_t y)
 
 void list::update_active_item(int32_t y)
 {
-    auto prev_active_item_ = active_item_;
+    int32_t prev_active_item_ = active_item_;
+    
     active_item_ = static_cast<int32_t>(round((double)(y - position().top) / item_height)) - 1 + start_item;
+
     if (active_item_ > item_count)
     {
         active_item_ = -1;
     }
+
     if (prev_active_item_ != active_item_)
     {
         redraw();

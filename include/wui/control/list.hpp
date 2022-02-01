@@ -20,6 +20,7 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include <atomic>
 
 namespace wui
 {
@@ -117,7 +118,7 @@ private:
 
     std::vector<column> columns;
 
-    int32_t item_height, item_count, selected_item_, active_item_, start_item;
+    std::atomic<int32_t> item_height, item_count, selected_item_, active_item_, start_item;
 
     enum class timer_action
     {
@@ -172,4 +173,3 @@ private:
 };
 
 }
-
