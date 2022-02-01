@@ -538,14 +538,22 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
     if (slider_rect)
     {
         auto slider_top = control_pos.top + static_cast<int32_t>(round(item_on_scroll_height_ * start_item)) + border_width;
-        auto slider_height = static_cast<int32_t>(round(item_on_scroll_height_ * (visible_item_count + 1)));
+        auto slider_height = static_cast<int32_t>(floor(item_on_scroll_height_ * visible_item_count));
 
         if (slider_height < SB_SILDER_MIN_WIDTH)
         {
             slider_height = SB_SILDER_MIN_WIDTH;
         }
 
-        *slider_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, SB_HEIGHT + slider_top, control_pos.right - SB_INDENT - border_width, SB_HEIGHT + slider_top + slider_height };
+        *slider_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width,
+            SB_HEIGHT + slider_top,
+            control_pos.right - SB_INDENT - border_width,
+            SB_HEIGHT + slider_top + slider_height };
+
+        if (mouse_on_scrollbar && slider_rect->bottom > bottom_button_rect->top)
+        {
+            slider_rect->move(0, bottom_button_rect->top - slider_rect->bottom);
+        }
     }
 }
 
