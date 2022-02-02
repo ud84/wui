@@ -51,6 +51,8 @@ list::~list()
     {
         parent_->remove_control(shared_from_this());
     }
+
+    end_work();
 }
 
 void list::draw(graphic &gr, const rect &)
@@ -240,7 +242,7 @@ void list::receive_event(const event &ev)
                     double item_on_scroll_height = 0.;
                     calc_scrollbar_params(nullptr, nullptr, nullptr, nullptr, &item_on_scroll_height);
                     double diff_abs = labs(diff);
-                    int32_t count = static_cast<int32_t>(diff_abs / item_on_scroll_height);
+                    int32_t count = static_cast<int32_t>(round(diff_abs / item_on_scroll_height));
 
                     if (diff > 0)
                     {
@@ -367,6 +369,8 @@ void list::set_parent(std::shared_ptr<window> window)
 
 void list::clear_parent()
 {
+    end_work();
+
     auto parent_ = parent.lock();
     if (parent_)
     {
