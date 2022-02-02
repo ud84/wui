@@ -27,6 +27,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     my_subscriber_id(-1),
     showed_(true), enabled_(true), focused_(false),
     columns(),
+    mode(list_mode::simple),
     item_height(0), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
     worker_action_(worker_action::undefined),
     worker(),
@@ -209,8 +210,6 @@ void list::receive_event(const event &ev)
                 {
                     if (scrollbar_state_ != scrollbar_state::full)
                     {
-                        //scrollbar_state_ = scrollbar_state::full;
-                        //redraw();
                         scrollbar_state_ = scrollbar_state::full;
                         progress = 0;
                         start_work(worker_action::scrollbar_show);
@@ -218,7 +217,14 @@ void list::receive_event(const event &ev)
                 }
                 else
                 {
-                    update_active_item(ev.mouse_event_.y);
+                    if (mode == list_mode::simple)
+                    {
+                        update_active_item(ev.mouse_event_.y);
+                    }
+                    else if (mode == list_mode::auto_select)
+                    {
+                        update_selected_item(ev.mouse_event_.y);
+                    }
 
                     if (scrollbar_state_ == scrollbar_state::full)
                     {
@@ -266,7 +272,15 @@ void list::receive_event(const event &ev)
                 {
                     scroll_down();
                 }
-                update_active_item(ev.mouse_event_.y);
+
+                if (mode == list_mode::simple)
+                {
+                    update_active_item(ev.mouse_event_.y);
+                }
+                else if (mode == list_mode::auto_select)
+                {
+                    update_selected_item(ev.mouse_event_.y);
+                }
             break;
         }
     }
@@ -455,6 +469,11 @@ void list::update_columns(const std::vector<column> &columns_)
     columns = columns_;
     title_height = -1;
     redraw();
+}
+
+void list::set_mode(list_mode mode_)
+{
+    mode = mode_;
 }
 
 void list::select_item(int32_t n_item)

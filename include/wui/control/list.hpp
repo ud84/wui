@@ -62,8 +62,14 @@ public:
         int32_t width;
         std::string caption;
     };
-
     void update_columns(const std::vector<column> &columns);
+
+    enum class list_mode
+    {
+        simple,
+        auto_select
+    };
+    void set_mode(list_mode mode);
     
     void select_item(int32_t n_item);
     int32_t selected_item() const;
@@ -73,7 +79,7 @@ public:
     
     void set_item_count(int32_t count);
 
-    enum item_state
+    enum class item_state
     {
         normal,
         active,
@@ -117,6 +123,8 @@ private:
     bool showed_, enabled_, focused_;
 
     std::vector<column> columns;
+
+    list_mode mode;
 
     std::atomic<int32_t> item_height, item_count, selected_item_, active_item_, start_item;
 
