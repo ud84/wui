@@ -95,7 +95,8 @@ list::list(std::shared_ptr<i_theme> theme__)
                 }
             break;
             case timer_action::scrollbar_hide:
-                if (progress > 0)
+                ++progress;
+                if (progress > 10)
                 {
                     auto parent_ = parent.lock();
                     if (parent_)
@@ -104,8 +105,6 @@ list::list(std::shared_ptr<i_theme> theme__)
 
                         parent_->redraw({ control_pos.right - progress, control_pos.top, control_pos.right, control_pos.bottom });
                     }
-
-                    progress -= 4;
                 }
             break;
 		}
@@ -307,7 +306,7 @@ void list::receive_event(const event &ev)
                     {
                         scrollbar_state_ = scrollbar_state::tiny;
                         timer_action_ = timer_action::scrollbar_hide;
-                        progress = full_scrollbar_width + 1;
+                        progress = 0;
                         timer_.start(100);
                         //scrollbar_state_ = scrollbar_state::tiny;
                         //redraw();
