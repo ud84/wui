@@ -14,13 +14,13 @@
 #include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
-#include <wui/system/timer.hpp>
 
 #include <string>
 #include <vector>
 #include <functional>
 #include <memory>
 #include <atomic>
+#include <thread>
 
 namespace wui
 {
@@ -120,7 +120,7 @@ private:
 
     std::atomic<int32_t> item_height, item_count, selected_item_, active_item_, start_item;
 
-    enum class timer_action
+    enum class worker_action
     {
         undefined = 0,
 
@@ -130,12 +130,12 @@ private:
         select_up,
         select_down,
 
-        scrollbar_show,
-        scrollbar_hide
+        scrollbar_show
     };
 
-    timer_action timer_action_;
-    timer timer_;
+    worker_action worker_action_;
+    std::thread worker;
+    bool worker_runned;
 
     int32_t progress;
 
@@ -184,6 +184,10 @@ private:
     bool is_click_on_scrollbar(int32_t x);
     void update_selected_item(int32_t y);
     void update_active_item(int32_t y);
+
+    void start_work(worker_action action);
+    void work();
+    void end_work();
 };
 
 }

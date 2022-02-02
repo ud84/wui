@@ -28,87 +28,8 @@ list::list(std::shared_ptr<i_theme> theme__)
     showed_(true), enabled_(true), focused_(false),
     columns(),
     item_height(0), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
-    timer_action_(timer_action::undefined),
-    timer_(std::bind([this]() {
-        switch (timer_action_)
-		{
-            case timer_action::scroll_up:
-				scroll_up();
-			break;
-			case timer_action::scroll_down:
-				scroll_down();
-			break;
-			case timer_action::select_up:
-				if (selected_item_ != 0)
-				{
-					--selected_item_;
-
-					if (selected_item_ != 0 && selected_item_ < start_item + 1)
-					{
-						scroll_up();
-					}
-					else
-					{
-						redraw();
-					}
-
-					if (item_change_callback)
-					{
-                        item_change_callback(selected_item_);
-					}
-				}
-			break;
-            case timer_action::select_down:
-				if (selected_item_ != item_count)
-				{
-					++selected_item_;
-					
-					auto visible_item_count = get_visible_item_count();
-
-					if (selected_item_ > visible_item_count + start_item - 1)
-					{
-						scroll_down();
-					}
-					else
-					{
-                        redraw();
-					}
-
-                    if (item_change_callback)
-                    {
-                        item_change_callback(selected_item_);
-                    }
-				}
-			break;
-            case timer_action::scrollbar_show:
-                if (progress < full_scrollbar_width)
-                {
-                    progress += 4;
-
-                    auto parent_ = parent.lock();
-                    if (parent_)
-                    {
-                        auto control_pos = position();
-
-                        parent_->redraw({ control_pos.right - progress, control_pos.top, control_pos.right, control_pos.bottom });
-                    }
-                }
-            break;
-            case timer_action::scrollbar_hide:
-                ++progress;
-                if (progress > 10)
-                {
-                    auto parent_ = parent.lock();
-                    if (parent_)
-                    {
-                        auto control_pos = position();
-
-                        parent_->redraw({ control_pos.right - progress, control_pos.top, control_pos.right, control_pos.bottom });
-                    }
-                }
-            break;
-		}
-})),
+    worker_action_(worker_action::undefined),
+    worker(),
     progress(0),
     scrollbar_state_(scrollbar_state::hide),
     slider_scrolling(false),
@@ -188,13 +109,11 @@ void list::receive_event(const event &ev)
 
                     if (ev.mouse_event_.y <= top_button_rect.bottom)
                     {
-                        timer_action_ = timer_action::scroll_up;
-                        timer_.start(100);
+                        start_work(worker_action::scroll_up);
                     }
                     else if (ev.mouse_event_.y >= bottom_button_rect.top)
                     {
-                        timer_action_ = timer_action::scroll_down;
-                        timer_.start(100);
+                        start_work(worker_action::scroll_down);
                     }
                     else if (ev.mouse_event_.y < slider_rect.top)
                     {
@@ -233,7 +152,7 @@ void list::receive_event(const event &ev)
                 {
                     release_pointer(parent_->context());
                 }
-                timer_.stop();
+                end_work();
 
                 if (!is_click_on_scrollbar(ev.mouse_event_.x))
                 {
@@ -293,9 +212,8 @@ void list::receive_event(const event &ev)
                         //scrollbar_state_ = scrollbar_state::full;
                         //redraw();
                         scrollbar_state_ = scrollbar_state::full;
-                        timer_action_ = timer_action::scrollbar_show;
                         progress = 0;
-                        timer_.start(20);
+                        start_work(worker_action::scrollbar_show);
                     }
                 }
                 else
@@ -305,11 +223,7 @@ void list::receive_event(const event &ev)
                     if (scrollbar_state_ == scrollbar_state::full)
                     {
                         scrollbar_state_ = scrollbar_state::tiny;
-                        timer_action_ = timer_action::scrollbar_hide;
-                        progress = 0;
-                        timer_.start(100);
-                        //scrollbar_state_ = scrollbar_state::tiny;
-                        //redraw();
+                        redraw();
                     }
                 }
 
@@ -395,19 +309,17 @@ void list::receive_event(const event &ev)
                     }
                     break;
                     case vk_up:
-                        timer_action_ = timer_action::select_up;
-                        timer_.start(100);
+                        start_work(worker_action::select_up);
                     break;
                     case vk_down:
-                        timer_action_ = timer_action::select_down;
-                        timer_.start(100);
+                        start_work(worker_action::select_down);
                     break;
                 }
             break;
             case keyboard_event_type::up:
                 if (ev.keyboard_event_.key[0] == vk_up || ev.keyboard_event_.key[0] == vk_down)
                 {
-                    timer_.stop();
+                    end_work();
                 }
             break;
         }
@@ -949,6 +861,105 @@ void list::update_active_item(int32_t y)
     {
         redraw();
     }
+}
+
+void list::start_work(worker_action action)
+{
+    worker_action_ = action;
+    
+    if (!worker_runned)
+    {
+        worker_runned = true;
+        if (worker.joinable()) worker.join();
+        worker = std::thread(std::bind(&list::work, this));
+    }
+}
+
+void list::work()
+{
+    while (worker_runned)
+    {
+        switch (worker_action_)
+        {
+        case worker_action::scroll_up:
+            scroll_up();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        break;
+        case worker_action::scroll_down:
+            scroll_down();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        break;
+        case worker_action::select_up:
+            if (selected_item_ != 0)
+            {
+                --selected_item_;
+
+                if (selected_item_ != 0 && selected_item_ < start_item + 1)
+                {
+                    scroll_up();
+                }
+                else
+                {
+                    redraw();
+                }
+
+                if (item_change_callback)
+                {
+                    item_change_callback(selected_item_);
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        break;
+        case worker_action::select_down:
+            if (selected_item_ != item_count)
+            {
+                ++selected_item_;
+
+                auto visible_item_count = get_visible_item_count();
+
+                if (selected_item_ > visible_item_count + start_item - 1)
+                {
+                    scroll_down();
+                }
+                else
+                {
+                    redraw();
+                }
+
+                if (item_change_callback)
+                {
+                    item_change_callback(selected_item_);
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        break;
+        case worker_action::scrollbar_show:
+            if (progress < full_scrollbar_width)
+            {
+                progress += 4;
+
+                auto parent_ = parent.lock();
+                if (parent_)
+                {
+                    auto control_pos = position();
+                    parent_->redraw({ control_pos.right - progress, control_pos.top, control_pos.right, control_pos.bottom });
+                }
+            }
+            else
+            {
+                worker_runned = false;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        break;
+        }
+    }
+}
+
+void list::end_work()
+{
+    worker_runned = false;
+    if (worker.joinable()) worker.join();
 }
 
 }
