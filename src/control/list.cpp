@@ -238,11 +238,9 @@ void list::receive_event(const event &ev)
                 if (slider_scrolling)
                 {
                     int32_t diff = prev_scroll_pos - ev.mouse_event_.y;
-
-                    double item_on_scroll_height = 0.;
-                    calc_scrollbar_params(nullptr, nullptr, nullptr, nullptr, &item_on_scroll_height);
+                    double item_on_scroll_height = (position_.height() - full_scrollbar_width * 2) / (item_count - get_visible_item_count());
                     double diff_abs = labs(diff);
-                    int32_t count = static_cast<int32_t>(round(diff_abs / item_on_scroll_height));
+                    auto count = static_cast<int32_t>(round(diff_abs / item_on_scroll_height));
 
                     if (diff > 0)
                     {
@@ -765,7 +763,7 @@ void list::scroll_down()
     redraw();
 }
 
-void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bottom_button_rect, rect *slider_rect, double *item_on_scroll_height)
+void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bottom_button_rect, rect *slider_rect)
 {
     int32_t scrollbar_width = 0;
     if (scrollbar_state_ == scrollbar_state::tiny)
@@ -784,8 +782,8 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
     auto border_width = theme_dimension(tc, tv_border_width, theme_);
 
     const int32_t SB_WIDTH = scrollbar_width,
-        SB_HEIGHT = full_scrollbar_width, SB_INDENT = 0, SB_SILDER_MIN_WIDTH = 5,
-        SB_BUTTON_WIDTH = SB_WIDTH - SB_INDENT, SB_BUTTON_HEIGHT = SB_HEIGHT - SB_INDENT;
+        SB_HEIGHT = full_scrollbar_width, SB_SILDER_MIN_WIDTH = 5,
+        SB_BUTTON_WIDTH = SB_WIDTH, SB_BUTTON_HEIGHT = SB_HEIGHT;
 
     auto control_pos = position();
 
@@ -797,10 +795,6 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
     }
 
     double item_on_scroll_height_ = client_height / item_count;
-    if (item_on_scroll_height)
-    {
-        *item_on_scroll_height = item_on_scroll_height_;
-    }
 
     if (bar_rect)
     {
@@ -809,12 +803,12 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
 
     if (top_button_rect && scrollbar_state_ == scrollbar_state::full)
     {
-        *top_button_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, control_pos.top + SB_INDENT + border_width, control_pos.right - SB_INDENT - border_width, control_pos.top + SB_BUTTON_HEIGHT + border_width };
+        *top_button_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, control_pos.top + border_width, control_pos.right - border_width, control_pos.top + SB_BUTTON_HEIGHT + border_width };
     }
 
     if (bottom_button_rect && scrollbar_state_ == scrollbar_state::full)
     {
-        *bottom_button_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, control_pos.bottom - SB_BUTTON_HEIGHT - border_width, control_pos.right - SB_INDENT - border_width, control_pos.bottom - SB_INDENT - border_width };
+        *bottom_button_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width, control_pos.bottom - SB_BUTTON_HEIGHT - border_width, control_pos.right - border_width, control_pos.bottom - border_width };
     }
 
     if (slider_rect)
@@ -829,10 +823,10 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
 
         *slider_rect = { control_pos.right - SB_BUTTON_WIDTH - border_width,
             SB_HEIGHT + slider_top,
-            control_pos.right - SB_INDENT - border_width,
+            control_pos.right - border_width,
             SB_HEIGHT + slider_top + slider_height };
 
-        if (scrollbar_state_ == scrollbar_state::full && slider_rect->bottom > bottom_button_rect->top)
+        if (scrollbar_state_ == scrollbar_state::full && bottom_button_rect && slider_rect->bottom > bottom_button_rect->top)
         {
             slider_rect->move(0, bottom_button_rect->top - slider_rect->bottom);
         }
