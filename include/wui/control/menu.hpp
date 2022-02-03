@@ -126,8 +126,6 @@ private:
     bool size_updated;
 
     void update_size();
-
-    void redraw();
 };
 
 }

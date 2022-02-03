@@ -47,17 +47,20 @@ menu::~menu()
 }
 
 void menu::draw(graphic &gr, const rect &)
-{   
+{
+    list_->draw(gr, { 0 });
 }
 
 void menu::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    //update_control_position(position_, position__, showed_ && redraw, parent);
+    list_->set_position(position__, redraw);
 }
 
 rect menu::position() const
 {
-    return get_control_position(position_, parent);
+    //return get_control_position(position_, parent);
+    return list_->position();
 }
 
 void menu::set_parent(std::shared_ptr<window> window)
@@ -109,8 +112,6 @@ void menu::update_theme(std::shared_ptr<i_theme> theme__)
     //list_->update_theme(list_theme);
 
     size_updated = false;
-
-    redraw();
 }
 
 void menu::show()
@@ -122,17 +123,14 @@ void menu::show()
 
     showed_ = true;
 
-    redraw();
+    list_->show();
 }
 
 void menu::hide()
 {
     showed_ = false;
-    auto parent_ = parent.lock();
-    if (parent_)
-    {
-        parent_->redraw(position_, true);
-    }
+
+    list_->hide();
 }
 
 bool menu::showed() const
@@ -258,20 +256,8 @@ void menu::show_on_control(i_control &control, int32_t indent)
 
     auto pos = get_best_position_on_control(parent, control.position(), position_, indent);
 
-    list_->set_position(pos, false);
+    list_->set_position(pos, true);
     list_->show();
-}
-
-void menu::redraw()
-{
-    if (showed_)
-    {
-        auto parent_ = parent.lock();
-        if (parent_)
-        {
-            parent_->redraw(position_);
-        }
-    }
 }
 
 }
