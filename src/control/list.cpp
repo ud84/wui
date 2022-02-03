@@ -240,13 +240,23 @@ void list::receive_event(const event &ev)
                     int32_t diff = prev_scroll_pos - ev.mouse_event_.y;
                     double item_on_scroll_height = (position_.height() - full_scrollbar_width * 2) / (item_count - get_visible_item_count());
                     double diff_abs = labs(diff);
+                    
                     auto count = static_cast<int32_t>(floor(diff_abs / item_on_scroll_height));
+
+                    rect slider_rect = { 0 };
+                    calc_scrollbar_params(nullptr, nullptr, nullptr, &slider_rect);
 
                     if (diff > 0)
                     {
                         for (auto i = 0; i != count; ++i)
                         {
                             scroll_up();
+                        }
+
+                        if (slider_rect.top > ev.mouse_event_.y)
+                        {
+                            prev_scroll_pos = ev.mouse_event_.y + (slider_rect.top - ev.mouse_event_.y);
+                            return;
                         }
                     }
                     else
@@ -255,23 +265,11 @@ void list::receive_event(const event &ev)
                         {
                             scroll_down();
                         }
-                    }
 
-                    auto control_pos = position();
-                    int32_t border_width = theme_dimension(tc, tv_border_width, theme_);
-                    if (ev.mouse_event_.y == control_pos.top + border_width)
-                    {
-                        while (start_item != 0)
+                        if (slider_rect.bottom < ev.mouse_event_.y)
                         {
-                            scroll_up();
-                        }
-                    }
-                    else if (ev.mouse_event_.y == control_pos.bottom - border_width * 2)
-                    {
-                        auto visible_item_count = get_visible_item_count();
-                        while (visible_item_count < item_count && start_item != item_count - visible_item_count)
-                        {
-                            scroll_down();
+                            prev_scroll_pos = ev.mouse_event_.y - (ev.mouse_event_.y - slider_rect.bottom);
+                            return;
                         }
                     }
 
