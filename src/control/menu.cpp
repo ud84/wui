@@ -265,58 +265,13 @@ void menu::update_size()
 #endif
 }
 
-void menu::show_on_control(i_control &control, int32_t relative)
+void menu::show_on_control(i_control &control, int32_t indent)
 {
-    auto parent_ = parent.lock();
-    if (!parent_)
-    {
-        return;
-    }
+    update_size();
 
-    auto parent_pos = parent_->position();
+    auto pos = get_best_position_on_control(parent, control.position(), position_, indent);
 
-    if (!size_updated)
-    {
-        update_size();
-        size_updated = true;
-    }
-
-    auto out_pos = position_;
-
-    if (relative > 0)
-    {
-        out_pos.put(control.position().left + relative, control.position().bottom + relative); // below the control
-    }
-    else
-    {
-        out_pos.put(control.position().left, control.position().top); // on the control
-    }
-
-    if (out_pos.bottom <= parent_pos.height())
-    {
-        if (out_pos.right >= parent_pos.width())
-        {
-            out_pos.put(parent_pos.width() - out_pos.width(), relative > 0 ? control.position().bottom + relative : control.position().top);
-        }
-    }
-    else
-    {
-        if (relative > 0)
-        {
-            out_pos.put(control.position().left + relative, control.position().top - out_pos.height() - relative); // above the control
-        }
-        else
-        {
-            out_pos.put(control.position().left, control.position().bottom - out_pos.height()); // on the control
-        }
-
-        if (out_pos.right >= parent_pos.width())
-        {
-            out_pos.put(parent_pos.width() - out_pos.width(), relative > 0 ? control.position().top - out_pos.height() - relative : control.position().bottom - out_pos.height());
-        }
-    }
-
-    set_position(out_pos);
+    set_position(pos, false);
     show();
 }
 

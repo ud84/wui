@@ -216,79 +216,11 @@ void tooltip::update_size()
 
 void tooltip::show_on_control(i_control &control, int32_t indent)
 {
-    auto parent_ = parent.lock();
-    if (!parent_)
-    {
-        return;
-    }
-
     update_size();
+
+    auto pos = get_best_position_on_control(parent, control.position(), position_, indent);
     
-    auto parent_pos = parent_->position();
-    if (!parent_->child())
-    {
-        parent_pos = { 0, 0, parent_pos.width(), parent_pos.height() };
-    }
-
-    auto control_pos = control.position();
-
-    auto out_pos = position_;
-
-    out_pos.put(control_pos.left + indent, control_pos.top + indent); // on the control
-
-    bool position_finded = false;
-
-    out_pos.put(control_pos.left + indent, control_pos.bottom + indent); // below the control
-    if (out_pos.bottom <= parent_pos.bottom)
-    {
-        if (out_pos.right >= parent_pos.width())
-        {
-            out_pos.put(parent_pos.width() - out_pos.width(), control_pos.bottom + indent);
-        }
-        if (out_pos.left < 0)
-        {
-            out_pos.put(0, control_pos.bottom + indent);
-        }
-        position_finded = true;
-    }
-    
-    if (!position_finded)
-    {
-        out_pos.put(control_pos.left + indent, control_pos.top - out_pos.height() - indent); // above the control
-        if (out_pos.top >= parent_pos.top)
-        {
-            if (out_pos.right >= parent_pos.width())
-            {
-                out_pos.put(parent_pos.width() - out_pos.width(), control_pos.top - out_pos.height() - indent);
-            }
-            position_finded = true;
-        }
-    }
-
-    if (!position_finded)
-    {
-        out_pos.put(control_pos.right + indent, control_pos.top + indent); // to the right of the control
-        if (out_pos.right <= parent_pos.width())
-        {
-            position_finded = true;
-        }
-    }
-
-    if (!position_finded)
-    {
-        out_pos.put(control_pos.left - out_pos.width() - indent, control_pos.top + indent); // to the left of the control
-        if (out_pos.left >= parent_pos.left)
-        {
-            position_finded = true;
-        }
-    }
-
-    if (!position_finded)
-    {
-        out_pos.put(control_pos.left + indent, control_pos.top + indent); // on the control
-    }
-
-    set_position(out_pos, false);
+    set_position(pos, false);
     show();
 }
 

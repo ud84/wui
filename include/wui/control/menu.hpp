@@ -16,6 +16,7 @@
 #include <wui/common/color.hpp>
 
 #include <wui/control/image.hpp>
+#include <wui/control/list.hpp>
 
 #include <string>
 #include <vector>
@@ -90,7 +91,7 @@ public:
     void set_item_height(int32_t item_height);
     void set_max_width(int32_t width);
 
-    void show_on_control(i_control &control, int32_t relative); /// If relative < 0 the menu showed on control
+    void show_on_control(i_control &control, int32_t indent);
 
 public:
     /// Control name in theme
