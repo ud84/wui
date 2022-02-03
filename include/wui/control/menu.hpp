@@ -15,9 +15,6 @@
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
 
-#include <wui/control/image.hpp>
-#include <wui/control/list.hpp>
-
 #include <string>
 #include <vector>
 #include <functional>
@@ -25,6 +22,9 @@
 
 namespace wui
 {
+
+class image;
+class list;
 
 struct menu_item;
 
@@ -55,7 +55,7 @@ struct menu_item
 class menu : public i_control, public std::enable_shared_from_this<menu>
 {
 public:
-    menu(const std::string &text, std::shared_ptr<i_theme> theme_ = nullptr);
+    menu(std::shared_ptr<i_theme> theme_ = nullptr);
     ~menu();
 
     virtual void draw(graphic &gr, const rect &);
@@ -108,6 +108,9 @@ public:
     static constexpr const char *tv_font = "font";
 
 private:
+    std::shared_ptr<i_theme> list_theme;
+    std::shared_ptr<list> list_;
+
     std::shared_ptr<i_theme> theme_;
 
     rect position_;
@@ -121,8 +124,6 @@ private:
 
     bool showed_;
     bool size_updated;
-
-    void receive_event(const event &ev);
 
     void update_size();
 

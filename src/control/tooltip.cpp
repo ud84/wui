@@ -212,6 +212,8 @@ void tooltip::update_size()
 #ifdef _WIN32
     ReleaseDC(ctx.hwnd, ctx.dc);
 #endif
+
+    size_updated = true;
 }
 
 void tooltip::show_on_control(i_control &control, int32_t indent)

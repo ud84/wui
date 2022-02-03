@@ -11,6 +11,9 @@
 
 #include <wui/window/window.hpp>
 
+#include <wui/control/image.hpp>
+#include <wui/control/list.hpp>
+
 #include <wui/theme/theme.hpp>
 
 #include <wui/system/tools.hpp>
@@ -20,8 +23,10 @@
 namespace wui
 {
 
-menu::menu(const std::string &text_, std::shared_ptr<i_theme> theme__)
-    : theme_(theme__),
+menu::menu(std::shared_ptr<i_theme> theme__)
+    : list_theme(make_custom_theme()),
+    list_(new list(theme__)),
+    theme_(theme__),
     position_(),
     parent(),
     items(),
@@ -37,38 +42,12 @@ menu::~menu()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->remove_control(shared_from_this());
+        parent_->remove_control(list_);
     }
 }
 
 void menu::draw(graphic &gr, const rect &)
-{
-    if (!showed_)
-    {
-        return;
-    }
-
-    gr.draw_rect(position_,
-        theme_color(tc, tv_border, theme_),
-        theme_color(tc, tv_background, theme_),
-        theme_dimension(tc, tv_border_width, theme_),
-        theme_dimension(tc, tv_round, theme_));
-
-    auto font_ = theme_font(tc, tv_font, theme_);
-
-    auto text_indent = 5;
-
-    auto text_position = position_;
-    text_position.move(text_indent, text_indent);
-
-    for (auto &item : items)
-    {
-        gr.draw_text(text_position, item.text, theme_color(tc, tv_text, theme_), font_);
-    }
-}
-
-void menu::receive_event(const event &)
-{
+{   
 }
 
 void menu::set_position(const rect &position__, bool redraw)
@@ -83,11 +62,13 @@ rect menu::position() const
 
 void menu::set_parent(std::shared_ptr<window> window)
 {
+    list_->set_parent(window);
     parent = window;
 }
 
 void menu::clear_parent()
 {
+    list_->clear_parent();
     parent.reset();
 }
 
@@ -122,6 +103,10 @@ void menu::update_theme(std::shared_ptr<i_theme> theme__)
         return;
     }
     theme_ = theme__;
+
+    list_theme->load_theme(*theme__);
+
+    list_->update_theme(list_theme);
 
     size_updated = false;
 
@@ -219,7 +204,7 @@ void menu::set_max_width(int32_t width)
 
 void menu::update_size()
 {
-    if (items.empty())
+    if (size_updated)// || items.empty())
     {
         return;
     }
@@ -245,24 +230,26 @@ void menu::update_size()
 #endif
     }
 
-    graphic mem_gr(ctx);
+    /*graphic mem_gr(ctx);
     mem_gr.init(rect{ 0, 0, 1024, 500 }, 0);
 
     auto font_ = theme_font(tc, tv_font, theme_);
 
-    auto old_position = position_;
+    auto old_position = position_;*/
 
-    //position_ = mem_gr.measure_text(text, font_);
+    position_ = { 0, 0, 100, 100 }; //mem_gr.measure_text(text, font_);
 
-    auto text_indent = 5;
+    /*auto text_indent = 5;
     position_.right += text_indent * 2;
     position_.bottom += text_indent * 2;
 
-    position_.move(old_position.left, old_position.top);
+    position_.move(old_position.left, old_position.top);*/
 
 #ifdef _WIN32
     ReleaseDC(ctx.hwnd, ctx.dc);
 #endif
+
+    size_updated = true;
 }
 
 void menu::show_on_control(i_control &control, int32_t indent)
@@ -271,8 +258,8 @@ void menu::show_on_control(i_control &control, int32_t indent)
 
     auto pos = get_best_position_on_control(parent, control.position(), position_, indent);
 
-    set_position(pos, false);
-    show();
+    list_->set_position(pos, false);
+    list_->show();
 }
 
 void menu::redraw()
