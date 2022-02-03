@@ -118,7 +118,7 @@ private:
     rect position_;
 
     std::weak_ptr<window> parent;
-    int32_t my_subscriber_id;
+    std::string my_subscriber_id;
 
     bool showed_, enabled_;
     bool active, focused_;

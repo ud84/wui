@@ -31,7 +31,7 @@ input::input(const std::string &text__, input_view input_view__, std::shared_ptr
     position_(),
     cursor_position(0), select_start_position(0), select_end_position(0),
     parent(),
-    my_subscriber_id(-1),
+    my_subscriber_id(),
     timer_(std::bind(&input::redraw_cursor, this)),
     showed_(true), enabled_(true),
     focused_(false),

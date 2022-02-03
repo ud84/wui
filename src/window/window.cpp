@@ -105,7 +105,7 @@ window::window()
     showed_(true), enabled_(true),
     focused_index(0),
     parent(),
-    my_control_sid(-1), my_plain_sid(-1),
+    my_control_sid(), my_plain_sid(),
     transient_window(), docked_(false),
     subscribers_(),
     moving_mode_(moving_mode::none),
@@ -203,17 +203,33 @@ void window::redraw(const rect &redraw_position, bool clear)
     }
 }
 
-int32_t window::subscribe(std::function<void(const event&)> receive_callback_, event_type event_types_, std::shared_ptr<i_control> control_)
+std::string window::subscribe(std::function<void(const event&)> receive_callback_, event_type event_types_, std::shared_ptr<i_control> control_)
 {
-    subscribers_.emplace_back(event_subscriber{ receive_callback_, event_types_, control_ });
-    return static_cast<int32_t>(subscribers_.size() - 1);
+    auto randchar = []() -> char
+    {
+        const char charset[] =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[rand() % max_index];
+    };
+    
+    std::string id(20, 0);
+    std::generate_n(id.begin(), 20, randchar);
+
+    subscribers_.emplace_back(event_subscriber{ id, receive_callback_, event_types_, control_ });
+    return id;
 }
 
-void window::unsubscribe(int32_t subscriber_id)
+void window::unsubscribe(const std::string &subscriber_id)
 {
-    if (subscriber_id > 0 && subscribers_.size() > subscriber_id)
+    auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [subscriber_id](const event_subscriber &es) {
+        return es.id == subscriber_id;
+    });
+    if (it != subscribers_.end())
     {
-        subscribers_.erase(subscribers_.begin() + subscriber_id);
+        subscribers_.erase(it);
     }
 }
 
@@ -785,6 +801,7 @@ bool window::send_event_to_control(std::shared_ptr<i_control> &control_, const e
     auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [control_, ev](const event_subscriber &es) {
         return flag_is_set(es.event_types, ev.type) && es.control == control_;
     });
+    
     if (it != subscribers_.end())
     {
         it->receive_callback(ev);
@@ -848,11 +865,9 @@ bool window::send_mouse_event(const mouse_event &ev)
                 return send_event_to_control((*control), { event_type::mouse, me });
             }
         }
-        else
-        {
-            send_event_to_plains({ event_type::mouse, ev });
-        }
     }
+
+    send_event_to_plains({ event_type::mouse, ev });
 
     return false;
 }

@@ -49,8 +49,8 @@ public:
 
     virtual void redraw(const rect &position, bool clear = false);
 
-    virtual int32_t subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr);
-    virtual void unsubscribe(int32_t subscriber_id);
+    virtual std::string subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr);
+    virtual void unsubscribe(const std::string &subscriber_id);
 
     virtual system_context &context();
 
@@ -138,13 +138,14 @@ private:
     size_t focused_index;
 
     std::weak_ptr<window> parent;
-    int32_t my_control_sid, my_plain_sid;
+    std::string my_control_sid, my_plain_sid;
 
     std::weak_ptr<window> transient_window;
     bool docked_;
 
     struct event_subscriber
     {
+        std::string id;
         std::function<void(const event&)> receive_callback;
         event_type event_types;
         std::shared_ptr<i_control> control;

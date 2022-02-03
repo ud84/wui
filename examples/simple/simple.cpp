@@ -221,15 +221,15 @@ int main(int argc, char *argv[])
     std::shared_ptr<wui::window> window(new wui::window());
 
     auto controlButtonTheme = MakeControlButtonTheme();
-    std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() {  }, wui::button_view::only_image, IMG_SETTINGS, 32, controlButtonTheme));
+    std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() { }, wui::button_view::only_image, IMG_SETTINGS, 32, controlButtonTheme));
     menuButton->disable_focusing();
-    window->add_control(menuButton, wui::rect{ 0 });
+    window->add_control(menuButton, wui::rect{ 0, 0, 10, 10 });
 
     std::shared_ptr<wui::image> accountImage(new wui::image(IMG_ACCOUNT));
     window->add_control(accountImage, wui::rect{ 350, 100, 414, 164 });
 
     std::shared_ptr<PluggedWindow> pluggedWindow(new PluggedWindow(window));
-    std::shared_ptr<wui::button> createPluggedButton(new wui::button("Create plugged window", []() {}));
+    std::shared_ptr<wui::button> createPluggedButton(new wui::button("Create plugged window", []() { }));
     createPluggedButton->set_callback([&window, &pluggedWindow, &createPluggedButton]() {
         pluggedWindow.reset();
         pluggedWindow = std::shared_ptr<PluggedWindow>(new PluggedWindow(window));

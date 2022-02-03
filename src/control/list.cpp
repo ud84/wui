@@ -24,7 +24,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent(),
-    my_subscriber_id(-1),
+    my_subscriber_id(),
     showed_(true), enabled_(true), focused_(false),
     columns(),
     mode(list_mode::simple),

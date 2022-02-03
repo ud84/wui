@@ -58,8 +58,8 @@ public:
 
     virtual void redraw(const rect &position, bool clear = false) = 0;
 
-    virtual int32_t subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr) = 0;
-    virtual void unsubscribe(int32_t subscriber_id) = 0;
+    virtual std::string subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr) = 0;
+    virtual void unsubscribe(const std::string &subscriber_id) = 0;
 
     virtual system_context &context() = 0;
 

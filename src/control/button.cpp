@@ -31,7 +31,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     theme_(theme__),
     position_(),
     parent(),
-    my_subscriber_id(-1),
+    my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true)
 {

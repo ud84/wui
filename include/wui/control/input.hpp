@@ -92,7 +92,7 @@ private:
     size_t cursor_position, select_start_position, select_end_position;
     
     std::weak_ptr<window> parent;
-    int32_t my_subscriber_id;
+    std::string my_subscriber_id;
 
     timer timer_;
 
