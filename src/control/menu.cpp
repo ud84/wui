@@ -104,9 +104,9 @@ void menu::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-    list_theme->load_theme(*theme__);
+    //list_theme->load_theme(*theme__);
 
-    list_->update_theme(list_theme);
+    //list_->update_theme(list_theme);
 
     size_updated = false;
 

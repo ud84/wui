@@ -228,12 +228,12 @@ int main(int argc, char *argv[])
     auto controlButtonTheme = MakeControlButtonTheme();
 
     std::shared_ptr<wui::menu> menu(new wui::menu());
-    window->add_control(menu, { 0 });
+    window->add_control(menu, { 100, 100, 200, 200 });
 
     std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() {}, wui::button_view::only_image, IMG_SETTINGS, 32, controlButtonTheme));
     menuButton->set_callback([&menu, &menuButton]() { menu->show_on_control(*menuButton, 3); });
     menuButton->disable_focusing();
-    window->add_control(menuButton, wui::rect{ 0, 0, 10, 10 });
+    window->add_control(menuButton, { 0 });
 
     std::shared_ptr<wui::image> accountImage(new wui::image(IMG_ACCOUNT));
     window->add_control(accountImage, wui::rect{ 350, 100, 414, 164 });
@@ -248,21 +248,21 @@ int main(int argc, char *argv[])
     createPluggedButton->disable();
     pluggedWindow->SetCreationButton(createPluggedButton);
 
-    window->add_control(createPluggedButton, wui::rect{ 320, 50, 400, 75 });
+    window->add_control(createPluggedButton, { 320, 50, 400, 75 });
     
     std::shared_ptr<wui::input> nameInput(new wui::input());
     //nameInput->set_text("Hello world!");
-    window->add_control(nameInput, wui::rect{ 320, 250, 890, 275 });
+    window->add_control(nameInput, { 320, 250, 890, 275 });
 
     std::shared_ptr<wui::window> dialog(new wui::window());
 
     std::shared_ptr<wui::button> okButton(new wui::button("OK", [window, &dialog]()
     {
         std::shared_ptr<wui::button> dialogButton(new wui::button("Close", [&dialog]() { dialog->destroy(); }));
-        dialog->add_control(dialogButton, wui::rect{ 10, 200, 100, 235 });
+        dialog->add_control(dialogButton, { 10, 200, 100, 235 });
 
         dialog->set_transient_for(window);
-        dialog->init("Modal dialog", wui::rect{ 50, 50, 350, 350 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
+        dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
     }));
 
     std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::only_image, IMG_ACCOUNT, 24, MakeRedButtonTheme()));
@@ -275,7 +275,7 @@ int main(int argc, char *argv[])
         dialog->update_theme(); 
         cancelButton->update_theme(MakeRedButtonTheme());
     }));
-    window->add_control(darkThemeButton, wui::rect{ 320, 350, 440, 375 });
+    window->add_control(darkThemeButton, { 320, 350, 440, 375 });
 	
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
@@ -285,10 +285,10 @@ int main(int argc, char *argv[])
         dialog->update_theme();
         cancelButton->update_theme(MakeRedButtonTheme());
     }));
-    window->add_control(whiteThemeButton, wui::rect{ 460, 350, 580, 375 });
+    window->add_control(whiteThemeButton, { 460, 350, 580, 375 });
 
-    window->add_control(okButton, wui::rect{ 240, 450, 350, 480 });
-    window->add_control(cancelButton, wui::rect{ 370, 450, 480, 480 });
+    window->add_control(okButton, { 240, 450, 350, 480 });
+    window->add_control(cancelButton, { 370, 450, 480, 480 });
 
     window->set_min_size(100, 100);
 
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
         }
     }, wui::event_type::internal);
 
-    window->init("Welcome to WUI!", wui::rect{ 100, 100, 900, 600 }, 
+    window->init("Welcome to WUI!", { 100, 100, 900, 600 }, 
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) | static_cast<uint32_t>(wui::window_style::border_all)),
         //wui::window_style::frame,
         [&runned]() {

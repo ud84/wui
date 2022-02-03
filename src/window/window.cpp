@@ -83,7 +83,7 @@ wui::rect get_window_size(wui::system_context &context)
 
         return out;
     }
-    return wui::rect{ 0 };
+    return { 0 };
 }
 
 #endif
@@ -1154,7 +1154,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
             int32_t left = (transient_window_->position().width() - position_.width()) / 2;
             int32_t top = (transient_window_->position().height() - position_.height()) / 2;
-            transient_window_->add_control(shared_from_this(), wui::rect{ left, top, left + position_.width(), top + position_.height() });
+            transient_window_->add_control(shared_from_this(), { left, top, left + position_.width(), top + position_.height() });
         }
         else
         {
