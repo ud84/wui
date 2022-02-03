@@ -404,6 +404,8 @@ void list::set_focus()
     {
         focused_ = true;
 
+        scrollbar_state_ = scrollbar_state::tiny;
+
         redraw();
     }
 }
@@ -411,6 +413,8 @@ void list::set_focus()
 bool list::remove_focus()
 {
     focused_ = false;
+
+    scrollbar_state_ = scrollbar_state::hide;
 
     redraw();
 

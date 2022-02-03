@@ -82,6 +82,10 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         creationButton(),
         plugged(false)
     {
+        button1->disable_focusing();
+        button2->disable_focusing();
+        button3->disable_focusing();
+
         list->set_draw_callback(std::bind(&PluggedWindow::DrawListItem, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 
         list->update_columns({ { 30, "##" }, { 100, "Name" }, { 100, "Role" } });
