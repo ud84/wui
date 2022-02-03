@@ -2,8 +2,9 @@
 // Microsoft Visual C++ generated include file.
 // Used by wui.rc
 
-#define IDI_SIMPLE			        107
-#define IDB_ACCOUNT				109
+#define IDI_SIMPLE			    107
+#define IMG_ACCOUNT				109
+#define IMG_SETTINGS    		110
 
 // Next default values for new objects
 //
