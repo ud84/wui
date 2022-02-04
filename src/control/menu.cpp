@@ -371,6 +371,18 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
 void menu::activate_list_item(int32_t n_item)
 {
     auto &item = items[n_item];
+    if (!item.children.empty())
+    {
+        if (item.state != menu_item_state::expanded)
+        {
+            item.state = menu_item_state::expanded;
+        }
+        else
+        {
+            item.state = menu_item_state::normal;
+        }
+    }
+
     if (item.click_callback)
     {
         item.click_callback(n_item);

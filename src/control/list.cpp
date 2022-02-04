@@ -185,7 +185,7 @@ void list::receive_event(const event &ev)
                     {
                         update_selected_item(ev.mouse_event_.y);
                         
-                        if (item_activate_callback)
+                        if (selected_item_ != -1 && item_activate_callback)
                         {
                             item_activate_callback(selected_item_);
                         }
@@ -366,7 +366,7 @@ void list::receive_event(const event &ev)
     }
     else if (ev.type == event_type::internal)
     {
-        if (ev.internal_event_.type == internal_event_type::execute_focused && item_activate_callback)
+        if (ev.internal_event_.type == internal_event_type::execute_focused && selected_item_ != -1 && item_activate_callback)
         {
             item_activate_callback(selected_item_);
         }
