@@ -76,6 +76,7 @@ public:
 
     void set_column_width(int32_t n_item, int32_t width);
     void set_item_height(int32_t height);
+    int32_t get_item_height() const;
     
     void set_item_count(int32_t count);
 

@@ -31,9 +31,19 @@ struct menu_item;
 
 typedef std::vector<menu_item> menu_items_t;
 
+enum menu_item_state
+{
+    normal,
+    separator,
+    expanded,
+    disabled
+};
+
 struct menu_item
 {
     int32_t id;
+
+    menu_item_state state;
 
     std::string text;
 
@@ -42,8 +52,6 @@ struct menu_item
     std::shared_ptr<image> image_;
 
     menu_items_t children;
-
-    bool visible, disabled;
 
     std::function<void(int32_t)> click_callback;
 
@@ -85,7 +93,7 @@ public:
     virtual bool enabled() const;
 
     void set_items(const menu_items_t &mi);
-    void update_item(const menu_item &mi, int32_t id);
+    void update_item(const menu_item &mi);
     void swap_items(int32_t first_item_id, int32_t second_item_id);
     void delete_item(int32_t id);
 
@@ -130,7 +138,8 @@ private:
 
     void update_size();
 
-    void draw_list_item(wui::graphic &gr, int32_t nItem, const wui::rect &itemRect_, list::item_state state, const std::vector<list::column> &columns);
+    void draw_list_item(wui::graphic &gr, int32_t n_item, const wui::rect &item_rect_, list::item_state state, const std::vector<list::column> &columns);
+    void activate_list_item(int32_t n_item);
 };
 
 }

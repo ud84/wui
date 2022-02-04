@@ -28,7 +28,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     showed_(true), enabled_(true), focused_(false), topmost_(false),
     columns(),
     mode(list_mode::simple),
-    item_height(0), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
+    item_height(24), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
     worker_action_(worker_action::undefined),
     worker(),
     progress(0),
@@ -188,6 +188,11 @@ void list::receive_event(const event &ev)
                         {
                             item_change_callback(selected_item_);
                         }
+
+                        if (item_activate_callback)
+                        {
+                            item_activate_callback(selected_item_);
+                        }
                     }
                 }
             }
@@ -225,7 +230,12 @@ void list::receive_event(const event &ev)
                     }
                     else if (mode == list_mode::auto_select)
                     {
+                        int32_t prev_selected = selected_item_;
                         update_selected_item(ev.mouse_event_.y);
+                        if (item_change_callback && prev_selected != selected_item_)
+                        {
+                            item_change_callback(selected_item_);
+                        }
                     }
 
                     if (scrollbar_state_ == scrollbar_state::full)
@@ -550,6 +560,11 @@ void list::set_column_width(int32_t n_item, int32_t width)
 void list::set_item_height(int32_t height)
 {
     item_height = height;
+}
+
+int32_t list::get_item_height() const
+{
+    return item_height;
 }
 
 void list::set_item_count(int32_t count)

@@ -36,10 +36,8 @@ menu::menu(std::shared_ptr<i_theme> theme__)
     size_updated(false)
 {
     list_->set_draw_callback(std::bind(&menu::draw_list_item, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+    list_->set_item_activate_callback(std::bind(&menu::activate_list_item, this, std::placeholders::_1));
     list_->set_mode(list::list_mode::auto_select);
-
-    list_->set_item_height(24);
-    list_->set_item_count(100);
 }
 
 menu::~menu()
@@ -194,15 +192,17 @@ bool menu::enabled() const
 void menu::set_items(const menu_items_t &items_)
 {
     items = items_;
+    list_->set_item_count(items.size());
 }
 
-void menu::update_item(const menu_item &mi, int32_t id)
+void menu::update_item(const menu_item &mi)
 {
     auto it = std::find(items.begin(), items.end(), mi.id);
     if (it != items.end())
     {
         *it = mi;
     }
+    list_->set_item_count(items.size());
 }
 
 void menu::swap_items(int32_t first_item_id, int32_t second_item_id)
@@ -216,6 +216,7 @@ void menu::swap_items(int32_t first_item_id, int32_t second_item_id)
             std::swap(*first_it, *second_it);
         }
     }
+    list_->set_item_count(items.size());
 }
 
 void menu::delete_item(int32_t id)
@@ -226,6 +227,7 @@ void menu::delete_item(int32_t id)
         items.erase(it);
         size_updated = false;
     }
+    list_->set_item_count(items.size());
 }
 
 void menu::set_item_height(int32_t item_height_)
@@ -242,7 +244,7 @@ void menu::set_max_width(int32_t width)
 
 void menu::update_size()
 {
-    if (size_updated)// || items.empty())
+    if (size_updated || items.empty())
     {
         return;
     }
@@ -300,38 +302,50 @@ void menu::show_on_control(i_control &control, int32_t indent)
     list_->show();
 }
 
-void menu::draw_list_item(graphic &gr, int32_t nItem, const rect &itemRect_, list::item_state state, const std::vector<list::column> &columns)
+void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &columns)
 {
     auto border_width = theme_dimension(list::tc, list::tv_border_width);
 
-    auto itemRect = itemRect_;
+    auto item_rect = item_rect_;
 
-    if (itemRect.bottom > list_->position().bottom - border_width)
+    if (item_rect.bottom > list_->position().bottom - border_width)
     {
-        itemRect.bottom = list_->position().bottom - border_width;
+        item_rect.bottom = list_->position().bottom - border_width - 1;
     }
 
-    if (state == list::item_state::active)
+    if (state == list::item_state::selected)
     {
-        gr.draw_rect(itemRect, theme_color(list::tc, list::tv_active_item));
-    }
-    else if (state == list::item_state::selected)
-    {
-        gr.draw_rect(itemRect, theme_color(list::tc, list::tv_selected_item));
+        gr.draw_rect(item_rect, theme_color(list::tc, list::tv_selected_item));
     }
 
-    auto textColor = make_color(10, 10, 10);// theme_color(input::tc, input::tv_text);
+    auto text_color = make_color(10, 10, 10);// theme_color(input::tc, input::tv_text);
     auto font = theme_font(list::tc, list::tv_font);
     auto text_indent = theme_dimension(list::tc, list::tv_text_indent);
 
-    auto textHeight = gr.measure_text("Qq", font).height();
-    if (textHeight + text_indent <= itemRect.height())
+    auto &item = items[n_item];
+
+    auto text_height = gr.measure_text("Qq", font).height();
+    if (text_height + text_indent <= item_rect.height())
     {
-        auto textRect = itemRect_;
+        auto text_rect = item_rect_;
 
-        textRect.move(text_indent, (itemRect_.height() - textHeight) / 2);
+        text_rect.move(text_indent, (item_rect_.height() - text_height) / 2);
 
-        gr.draw_text(textRect, "Item " + std::to_string(nItem), textColor, font);
+        gr.draw_text(text_rect, item.text, text_color, font);
+    }
+
+    if (item.state == menu_item_state::separator && item_rect_.bottom <= list_->position().bottom - border_width)
+    {
+        gr.draw_line({ item_rect_.left, item_rect_.bottom, item_rect_.right, item_rect_.bottom }, make_color(10, 10, 10));//theme_color(input::tc, input::tv_text));
+    }
+}
+
+void menu::activate_list_item(int32_t n_item)
+{
+    auto &item = items[n_item];
+    if (item.click_callback)
+    {
+        item.click_callback(n_item);
     }
 }
 

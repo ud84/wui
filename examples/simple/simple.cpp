@@ -228,15 +228,21 @@ int main(int argc, char *argv[])
     auto controlButtonTheme = MakeControlButtonTheme();
 
     std::shared_ptr<wui::menu> menu(new wui::menu());
+
+    menu->set_items({
+            { 0, wui::menu_item_state::separator, "Change to white mode", "", nullptr, {}, [](auto i) {} },
+            { 1, wui::menu_item_state::normal, "Exit", "", nullptr, {}, [&window](auto i) { window->destroy(); } }
+        });
+
     window->add_control(menu, { 0 });
 
     std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() {}, wui::button_view::only_image, IMG_SETTINGS, 32, controlButtonTheme));
-    menuButton->set_callback([&menu, &menuButton]() { menu->show_on_control(*menuButton, 3); });
+    menuButton->set_callback([&menu, &menuButton]() { menu->show_on_control(*menuButton, 5); });
     menuButton->disable_focusing();
     window->add_control(menuButton, { 0 });
 
     std::shared_ptr<wui::image> accountImage(new wui::image(IMG_ACCOUNT));
-    window->add_control(accountImage, wui::rect{ 350, 100, 414, 164 });
+    window->add_control(accountImage, { 350, 100, 414, 164 });
 
     std::shared_ptr<PluggedWindow> pluggedWindow(new PluggedWindow(window));
     std::shared_ptr<wui::button> createPluggedButton(new wui::button("Create plugged window", []() { }));
