@@ -192,7 +192,7 @@ bool menu::enabled() const
 void menu::set_items(const menu_items_t &items_)
 {
     items = items_;
-    list_->set_item_count(items.size());
+    list_->set_item_count(static_cast<int32_t>(items.size()));
 }
 
 void menu::update_item(const menu_item &mi)
@@ -202,7 +202,7 @@ void menu::update_item(const menu_item &mi)
     {
         *it = mi;
     }
-    list_->set_item_count(items.size());
+    list_->set_item_count(static_cast<int32_t>(items.size()));
 }
 
 void menu::swap_items(int32_t first_item_id, int32_t second_item_id)
@@ -216,7 +216,7 @@ void menu::swap_items(int32_t first_item_id, int32_t second_item_id)
             std::swap(*first_it, *second_it);
         }
     }
-    list_->set_item_count(items.size());
+    list_->set_item_count(static_cast<int32_t>(items.size()));
 }
 
 void menu::delete_item(int32_t id)
@@ -227,7 +227,7 @@ void menu::delete_item(int32_t id)
         items.erase(it);
         size_updated = false;
     }
-    list_->set_item_count(items.size());
+    list_->set_item_count(static_cast<int32_t>(items.size()));
 }
 
 void menu::set_item_height(int32_t item_height_)

@@ -180,15 +180,8 @@ void list::receive_event(const event &ev)
                     }
                     else
                     {
-                        int32_t prev_selected = selected_item_;
-                        
                         update_selected_item(ev.mouse_event_.y);
                         
-                        if (item_change_callback && prev_selected != selected_item_)
-                        {
-                            item_change_callback(selected_item_);
-                        }
-
                         if (item_activate_callback)
                         {
                             item_activate_callback(selected_item_);
@@ -230,12 +223,7 @@ void list::receive_event(const event &ev)
                     }
                     else if (mode == list_mode::auto_select)
                     {
-                        int32_t prev_selected = selected_item_;
                         update_selected_item(ev.mouse_event_.y);
-                        if (item_change_callback && prev_selected != selected_item_)
-                        {
-                            item_change_callback(selected_item_);
-                        }
                     }
 
                     if (scrollbar_state_ == scrollbar_state::full)
