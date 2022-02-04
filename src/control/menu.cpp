@@ -288,16 +288,26 @@ void menu::update_size()
     mem_gr.init(rect{ 0, 0, 1024, 500 }, 0);
 
     auto font_ = theme_font(tc, tv_font, theme_);
+    auto text_indent = theme_dimension(tc, tv_text_indent);
 
-    auto old_position = position_;
+    int32_t max_text_width = 0;
+    for (auto &item : items)
+    {
+        auto width = mem_gr.measure_text(item.text, font_).right + text_indent * 2;
+        if (width > max_text_width)
+        {
+            max_text_width = width;
+        }
+    }
 
-    position_ = { 0, 0, 100, 100 }; //mem_gr.measure_text(text, font_);
+    if (max_width != -1 && max_text_width > max_width)
+    {
+        max_text_width = max_width;
+    }
 
-    /*auto text_indent = 5;
-    position_.right += text_indent * 2;
-    position_.bottom += text_indent * 2;
+    int32_t height = list_->get_item_height() * items.size();
 
-    position_.move(old_position.left, old_position.top);*/
+    position_ = { 0, 0, max_text_width, height };
 
 #ifdef _WIN32
     ReleaseDC(ctx.hwnd, ctx.dc);
