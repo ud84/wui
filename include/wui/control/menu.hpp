@@ -15,6 +15,8 @@
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
 
+#include <wui/control/list.hpp>
+
 #include <string>
 #include <vector>
 #include <functional>
@@ -24,7 +26,6 @@ namespace wui
 {
 
 class image;
-class list;
 
 struct menu_item;
 
@@ -116,16 +117,20 @@ private:
     rect position_;
 
     std::weak_ptr<window> parent;
+    std::string my_subscriber_id;
 
     std::vector<menu_item> items;
 
-    int32_t item_height;
     int32_t max_width;
 
     bool showed_;
     bool size_updated;
 
+    void receive_event(const event &ev);
+
     void update_size();
+
+    void draw_list_item(wui::graphic &gr, int32_t nItem, const wui::rect &itemRect_, list::item_state state, const std::vector<list::column> &columns);
 };
 
 }

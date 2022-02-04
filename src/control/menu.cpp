@@ -29,12 +29,17 @@ menu::menu(std::shared_ptr<i_theme> theme__)
     theme_(theme__),
     position_(),
     parent(),
+    my_subscriber_id(),
     items(),
-    item_height(20),
     max_width(-1),
     showed_(false),
     size_updated(false)
 {
+    list_->set_draw_callback(std::bind(&menu::draw_list_item, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+    list_->set_mode(list::list_mode::auto_select);
+
+    list_->set_item_height(24);
+    list_->set_item_count(100);
 }
 
 menu::~menu()
@@ -48,31 +53,66 @@ menu::~menu()
 
 void menu::draw(graphic &gr, const rect &)
 {
-    list_->draw(gr, { 0 });
 }
 
 void menu::set_position(const rect &position__, bool redraw)
 {
-    //update_control_position(position_, position__, showed_ && redraw, parent);
     list_->set_position(position__, redraw);
 }
 
 rect menu::position() const
 {
-    //return get_control_position(position_, parent);
     return list_->position();
 }
 
 void menu::set_parent(std::shared_ptr<window> window)
 {
-    list_->set_parent(window);
     parent = window;
+
+    if (window)
+    {
+        window->add_control(list_, { 0 });
+
+        my_subscriber_id = window->subscribe(std::bind(&menu::receive_event, this, std::placeholders::_1), 
+            static_cast<event_type>(static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)));
+    }
 }
 
 void menu::clear_parent()
 {
-    list_->clear_parent();
+    auto parent_ = parent.lock();
+    if (parent_)
+    {
+        list_->clear_parent();
+        parent_->unsubscribe(my_subscriber_id);
+    }
+
     parent.reset();
+}
+
+void menu::receive_event(const event &ev)
+{
+    switch (ev.type)
+    {
+        case event_type::mouse:
+            if (ev.mouse_event_.type == mouse_event_type::left_up && !list_->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }))
+            {
+                if (list_->showed())
+                {
+                    list_->hide();
+                }
+            }
+        break;
+        case event_type::keyboard:
+            if (ev.keyboard_event_.type == keyboard_event_type::up && ev.keyboard_event_.key[0] == vk_esc)
+            {
+                if (list_->showed())
+                {
+                    list_->hide();
+                }
+            }
+        break;
+    }
 }
 
 bool menu::topmost() const
@@ -190,7 +230,7 @@ void menu::delete_item(int32_t id)
 
 void menu::set_item_height(int32_t item_height_)
 {
-    item_height = item_height_;
+    list_->set_item_height(item_height_);
     size_updated = false;
 }
 
@@ -258,6 +298,41 @@ void menu::show_on_control(i_control &control, int32_t indent)
 
     list_->set_position(pos, true);
     list_->show();
+}
+
+void menu::draw_list_item(graphic &gr, int32_t nItem, const rect &itemRect_, list::item_state state, const std::vector<list::column> &columns)
+{
+    auto border_width = theme_dimension(list::tc, list::tv_border_width);
+
+    auto itemRect = itemRect_;
+
+    if (itemRect.bottom > list_->position().bottom - border_width)
+    {
+        itemRect.bottom = list_->position().bottom - border_width;
+    }
+
+    if (state == list::item_state::active)
+    {
+        gr.draw_rect(itemRect, theme_color(list::tc, list::tv_active_item));
+    }
+    else if (state == list::item_state::selected)
+    {
+        gr.draw_rect(itemRect, theme_color(list::tc, list::tv_selected_item));
+    }
+
+    auto textColor = make_color(10, 10, 10);// theme_color(input::tc, input::tv_text);
+    auto font = theme_font(list::tc, list::tv_font);
+    auto text_indent = theme_dimension(list::tc, list::tv_text_indent);
+
+    auto textHeight = gr.measure_text("Qq", font).height();
+    if (textHeight + text_indent <= itemRect.height())
+    {
+        auto textRect = itemRect_;
+
+        textRect.move(text_indent, (itemRect_.height() - textHeight) / 2);
+
+        gr.draw_text(textRect, "Item " + std::to_string(nItem), textColor, font);
+    }
 }
 
 }

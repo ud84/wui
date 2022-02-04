@@ -25,6 +25,7 @@ enum class keyboard_event_type
 #ifdef _WIN32
 static const uint8_t vk_tab = 0x09;
 static const uint8_t vk_return = 0x0D;
+static const uint8_t vk_esc = 0x1B;
 
 static const uint8_t vk_back = 0x08;
 static const uint8_t vk_del = 0x2E;
@@ -49,6 +50,7 @@ static const uint8_t vk_insert = 0x2D;
 #elif __linux__
 static const uint8_t vk_tab = 0x17;
 static const uint8_t vk_return = 0x24;
+static const uint8_t vk_esc = 0x1b;
 
 static const uint8_t vk_back = 0x16;
 static const uint8_t vk_del = 0x77;

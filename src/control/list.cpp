@@ -25,7 +25,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     position_(),
     parent(),
     my_subscriber_id(),
-    showed_(true), enabled_(true), focused_(false),
+    showed_(true), enabled_(true), focused_(false), topmost_(false),
     columns(),
     mode(list_mode::simple),
     item_height(0), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
@@ -238,8 +238,13 @@ void list::receive_event(const event &ev)
                 if (slider_scrolling)
                 {
                     int32_t diff = prev_scroll_pos - ev.mouse_event_.y;
-                    double item_on_scroll_height = (position_.height() - full_scrollbar_width * 2) / (item_count - get_visible_item_count());
+                    double item_on_scroll_height = static_cast<double>(position_.height() - full_scrollbar_width * 2) / (item_count - get_visible_item_count());
                     double diff_abs = labs(diff);
+
+                    if (item_on_scroll_height == 0.)
+                    {
+                        return;
+                    }
                     
                     auto count = static_cast<int32_t>(floor(diff_abs / item_on_scroll_height));
 
@@ -395,7 +400,7 @@ void list::clear_parent()
 
 bool list::topmost() const
 {
-    return false;
+    return topmost_;
 }
 
 void list::set_focus()
@@ -496,6 +501,10 @@ void list::update_columns(const std::vector<column> &columns_)
 void list::set_mode(list_mode mode_)
 {
     mode = mode_;
+    if (mode == list_mode::auto_select)
+    {
+        topmost_ = true;
+    }
 }
 
 void list::select_item(int32_t n_item)
