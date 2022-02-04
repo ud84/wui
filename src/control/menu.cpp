@@ -111,7 +111,7 @@ void menu::receive_event(const event &ev)
         case event_type::mouse:
             if (ev.mouse_event_.type == mouse_event_type::left_up && 
                 !list_->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }) &&
-                !activation_control->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }))
+                activation_control && !activation_control->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }))
             {
                 if (list_->showed())
                 {

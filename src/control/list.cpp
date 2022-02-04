@@ -28,7 +28,7 @@ list::list(std::shared_ptr<i_theme> theme__)
     showed_(true), enabled_(true), focused_(false), topmost_(false),
     columns(),
     mode(list_mode::simple),
-    item_height(24), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
+    item_height(28), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
     worker_action_(worker_action::undefined),
     worker(),
     progress(0),
