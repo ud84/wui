@@ -25,7 +25,7 @@ namespace wui
 
 menu::menu(std::shared_ptr<i_theme> theme__)
     : list_theme(make_custom_theme()),
-    list_(new list(theme__)),
+    list_(new list(list_theme)),
     theme_(theme__),
     position_(),
     parent(),
@@ -35,6 +35,8 @@ menu::menu(std::shared_ptr<i_theme> theme__)
     showed_(false),
     size_updated(false)
 {
+    update_list_theme();
+
     list_->set_draw_callback(std::bind(&menu::draw_list_item, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
     list_->set_item_activate_callback(std::bind(&menu::activate_list_item, this, std::placeholders::_1));
     list_->set_mode(list::list_mode::auto_select);
@@ -86,6 +88,20 @@ void menu::clear_parent()
     }
 
     parent.reset();
+}
+
+void menu::update_list_theme()
+{
+    list_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
+
+    list_theme->set_color(list::tc, list::tv_background, theme_color(tc, tv_background, theme_));
+    list_theme->set_color(list::tc, list::tv_border, theme_color(tc, tv_border, theme_));
+    list_theme->set_color(list::tc, list::tv_focused_border, theme_color(tc, tv_border, theme_));
+    list_theme->set_dimension(list::tc, list::tv_border_width, theme_dimension(tc, tv_border_width, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar, theme_color(tc, tv_scrollbar, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar_slider, theme_color(tc, tv_scrollbar_slider, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar_slider_acive, theme_color(tc, tv_scrollbar_slider_acive, theme_));
+    list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tc, tv_round, theme_));
 }
 
 void menu::receive_event(const event &ev)
@@ -145,9 +161,7 @@ void menu::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-    //list_theme->load_theme(*theme__);
-
-    //list_->update_theme(list_theme);
+    update_list_theme();
 
     size_updated = false;
 }
@@ -270,12 +284,12 @@ void menu::update_size()
 #endif
     }
 
-    /*graphic mem_gr(ctx);
+    graphic mem_gr(ctx);
     mem_gr.init(rect{ 0, 0, 1024, 500 }, 0);
 
     auto font_ = theme_font(tc, tv_font, theme_);
 
-    auto old_position = position_;*/
+    auto old_position = position_;
 
     position_ = { 0, 0, 100, 100 }; //mem_gr.measure_text(text, font_);
 
@@ -304,23 +318,23 @@ void menu::show_on_control(i_control &control, int32_t indent)
 
 void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &columns)
 {
-    auto border_width = theme_dimension(list::tc, list::tv_border_width);
+    auto border_width = theme_dimension(tc, tv_border_width);
 
     auto item_rect = item_rect_;
 
     if (item_rect.bottom > list_->position().bottom - border_width)
     {
-        item_rect.bottom = list_->position().bottom - border_width - 1;
+        item_rect.bottom = list_->position().bottom - border_width;
     }
 
     if (state == list::item_state::selected)
     {
-        gr.draw_rect(item_rect, theme_color(list::tc, list::tv_selected_item));
+        gr.draw_rect({ item_rect.left, item_rect.top + 1, item_rect.right, item_rect.bottom - 1 }, theme_color(tc, tv_selected_item));
     }
 
-    auto text_color = make_color(10, 10, 10);// theme_color(input::tc, input::tv_text);
-    auto font = theme_font(list::tc, list::tv_font);
-    auto text_indent = theme_dimension(list::tc, list::tv_text_indent);
+    auto text_color = theme_color(tc, tv_text);
+    auto font = theme_font(tc, tv_font);
+    auto text_indent = theme_dimension(tc, tv_text_indent);
 
     auto &item = items[n_item];
 
@@ -336,7 +350,7 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
 
     if (item.state == menu_item_state::separator && item_rect_.bottom <= list_->position().bottom - border_width)
     {
-        gr.draw_line({ item_rect_.left, item_rect_.bottom, item_rect_.right, item_rect_.bottom }, make_color(10, 10, 10));//theme_color(input::tc, input::tv_text));
+        gr.draw_line({ item_rect_.left, item_rect_.bottom, item_rect_.right, item_rect_.bottom }, text_color);
     }
 }
 

@@ -111,8 +111,11 @@ public:
     static constexpr const char *tv_border = "border";
     static constexpr const char *tv_border_width = "border_width";
     static constexpr const char *tv_text = "text";
-    static constexpr const char *tv_selected = "selected";
-    static constexpr const char *tv_select_active = "select_active";
+    static constexpr const char *tv_text_indent = "text_indent";
+    static constexpr const char *tv_selected_item = "selected_item";
+    static constexpr const char *tv_scrollbar = "scrollbar";
+    static constexpr const char *tv_scrollbar_slider = "scrollbar_slider";
+    static constexpr const char *tv_scrollbar_slider_acive = "scrollbar_slider_active";
     static constexpr const char *tv_round = "round";
     static constexpr const char *tv_font = "font";
 
@@ -133,6 +136,8 @@ private:
 
     bool showed_;
     bool size_updated;
+
+    void update_list_theme();
 
     void receive_event(const event &ev);
 

@@ -67,6 +67,23 @@
       }
     },
     {
+      "type": "menu",
+      "background": "#eaf0ff",
+      "border": "#9ba7b7",
+      "border_width": 1,
+      "text_indent": 5,
+      "text": "#1b293e",
+      "scrollbar": "#e8e8ec",
+      "scrollbar_slider": "#c2c3c9",
+      "scrollbar_slider_active": "#686868",
+      "selected_item": "#fdf4bf",
+      "round": 0,
+      "font": {
+        "name": "Segoe UI",
+        "size": 18
+      }
+    },
+    {
       "type": "tooltip",
       "background": "#f1f2f7",
       "border": "#767676",
