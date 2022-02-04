@@ -180,6 +180,8 @@ private:
 
     void draw_items(graphic &gr_);
 
+    bool has_scrollbar();
+
     void draw_scrollbar(graphic &gr_);
     void draw_arrow_up(graphic &gr, rect button_pos);
     void draw_arrow_down(graphic &gr, rect button_pos);

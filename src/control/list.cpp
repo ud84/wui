@@ -93,8 +93,11 @@ void list::receive_event(const event &ev)
                 {
                     set_cursor(parent_->context(), cursor::default_);
                 }
-                scrollbar_state_ = scrollbar_state::tiny;
-                redraw();
+                if (has_scrollbar())
+                {
+                    scrollbar_state_ = scrollbar_state::tiny;
+                    redraw();
+                }
             }
             break;
             case mouse_event_type::leave:
@@ -206,7 +209,10 @@ void list::receive_event(const event &ev)
             }
             break;
             case mouse_event_type::move:
-                if (ev.mouse_event_.x > position().right - full_scrollbar_width - theme_dimension(tc, tv_border_width, theme_) * 2)
+            {
+                auto has_scrollbar_ = has_scrollbar();
+
+                if (has_scrollbar_ && ev.mouse_event_.x > position().right - full_scrollbar_width - theme_dimension(tc, tv_border_width, theme_) * 2)
                 {
                     if (scrollbar_state_ != scrollbar_state::full)
                     {
@@ -226,7 +232,7 @@ void list::receive_event(const event &ev)
                         update_selected_item(ev.mouse_event_.y);
                     }
 
-                    if (scrollbar_state_ == scrollbar_state::full)
+                    if (has_scrollbar_ && scrollbar_state_ == scrollbar_state::full)
                     {
                         scrollbar_state_ = scrollbar_state::tiny;
                         redraw();
@@ -243,7 +249,7 @@ void list::receive_event(const event &ev)
                     {
                         return;
                     }
-                    
+
                     auto count = static_cast<int32_t>(floor(diff_abs / item_on_scroll_height));
 
                     rect slider_rect = { 0 };
@@ -281,6 +287,7 @@ void list::receive_event(const event &ev)
                         prev_scroll_pos = ev.mouse_event_.y;
                     }
                 }
+            }
             break;
             case mouse_event_type::wheel:
                 if (ev.mouse_event_.wheel_delta > 0)
@@ -701,6 +708,11 @@ void list::draw_items(graphic &gr_)
 
         draw_callback(gr_, item, item_rect, state, columns);
     }
+}
+
+bool list::has_scrollbar()
+{
+    return get_visible_item_count() < item_count;
 }
 
 void list::draw_scrollbar(graphic &gr)
