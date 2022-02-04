@@ -314,15 +314,9 @@ void window::receive_event(const event &ev)
             auto control = get_focused();
             if (control)
             {
-                if (!send_event_to_control(control, ev))
-                {
-                    send_event_to_plains(ev);
-                }
+                send_event_to_control(control, ev);
             }
-            else
-            {
-                send_event_to_plains(ev);
-            }
+            send_event_to_plains(ev);
         }
         break;
         case event_type::internal:
@@ -831,6 +825,8 @@ bool window::send_mouse_event(const mouse_event &ev)
         active_control.reset();
     }
 
+    bool result = false;
+
     auto end = controls.rend();
     for (auto control = controls.rbegin(); control != end; ++control)
     {
@@ -843,7 +839,7 @@ bool window::send_mouse_event(const mouse_event &ev)
                     set_focused(*control);
                 }
 
-                return send_event_to_control((*control), { event_type::mouse, ev });
+                result = send_event_to_control((*control), { event_type::mouse, ev });
             }
             else
             {
@@ -856,20 +852,23 @@ bool window::send_mouse_event(const mouse_event &ev)
                 if (ev.y < 5 || (ev.y < 24 && ev.x > position().width() - 5)) /// control buttons border
                 {
                     active_control.reset();
-                    return false;
+                    result = false;
                 }
+                else
+                {
+                    active_control = *control;
 
-                active_control = *control;
-
-                mouse_event me{ mouse_event_type::enter };
-                return send_event_to_control((*control), { event_type::mouse, me });
+                    mouse_event me{ mouse_event_type::enter };
+                    result = send_event_to_control((*control), { event_type::mouse, me });
+                }
             }
+            break;
         }
     }
 
     send_event_to_plains({ event_type::mouse, ev });
 
-    return false;
+    return result;
 }
 
 void window::change_focus()
@@ -1791,10 +1790,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->send_event_to_control(control, ev);
             }
-            else
-            {
-                wnd->send_event_to_plains(ev);
-            }
+            wnd->send_event_to_plains(ev);
         }
         break;
         case WM_KEYUP:
@@ -1811,10 +1807,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->send_event_to_control(control, ev);
             }
-            else
-            {
-                wnd->send_event_to_plains(ev);
-            }
+            wnd->send_event_to_plains(ev);
         }
         break;
         case WM_CHAR:
@@ -1834,10 +1827,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 {
                     wnd->send_event_to_control(control, ev);
                 }
-                else
-                {
-                    wnd->send_event_to_plains(ev);
-                }
+                wnd->send_event_to_plains(ev);
             }
         break;
         case WM_DESTROY:
@@ -2214,10 +2204,7 @@ void window::process_events()
                     {
                         send_event_to_control(control, ev);
                     }
-                    else
-                    {
-                        send_event_to_plains(ev);
-                    }
+                    send_event_to_plains(ev);
                 }
                 else
                 {
@@ -2238,10 +2225,7 @@ void window::process_events()
                         {
                             send_event_to_control(control, ev);
                         }
-                        else
-                        {
-                            send_event_to_plains(ev);
-                        }
+                        send_event_to_plains(ev);
                     }
                 }
             }
@@ -2265,10 +2249,7 @@ void window::process_events()
                 {
                     send_event_to_control(control, ev);
                 }
-                else
-                {
-                    send_event_to_plains(ev);
-                }
+                send_event_to_plains(ev);
             }
             break;
             case XCB_CONFIGURE_NOTIFY:

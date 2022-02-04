@@ -109,7 +109,9 @@ void menu::receive_event(const event &ev)
     switch (ev.type)
     {
         case event_type::mouse:
-            if (ev.mouse_event_.type == mouse_event_type::left_up && !list_->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }))
+            if (ev.mouse_event_.type == mouse_event_type::left_up && 
+                !list_->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }) &&
+                !activation_control->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }))
             {
                 if (list_->showed())
                 {
@@ -316,11 +318,13 @@ void menu::update_size()
     size_updated = true;
 }
 
-void menu::show_on_control(i_control &control, int32_t indent)
+void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent)
 {
+    activation_control = control;
+
     update_size();
 
-    auto pos = get_best_position_on_control(parent, control.position(), position_, indent);
+    auto pos = get_best_position_on_control(parent, control->position(), position_, indent);
 
     list_->set_position(pos, true);
     list_->show();

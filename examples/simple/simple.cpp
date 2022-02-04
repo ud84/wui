@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
     window->add_control(menu, { 0 });
 
     std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() {}, wui::button_view::only_image, IMG_SETTINGS, 32, controlButtonTheme));
-    menuButton->set_callback([&menu, &menuButton]() { menu->show_on_control(*menuButton, 5); });
+    menuButton->set_callback([&menu, &menuButton]() { menu->show_on_control(menuButton, 5); });
     menuButton->disable_focusing();
     window->add_control(menuButton, { 0 });
 
