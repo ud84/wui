@@ -379,12 +379,6 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent)
 
     auto pos = get_best_position_on_control(parent, control->position(), position_, indent);
 
-    auto parent_ = parent.lock();
-    if (parent_ && pos.bottom > parent_->position().height())
-    {
-        pos.bottom = parent_->position().height();
-    }
-
     list_->set_position(pos, true);
     list_->show();
 }

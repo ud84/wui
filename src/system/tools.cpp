@@ -232,6 +232,15 @@ rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &cont
         out_pos.put(control_pos.left + indent, control_pos.top + indent); // on the control
     }
 
+    if (out_pos.bottom > parent_pos.height())
+    {
+        out_pos.put(out_pos.left, 0);
+    }
+    if (out_pos.bottom > parent_pos.height())
+    {
+        out_pos.bottom = parent_pos.height();
+    }
+
     return out_pos;
 }
 
