@@ -436,11 +436,12 @@ void menu::activate_list_item(int32_t n_item)
     {
         if (item->state != menu_item_state::expanded)
         {
+            item->prev_state = item->state;
             item->state = menu_item_state::expanded;
         }
         else
         {
-            item->state = menu_item_state::normal;
+            item->state = item->prev_state;
         }
         size_updated = false;
         list_->set_item_count(calc_items_count(items));

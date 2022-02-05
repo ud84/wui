@@ -55,7 +55,7 @@ struct menu_item
 
     std::function<void(int32_t)> click_callback;
 
-    int32_t level; /// don't fill
+    int32_t level; menu_item_state prev_state; /// don't fill
 
     inline bool operator==(const int32_t id_)
     {
