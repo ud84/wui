@@ -258,6 +258,19 @@ void menu::set_max_width(int32_t width)
     size_updated = false;
 }
 
+int32_t menu::calc_items_count(const menu_items_t &items)
+{
+    int32_t count = 0;
+    for (auto &item : items)
+    {
+        ++count;
+        if (!item.children.empty())
+        {
+            count += calc_items_count(item.children);
+        }
+    }
+}
+
 void menu::update_size()
 {
     if (size_updated || items.empty())

@@ -139,6 +139,8 @@ private:
     bool showed_;
     bool size_updated;
 
+    int32_t calc_items_count(const menu_items_t &items);
+
     void update_list_theme();
 
     void receive_event(const event &ev);
