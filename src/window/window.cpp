@@ -825,6 +825,8 @@ bool window::send_mouse_event(const mouse_event &ev)
         active_control.reset();
     }
 
+    send_event_to_plains({ event_type::mouse, ev });
+
     auto send_mouse_event_to_control = [this](std::shared_ptr<wui::i_control> &send_to_control,
         const mouse_event &ev_) noexcept -> bool
     {
@@ -859,8 +861,6 @@ bool window::send_mouse_event(const mouse_event &ev)
             }
         }
     };
-
-    send_event_to_plains({ event_type::mouse, ev });
 
     auto end = controls.rend();
     for (auto control = controls.rbegin(); control != end; ++control)
