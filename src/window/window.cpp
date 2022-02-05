@@ -825,50 +825,61 @@ bool window::send_mouse_event(const mouse_event &ev)
         active_control.reset();
     }
 
-    bool result = false;
+    auto send_mouse_event_to_control = [this](std::shared_ptr<wui::i_control> &send_to_control,
+        const mouse_event &ev_) noexcept -> bool
+    {
+        if (active_control == send_to_control)
+        {
+            if (send_to_control->focusing() && ev_.type == mouse_event_type::left_up)
+            {
+                set_focused(send_to_control);
+            }
+
+            return send_event_to_control(send_to_control, { event_type::mouse, ev_ });
+        }
+        else
+        {
+            if (active_control)
+            {
+                mouse_event me{ mouse_event_type::leave };
+                send_event_to_control(active_control, { event_type::mouse, me });
+            }
+
+            if (ev_.y < 5 || (ev_.y < 24 && ev_.x > position().width() - 5)) /// control buttons border
+            {
+                active_control.reset();
+                return false;
+            }
+            else
+            {
+                active_control = send_to_control;
+
+                mouse_event me{ mouse_event_type::enter };
+                return send_event_to_control(send_to_control, { event_type::mouse, me });
+            }
+        }
+    };
+
+    send_event_to_plains({ event_type::mouse, ev });
 
     auto end = controls.rend();
     for (auto control = controls.rbegin(); control != end; ++control)
     {
-        if ((*control)->showed() && (*control)->position().in(ev.x, ev.y))
+        if ((*control)->topmost() && (*control)->showed() && (*control)->position().in(ev.x, ev.y))
         {
-            if (active_control == *control)
-            {
-                if ((*control)->focusing() && ev.type == mouse_event_type::left_up)
-                {
-                    set_focused(*control);
-                }
-
-                result = send_event_to_control((*control), { event_type::mouse, ev });
-            }
-            else
-            {
-                if (active_control)
-                {
-                    mouse_event me{ mouse_event_type::leave };
-                    send_event_to_control(active_control, { event_type::mouse, me });
-                }
-                
-                if (ev.y < 5 || (ev.y < 24 && ev.x > position().width() - 5)) /// control buttons border
-                {
-                    active_control.reset();
-                    result = false;
-                }
-                else
-                {
-                    active_control = *control;
-
-                    mouse_event me{ mouse_event_type::enter };
-                    result = send_event_to_control((*control), { event_type::mouse, me });
-                }
-            }
-            break;
+            return send_mouse_event_to_control(*control, ev);
         }
     }
 
-    send_event_to_plains({ event_type::mouse, ev });
+    for (auto control = controls.rbegin(); control != end; ++control)
+    {
+        if ((*control)->showed() && (*control)->position().in(ev.x, ev.y))
+        {
+            return send_mouse_event_to_control(*control, ev);
+        }
+    }
 
-    return result;
+    return false;
 }
 
 void window::change_focus()
