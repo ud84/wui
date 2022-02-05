@@ -250,7 +250,7 @@ void list::receive_event(const event &ev)
                         return;
                     }
 
-                    auto count = static_cast<int32_t>(floor(diff_abs / item_on_scroll_height));
+                    auto count = static_cast<int32_t>(round(diff_abs / item_on_scroll_height));
 
                     rect slider_rect = { 0 };
                     calc_scrollbar_params(nullptr, nullptr, nullptr, &slider_rect);

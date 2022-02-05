@@ -92,7 +92,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         list->update_columns({ { 30, "##" }, { 100, "Name" }, { 100, "Role" } });
         
         list->set_item_height(32);
-        list->set_item_count(100);
+        list->set_item_count(10);
 
         window->add_control(list, { 0 });
         window->add_control(button1, { 0 });
