@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
     std::shared_ptr<wui::menu> menu(new wui::menu());
 
     menu->set_items({
-            { 0, wui::menu_item_state::separator, "Change to white mode", "", nullptr, {}, [](auto i) {} },
+            { 0, wui::menu_item_state::separator, "Bla bla bla", "", nullptr, {}, [](auto i) {} },
             { 1, wui::menu_item_state::normal, "Expand me 1", "", nullptr, {
                     { 11, wui::menu_item_state::normal, "Expanded 1.1", "", nullptr, {}, [](auto i) {} },
                     { 12, wui::menu_item_state::normal, "Expanded 1.2", "", nullptr, {

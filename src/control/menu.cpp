@@ -416,7 +416,7 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
 
         text_rect.move(item_rect.height() + item_rect.height() * item->level, (item_rect_.height() - text_height) / 2);
 
-        gr.draw_text(text_rect, item->text + (item->children.empty() ? "" : "🔽"), text_color, font);
+        gr.draw_text(text_rect, item->text + (item->children.empty() ? "" : " ->"), text_color, font);
     }
 
     if (item->state == menu_item_state::separator && item_rect_.bottom <= list_->position().bottom - border_width)
