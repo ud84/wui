@@ -262,9 +262,9 @@ void list::receive_event(const event &ev)
                             scroll_up();
                         }
 
-                        if (slider_rect.top > ev.mouse_event_.y)
+                        if (slider_rect.bottom < ev.mouse_event_.y)
                         {
-                            prev_scroll_pos = ev.mouse_event_.y + (slider_rect.top - ev.mouse_event_.y);
+                            prev_scroll_pos = ev.mouse_event_.y - (ev.mouse_event_.y - slider_rect.bottom);
                             return;
                         }
                     }
@@ -275,9 +275,9 @@ void list::receive_event(const event &ev)
                             scroll_down();
                         }
 
-                        if (slider_rect.bottom < ev.mouse_event_.y)
+                        if (slider_rect.top > ev.mouse_event_.y)
                         {
-                            prev_scroll_pos = ev.mouse_event_.y - (ev.mouse_event_.y - slider_rect.bottom);
+                            prev_scroll_pos = ev.mouse_event_.y + (slider_rect.top - ev.mouse_event_.y);
                             return;
                         }
                     }
