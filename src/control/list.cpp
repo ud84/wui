@@ -624,7 +624,7 @@ void list::redraw_item(int32_t item)
 void list::draw_titles(graphic &gr_)
 {
     auto font = theme_font(tc, tv_font, theme_);
-    auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
+    auto text_indent = 5;
 
     if (title_height == -1)
     {

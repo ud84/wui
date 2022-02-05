@@ -37,6 +37,36 @@ int32_t calc_items_count(const menu_items_t &items)
     return count;
 }
 
+menu_item *get_item(menu_items_t &items, int32_t n_item, int32_t pos = 0, int32_t level = 0)
+{
+    int32_t count = pos;
+    for (auto &item : items)
+    {
+        if (count == n_item)
+        {
+            item.level = level;
+            return &item;
+        }
+
+        if (!item.children.empty() && item.state == menu_item_state::expanded)
+        {
+            auto children_count = calc_items_count(item.children);
+            if (n_item <= count + children_count)
+            {
+                return get_item(item.children, n_item - 1, count, level + 1);
+            }
+            else
+            {
+                count += children_count;
+            }
+        }
+
+        ++count;
+    }
+
+    return nullptr;
+}
+
 menu::menu(std::shared_ptr<i_theme> theme__)
     : list_theme(make_custom_theme()),
     list_(new list(list_theme)),
@@ -304,12 +334,21 @@ void menu::update_size()
     mem_gr.init(rect{ 0, 0, 1024, 500 }, 0);
 
     auto font_ = theme_font(tc, tv_font, theme_);
-    auto text_indent = theme_dimension(tc, tv_text_indent);
 
     int32_t max_text_width = 0;
-    for (auto &item : items)
+
+    auto items_count = calc_items_count(items);
+    for (int i = 0; i != items_count; ++i)
     {
-        auto width = mem_gr.measure_text(item.text, font_).right + text_indent * 2;
+        auto *item = get_item(items, i);
+        if (!item)
+        {
+            continue;
+        }
+
+        auto width = mem_gr.measure_text(item->text, font_).right +
+            (list_->get_item_height() * 2) +
+            (item->level * list_->get_item_height());
         if (width > max_text_width)
         {
             max_text_width = width;
@@ -321,7 +360,7 @@ void menu::update_size()
         max_text_width = max_width;
     }
 
-    int32_t height = list_->get_item_height() * calc_items_count(items);
+    int32_t height = list_->get_item_height() * items_count;
 
     position_ = { 0, 0, max_text_width, height };
 
@@ -340,12 +379,24 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent)
 
     auto pos = get_best_position_on_control(parent, control->position(), position_, indent);
 
+    auto parent_ = parent.lock();
+    if (parent_ && pos.bottom > parent_->position().height())
+    {
+        pos.bottom = parent_->position().height();
+    }
+
     list_->set_position(pos, true);
     list_->show();
 }
 
 void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &columns)
 {
+    auto item = get_item(items, n_item);
+    if (!item)
+    {
+        return;
+    }
+
     auto border_width = theme_dimension(tc, tv_border_width);
 
     auto item_rect = item_rect_;
@@ -362,21 +413,18 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
 
     auto text_color = theme_color(tc, tv_text);
     auto font = theme_font(tc, tv_font);
-    auto text_indent = theme_dimension(tc, tv_text_indent);
-
-    auto &item = items[n_item];
 
     auto text_height = gr.measure_text("Qq", font).height();
-    if (text_height + text_indent <= item_rect.height())
+    if (text_height <= item_rect.height())
     {
         auto text_rect = item_rect_;
 
-        text_rect.move(text_indent, (item_rect_.height() - text_height) / 2);
+        text_rect.move(item_rect.height() + item_rect.height() * item->level, (item_rect_.height() - text_height) / 2);
 
-        gr.draw_text(text_rect, item.text, text_color, font);
+        gr.draw_text(text_rect, item->text, text_color, font);
     }
 
-    if (item.state == menu_item_state::separator && item_rect_.bottom <= list_->position().bottom - border_width)
+    if (item->state == menu_item_state::separator && item_rect_.bottom <= list_->position().bottom - border_width)
     {
         gr.draw_line({ item_rect_.left, item_rect_.bottom, item_rect_.right, item_rect_.bottom }, text_color);
     }
@@ -384,25 +432,30 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
 
 void menu::activate_list_item(int32_t n_item)
 {
-    auto &item = items[n_item];
-    if (!item.children.empty())
+    auto item = get_item(items, n_item);
+    if (!item)
     {
-        if (item.state != menu_item_state::expanded)
+        return;
+    }
+
+    if (!item->children.empty())
+    {
+        if (item->state != menu_item_state::expanded)
         {
-            item.state = menu_item_state::expanded;
+            item->state = menu_item_state::expanded;
         }
         else
         {
-            item.state = menu_item_state::normal;
+            item->state = menu_item_state::normal;
         }
         size_updated = false;
         list_->set_item_count(calc_items_count(items));
         show_on_control(activation_control, 5);
     }
 
-    if (item.click_callback)
+    if (item->click_callback)
     {
-        item.click_callback(n_item);
+        item->click_callback(n_item);
     }
 }
 

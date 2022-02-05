@@ -102,7 +102,6 @@ public:
     static constexpr const char *tv_border = "border";
     static constexpr const char *tv_focused_border = "focused_border";
     static constexpr const char *tv_border_width = "border_width";
-    static constexpr const char *tv_text_indent = "text_indent";
     static constexpr const char *tv_title = "title";
     static constexpr const char *tv_title_text = "title_text";
     static constexpr const char *tv_scrollbar = "scrollbar";

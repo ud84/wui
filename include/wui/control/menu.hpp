@@ -55,6 +55,8 @@ struct menu_item
 
     std::function<void(int32_t)> click_callback;
 
+    int32_t level; /// don't fill
+
     inline bool operator==(const int32_t id_)
     {
         return id == id_;
@@ -111,7 +113,6 @@ public:
     static constexpr const char *tv_border = "border";
     static constexpr const char *tv_border_width = "border_width";
     static constexpr const char *tv_text = "text";
-    static constexpr const char *tv_text_indent = "text_indent";
     static constexpr const char *tv_selected_item = "selected_item";
     static constexpr const char *tv_scrollbar = "scrollbar";
     static constexpr const char *tv_scrollbar_slider = "scrollbar_slider";
