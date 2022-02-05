@@ -134,9 +134,6 @@ private:
 
         scroll_up,
         scroll_down,
-        
-        select_up,
-        select_down,
 
         scrollbar_show
     };

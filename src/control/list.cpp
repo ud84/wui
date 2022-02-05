@@ -349,10 +349,46 @@ void list::receive_event(const event &ev)
                     }
                     break;
                     case vk_up:
-                        start_work(worker_action::select_up);
+                        if (selected_item_ != 0)
+                        {
+                            --selected_item_;
+
+                            if (selected_item_ != 0 && selected_item_ < start_item + 1)
+                            {
+                                scroll_up();
+                            }
+                            else
+                            {
+                                redraw();
+                            }
+
+                            if (item_change_callback)
+                            {
+                                item_change_callback(selected_item_);
+                            }
+                        }
                     break;
                     case vk_down:
-                        start_work(worker_action::select_down);
+                        if (selected_item_ != item_count)
+                        {
+                            ++selected_item_;
+
+                            auto visible_item_count = get_visible_item_count();
+
+                            if (selected_item_ > visible_item_count + start_item - 1)
+                            {
+                                scroll_down();
+                            }
+                            else
+                            {
+                                redraw();
+                            }
+
+                            if (item_change_callback)
+                            {
+                                item_change_callback(selected_item_);
+                            }
+                        }
                     break;
                 }
             break;
@@ -948,50 +984,6 @@ void list::work()
         break;
         case worker_action::scroll_down:
             scroll_down();
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        break;
-        case worker_action::select_up:
-            if (selected_item_ != 0)
-            {
-                --selected_item_;
-
-                if (selected_item_ != 0 && selected_item_ < start_item + 1)
-                {
-                    scroll_up();
-                }
-                else
-                {
-                    redraw();
-                }
-
-                if (item_change_callback)
-                {
-                    item_change_callback(selected_item_);
-                }
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        break;
-        case worker_action::select_down:
-            if (selected_item_ != item_count)
-            {
-                ++selected_item_;
-
-                auto visible_item_count = get_visible_item_count();
-
-                if (selected_item_ > visible_item_count + start_item - 1)
-                {
-                    scroll_down();
-                }
-                else
-                {
-                    redraw();
-                }
-
-                if (item_change_callback)
-                {
-                    item_change_callback(selected_item_);
-                }
-            }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         break;
         case worker_action::scrollbar_show:
