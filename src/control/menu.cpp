@@ -23,6 +23,20 @@
 namespace wui
 {
 
+int32_t calc_items_count(const menu_items_t &items)
+{
+    int32_t count = 0;
+    for (auto &item : items)
+    {
+        ++count;
+        if (!item.children.empty() && item.state == menu_item_state::expanded)
+        {
+            count += calc_items_count(item.children);
+        }
+    }
+    return count;
+}
+
 menu::menu(std::shared_ptr<i_theme> theme__)
     : list_theme(make_custom_theme()),
     list_(new list(list_theme)),
@@ -208,7 +222,7 @@ bool menu::enabled() const
 void menu::set_items(const menu_items_t &items_)
 {
     items = items_;
-    list_->set_item_count(static_cast<int32_t>(items.size()));
+    list_->set_item_count(calc_items_count(items));
 }
 
 void menu::update_item(const menu_item &mi)
@@ -218,7 +232,7 @@ void menu::update_item(const menu_item &mi)
     {
         *it = mi;
     }
-    list_->set_item_count(static_cast<int32_t>(items.size()));
+    list_->set_item_count(calc_items_count(items));
 }
 
 void menu::swap_items(int32_t first_item_id, int32_t second_item_id)
@@ -232,7 +246,7 @@ void menu::swap_items(int32_t first_item_id, int32_t second_item_id)
             std::swap(*first_it, *second_it);
         }
     }
-    list_->set_item_count(static_cast<int32_t>(items.size()));
+    list_->set_item_count(calc_items_count(items));
 }
 
 void menu::delete_item(int32_t id)
@@ -243,7 +257,7 @@ void menu::delete_item(int32_t id)
         items.erase(it);
         size_updated = false;
     }
-    list_->set_item_count(static_cast<int32_t>(items.size()));
+    list_->set_item_count(calc_items_count(items));
 }
 
 void menu::set_item_height(int32_t item_height_)
@@ -256,19 +270,6 @@ void menu::set_max_width(int32_t width)
 {
     max_width = width;
     size_updated = false;
-}
-
-int32_t menu::calc_items_count(const menu_items_t &items)
-{
-    int32_t count = 0;
-    for (auto &item : items)
-    {
-        ++count;
-        if (!item.children.empty())
-        {
-            count += calc_items_count(item.children);
-        }
-    }
 }
 
 void menu::update_size()
@@ -320,7 +321,7 @@ void menu::update_size()
         max_text_width = max_width;
     }
 
-    int32_t height = list_->get_item_height() * items.size();
+    int32_t height = list_->get_item_height() * calc_items_count(items);
 
     position_ = { 0, 0, max_text_width, height };
 
@@ -394,6 +395,9 @@ void menu::activate_list_item(int32_t n_item)
         {
             item.state = menu_item_state::normal;
         }
+        size_updated = false;
+        list_->set_item_count(calc_items_count(items));
+        show_on_control(activation_control, 5);
     }
 
     if (item.click_callback)

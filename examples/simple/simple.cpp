@@ -231,7 +231,11 @@ int main(int argc, char *argv[])
 
     menu->set_items({
             { 0, wui::menu_item_state::separator, "Change to white mode", "", nullptr, {}, [](auto i) {} },
-            { 1, wui::menu_item_state::normal, "Exit", "", nullptr, {}, [&window](auto i) { window->destroy(); } }
+            { 1, wui::menu_item_state::separator, "Expand me", "", nullptr, {
+                    { 11, wui::menu_item_state::normal, "Enpanded 1", "", nullptr, {}, [](auto i) {} },
+                    { 12, wui::menu_item_state::normal, "Enpanded 2", "", nullptr, {}, [](auto i) {} },
+                }, [](auto i) {} },
+            { 2, wui::menu_item_state::normal, "Exit", "", nullptr, {}, [&window](auto i) { window->destroy(); } }
         });
 
     window->add_control(menu, { 0 });
