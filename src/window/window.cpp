@@ -1822,7 +1822,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
         }
         break;
         case WM_CHAR:
-            if (w_param != VK_ESC && w_param != VK_BACK && w_param != VK_DELETE && w_param != VK_END && w_param != VK_HOME && w_param != VK_LEFT && w_param != VK_RIGHT && w_param != VK_SHIFT)
+            if (w_param != VK_ESCAPE && w_param != VK_BACK && w_param != VK_DELETE && w_param != VK_END && w_param != VK_HOME && w_param != VK_NEXT && w_param != VK_PRIOR && w_param != VK_LEFT && w_param != VK_RIGHT && w_param != VK_SHIFT)
             {
                 window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
