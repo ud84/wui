@@ -2114,54 +2114,69 @@ void window::process_events()
                 }
 
                 auto *ev = (xcb_button_press_event_t *)e;
-                if (ev->detail == 1 && ev->time - prev_button_click > 200)
+                if (ev->detail == 1)
                 {
-                    x_click = ev->event_x;
-                    y_click = ev->event_y;
-
-                    auto ws = get_window_size(context_);
-
-                    if (!send_mouse_event({ mouse_event_type::left_down, x_click, y_click }) &&
-                        (flag_is_set(window_style_, window_style::moving) && window_state_ == window_state::normal))
+                    if (ev->time - prev_button_click > 200)
                     {
-                        moving_mode_ = moving_mode::move;
+                        x_click = ev->event_x;
+                        y_click = ev->event_y;
 
-                        if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
+                        auto ws = get_window_size(context_);
+
+                        if (!send_mouse_event({ mouse_event_type::left_down, x_click, y_click }) &&
+                            (flag_is_set(window_style_, window_style::moving) && window_state_ == window_state::normal))
                         {
-                            if (x_click > ws.width() - 5 && y_click > ws.height() - 5)
+                            moving_mode_ = moving_mode::move;
+
+                            if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
                             {
-                                moving_mode_ = moving_mode::size_nwse_bottom;
-                            }
-                            else if (x_click < 5 && y_click < 5)
-                            {
-                                moving_mode_ = moving_mode::size_nwse_top;
-                            }
-                            else if (x_click > ws.width() - 5 && y_click < 5)
-                            {
-                                moving_mode_ = moving_mode::size_nesw_top;
-                            }
-                            else if (x_click < 5 && y_click > ws.height() - 5)
-                            {
-                                moving_mode_ = moving_mode::size_nesw_bottom;
-                            }
-                            else if (x_click > ws.width() - 5)
-                            {
-                                moving_mode_ = moving_mode::size_we_right;
-                            }
-                            else if (x_click < 5)
-                            {
-                                moving_mode_ = moving_mode::size_we_left;
-                            }
-                            else if (y_click > ws.height() - 5)
-                            {
-                                moving_mode_ = moving_mode::size_ns_bottom;
-                            }
-                            else if (y_click < 5)
-                            {
-                                moving_mode_ = moving_mode::size_ns_top;
+                                if (x_click > ws.width() - 5 && y_click > ws.height() - 5)
+                                {
+                                    moving_mode_ = moving_mode::size_nwse_bottom;
+                                }
+                                else if (x_click < 5 && y_click < 5)
+                                {
+                                    moving_mode_ = moving_mode::size_nwse_top;
+                                }
+                                else if (x_click > ws.width() - 5 && y_click < 5)
+                                {
+                                    moving_mode_ = moving_mode::size_nesw_top;
+                                }
+                                else if (x_click < 5 && y_click > ws.height() - 5)
+                                {
+                                    moving_mode_ = moving_mode::size_nesw_bottom;
+                                }
+                                else if (x_click > ws.width() - 5)
+                                {
+                                    moving_mode_ = moving_mode::size_we_right;
+                                }
+                                else if (x_click < 5)
+                                {
+                                    moving_mode_ = moving_mode::size_we_left;
+                                }
+                                else if (y_click > ws.height() - 5)
+                                {
+                                    moving_mode_ = moving_mode::size_ns_bottom;
+                                }
+                                else if (y_click < 5)
+                                {
+                                    moving_mode_ = moving_mode::size_ns_top;
+            	                }
             	            }
-            	        }
+                        }
                     }
+                }
+                else if (ev->detail == 3)
+                {
+                    send_mouse_event({ mouse_event_type::right_down, ev->event_x, ev->event_y });
+                }
+                else if (ev->detail == 4)
+                {
+                    send_mouse_event({ mouse_event_type::wheel, ev->event_x, ev->event_y, 1 });
+                }
+                else if (ev->detail == 5)
+                {
+                    send_mouse_event({ mouse_event_type::wheel, ev->event_x, ev->event_y, -1 });
                 }
             }
             break;
@@ -2180,6 +2195,10 @@ void window::process_events()
                     send_mouse_event({ ev->time - prev_button_click > 300 ? mouse_event_type::left_up : mouse_event_type::left_double, ev->event_x, ev->event_y });
 
                     prev_button_click = ev->time;
+                }
+                else if (ev->detail == 3)
+                {
+                    send_mouse_event({ mouse_event_type::right_up, ev->event_x, ev->event_y });
                 }
             }
             break;
