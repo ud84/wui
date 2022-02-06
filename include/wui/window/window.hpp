@@ -199,7 +199,8 @@ private:
     void update_window_style();
 
 #endif
-    void receive_event(const event &ev);
+    void receive_control_events(const event &ev);
+    void receive_plain_events(const event &ev);
 
     void send_event_to_control(std::shared_ptr<i_control> &control, const event &ev);
     void send_event_to_plains(const event &ev);

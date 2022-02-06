@@ -292,7 +292,7 @@ void window::draw(graphic &gr, const rect &paint_rect)
     draw_border(gr);
 }
 
-void window::receive_event(const event &ev)
+void window::receive_control_events(const event &ev)
 {
     /// Here we receive events from the parent window and relay them to our child controls
 
@@ -325,22 +325,29 @@ void window::receive_event(const event &ev)
                 case internal_event_type::execute_focused:
                     execute_focused();
                 break;
-                /*case internal_event_type::size_changed:
-                {
-                    int32_t w = ev.internal_event_.x, h = ev.internal_event_.y;
-                    if (docked_)
-                    {
-                        int32_t left = (w - position_.width()) / 2;
-                        int32_t top = (h - position_.height()) / 2;
-
-                        auto new_position = position_;
-                        new_position.put(left, top);
-                        set_position(new_position, false);
-                    }
-                }
-                break;*/
             }
         break;
+    }
+}
+
+void window::receive_plain_events(const event &ev)
+{
+    if (ev.type == event_type::mouse || ev.type == event_type::keyboard)
+    {
+        send_event_to_plains(ev);
+    }
+    else if (ev.type == event_type::internal && ev.internal_event_.type == wui::internal_event_type::size_changed)
+    {
+        int32_t w = ev.internal_event_.x, h = ev.internal_event_.y;
+        if (docked_)
+        {
+            int32_t left = (w - position_.width()) / 2;
+            int32_t top = (h - position_.height()) / 2;
+
+            auto new_position = position_;
+            new_position.put(left, top);
+            set_position(new_position, false);
+        }
     }
 }
 
@@ -397,26 +404,8 @@ void window::set_parent(std::shared_ptr<window> window)
         }
 #endif
 
-        my_control_sid = window->subscribe(std::bind(&window::receive_event, this, std::placeholders::_1), event_type::all, shared_from_this());
-        my_plain_sid = window->subscribe([this](const wui::event &e) {
-            if (e.type == event_type::mouse || e.type == event_type::keyboard)
-            {
-                send_event_to_plains(e);
-            }
-            else if (e.type == event_type::internal && e.internal_event_.type == wui::internal_event_type::size_changed)
-            {
-                int32_t w = e.internal_event_.x, h = e.internal_event_.y;
-                if (docked_)
-                {
-                    int32_t left = (w - position_.width()) / 2;
-                    int32_t top = (h - position_.height()) / 2;
-
-                    auto new_position = position_;
-                    new_position.put(left, top);
-                    set_position(new_position, false);
-                }
-            }
-        }, static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)));
+        my_control_sid = window->subscribe(std::bind(&window::receive_control_events, this, std::placeholders::_1), event_type::all, shared_from_this());
+        my_plain_sid = window->subscribe(std::bind(&window::receive_plain_events, this, std::placeholders::_1), event_type::all);
 
         pin_button->set_caption("Unpin the window");
     }
@@ -430,8 +419,8 @@ void window::clear_parent()
         parent_->unsubscribe(my_control_sid);
         my_control_sid = -1;
 
-        //parent_->unsubscribe(my_plain_sid);
-        //my_plain_sid = -1;
+        parent_->unsubscribe(my_plain_sid);
+        my_plain_sid = -1;
     }
 
     parent.reset();

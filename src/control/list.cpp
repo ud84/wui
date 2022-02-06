@@ -25,8 +25,8 @@ list::list(std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent(),
-    my_subscriber_id(),
-    showed_(true), enabled_(true), focused_(false), topmost_(false),
+    my_control_sid(), my_plain_sid(),
+    showed_(true), enabled_(true), focused_(false), topmost_(false), mouse_on_control(false),
     columns(),
     mode(list_mode::simple),
     item_height(28), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
@@ -76,7 +76,7 @@ void list::draw(graphic &gr, const rect &)
     draw_scrollbar(gr);
 }
 
-void list::receive_event(const event &ev)
+void list::receive_control_events(const event &ev)
 {
     if (!showed_ || !enabled_)
     {
@@ -89,6 +89,7 @@ void list::receive_event(const event &ev)
         {
             case mouse_event_type::enter:
             {
+                mouse_on_control = true;
                 if (!slider_scrolling)
                 {
                     auto parent_ = parent.lock();
@@ -105,6 +106,7 @@ void list::receive_event(const event &ev)
             }
             break;
             case mouse_event_type::leave:
+                mouse_on_control = false;
                 if (!slider_scrolling)
                 {
                     scrollbar_state_ = scrollbar_state::hide;
@@ -208,52 +210,7 @@ void list::receive_event(const event &ev)
             {
                 if (slider_scrolling)
                 {
-                    int32_t diff = prev_scroll_pos - ev.mouse_event_.y;
-                    double item_on_scroll_height = static_cast<double>(position_.height() - full_scrollbar_width * 2) / (item_count - get_visible_item_count());
-                    double diff_abs = labs(diff);
-
-                    if (item_on_scroll_height == 0.)
-                    {
-                        return;
-                    }
-
-                    auto count = static_cast<int32_t>(round(diff_abs / item_on_scroll_height));
-
-                    rect slider_rect = { 0 };
-                    calc_scrollbar_params(nullptr, nullptr, nullptr, &slider_rect);
-
-                    if (diff > 0)
-                    {
-                        for (auto i = 0; i != count; ++i)
-                        {
-                            scroll_up();
-                        }
-
-                        if (slider_rect.bottom < ev.mouse_event_.y)
-                        {
-                            prev_scroll_pos = ev.mouse_event_.y - (ev.mouse_event_.y - slider_rect.bottom);
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        for (auto i = 0; i != count; ++i)
-                        {
-                            scroll_down();
-                        }
-
-                        if (slider_rect.top > ev.mouse_event_.y)
-                        {
-                            prev_scroll_pos = ev.mouse_event_.y + (slider_rect.top - ev.mouse_event_.y);
-                            return;
-                        }
-                    }
-
-                    if (count != 0)
-                    {
-                        prev_scroll_pos = ev.mouse_event_.y;
-                    }
-                    return;
+                    return move_slider(ev.mouse_event_.y);
                 }
 
                 auto has_scrollbar_ = has_scrollbar();
@@ -405,6 +362,26 @@ void list::receive_event(const event &ev)
     }
 }
 
+void list::receive_plain_events(const event &ev)
+{
+    if (!mouse_on_control && ev.type == event_type::mouse)
+    {
+        switch (ev.mouse_event_.type)
+        {
+            case mouse_event_type::move:
+                if (slider_scrolling)
+                {
+                    move_slider(ev.mouse_event_.y);
+                }
+            break;
+            case mouse_event_type::left_up:
+                slider_scrolling = false;
+                end_work();
+            break;
+        }
+    }
+}
+
 void list::set_position(const rect &position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent);
@@ -418,9 +395,11 @@ rect list::position() const
 void list::set_parent(std::shared_ptr<window> window)
 {
     parent = window;
-    my_subscriber_id = window->subscribe(std::bind(&list::receive_event, this, std::placeholders::_1),
-        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)));// ,
-        //shared_from_this());
+    my_control_sid = window->subscribe(std::bind(&list::receive_control_events, this, std::placeholders::_1),
+        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
+        shared_from_this());
+
+    my_plain_sid = window->subscribe(std::bind(&list::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
 }
 
 void list::clear_parent()
@@ -430,7 +409,11 @@ void list::clear_parent()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->unsubscribe(my_subscriber_id);
+        parent_->unsubscribe(my_control_sid);
+        my_control_sid = -1;
+
+        parent_->unsubscribe(my_plain_sid);
+        my_plain_sid = -1;
     }
     parent.reset();
 }
@@ -813,6 +796,55 @@ int32_t list::get_visible_item_count() const
         return 0;
     }
     return static_cast<int32_t>(ceil(static_cast<double>(position_.height() - title_height) / item_height));
+}
+
+void list::move_slider(int32_t y)
+{
+    int32_t diff = prev_scroll_pos - y;
+    double item_on_scroll_height = static_cast<double>(position_.height() - full_scrollbar_width * 2) / (item_count - get_visible_item_count());
+    double diff_abs = labs(diff);
+
+    if (item_on_scroll_height == 0.)
+    {
+        return;
+    }
+
+    auto count = static_cast<int32_t>(round(diff_abs / item_on_scroll_height));
+
+    rect slider_rect = { 0 };
+    calc_scrollbar_params(nullptr, nullptr, nullptr, &slider_rect);
+
+    if (diff > 0)
+    {
+        for (auto i = 0; i != count; ++i)
+        {
+            scroll_up();
+        }
+
+        if (slider_rect.bottom < y)
+        {
+            prev_scroll_pos = y - (y - slider_rect.bottom);
+            return;
+        }
+    }
+    else
+    {
+        for (auto i = 0; i != count; ++i)
+        {
+            scroll_down();
+        }
+
+        if (slider_rect.top > y)
+        {
+            prev_scroll_pos = y + (slider_rect.top - y);
+            return;
+        }
+    }
+
+    if (count != 0)
+    {
+        prev_scroll_pos = y;
+    }
 }
 
 void list::scroll_up()

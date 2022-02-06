@@ -118,9 +118,9 @@ private:
     rect position_;
 
     std::weak_ptr<window> parent;
-    std::string my_subscriber_id;
+    std::string my_control_sid, my_plain_sid;
 
-    bool showed_, enabled_, focused_, topmost_;
+    bool showed_, enabled_, focused_, topmost_, mouse_on_control;
 
     std::vector<column> columns;
 
@@ -166,7 +166,8 @@ private:
     std::function<void(int32_t)> column_click_callback;
     std::function<void(int32_t)> item_right_click_callback;
     
-    void receive_event(const event &ev);
+    void receive_control_events(const event &ev);
+    void receive_plain_events(const event &ev);
 
     void redraw();
 
@@ -184,6 +185,8 @@ private:
 
     int32_t get_visible_item_count() const;
     
+    void move_slider(int32_t y);
+
     void scroll_up();
     void scroll_down();
 
