@@ -303,9 +303,6 @@ void window::receive_control_events(const event &ev)
 
     switch (ev.type)
     {
-        case event_type::system:
-            send_event_to_plains(ev);
-        break;
         case event_type::mouse:
             send_mouse_event(ev.mouse_event_);
         break;
@@ -316,7 +313,6 @@ void window::receive_control_events(const event &ev)
             {
                 send_event_to_control(control, ev);
             }
-            send_event_to_plains(ev);
         }
         break;
         case event_type::internal:
@@ -332,7 +328,7 @@ void window::receive_control_events(const event &ev)
 
 void window::receive_plain_events(const event &ev)
 {
-    if (ev.type == event_type::mouse || ev.type == event_type::keyboard)
+    if (ev.type == event_type::system || ev.type == event_type::mouse || ev.type == event_type::keyboard)
     {
         send_event_to_plains(ev);
     }
