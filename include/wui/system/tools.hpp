@@ -42,9 +42,6 @@ rect get_control_position(const rect &control_position, std::weak_ptr<window> pa
 
 rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &control_position, const rect &my_position, int32_t indent);
 
-void grab_pointer(system_context &context, const rect &position);
-void release_pointer(system_context &context);
-
 #ifdef __linux__
 bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message);
 #endif

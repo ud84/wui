@@ -244,35 +244,4 @@ rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &cont
     return out_pos;
 }
 
-void grab_pointer(system_context &context, const rect &position)
-{
-#ifdef _WIN32
-    /*RECT clipRect;
-    
-    POINT pt = { position.left, position.top };
-    POINT pt2 = { position.right, position.bottom };
-    ClientToScreen(context.hwnd, &pt);
-    ClientToScreen(context.hwnd, &pt2);
-    SetRect(&clipRect, pt.x, pt.y, pt2.x, pt2.y);
-
-    ClipCursor(&clipRect);*/
-#elif __linux__
-    /*xcb_grab_pointer(context.connection, 0, context.wnd,
-        0, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, context.wnd,
-        0, XCB_CURRENT_TIME);
-
-    xcb_flush(context.connection);*/
-#endif
-}
-
-void release_pointer(system_context &context)
-{
-#ifdef _WIN32
-    //ClipCursor(NULL);
-#elif __linux__
-    /*xcb_ungrab_pointer(context.connection, XCB_CURRENT_TIME);
-    xcb_flush(context.connection);*/
-#endif
-}
-
 }

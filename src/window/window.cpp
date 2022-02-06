@@ -1677,12 +1677,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             if (wnd->window_state_ == window_state::normal)
             {
-                if (flag_is_set(wnd->window_style_, window_style::moving))
+                if (flag_is_set(wnd->window_style_, window_style::moving) &&
+                    !wnd->check_control_here(wnd->x_click, wnd->y_click))
                 {
-                    if (!wnd->check_control_here(wnd->x_click, wnd->y_click))
-                    {
-                        wnd->moving_mode_ = moving_mode::move;
-                    }
+                    wnd->moving_mode_ = moving_mode::move;
                 }
 
                 if (flag_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)
@@ -2153,10 +2151,15 @@ void window::process_events()
 
                         auto ws = get_window_size(context_);
 
-                        if (!send_mouse_event({ mouse_event_type::left_down, x_click, y_click }) &&
-                            (flag_is_set(window_style_, window_style::moving) && window_state_ == window_state::normal))
+                        send_mouse_event({ mouse_event_type::left_down, x_click, y_click });
+
+                        if (window_state_ == window_state::normal)
                         {
-                            moving_mode_ = moving_mode::move;
+                            if (flag_is_set(window_style_, window_style::moving) &&
+                                !check_control_here(x_click, y_click))
+                            {
+                                moving_mode_ = moving_mode::move;
+                            }
 
                             if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
                             {

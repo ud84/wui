@@ -146,12 +146,6 @@ void list::receive_event(const event &ev)
                     }
                     else if (ev.mouse_event_.y >= slider_rect.top && ev.mouse_event_.y <= slider_rect.bottom)
                     {
-                        auto parent_ = parent.lock();
-                        if (parent_)
-                        {
-                            grab_pointer(parent_->context(), bar_rect);
-                        }
-
                         slider_scrolling = true;
                         prev_scroll_pos = ev.mouse_event_.y;
                     }
@@ -160,11 +154,6 @@ void list::receive_event(const event &ev)
             case mouse_event_type::left_up:
             {
                 slider_scrolling = false;
-                auto parent_ = parent.lock();
-                if (parent_)
-                {
-                    release_pointer(parent_->context());
-                }
                 end_work();
 
                 if (!is_click_on_scrollbar(ev.mouse_event_.x))
