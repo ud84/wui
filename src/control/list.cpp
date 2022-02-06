@@ -375,8 +375,13 @@ void list::receive_plain_events(const event &ev)
                 }
             break;
             case mouse_event_type::left_up:
-                slider_scrolling = false;
                 end_work();
+
+                slider_scrolling = false;
+                scrollbar_state_ = scrollbar_state::hide;
+                active_item_ = -1;
+                
+                redraw();
             break;
         }
     }
