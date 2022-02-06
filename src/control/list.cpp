@@ -89,22 +89,28 @@ void list::receive_event(const event &ev)
         {
             case mouse_event_type::enter:
             {
-                auto parent_ = parent.lock();
-                if (parent_)
+                if (!slider_scrolling)
                 {
-                    set_cursor(parent_->context(), cursor::default_);
-                }
-                if (has_scrollbar())
-                {
-                    scrollbar_state_ = scrollbar_state::tiny;
-                    redraw();
+                    auto parent_ = parent.lock();
+                    if (parent_)
+                    {
+                        set_cursor(parent_->context(), cursor::default_);
+                    }
+                    if (has_scrollbar())
+                    {
+                        scrollbar_state_ = scrollbar_state::tiny;
+                        redraw();
+                    }
                 }
             }
             break;
             case mouse_event_type::leave:
-                scrollbar_state_ = scrollbar_state::hide;
-                active_item_ = -1;
-                redraw();
+                if (!slider_scrolling)
+                {
+                    scrollbar_state_ = scrollbar_state::hide;
+                    active_item_ = -1;
+                    redraw();
+                }
             break;
             case mouse_event_type::left_down:
                 if (is_click_on_scrollbar(ev.mouse_event_.x))
@@ -211,35 +217,6 @@ void list::receive_event(const event &ev)
             break;
             case mouse_event_type::move:
             {
-                auto has_scrollbar_ = has_scrollbar();
-
-                if (has_scrollbar_ && ev.mouse_event_.x > position().right - full_scrollbar_width - theme_dimension(tc, tv_border_width, theme_) * 2)
-                {
-                    if (scrollbar_state_ != scrollbar_state::full)
-                    {
-                        scrollbar_state_ = scrollbar_state::full;
-                        progress = 0;
-                        start_work(worker_action::scrollbar_show);
-                    }
-                }
-                else
-                {
-                    if (mode == list_mode::simple)
-                    {
-                        update_active_item(ev.mouse_event_.y);
-                    }
-                    else if (mode == list_mode::auto_select)
-                    {
-                        update_selected_item(ev.mouse_event_.y);
-                    }
-
-                    if (has_scrollbar_ && scrollbar_state_ == scrollbar_state::full)
-                    {
-                        scrollbar_state_ = scrollbar_state::tiny;
-                        redraw();
-                    }
-                }
-
                 if (slider_scrolling)
                 {
                     int32_t diff = prev_scroll_pos - ev.mouse_event_.y;
@@ -286,6 +263,35 @@ void list::receive_event(const event &ev)
                     if (count != 0)
                     {
                         prev_scroll_pos = ev.mouse_event_.y;
+                    }
+                    return;
+                }
+
+                auto has_scrollbar_ = has_scrollbar();
+                if (has_scrollbar_ && ev.mouse_event_.x > position().right - full_scrollbar_width - theme_dimension(tc, tv_border_width, theme_) * 2)
+                {
+                    if (scrollbar_state_ != scrollbar_state::full)
+                    {
+                        scrollbar_state_ = scrollbar_state::full;
+                        progress = 0;
+                        start_work(worker_action::scrollbar_show);
+                    }
+                }
+                else
+                {
+                    if (mode == list_mode::simple)
+                    {
+                        update_active_item(ev.mouse_event_.y);
+                    }
+                    else if (mode == list_mode::auto_select)
+                    {
+                        update_selected_item(ev.mouse_event_.y);
+                    }
+
+                    if (has_scrollbar_ && scrollbar_state_ == scrollbar_state::full)
+                    {
+                        scrollbar_state_ = scrollbar_state::tiny;
+                        redraw();
                     }
                 }
             }
