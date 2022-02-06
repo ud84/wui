@@ -808,7 +808,7 @@ void window::set_pin_callback(std::function<void(std::string &tooltip_text)> pin
     pin_callback = pin_callback_;
 }
 
-bool window::send_event_to_control(std::shared_ptr<i_control> &control_, const event &ev)
+void window::send_event_to_control(std::shared_ptr<i_control> &control_, const event &ev)
 {
     auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [control_, ev](const event_subscriber &es) {
         return flag_is_set(es.event_types, ev.type) && es.control == control_;
@@ -817,9 +817,7 @@ bool window::send_event_to_control(std::shared_ptr<i_control> &control_, const e
     if (it != subscribers_.end())
     {
         it->receive_callback(ev);
-        return true;
     }
-    return false;
 }
 
 void window::send_event_to_plains(const event &ev)
@@ -833,7 +831,7 @@ void window::send_event_to_plains(const event &ev)
     }
 }
 
-bool window::send_mouse_event(const mouse_event &ev)
+void window::send_mouse_event(const mouse_event &ev)
 {
     if (active_control && !active_control->position().in(ev.x, ev.y))
     {
@@ -846,7 +844,7 @@ bool window::send_mouse_event(const mouse_event &ev)
     send_event_to_plains({ event_type::mouse, ev });
 
     auto send_mouse_event_to_control = [this](std::shared_ptr<wui::i_control> &send_to_control,
-        const mouse_event &ev_) noexcept -> bool
+        const mouse_event &ev_) noexcept -> void
     {
         if (active_control == send_to_control)
         {
@@ -867,8 +865,7 @@ bool window::send_mouse_event(const mouse_event &ev)
 
             if (ev_.y < 5 || (ev_.y < 24 && ev_.x > position().width() - 5)) /// control buttons border
             {
-                active_control.reset();
-                return false;
+                return active_control.reset();
             }
             else
             {
@@ -896,8 +893,6 @@ bool window::send_mouse_event(const mouse_event &ev)
             return send_mouse_event_to_control(*control, ev);
         }
     }
-
-    return false;
 }
 
 bool window::check_control_here(int32_t x, int32_t y)

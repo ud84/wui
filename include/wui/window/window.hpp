@@ -201,9 +201,9 @@ private:
 #endif
     void receive_event(const event &ev);
 
-    bool send_event_to_control(std::shared_ptr<i_control> &control, const event &ev);
+    void send_event_to_control(std::shared_ptr<i_control> &control, const event &ev);
     void send_event_to_plains(const event &ev);
-    bool send_mouse_event(const mouse_event &ev);
+    void send_mouse_event(const mouse_event &ev);
 
     bool check_control_here(int32_t x, int32_t y);
 
