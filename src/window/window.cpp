@@ -325,6 +325,20 @@ void window::receive_event(const event &ev)
                 case internal_event_type::execute_focused:
                     execute_focused();
                 break;
+                /*case internal_event_type::size_changed:
+                {
+                    int32_t w = ev.internal_event_.x, h = ev.internal_event_.y;
+                    if (docked_)
+                    {
+                        int32_t left = (w - position_.width()) / 2;
+                        int32_t top = (h - position_.height()) / 2;
+
+                        auto new_position = position_;
+                        new_position.put(left, top);
+                        set_position(new_position, false);
+                    }
+                }
+                break;*/
             }
         break;
     }
@@ -385,7 +399,11 @@ void window::set_parent(std::shared_ptr<window> window)
 
         my_control_sid = window->subscribe(std::bind(&window::receive_event, this, std::placeholders::_1), event_type::all, shared_from_this());
         my_plain_sid = window->subscribe([this](const wui::event &e) {
-            if (e.internal_event_.type == wui::internal_event_type::size_changed)
+            if (e.type == event_type::mouse || e.type == event_type::keyboard)
+            {
+                send_event_to_plains(e);
+            }
+            else if (e.type == event_type::internal && e.internal_event_.type == wui::internal_event_type::size_changed)
             {
                 int32_t w = e.internal_event_.x, h = e.internal_event_.y;
                 if (docked_)
@@ -398,7 +416,7 @@ void window::set_parent(std::shared_ptr<window> window)
                     set_position(new_position, false);
                 }
             }
-        }, wui::event_type::internal);
+        }, static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)));
 
         pin_button->set_caption("Unpin the window");
     }
@@ -412,8 +430,8 @@ void window::clear_parent()
         parent_->unsubscribe(my_control_sid);
         my_control_sid = -1;
 
-        parent_->unsubscribe(my_plain_sid);
-        my_plain_sid = -1;
+        //parent_->unsubscribe(my_plain_sid);
+        //my_plain_sid = -1;
     }
 
     parent.reset();
@@ -879,6 +897,18 @@ bool window::send_mouse_event(const mouse_event &ev)
         }
     }
 
+    return false;
+}
+
+bool window::check_control_here(int32_t x, int32_t y)
+{
+    for (auto &control : controls)
+    {
+        if (control->showed() && control->position().in(x, y))
+        {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -1648,11 +1678,16 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->x_click = GET_X_LPARAM(l_param);
             wnd->y_click = GET_Y_LPARAM(l_param);
 
-            if (!wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click }) && wnd->window_state_ == window_state::normal)
+            wnd->send_mouse_event({ mouse_event_type::left_down, wnd->x_click, wnd->y_click });
+
+            if (wnd->window_state_ == window_state::normal)
             {
                 if (flag_is_set(wnd->window_style_, window_style::moving))
                 {
-                    wnd->moving_mode_ = moving_mode::move;
+                    if (!wnd->check_control_here(wnd->x_click, wnd->y_click))
+                    {
+                        wnd->moving_mode_ = moving_mode::move;
+                    }
                 }
 
                 if (flag_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)

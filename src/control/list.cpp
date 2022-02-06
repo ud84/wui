@@ -430,8 +430,8 @@ void list::set_parent(std::shared_ptr<window> window)
 {
     parent = window;
     my_subscriber_id = window->subscribe(std::bind(&list::receive_event, this, std::placeholders::_1),
-        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
-        shared_from_this());
+        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)));// ,
+        //shared_from_this());
 }
 
 void list::clear_parent()

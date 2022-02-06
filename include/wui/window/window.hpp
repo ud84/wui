@@ -205,6 +205,8 @@ private:
     void send_event_to_plains(const event &ev);
     bool send_mouse_event(const mouse_event &ev);
 
+    bool check_control_here(int32_t x, int32_t y);
+
     void change_focus();
     void execute_focused();
     void set_focused(std::shared_ptr<i_control> &control);
