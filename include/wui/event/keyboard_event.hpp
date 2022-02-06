@@ -50,15 +50,15 @@ static const uint8_t vk_insert = 0x2D;
 #elif __linux__
 static const uint8_t vk_tab = 0x17;
 static const uint8_t vk_return = 0x24;
-static const uint8_t vk_esc = 0x1b;
+static const uint8_t vk_esc = 0x09;
 
 static const uint8_t vk_back = 0x16;
 static const uint8_t vk_del = 0x77;
 
 static const uint8_t vk_end = 0x73;
 static const uint8_t vk_home = 0x6E;
-static const uint8_t vk_page_up = 0x21;
-static const uint8_t vk_page_down = 0x22;
+static const uint8_t vk_page_up = 0x70;
+static const uint8_t vk_page_down = 0x75;
 
 static const uint8_t vk_up = 0x6F;
 static const uint8_t vk_down = 0x74;

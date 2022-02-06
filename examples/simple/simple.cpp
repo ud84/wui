@@ -229,22 +229,22 @@ int main(int argc, char *argv[])
     std::shared_ptr<wui::menu> menu(new wui::menu());
 
     menu->set_items({
-            { 0, wui::menu_item_state::separator, "Bla bla bla", "", nullptr, {}, [](auto i) {} },
+            { 0, wui::menu_item_state::separator, "Bla bla bla", "", nullptr, {}, [](int32_t i) {} },
             { 1, wui::menu_item_state::normal, "Expand me 1", "", nullptr, {
-                    { 11, wui::menu_item_state::normal, "Expanded 1.1", "", nullptr, {}, [](auto i) {} },
+                    { 11, wui::menu_item_state::normal, "Expanded 1.1", "", nullptr, {}, [](int32_t i) {} },
                     { 12, wui::menu_item_state::normal, "Expanded 1.2", "", nullptr, {
-                            { 121, wui::menu_item_state::normal, "Expanded 1.1.1", "", nullptr, {}, [](auto i) {} },
-                            { 122, wui::menu_item_state::normal, "Expanded 1.1.2", "", nullptr, {}, [](auto i) {} },
-                            { 123, wui::menu_item_state::separator, "Expanded 1.1.3", "", nullptr, {}, [](auto i) {} },
-                        }, [](auto i) {} },
-                    { 13, wui::menu_item_state::normal, "Expanded 1.3", "", nullptr, {}, [](auto i) {} },
-                }, [](auto i) {} },
+                            { 121, wui::menu_item_state::normal, "Expanded 1.1.1", "", nullptr, {}, [](int32_t i) {} },
+                            { 122, wui::menu_item_state::normal, "Expanded 1.1.2", "", nullptr, {}, [](int32_t i) {} },
+                            { 123, wui::menu_item_state::separator, "Expanded 1.1.3", "", nullptr, {}, [](int32_t i) {} },
+                        }, [](int32_t i) {} },
+                    { 13, wui::menu_item_state::normal, "Expanded 1.3", "", nullptr, {}, [](int32_t i) {} },
+                }, [](int32_t i) {} },
             { 2, wui::menu_item_state::separator, "Expand me 2", "", nullptr, {
-                    { 21, wui::menu_item_state::normal, "Expanded 2.1", "", nullptr, {}, [](auto i) {} },
-                    { 22, wui::menu_item_state::normal, "Expanded 2.2", "", nullptr, {}, [](auto i) {} },
-                    { 23, wui::menu_item_state::separator, "Expanded 2.3", "", nullptr, {}, [](auto i) {} },
-                }, [](auto i) {} },
-            { 3, wui::menu_item_state::normal, "Exit", "", nullptr, {}, [&window](auto i) { window->destroy(); } }
+                    { 21, wui::menu_item_state::normal, "Expanded 2.1", "", nullptr, {}, [](int32_t i) {} },
+                    { 22, wui::menu_item_state::normal, "Expanded 2.2", "", nullptr, {}, [](int32_t i) {} },
+                    { 23, wui::menu_item_state::separator, "Expanded 2.3", "", nullptr, {}, [](int32_t i) {} },
+                }, [](int32_t i) {} },
+            { 3, wui::menu_item_state::normal, "Exit", "", nullptr, {}, [&window](int32_t i) { window->destroy(); } }
         });
 
     window->add_control(menu, { 0 });

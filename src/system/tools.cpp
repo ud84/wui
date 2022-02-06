@@ -256,7 +256,7 @@ void grab_pointer(system_context &context, const rect &position)
     SetRect(&clipRect, pt.x, pt.y, pt2.x, pt2.y);
 
     ClipCursor(&clipRect);
-#elif
+//#elif
 #endif
 }
 
@@ -264,7 +264,7 @@ void release_pointer(system_context &context)
 {
 #ifdef _WIN32
     ClipCursor(NULL);
-#elif
+//#elif
 #endif
 }
 
