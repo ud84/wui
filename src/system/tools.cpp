@@ -256,7 +256,12 @@ void grab_pointer(system_context &context, const rect &position)
     SetRect(&clipRect, pt.x, pt.y, pt2.x, pt2.y);
 
     ClipCursor(&clipRect);
-//#elif
+#elif __linux__
+    /*xcb_grab_pointer(context.connection, 0, context.wnd,
+        0, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, context.wnd,
+        0, XCB_CURRENT_TIME);
+
+    xcb_flush(context.connection);*/
 #endif
 }
 
@@ -264,7 +269,9 @@ void release_pointer(system_context &context)
 {
 #ifdef _WIN32
     ClipCursor(NULL);
-//#elif
+#elif __linux__
+    /*xcb_ungrab_pointer(context.connection, XCB_CURRENT_TIME);
+    xcb_flush(context.connection);*/
 #endif
 }
 

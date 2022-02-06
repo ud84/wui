@@ -280,7 +280,9 @@ void graphic::draw_pixel(const rect &position, color color_)
     uint32_t value[] = { static_cast<uint32_t>(color_) };
     auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
 
-    // todo
+    xcb_point_t points[] = { { static_cast<int16_t>(position.left), static_cast<int16_t>(position.top) } };
+
+    xcb_poly_point(context_.connection, XCB_COORD_MODE_ORIGIN, mem_pixmap, gc_, 1, points);
 
     xcb_free_gc(context_.connection, gc_);
 #endif
