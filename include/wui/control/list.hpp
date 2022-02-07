@@ -93,8 +93,6 @@ public:
     void set_column_click_callback(std::function<void(int32_t)> column_click_callback_);
     void set_item_right_click_callback(std::function<void(int32_t)> item_right_click_callback_);
 
-    void receive_control_events(const event &ev);
-    
 public:
     /// Control name in theme
     static constexpr const char *tc = "list";
@@ -168,6 +166,7 @@ private:
     std::function<void(int32_t)> column_click_callback;
     std::function<void(int32_t)> item_right_click_callback;
     
+    void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);
 
     void redraw();

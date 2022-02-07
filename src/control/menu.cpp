@@ -172,22 +172,6 @@ void menu::receive_event(const event &ev)
                 {
                     list_->hide();
                 }
-                else if (ev.keyboard_event_.key[0] == vk_return)
-                {
-                    event ev_;
-                    ev_.type = event_type::internal;
-                    ev_.internal_event_ = internal_event{ internal_event_type::execute_focused };
-
-                    list_->receive_control_events(ev_);
-                }
-                else
-                {
-                    list_->receive_control_events(ev);
-                }
-            }
-            else if (ev.keyboard_event_.type == keyboard_event_type::down)
-            {
-                list_->receive_control_events(ev);
             }
         break;
     }
@@ -399,6 +383,7 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent)
 
     list_->set_position(pos, true);
     list_->show();
+    list_->set_focus();
 }
 
 void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &columns)
