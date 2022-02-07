@@ -452,17 +452,12 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
 
         if (!item->children.empty())
         {
-            auto l = item_rect_.right - item_rect_.height(),
-                t = item_rect_.top,
-                r = item_rect_.right,
-                b = item_rect_.bottom;
+            auto height = item_rect_.height();
 
-            auto w = item_rect_.height(), h = w;
+            auto left = item_rect_.right - item_rect_.height() + (height - 8) / 2,
+                top = item_rect_.top + (height - 4) / 2;
 
-            l += (w - 8) / 2;
-            t += (h - 4) / 2;
-
-            draw_arrow_down(gr, { l, t, r, b }, item->state == menu_item_state::expanded);
+            draw_arrow_down(gr, { left, top }, item->state == menu_item_state::expanded);
         }
     }
 
