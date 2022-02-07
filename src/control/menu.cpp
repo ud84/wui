@@ -386,6 +386,22 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent)
     list_->set_focus();
 }
 
+void menu::draw_arrow_down(graphic &gr, rect pos, bool expanded)
+{
+    auto color = theme_color(tc, !expanded ? tv_text : tv_scrollbar_slider_acive, theme_);
+
+    int w = 8, h = 4;
+
+    for (int j = 0; j != h; ++j)
+    {
+        for (int i = 0; i != w; ++i)
+        {
+            gr.draw_pixel({ pos.left + j + i, pos.top + j }, color);
+        }
+        w -= 2;
+    }
+}
+
 void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &columns)
 {
     auto item = get_item(items, n_item);
@@ -418,7 +434,21 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
 
         text_rect.move(item_rect.height() + item_rect.height() * item->level, (item_rect_.height() - text_height) / 2);
 
-        gr.draw_text(text_rect, item->text + (item->children.empty() ? "" : " ->"), text_color, font);
+        gr.draw_text(text_rect, item->text, text_color, font);
+        if (!item->children.empty())
+        {
+            auto l = item_rect_.right - item_rect_.height(),
+                t = item_rect_.top,
+                r = item_rect_.right,
+                b = item_rect_.bottom;
+
+            auto w = item_rect_.height(), h = w;
+
+            l += (w - 8) / 2;
+            t += (h - 4) / 2;
+
+            draw_arrow_down(gr, { l, t, r, b }, item->state == menu_item_state::expanded);
+        }
     }
 
     if (item->state == menu_item_state::separator && item_rect_.bottom <= list_->position().bottom - border_width)

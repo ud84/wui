@@ -699,9 +699,9 @@ void list::draw_items(graphic &gr_)
         left = control_position.left + theme_dimension(tc, tv_border_width, theme_),
         right = control_position.right - theme_dimension(tc, tv_border_width, theme_);
 
-    for (auto i = 0; i != visible_item_count; ++i)
+    int32_t scrollbar_width = 0;
+    if (has_scrollbar())
     {
-        int32_t scrollbar_width = 0;
         if (scrollbar_state_ == scrollbar_state::tiny)
         {
             scrollbar_width = tiny_scrollbar_width;
@@ -710,7 +710,10 @@ void list::draw_items(graphic &gr_)
         {
             scrollbar_width = full_scrollbar_width;
         }
+    }
 
+    for (auto i = 0; i != visible_item_count; ++i)
+    {
         auto top = (i * item_height) + top_;
         rect item_rect = { left, title_height + top, right - scrollbar_width, title_height + top + item_height };
         int32_t item = start_item + i;
