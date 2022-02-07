@@ -421,6 +421,21 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
     {
         gr.draw_rect({ item_rect.left, item_rect.top + 1, item_rect.right, item_rect.bottom - 1 }, theme_color(tc, tv_selected_item));
     }
+    
+    if (item->image_)
+    {
+        auto img_size = static_cast<int32_t>(item_rect_.height() * 0.9);
+
+        auto indent = static_cast<int32_t>((item_rect_.height() - img_size) / 2);
+
+        rect img_rect = { item_rect_.left + indent,
+            item_rect_.top + indent,
+            item_rect_.left + img_size + indent,
+            item_rect_.top + img_size + indent };
+
+        item->image_->set_position(img_rect);
+        item->image_->draw(gr, { 0 });
+    }
 
     auto text_color = theme_color(tc, tv_text);
     auto font = theme_font(tc, tv_font);

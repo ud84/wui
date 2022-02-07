@@ -226,15 +226,18 @@ int main(int argc, char *argv[])
 
     auto controlButtonTheme = MakeControlButtonTheme();
 
+    std::shared_ptr<wui::image> menuImage1(new wui::image(IMG_ACCOUNT));
+    std::shared_ptr<wui::image> menuImage2(new wui::image(IMG_SETTINGS));
+
     std::shared_ptr<wui::menu> menu(new wui::menu());
 
     menu->set_items({
-            { 0, wui::menu_item_state::separator, "Bla bla bla", "", nullptr, {}, [](int32_t i) {} },
+            { 0, wui::menu_item_state::separator, "Bla bla bla", "", menuImage1, {}, [](int32_t i) {} },
             { 1, wui::menu_item_state::normal, "Expand me 1", "", nullptr, {
                     { 11, wui::menu_item_state::normal, "Expanded 1.1", "", nullptr, {}, [](int32_t i) {} },
                     { 12, wui::menu_item_state::normal, "Expanded 1.2", "", nullptr, {
                             { 121, wui::menu_item_state::normal, "Expanded 1.1.1", "", nullptr, {}, [](int32_t i) {} },
-                            { 122, wui::menu_item_state::normal, "Expanded 1.1.2", "Shift+Del", nullptr, {}, [](int32_t i) {} },
+                            { 122, wui::menu_item_state::normal, "Expanded 1.1.2", "Shift+Del", menuImage2, {}, [](int32_t i) {} },
                             { 123, wui::menu_item_state::separator, "Expanded 1.1.3", "", nullptr, {}, [](int32_t i) {} },
                         }, [](int32_t i) {} },
                     { 13, wui::menu_item_state::normal, "Expanded 1.3", "", nullptr, {}, [](int32_t i) {} },
