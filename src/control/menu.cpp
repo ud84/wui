@@ -75,7 +75,7 @@ menu::menu(std::shared_ptr<i_theme> theme__)
     parent(),
     my_subscriber_id(),
     items(),
-    max_width(-1),
+    max_text_width(0), max_hotkey_width(0),
     showed_(false),
     size_updated(false)
 {
@@ -298,12 +298,6 @@ void menu::set_item_height(int32_t item_height_)
     size_updated = false;
 }
 
-void menu::set_max_width(int32_t width)
-{
-    max_width = width;
-    size_updated = false;
-}
-
 void menu::update_size()
 {
     if (size_updated || items.empty())
@@ -337,7 +331,7 @@ void menu::update_size()
 
     auto font_ = theme_font(tc, tv_font, theme_);
 
-    int32_t max_text_width = 0;
+    max_text_width = 0, max_hotkey_width = 0;
 
     auto items_count = calc_items_count(items);
     for (int i = 0; i != items_count; ++i)
@@ -348,18 +342,22 @@ void menu::update_size()
             continue;
         }
 
-        auto width = mem_gr.measure_text(item->text, font_).right +
-            (list_->get_item_height() * 2) +
-            (item->level * list_->get_item_height());
+        auto text_width = mem_gr.measure_text(item->text, font_).right;
+        auto hotkey_width = mem_gr.measure_text(item->hotkey, font_).right;
+        if (hotkey_width != 0)
+        {
+            hotkey_width += list_->get_item_height();
+        }
+        if (hotkey_width > max_hotkey_width)
+        {
+            max_hotkey_width = hotkey_width;
+        }
+        
+        auto width = (item->level * list_->get_item_height()) + text_width + max_hotkey_width + (list_->get_item_height() * 3);
         if (width > max_text_width)
         {
             max_text_width = width;
         }
-    }
-
-    if (max_width != -1 && max_text_width > max_width)
-    {
-        max_text_width = max_width;
     }
 
     int32_t height = list_->get_item_height() * items_count;
@@ -430,11 +428,13 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
     auto text_height = gr.measure_text("Qq", font).height();
     if (text_height <= item_rect.height())
     {
-        auto text_rect = item_rect_;
+        gr.draw_text({ item_rect.left + item_rect.height() + item_rect.height() * item->level, item_rect_.top + (item_rect_.height() - text_height) / 2 }, item->text, text_color, font);
 
-        text_rect.move(item_rect.height() + item_rect.height() * item->level, (item_rect_.height() - text_height) / 2);
+        if (!item->hotkey.empty())
+        {
+            gr.draw_text({ item_rect.right - max_hotkey_width, item_rect_.top + (item_rect_.height() - text_height) / 2 }, item->hotkey, text_color, font);
+        }
 
-        gr.draw_text(text_rect, item->text, text_color, font);
         if (!item->children.empty())
         {
             auto l = item_rect_.right - item_rect_.height(),

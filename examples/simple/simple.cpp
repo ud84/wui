@@ -234,17 +234,17 @@ int main(int argc, char *argv[])
                     { 11, wui::menu_item_state::normal, "Expanded 1.1", "", nullptr, {}, [](int32_t i) {} },
                     { 12, wui::menu_item_state::normal, "Expanded 1.2", "", nullptr, {
                             { 121, wui::menu_item_state::normal, "Expanded 1.1.1", "", nullptr, {}, [](int32_t i) {} },
-                            { 122, wui::menu_item_state::normal, "Expanded 1.1.2", "", nullptr, {}, [](int32_t i) {} },
+                            { 122, wui::menu_item_state::normal, "Expanded 1.1.2", "Shift+Del", nullptr, {}, [](int32_t i) {} },
                             { 123, wui::menu_item_state::separator, "Expanded 1.1.3", "", nullptr, {}, [](int32_t i) {} },
                         }, [](int32_t i) {} },
                     { 13, wui::menu_item_state::normal, "Expanded 1.3", "", nullptr, {}, [](int32_t i) {} },
                 }, [](int32_t i) {} },
-            { 2, wui::menu_item_state::separator, "Expand me 2", "", nullptr, {
+            { 2, wui::menu_item_state::separator, "Expand me 2", "Ctrl+Z", nullptr, {
                     { 21, wui::menu_item_state::normal, "Expanded 2.1", "", nullptr, {}, [](int32_t i) {} },
                     { 22, wui::menu_item_state::normal, "Expanded 2.2", "", nullptr, {}, [](int32_t i) {} },
                     { 23, wui::menu_item_state::separator, "Expanded 2.3", "", nullptr, {}, [](int32_t i) {} },
                 }, [](int32_t i) {} },
-            { 3, wui::menu_item_state::normal, "Exit", "", nullptr, {}, [&window](int32_t i) { window->destroy(); } }
+            { 3, wui::menu_item_state::normal, "Exit", "Atl+F4", nullptr, {}, [&window](int32_t i) { window->destroy(); } }
         });
 
     window->add_control(menu, { 0 });

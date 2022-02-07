@@ -100,7 +100,6 @@ public:
     void delete_item(int32_t id);
 
     void set_item_height(int32_t item_height);
-    void set_max_width(int32_t width);
 
     void show_on_control(std::shared_ptr<i_control> control, int32_t indent);
 
@@ -135,7 +134,7 @@ private:
 
     std::vector<menu_item> items;
 
-    int32_t max_width;
+    int32_t max_text_width, max_hotkey_width;
 
     bool showed_;
     bool size_updated;
