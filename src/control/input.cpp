@@ -296,10 +296,13 @@ void input::receive_event(const event &ev)
         {
             case mouse_event_type::enter:
             {
-                auto parent_ = parent.lock();
-                if (parent_)
+                if (input_view_ != input_view::readonly_no_select)
                 {
-                    set_cursor(parent_->context(), cursor::ibeam);
+                    auto parent_ = parent.lock();
+                    if (parent_)
+                    {
+                        set_cursor(parent_->context(), cursor::ibeam);
+                    }
                 }
             }
             break;
@@ -328,13 +331,16 @@ void input::receive_event(const event &ev)
             }
             break;
             case mouse_event_type::left_down:
-                cursor_position = calculate_mouse_cursor_position(ev.mouse_event_.x);
-                
-                selecting = true;
-                select_start_position = cursor_position;
-                select_end_position = select_start_position;
+                if (input_view_ != input_view::readonly_no_select)
+                {
+                    cursor_position = calculate_mouse_cursor_position(ev.mouse_event_.x);
 
-                redraw();
+                    selecting = true;
+                    select_start_position = cursor_position;
+                    select_end_position = select_start_position;
+
+                    redraw();
+                }
             break;
             case mouse_event_type::left_up:
                 selecting = false;
@@ -353,7 +359,10 @@ void input::receive_event(const event &ev)
                 }
             break;
             case mouse_event_type::left_double:
-                select_current_word(ev.mouse_event_.x);
+                if (input_view_ != input_view::readonly_no_select)
+                {
+                    select_current_word(ev.mouse_event_.x);
+                }
             break;
         }
     }
@@ -367,7 +376,7 @@ void input::receive_event(const event &ev)
                 switch (ev.keyboard_event_.key[0])
                 {
                     case vk_left:
-                        if (cursor_position > 0)
+                        if (input_view_ != input_view::readonly_no_select && cursor_position > 0)
                         {
                             auto prev_position = cursor_position;
 
@@ -378,7 +387,7 @@ void input::receive_event(const event &ev)
                         }
                     break;
                     case vk_right:
-                        if (cursor_position < text_.size())
+                        if (input_view_ != input_view::readonly_no_select && cursor_position < text_.size())
                         {
                             auto prev_position = cursor_position;
 
@@ -389,12 +398,15 @@ void input::receive_event(const event &ev)
                         }
                     break;
                     case vk_home:
-                        update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position, 0);
-                        cursor_position = 0;
-                        redraw();
+                        if (input_view_ != input_view::readonly_no_select)
+                        {
+                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position, 0);
+                            cursor_position = 0;
+                            redraw();
+                        }
                     break;
                     case vk_end:
-                        if (!text_.empty())
+                        if (input_view_ != input_view::readonly_no_select && !text_.empty())
                         {
                             update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position, text_.size());
 
@@ -404,7 +416,7 @@ void input::receive_event(const event &ev)
                         }
                     break;
                     case vk_back:
-                        if (cursor_position > 0)
+                        if (input_view_ != input_view::readonly && input_view_ != input_view::readonly_no_select && cursor_position > 0)
                         {
                             if (!clear_selected_text())
                             {
@@ -424,7 +436,7 @@ void input::receive_event(const event &ev)
                         }
                     break;
                     case vk_del:
-                        if (!text_.empty())
+                        if (input_view_ != input_view::readonly && input_view_ != input_view::readonly_no_select && !text_.empty())
                         {
                             if (!clear_selected_text())
                             {
@@ -447,7 +459,10 @@ void input::receive_event(const event &ev)
                 }
             break;
             case keyboard_event_type::up:
-                timer_.start(500);
+                if (input_view_ != input_view::readonly_no_select)
+                {
+                    timer_.start(500);
+                }
                 if (ev.keyboard_event_.key[0] == vk_shift)
                 {
                     selecting = false;
@@ -474,6 +489,11 @@ void input::receive_event(const event &ev)
                 else if (ev.keyboard_event_.key[0] == 0x1)  // ctrl + a
                 {
                     return select_all();
+                }
+
+                if (input_view_ == input_view::readonly || input_view_ == input_view::readonly_no_select)
+                {
+                    return;
                 }
                 
                 clear_selected_text();
@@ -534,7 +554,10 @@ void input::set_focus()
 
         redraw();
 
-        timer_.start(500);
+        if (input_view_ != input_view::readonly_no_select)
+        {
+            timer_.start(500);
+        }
     }
 }
 
@@ -693,7 +716,8 @@ void input::buffer_copy()
 
 void input::buffer_cut()
 {
-    if (select_start_position == select_end_position)
+    if (select_start_position == select_end_position ||
+        input_view_ == input_view::readonly || input_view_ == input_view::readonly_no_select)
     {
         return;
     }
@@ -707,7 +731,7 @@ void input::buffer_cut()
 
 void input::buffer_paste()
 {
-    if (!IsClipboardFormatAvailable(CF_UNICODETEXT))
+    if (input_view_ == input_view::readonly || input_view_ == input_view::readonly_no_select || !IsClipboardFormatAvailable(CF_UNICODETEXT))
     {
         return;
     }

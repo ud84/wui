@@ -26,7 +26,9 @@ namespace wui
 enum class input_view
 {
     singleline,
-    multiline
+    multiline,
+    readonly,
+    readonly_no_select
 };
 
 class input : public i_control, public std::enable_shared_from_this<input>
