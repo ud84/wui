@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
                     { 22, wui::menu_item_state::normal, "Expanded 2.2", "", nullptr, {}, [](int32_t i) {} },
                     { 23, wui::menu_item_state::separator, "Expanded 2.3", "", nullptr, {}, [](int32_t i) {} },
                 }, [](int32_t i) {} },
-            { 3, wui::menu_item_state::normal, "Exit", "Atl+F4", nullptr, {}, [&window](int32_t i) { window->destroy(); } }
+            { 3, wui::menu_item_state::normal, "Exit", "Alt+F4", nullptr, {}, [&window](int32_t i) { window->destroy(); } }
         });
 
     window->add_control(menu, { 0 });
