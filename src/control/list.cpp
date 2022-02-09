@@ -225,7 +225,7 @@ void list::receive_control_events(const event &ev)
                 }
                 else
                 {
-                    if (mode == list_mode::simple)
+                    if (mode == list_mode::simple || mode == list_mode::simple_topmost)
                     {
                         update_active_item(ev.mouse_event_.y);
                     }
@@ -252,7 +252,7 @@ void list::receive_control_events(const event &ev)
                     scroll_down();
                 }
 
-                if (mode == list_mode::simple)
+                if (mode == list_mode::simple || mode == list_mode::simple_topmost)
                 {
                     update_active_item(ev.mouse_event_.y);
                 }

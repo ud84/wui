@@ -14,6 +14,7 @@
 #include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
+#include <wui/control/list.hpp>
 
 #include <string>
 #include <functional>
@@ -22,8 +23,6 @@
 
 namespace wui
 {
-
-class list;
 
 struct select_item;
 
@@ -114,7 +113,7 @@ private:
     rect position_;;
     
     std::weak_ptr<window> parent;
-    std::string my_subscriber_id;
+    std::string my_control_sid, my_plain_sid;
 
     std::shared_ptr<i_theme> list_theme;
     std::shared_ptr<list> list_;
@@ -125,7 +124,8 @@ private:
     
     int32_t left_shift;
 
-    void receive_event(const event &ev);
+    void receive_control_events(const event &ev);
+    void receive_plain_events(const event &ev);
 
     void update_list_theme();
 
@@ -137,6 +137,9 @@ private:
     void select_down();
 
     void show_list();
+
+    void draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &);
+    void activate_list_item(int32_t n_item);
 };
 
 }
