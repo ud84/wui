@@ -116,6 +116,24 @@ void select::draw_arrow_down(graphic &gr, rect pos)
     }
 }
 
+void select::select_up()
+{
+    if (!items.empty() && list_->selected_item() > 0)
+    {
+        list_->select_item(list_->selected_item() - 1);
+        redraw();
+    }
+}
+
+void select::select_down()
+{
+    if (!items.empty() && list_->selected_item() < items.size() - 1)
+    {
+        list_->select_item(list_->selected_item() + 1);
+        redraw();
+    }
+}
+
 void select::receive_event(const event &ev)
 {
     if (!showed_ || !enabled_)
@@ -138,19 +156,11 @@ void select::receive_event(const event &ev)
             case mouse_event_type::wheel:
                 if (ev.mouse_event_.wheel_delta > 0)
                 {
-                    if (!items.empty() && list_->selected_item() > 0)
-                    {
-                        list_->select_item(list_->selected_item() - 1);
-                        redraw();
-                    }
+                    select_up();
                 }
                 else
                 {
-                    if (!items.empty() && list_->selected_item() < items.size() - 1)
-                    {
-                        list_->select_item(list_->selected_item() + 1);
-                        redraw();
-                    }
+                    select_down();
                 }
                 redraw();
             break;
@@ -167,18 +177,10 @@ void select::receive_event(const event &ev)
                 switch (ev.keyboard_event_.key[0])
                 {
                     case vk_up:
-                        if (!items.empty() && list_->selected_item() > 0)
-                        {
-                            list_->select_item(list_->selected_item() - 1);
-                            redraw();
-                        }
+                        select_up();
                     break;
                     case vk_down:
-                        if (!items.empty() && list_->selected_item() < items.size() - 1)
-                        {
-                            list_->select_item(list_->selected_item() + 1);
-                            redraw();
-                        }
+                        select_down();
                     break;
                     case vk_home: case vk_page_up:
                         if (!items.empty())
@@ -195,9 +197,6 @@ void select::receive_event(const event &ev)
                         }
                     break;
                 }
-            break;
-            case keyboard_event_type::up:
-                //ev.keyboard_event_.key[0] == vk_shift
             break;
         }
     }

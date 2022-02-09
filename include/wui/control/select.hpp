@@ -130,6 +130,9 @@ private:
     void redraw();
 
     void draw_arrow_down(graphic &gr, rect pos);
+
+    void select_up();
+    void select_down();
 };
 
 }
