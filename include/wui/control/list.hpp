@@ -67,7 +67,8 @@ public:
     enum class list_mode
     {
         simple,
-        auto_select
+        auto_select,
+        simple_topmost
     };
     void set_mode(list_mode mode);
     

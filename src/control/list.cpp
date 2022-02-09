@@ -526,7 +526,7 @@ void list::update_columns(const std::vector<column> &columns_)
 void list::set_mode(list_mode mode_)
 {
     mode = mode_;
-    if (mode == list_mode::auto_select)
+    if (mode == list_mode::auto_select || mode == list_mode::simple_topmost)
     {
         topmost_ = true;
     }

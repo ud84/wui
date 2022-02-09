@@ -127,12 +127,16 @@ private:
 
     void receive_event(const event &ev);
 
+    void update_list_theme();
+
     void redraw();
 
     void draw_arrow_down(graphic &gr, rect pos);
 
     void select_up();
     void select_down();
+
+    void show_list();
 };
 
 }

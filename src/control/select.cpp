@@ -39,6 +39,9 @@ select::select(std::shared_ptr<i_theme> theme__)
     focusing_(true),
     left_shift(0)
 {
+    update_list_theme();
+
+    list_->set_mode(list::list_mode::auto_select);
 }
 
 select::~select()
@@ -134,6 +137,16 @@ void select::select_down()
     }
 }
 
+void select::show_list()
+{
+    list_->set_position({ position_.left, position_.top, position_.right, position_.top + list_->get_item_height() * static_cast<int32_t>(items.size()) });
+    auto pos = get_best_position_on_control(parent, position(), list_->position(), 0);
+
+    list_->set_position(pos, true);
+    list_->show();
+    list_->set_focus();
+}
+
 void select::receive_event(const event &ev)
 {
     if (!showed_ || !enabled_)
@@ -165,7 +178,7 @@ void select::receive_event(const event &ev)
                 redraw();
             break;
             case mouse_event_type::left_up:
-                // show the list
+                show_list();
             break;
         }
     }
@@ -200,6 +213,20 @@ void select::receive_event(const event &ev)
             break;
         }
     }
+}
+
+void select::update_list_theme()
+{
+    list_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
+
+    list_theme->set_color(list::tc, list::tv_background, theme_color(tc, tv_background, theme_));
+    list_theme->set_color(list::tc, list::tv_border, theme_color(tc, tv_border, theme_));
+    list_theme->set_color(list::tc, list::tv_focused_border, theme_color(tc, tv_border, theme_));
+    list_theme->set_dimension(list::tc, list::tv_border_width, theme_dimension(tc, tv_border_width, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar, theme_color(tc, tv_scrollbar, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar_slider, theme_color(tc, tv_scrollbar_slider, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar_slider_acive, theme_color(tc, tv_scrollbar_slider_acive, theme_));
+    list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tc, tv_round, theme_));
 }
 
 void select::set_position(const rect &position__, bool redraw)
