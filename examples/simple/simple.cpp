@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
     
     std::shared_ptr<wui::input> nameInput(new wui::input());
     nameInput->set_text("Hello world!");
-    nameInput->set_input_view(wui::input_view::readonly_no_select);
+    nameInput->set_input_view(wui::input_view::readonly);
     window->add_control(nameInput, { 320, 250, 890, 275 });
 
     std::shared_ptr<wui::window> dialog(new wui::window());
