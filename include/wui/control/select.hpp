@@ -15,17 +15,15 @@
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
 
-#include <wui/control/list.hpp>
-
 #include <string>
-#include <vector>
 #include <functional>
 #include <memory>
+#include <vector>
 
 namespace wui
 {
 
-class image;
+class list;
 
 struct select_item;
 
@@ -36,7 +34,6 @@ struct select_item
     int32_t id;
 
     std::string text;
-    std::shared_ptr<image> image_;
 
     inline bool operator==(const int32_t id_)
     {
@@ -82,6 +79,10 @@ public:
 
     void set_item_height(int32_t item_height);
 
+    select_item selected_item() const;
+
+    void set_change_callback(std::function<void(int32_t, const std::string&)> change_callback);
+
 public:
     /// Control name in theme
     static constexpr const char *tc = "select";
@@ -90,42 +91,40 @@ public:
     static constexpr const char *tv_background = "background";
     static constexpr const char *tv_border = "border";
     static constexpr const char *tv_border_width = "border_width";
+    static constexpr const char *tv_focused_border = "focused_border";
+    static constexpr const char *tv_button_calm = "button_calm";
+    static constexpr const char *tv_button_active = "button_active";
     static constexpr const char *tv_text = "text";
-    static constexpr const char *tv_selected_item = "selected_item";
     static constexpr const char *tv_scrollbar = "scrollbar";
     static constexpr const char *tv_scrollbar_slider = "scrollbar_slider";
     static constexpr const char *tv_scrollbar_slider_acive = "scrollbar_slider_active";
+    static constexpr const char *tv_selected_item = "selected_item";
+    static constexpr const char *tv_active_item = "active_item";
     static constexpr const char *tv_round = "round";
     static constexpr const char *tv_font = "font";
 
 private:
-    std::shared_ptr<i_theme> list_theme;
+    std::vector<select_item> items;
+
     std::shared_ptr<list> list_;
 
+    std::function<void(int32_t, const std::string&)> change_callback;
     std::shared_ptr<i_theme> theme_;
 
-    rect position_;
-
+    rect position_;;
+    
     std::weak_ptr<window> parent;
     std::string my_subscriber_id;
 
-    std::shared_ptr<i_control> activation_control;
-
-    std::vector<select_item> items;
-
-    int32_t max_text_width;
-
-    bool showed_;
-    bool size_updated;
-
-    void update_list_theme();
+    bool showed_, enabled_;
+    bool focused_;
+    bool focusing_;
+    
+    int32_t left_shift;
 
     void receive_event(const event &ev);
 
-    void update_size();
-
-    void draw_list_item(wui::graphic &gr, int32_t n_item, const wui::rect &item_rect_, list::item_state state, const std::vector<list::column> &columns);
-    void activate_list_item(int32_t n_item);
+    void redraw();
 };
 
 }
