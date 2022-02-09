@@ -520,6 +520,7 @@ void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_,
 void select::activate_list_item(int32_t n_item)
 {
     list_->hide();
+    redraw();
 }
 
 }
