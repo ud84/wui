@@ -273,7 +273,8 @@ int main(int argc, char *argv[])
     window->add_control(createPluggedButton, { 320, 50, 400, 75 });
     
     std::shared_ptr<wui::input> nameInput(new wui::input());
-    //nameInput->set_text("Hello world!");
+    nameInput->set_text("Hello world!");
+    nameInput->set_input_view(wui::input_view::readonly_no_select);
     window->add_control(nameInput, { 320, 250, 890, 275 });
 
     std::shared_ptr<wui::window> dialog(new wui::window());

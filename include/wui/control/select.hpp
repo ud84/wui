@@ -14,28 +14,41 @@
 #include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
-#include <wui/system/timer.hpp>
+
+#include <wui/control/list.hpp>
 
 #include <string>
+#include <vector>
 #include <functional>
 #include <memory>
 
 namespace wui
 {
 
-enum class input_view
+class image;
+
+struct select_item;
+
+typedef std::vector<select_item> select_items_t;
+
+struct select_item
 {
-    singleline,
-    multiline,
-    readonly,
-    readonly_no_select
+    int32_t id;
+
+    std::string text;
+    std::shared_ptr<image> image_;
+
+    inline bool operator==(const int32_t id_)
+    {
+        return id == id_;
+    }
 };
 
-class input : public i_control, public std::enable_shared_from_this<input>
+class select : public i_control, public std::enable_shared_from_this<select>
 {
 public:
-    input(const std::string &text = "", input_view input_view_ = input_view::singleline, std::shared_ptr<i_theme> theme_ = nullptr);
-    ~input();
+    select(std::shared_ptr<i_theme> theme_ = nullptr);
+    ~select();
 
     virtual void draw(graphic &gr, const rect &);
 
@@ -62,74 +75,57 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    void set_text(const std::string &text);
-    std::string text() const;
+    void set_items(const select_items_t &items);
+    void update_item(const select_item &mi);
+    void swap_items(int32_t first_item_id, int32_t second_item_id);
+    void delete_item(int32_t id);
 
-    void set_input_view(input_view input_view_);
-
-    void set_change_callback(std::function<void(const std::string&)> change_callback);
+    void set_item_height(int32_t item_height);
 
 public:
     /// Control name in theme
-    static constexpr const char *tc = "input";
+    static constexpr const char *tc = "select";
 
     /// Used theme values
     static constexpr const char *tv_background = "background";
-    static constexpr const char *tv_text = "text";
-    static constexpr const char *tv_selection = "selection";
-    static constexpr const char *tv_cursor = "cursor";
     static constexpr const char *tv_border = "border";
     static constexpr const char *tv_border_width = "border_width";
-    static constexpr const char *tv_focused_border = "focused_border";
+    static constexpr const char *tv_text = "text";
+    static constexpr const char *tv_selected_item = "selected_item";
+    static constexpr const char *tv_scrollbar = "scrollbar";
+    static constexpr const char *tv_scrollbar_slider = "scrollbar_slider";
+    static constexpr const char *tv_scrollbar_slider_acive = "scrollbar_slider_active";
     static constexpr const char *tv_round = "round";
     static constexpr const char *tv_font = "font";
 
 private:
-    input_view input_view_;
-    std::string text_;
-    std::function<void(const std::string&)> change_callback;
+    std::shared_ptr<i_theme> list_theme;
+    std::shared_ptr<list> list_;
+
     std::shared_ptr<i_theme> theme_;
 
     rect position_;
-    size_t cursor_position, select_start_position, select_end_position;
-    
+
     std::weak_ptr<window> parent;
     std::string my_subscriber_id;
 
-    timer timer_;
+    std::shared_ptr<i_control> activation_control;
 
-    bool showed_, enabled_;
-    bool focused_;
-    bool focusing_;
-    bool cursor_visible;
-    bool selecting;
+    std::vector<select_item> items;
 
-    int32_t left_shift;
+    int32_t max_text_width;
+
+    bool showed_;
+    bool size_updated;
+
+    void update_list_theme();
 
     void receive_event(const event &ev);
 
-    void redraw();
+    void update_size();
 
-    void redraw_cursor();
-
-    void update_select_positions(bool shift_pressed, size_t start_position, size_t end_position);
-
-    bool clear_selected_text(); /// returns true if selection is not empty
-
-    void select_current_word(int32_t x);
-
-    void select_all();
-
-    bool check_count_valid(size_t count);
-
-    void move_cursor_left();
-    void move_cursor_right();
-
-    size_t calculate_mouse_cursor_position(int32_t x);
-
-    void buffer_copy();
-    void buffer_cut();
-    void buffer_paste();
+    void draw_list_item(wui::graphic &gr, int32_t n_item, const wui::rect &item_rect_, list::item_state state, const std::vector<list::column> &columns);
+    void activate_list_item(int32_t n_item);
 };
 
 }
