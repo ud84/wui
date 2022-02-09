@@ -79,6 +79,8 @@ public:
 
     void set_item_height(int32_t item_height);
 
+    void select_item_number(int32_t index);
+    void select_item_id(int32_t id);
     select_item selected_item() const;
 
     void set_change_callback(std::function<void(int32_t, const std::string&)> change_callback);
@@ -106,8 +108,6 @@ public:
 private:
     std::vector<select_item> items;
 
-    std::shared_ptr<list> list_;
-
     std::function<void(int32_t, const std::string&)> change_callback;
     std::shared_ptr<i_theme> theme_;
 
@@ -115,6 +115,9 @@ private:
     
     std::weak_ptr<window> parent;
     std::string my_subscriber_id;
+
+    std::shared_ptr<i_theme> list_theme;
+    std::shared_ptr<list> list_;
 
     bool showed_, enabled_, active;
     bool focused_;
@@ -125,6 +128,8 @@ private:
     void receive_event(const event &ev);
 
     void redraw();
+
+    void draw_arrow_down(graphic &gr, rect pos);
 };
 
 }

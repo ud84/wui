@@ -279,6 +279,13 @@ int main(int argc, char *argv[])
     window->add_control(nameInput, { 320, 250, 890, 275 });
 
     std::shared_ptr<wui::select> someSelect(new wui::select());
+    someSelect->set_items({
+            { 0, "Item 0" },
+            { 1, "Item 1" },
+            { 2, "Item 2" },
+            { 3, "Item 3" },
+            { 4, "Item 4" },
+        });
     window->add_control(someSelect, { 320, 300, 890, 325 });
 
     std::shared_ptr<wui::window> dialog(new wui::window());
@@ -319,7 +326,7 @@ int main(int argc, char *argv[])
 
     window->set_min_size(100, 100);
 
-    auto sid = window->subscribe([&menuButton, &pluggedWindow, &nameInput, &okButton, &cancelButton](const wui::event &e) {
+    auto sid = window->subscribe([&menuButton, &pluggedWindow, &nameInput, &someSelect, &okButton, &cancelButton](const wui::event &e) {
         if (e.internal_event_.type == wui::internal_event_type::size_changed)
         {
             int32_t w = e.internal_event_.x, h = e.internal_event_.y;
@@ -331,6 +338,7 @@ int main(int argc, char *argv[])
 
             menuButton->set_position({ w - 42, 50, w - 10, 82 }, false);
             nameInput->set_position({ 320, 250, w - 10, 275 }, false);
+            someSelect->set_position({ 320, 300, w - 10, 325 }, false);
             okButton->set_position({ w - 250, h - 50, w - 150, h - 20 }, false);
             cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 }, false);
         }

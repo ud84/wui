@@ -23,6 +23,8 @@
 namespace wui
 {
 
+static const int32_t select_horizontal_indent = 5;
+
 select::select(std::shared_ptr<i_theme> theme__)
     : items(),
     change_callback(),
@@ -30,6 +32,8 @@ select::select(std::shared_ptr<i_theme> theme__)
     position_(),
     parent(),
     my_subscriber_id(),
+    list_theme(make_custom_theme()),
+    list_(new list(list_theme)),
     showed_(true), enabled_(true), active(false),
     focused_(false),
     focusing_(true),
@@ -63,14 +67,53 @@ void select::draw(graphic &gr, const rect &)
         border_width,
         theme_dimension(tc, tv_round, theme_));
 
+    if (control_pos.width() < control_pos.height())
+    {
+        return;
+    }
+
     /// Draw the button
-    gr.draw_rect({ control_pos.right - control_pos.height() - border_width,
-            control_pos.top + border_width,
-            control_pos.right - border_width,
-            control_pos.bottom - border_width },
-        theme_color(tc, active ? tv_button_active : tv_button_calm, theme_));
+    draw_arrow_down(gr, { control_pos.right - static_cast<int32_t>(control_pos.height() / 1.5),
+            control_pos.top + static_cast<int32_t>(control_pos.height() / 2.1)});
 
     auto font_ = theme_font(tc, tv_font, theme_);
+
+    if (items.size() <= list_->selected_item())
+    {
+        return;
+    }
+
+    auto text = items[list_->selected_item()].text;
+
+    auto text_size = gr.measure_text(text, font_);
+
+    while (!text.empty() && text_size.width() > control_pos.width() - control_pos.height())
+    {
+        text.resize(text.size() - 1);
+        text_size = gr.measure_text(text, font_);
+    }
+
+    gr.draw_text({ control_pos.left + border_width + select_horizontal_indent,
+        control_pos.top + (control_pos.height() - text_size.height()) / 2 }, text,
+        theme_color(tc, tv_text, theme_),
+        font_);
+}
+
+
+void select::draw_arrow_down(graphic &gr, rect pos)
+{
+    auto color = theme_color(tc, !active ? tv_border : tv_focused_border, theme_);
+
+    int w = 8, h = 4;
+
+    for (int j = 0; j != h; ++j)
+    {
+        for (int i = 0; i != w; ++i)
+        {
+            gr.draw_pixel({ pos.left + j + i, pos.top + j }, color);
+        }
+        w -= 2;
+    }
 }
 
 void select::receive_event(const event &ev)
@@ -92,13 +135,15 @@ void select::receive_event(const event &ev)
                 active = false;
                 redraw();
             break;
-            case mouse_event_type::left_down:
-                
+            case mouse_event_type::wheel:
+                if (ev.mouse_event_.wheel_delta > 0)
+                {
 
+                }
                 redraw();
             break;
             case mouse_event_type::left_up:
-
+                // show the list
             break;
         }
     }
@@ -109,17 +154,31 @@ void select::receive_event(const event &ev)
             case keyboard_event_type::down:
                 switch (ev.keyboard_event_.key[0])
                 {
-                    case vk_left:
-                        
+                    case vk_up:
+                        if (!items.empty() && list_->selected_item() > 0)
+                        {
+                            list_->select_item(list_->selected_item() - 1);
+                        }
                     break;
-                    case vk_right:
-                        
+                    case vk_down:
+                        if (!items.empty() && list_->selected_item() < items.size() - 1)
+                        {
+                            list_->select_item(list_->selected_item() + 1);
+                        }
                     break;
-                    case vk_home:
-                        
+                    case vk_home: case vk_page_up:
+                        if (!items.empty())
+                        {
+                            list_->select_item(0);
+                            redraw();
+                        }
                     break;
-                    case vk_end:
-
+                    case vk_end: case vk_page_down:
+                        if (!items.empty())
+                        {
+                            list_->select_item(static_cast<int32_t>(items.size() - 1));
+                            redraw();
+                        }
                     break;
                 }
             break;
@@ -282,6 +341,25 @@ void select::delete_item(int32_t id)
 void select::set_item_height(int32_t item_height_)
 {
     list_->set_item_height(item_height_);
+}
+
+void select::select_item_number(int32_t index)
+{
+    list_->select_item(index);
+    redraw();
+}
+
+void select::select_item_id(int32_t id)
+{
+    for (int32_t i = 0; i != static_cast<int32_t>(items.size()); ++i)
+    {
+        if (items[i].id == id)
+        {
+            list_->select_item(i);
+            redraw();
+            break;
+        }
+    }
 }
 
 select_item select::selected_item() const
