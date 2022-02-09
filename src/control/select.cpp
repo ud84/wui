@@ -138,7 +138,19 @@ void select::receive_event(const event &ev)
             case mouse_event_type::wheel:
                 if (ev.mouse_event_.wheel_delta > 0)
                 {
-
+                    if (!items.empty() && list_->selected_item() > 0)
+                    {
+                        list_->select_item(list_->selected_item() - 1);
+                        redraw();
+                    }
+                }
+                else
+                {
+                    if (!items.empty() && list_->selected_item() < items.size() - 1)
+                    {
+                        list_->select_item(list_->selected_item() + 1);
+                        redraw();
+                    }
                 }
                 redraw();
             break;
@@ -158,12 +170,14 @@ void select::receive_event(const event &ev)
                         if (!items.empty() && list_->selected_item() > 0)
                         {
                             list_->select_item(list_->selected_item() - 1);
+                            redraw();
                         }
                     break;
                     case vk_down:
                         if (!items.empty() && list_->selected_item() < items.size() - 1)
                         {
                             list_->select_item(list_->selected_item() + 1);
+                            redraw();
                         }
                     break;
                     case vk_home: case vk_page_up:
