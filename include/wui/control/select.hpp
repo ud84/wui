@@ -116,7 +116,7 @@ private:
     std::weak_ptr<window> parent;
     std::string my_subscriber_id;
 
-    bool showed_, enabled_;
+    bool showed_, enabled_, active;
     bool focused_;
     bool focusing_;
     

@@ -30,7 +30,7 @@ select::select(std::shared_ptr<i_theme> theme__)
     position_(),
     parent(),
     my_subscriber_id(),
-    showed_(true), enabled_(true),
+    showed_(true), enabled_(true), active(false),
     focused_(false),
     focusing_(true),
     left_shift(0)
@@ -53,16 +53,24 @@ void select::draw(graphic &gr, const rect &)
         return;
     }
 
+    auto control_pos = position();
+    auto border_width = theme_dimension(tc, tv_border_width, theme_);
+
     /// Draw the frame
-    gr.draw_rect(position(),
+    gr.draw_rect(control_pos,
         !focused_ ? theme_color(tc, tv_border, theme_) : theme_color(tc, tv_focused_border, theme_),
         theme_color(tc, tv_background, theme_),
-        theme_dimension(tc, tv_border_width, theme_),
+        border_width,
         theme_dimension(tc, tv_round, theme_));
 
+    /// Draw the button
+    gr.draw_rect({ control_pos.right - control_pos.height() - border_width,
+            control_pos.top + border_width,
+            control_pos.right - border_width,
+            control_pos.bottom - border_width },
+        theme_color(tc, active ? tv_button_active : tv_button_calm, theme_));
+
     auto font_ = theme_font(tc, tv_font, theme_);
-
-
 }
 
 void select::receive_event(const event &ev)
@@ -77,9 +85,12 @@ void select::receive_event(const event &ev)
         switch (ev.mouse_event_.type)
         {
             case mouse_event_type::enter:
-            {
-                
-            }
+                active = true;
+                redraw();
+            break;
+            case mouse_event_type::leave:
+                active = false;
+                redraw();
             break;
             case mouse_event_type::left_down:
                 
