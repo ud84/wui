@@ -352,6 +352,8 @@ void select::update_theme(std::shared_ptr<i_theme> theme__)
         return;
     }
     theme_ = theme__;
+
+    update_list_theme();
 }
 
 void select::show()
