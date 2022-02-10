@@ -10,8 +10,10 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include <wui/common/rect.hpp>
+#include <wui/common/font.hpp>
 #include <wui/system/system_context.hpp>
 
 namespace wui
@@ -41,6 +43,8 @@ void update_control_position(rect &control_position,
 rect get_control_position(const rect &control_position, std::weak_ptr<window> parent);
 
 rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &control_position, const rect &my_position, int32_t indent);
+
+void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t width, int32_t truncating_count = 10);
 
 #ifdef __linux__
 bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message);

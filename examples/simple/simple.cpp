@@ -274,8 +274,8 @@ int main(int argc, char *argv[])
 
     window->add_control(createPluggedButton, { 320, 50, 400, 75 });
 
-    std::shared_ptr<wui::text> text0(new wui::text("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."));
-    window->add_control(text0, { 320, 180, 890, 230 });
+    std::shared_ptr<wui::text> text0(new wui::text("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."));
+    window->add_control(text0, { 320, 180, 890, 240 });
     
     std::shared_ptr<wui::input> nameInput(new wui::input());
     nameInput->set_text("Hello world!");
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
             }
 
             menuButton->set_position({ w - 42, 50, w - 10, 82 }, false);
-            text0->set_position({ 320, 180, w - 10, 230 }, false);
+            text0->set_position({ 320, 180, w - 10, 240 }, false);
             nameInput->set_position({ 320, 250, w - 10, 275 }, false);
             someSelect->set_position({ 320, 300, w - 10, 325 }, false);
             okButton->set_position({ w - 250, h - 50, w - 150, h - 20 }, false);

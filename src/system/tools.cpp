@@ -244,4 +244,21 @@ rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &cont
     return out_pos;
 }
 
+void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t width, int32_t truncating_count)
+{
+    bool line_truncated = false;
+    auto text_size = gr.measure_text(line, font_);
+    while (line.size() > truncating_count && text_size.width() > width)
+    {
+        line.resize(line.size() - truncating_count);
+        text_size = gr.measure_text(line, font_);
+        line_truncated = true;
+    }
+
+    if (line_truncated)
+    {
+        line += "...";
+    }
+}
+
 }

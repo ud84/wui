@@ -16,6 +16,8 @@
 #include <wui/system/tools.hpp>
 
 #include <cstring>
+#include <vector>
+#include <sstream>
 
 namespace wui
 {
@@ -45,23 +47,36 @@ void text::draw(graphic &gr, const rect &)
         return;
     }
 
-    auto text__ = text_;
-
     auto font_ = theme_font(tc, tv_font, theme_);
 
-    auto text_size = gr.measure_text(text__, font_);
+    std::stringstream text__(text_);
+    std::string line;
+    std::vector<std::string> lines;
 
-    auto line_count = static_cast<double>(position_.height()) / static_cast<double>(text_size.height() + text_size.height() * 0.8);
-    if (line_count > 1)
+    while (std::getline(text__, line, '\n'))
     {
-        while (!text__.empty() && text_size.width() > position_.width())
-        {
-            text__.resize(text__.size() - 1);
-            text_size = gr.measure_text(text__, font_);
-        }
+        lines.push_back(line);
     }
 
-    gr.draw_text(position(), text__, theme_color(tc, tv_color, theme_), font_);
+    auto control_pos = position();
+
+    int32_t line_top = control_pos.top;
+
+    auto text_height = gr.measure_text("Qq", font_).height();
+
+    for (auto &line : lines)
+    {
+        truncate_line(line, gr, font_, control_pos.width());
+
+        gr.draw_text({ control_pos.left, line_top }, line, theme_color(tc, tv_color, theme_), font_);
+
+        line_top += static_cast<int32_t>(text_height * 1.2);
+
+        if (line_top + text_height > control_pos.bottom)
+        {
+            break;
+        }
+    }
 }
 
 void text::set_position(const rect &position__, bool redraw)

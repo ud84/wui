@@ -92,14 +92,11 @@ void select::draw(graphic &gr, const rect &)
 
     auto text_size = gr.measure_text(text, font_);
 
-    while (!text.empty() && text_size.width() > control_pos.width() - control_pos.height())
-    {
-        text.resize(text.size() - 1);
-        text_size = gr.measure_text(text, font_);
-    }
+    truncate_line(text, gr, font_, control_pos.width() - control_pos.height(), 1);
 
     gr.draw_text({ control_pos.left + border_width + select_horizontal_indent,
-        control_pos.top + (control_pos.height() - text_size.height()) / 2 }, text,
+        control_pos.top + (control_pos.height() - text_size.height()) / 2 },
+        text,
         theme_color(tc, tv_text, theme_),
         font_);
 }
@@ -523,11 +520,7 @@ void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_,
 
     auto text_size = gr.measure_text(text, font);
 
-    while (!text.empty() && text_size.width() > item_rect_.width() - item_rect_.height())
-    {
-        text.resize(text.size() - 1);
-        text_size = gr.measure_text(text, font);
-    }
+    truncate_line(text, gr, font, item_rect_.width() - item_rect_.height(), 1);
 
     auto text_height = text_size.height();
     if (text_height <= item_rect.height())
