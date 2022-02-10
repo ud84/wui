@@ -956,7 +956,8 @@ bool list::is_click_on_scrollbar(int32_t x)
 
 void list::update_selected_item(int32_t y)
 {
-    auto item = static_cast<int32_t>(round((double)(y - position().top) / item_height)) - 1 + start_item;
+    auto border_width = theme_dimension(tc, tv_border_width, theme_);
+    auto item = static_cast<int32_t>(floor((double)(y - position().top - title_height - border_width) / item_height)) + start_item;
 
     if (item > item_count)
     {
@@ -983,7 +984,8 @@ void list::update_active_item(int32_t y)
 {
     int32_t prev_active_item_ = active_item_;
     
-    active_item_ = static_cast<int32_t>(round((double)(y - position().top) / item_height)) - 1 + start_item;
+    auto border_width = theme_dimension(tc, tv_border_width, theme_);
+    active_item_ = static_cast<int32_t>(floor((double)(y - position().top - title_height - border_width) / item_height)) + start_item;
 
     if (active_item_ > item_count)
     {

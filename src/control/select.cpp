@@ -180,7 +180,14 @@ void select::receive_control_events(const event &ev)
                 redraw();
             break;
             case mouse_event_type::left_up:
-                show_list();
+                if (!list_->showed())
+                {
+                    show_list();
+                }
+                else
+                {
+                    list_->hide();
+                }
             break;
         }
     }
