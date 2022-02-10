@@ -101,7 +101,7 @@ public:
     void set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback);
 
 public:
-    /// Control name in theme
+    /// Control name in theme / locale
     static constexpr const char *tc = "window";
 
     /// Used theme values
@@ -118,6 +118,10 @@ public:
     static constexpr const char *ti_normal = "window_normal";
     static constexpr const char *ti_minimize = "window_minimize";
     static constexpr const char *ti_pin = "window_pin";
+
+    /// Used locale values (from section window)
+    static constexpr const char *cl_pin = "pin";
+    static constexpr const char *cl_unpin = "unpin";
 
 private:
     system_context context_;

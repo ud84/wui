@@ -1,0 +1,31 @@
+{
+  "sections": [
+    {
+      "type": "button",
+
+      "ok": "OK",
+      "yes": "Yes",
+      "no": "No",
+      "cancel": "Cancel",
+      "abort": "Abort",
+      "retry": "Retry",
+      "ignore": "Ignore",
+      "try_continue": "Try continue"
+    },
+    {
+      "type": "window",
+
+      "pin": "Pin the window",
+      "unpin": "Unpin the window"
+    },
+    {
+      "type": "edit",
+
+      "copy": "Copy",
+      "cut": "Cut",
+      "paste": "Paste",
+      "undo": "Undo",
+      "redo": "Redo"
+    }
+  ]
+}

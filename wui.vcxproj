@@ -70,6 +70,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\dark.json" />
+    <None Include="res\en_locale.json" />
+    <None Include="res\ru_locale.json" />
     <None Include="res\white.json" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

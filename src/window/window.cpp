@@ -12,6 +12,7 @@
 #include <wui/graphic/graphic.hpp>
 
 #include <wui/theme/theme.hpp>
+#include <wui/locale/locale.hpp>
 
 #include <wui/control/button.hpp>
 
@@ -113,7 +114,7 @@ window::window()
     close_callback(),
     pin_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
-    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24)),
+    pin_button(new button(locale(tc, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24)),
     minimize_button(new button("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24)),
     expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24)),
     close_button(new button("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24)),
@@ -403,7 +404,7 @@ void window::set_parent(std::shared_ptr<window> window)
         my_control_sid = window->subscribe(std::bind(&window::receive_control_events, this, std::placeholders::_1), event_type::all, shared_from_this());
         my_plain_sid = window->subscribe(std::bind(&window::receive_plain_events, this, std::placeholders::_1), event_type::all);
 
-        pin_button->set_caption("Unpin the window");
+        pin_button->set_caption(locale(tc, cl_unpin));
     }
 }
 

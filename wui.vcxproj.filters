@@ -208,5 +208,11 @@
     <None Include="res\white.json">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\en_locale.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ru_locale.json">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
