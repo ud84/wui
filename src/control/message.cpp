@@ -21,12 +21,13 @@ message::message(const std::string &message_,
     std::shared_ptr<wui::window> transient_window_, bool docked_,
     std::shared_ptr<i_theme> theme_)
     : window(new wui::window()),
-    transient_window(transient_window_)//,
+    transient_window(transient_window_),
     //icon(new image()),
-    //text_(new text(theme_)),
-    //button0(), button1(), button2()
+    text_(new text("", theme_)),
+    button0(new button("", std::bind(&message::button0_click, this), theme_)),
+    button1(new button("", std::bind(&message::button1_click, this), theme_)),
+    button2(new button("", std::bind(&message::button2_click, this), theme_))
 {
-
 }
 
 message::~message()
@@ -34,17 +35,17 @@ message::~message()
 
 }
 
-void message::button0_click_callback()
+void message::button0_click()
 {
 
 }
 
-void message::button1_click_callback()
+void message::button1_click()
 {
 
 }
 
-void message::button2_click_callback()
+void message::button2_click()
 {
 
 }

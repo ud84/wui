@@ -81,9 +81,9 @@ private:
     std::shared_ptr<text> text_;
     std::shared_ptr<button> button0, button1, button2;
 
-    void button0_click_callback();
-    void button1_click_callback();
-    void button2_click_callback();
+    void button0_click();
+    void button1_click();
+    void button2_click();
 };
 
 message_result show_message(const std::string &message_,
