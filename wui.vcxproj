@@ -57,6 +57,7 @@
     <ClCompile Include="src\control\input.cpp" />
     <ClCompile Include="src\control\list.cpp" />
     <ClCompile Include="src\control\menu.cpp" />
+    <ClCompile Include="src\control\message.cpp" />
     <ClCompile Include="src\control\select.cpp" />
     <ClCompile Include="src\control\text.cpp" />
     <ClCompile Include="src\control\tooltip.cpp" />
