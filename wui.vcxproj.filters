@@ -132,6 +132,12 @@
     <ClInclude Include="include\wui\control\select.hpp">
       <Filter>Header Files\wui\control</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\control\message.hpp">
+      <Filter>Header Files\wui\control</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\control\text.hpp">
+      <Filter>Header Files\wui\control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -168,6 +174,9 @@
       <Filter>Source Files\control</Filter>
     </ClCompile>
     <ClCompile Include="src\control\select.cpp">
+      <Filter>Source Files\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\text.cpp">
       <Filter>Source Files\control</Filter>
     </ClCompile>
   </ItemGroup>

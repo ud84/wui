@@ -20,9 +20,6 @@
 #include <memory>
 #include <vector>
 
-#ifdef __linux__
-#endif
-
 namespace wui
 {
 

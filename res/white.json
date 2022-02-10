@@ -12,6 +12,14 @@
         "size": 18
       }
     },
+	{
+      "type": "text",
+      "color": "#191914",
+	  "font": {
+        "name": "Segoe UI",
+        "size": 18
+      }
+    },
     {
       "type": "image",
       "path": "IMAGES_WHITE"
