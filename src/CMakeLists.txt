@@ -3,6 +3,8 @@ file(GLOB SOURCES
 	graphic/*.cpp
 	theme/*.cpp
 	theme/impl/*.cpp
+	locale/*.cpp
+	locale/impl/*.cpp
 	system/*.cpp
 	window/*.cpp)
 

@@ -52,6 +52,12 @@
     <Filter Include="Header Files\wui\window">
       <UniqueIdentifier>{d82e81ca-abfe-46a9-9da1-7d0fc60ab5b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\wui\locale">
+      <UniqueIdentifier>{bf41859f-492a-402e-922c-ca890293dcd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\locale">
+      <UniqueIdentifier>{d88d4d94-bac6-4afe-b53d-1a5f9af02471}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\wui\common\color.hpp">
@@ -138,6 +144,15 @@
     <ClInclude Include="include\wui\control\text.hpp">
       <Filter>Header Files\wui\control</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\locale\i_locale.hpp">
+      <Filter>Header Files\wui\locale</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\locale\locale.hpp">
+      <Filter>Header Files\wui\locale</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\locale\locale_impl.hpp">
+      <Filter>Header Files\wui\locale</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -178,6 +193,12 @@
     </ClCompile>
     <ClCompile Include="src\control\text.cpp">
       <Filter>Source Files\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\locale\locale.cpp">
+      <Filter>Source Files\locale</Filter>
+    </ClCompile>
+    <ClCompile Include="src\locale\locale_impl.cpp">
+      <Filter>Source Files\locale</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
