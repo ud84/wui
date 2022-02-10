@@ -22,7 +22,7 @@ namespace wui
 {
 
 button::button(const std::string &caption_, std::function<void(void)> click_callback_, std::shared_ptr<i_theme> theme__)
-    : button_view_(button_view::only_text),
+    : button_view_(button_view::text),
     caption(caption_),
     image_(),
     image_size(0),
@@ -108,7 +108,7 @@ void button::draw(graphic &gr, const rect &)
 
     switch (button_view_)
     {
-        case button_view::only_text:
+        case button_view::text:
             if (text_rect.right + 10 > position().width())
             {
                 position_.right = position().left + text_rect.right + 10;
@@ -117,7 +117,7 @@ void button::draw(graphic &gr, const rect &)
             text_top = position().top + ((position().height() - text_rect.bottom) / 2);
             text_left = position().left + ((position().width() - text_rect.right) / 2);
         break;
-        case button_view::only_image:
+        case button_view::image:
             if (image_)
 	        {
                 if (image_size > position().width())
@@ -182,13 +182,13 @@ void button::draw(graphic &gr, const rect &)
 
     gr.draw_rect(position(), border_color, fill_color, theme_dimension(tc, tv_border_width, theme_), theme_dimension(tc, tv_round, theme_));
 	
-    if (button_view_ != button_view::only_text && image_)
+    if (button_view_ != button_view::text && image_)
     {
         image_->set_position( { image_left, image_top, image_left + image_size, image_top + image_size }, false );
         image_->draw(gr, rect{ 0 });
     }
 
-    if (button_view_ != button_view::only_image)
+    if (button_view_ != button_view::image)
     {
         gr.draw_text(rect{ text_left, text_top, text_left, text_top }, caption, 
             button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_text, theme_) : theme_color(window::tc, tv_text, theme_),
@@ -217,14 +217,14 @@ void button::receive_event(const event &ev)
                 }
                 redraw();
 
-                if (button_view_ == button_view::only_image && !caption.empty())
+                if (button_view_ == button_view::image && !caption.empty())
                 {
                     tooltip_->show_on_control(*this, 5);
                 }
             }
             break;
             case mouse_event_type::leave:
-                if (button_view_ == button_view::only_image && !caption.empty())
+                if (button_view_ == button_view::image && !caption.empty())
                 {
                     tooltip_->hide();
                 }

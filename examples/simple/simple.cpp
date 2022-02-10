@@ -78,9 +78,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         : parentWindow(parentWindow_),
         window(new wui::window()),
         list(new wui::list()),
-        button1(new wui::button("Button 1", []() {}, wui::button_view::only_image, IMG_ACCOUNT, 16)),
-        button2(new wui::button("Button 2", []() {}, wui::button_view::only_image, IMG_ACCOUNT, 16)),
-        button3(new wui::button("Button 3", []() {}, wui::button_view::only_image, IMG_ACCOUNT, 16)),
+        button1(new wui::button("Button 1", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
+        button2(new wui::button("Button 2", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
+        button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
         creationButton(),
         plugged(false)
     {
@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
 
     window->add_control(menu, { 0 });
 
-    std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() {}, wui::button_view::only_image, IMG_SETTINGS, 32, controlButtonTheme));
+    std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() {}, wui::button_view::image, IMG_SETTINGS, 32, controlButtonTheme));
     menuButton->set_callback([&menu, &menuButton]() { menu->show_on_control(menuButton, 5); });
     menuButton->disable_focusing();
     window->add_control(menuButton, { 0 });
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
         dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
     }));
 
-    std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::only_image, IMG_ACCOUNT, 24, MakeRedButtonTheme()));
+    std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::image, IMG_ACCOUNT, 24, MakeRedButtonTheme()));
 
     std::shared_ptr<wui::button> darkThemeButton(new wui::button("Set the dark theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {

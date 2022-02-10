@@ -113,10 +113,10 @@ window::window()
     close_callback(),
     pin_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
-    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::only_image, theme_image(ti_pin), 24)),
-    minimize_button(new button("", std::bind(&window::minimize, this), button_view::only_image, theme_image(ti_minimize), 24)),
-    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::only_image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24)),
-    close_button(new button("", std::bind(&window::destroy, this), button_view::only_image, theme_image(ti_close), 24)),
+    pin_button(new button("Pin the window", std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24)),
+    minimize_button(new button("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24)),
+    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24)),
+    close_button(new button("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24)),
 #ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__

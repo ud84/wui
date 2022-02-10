@@ -31,8 +31,8 @@ class tooltip;
 
 enum class button_view
 {
-    only_text,
-    only_image,
+    text,
+    image,
     image_right_text,
     image_bottom_text,
     image_right_text_no_frame
