@@ -24,9 +24,6 @@ void set_default_theme_empty(const std::string &name);
 /// Return the pointer to current default theme instance
 std::shared_ptr<i_theme> get_default_theme();
 
-/// Return true if the current default theme is dark (is used, for example, to define the shade of the window control buttons)
-bool is_dark_default_theme();
-
 /// Make the custom theme for the some control
 std::shared_ptr<i_theme> make_custom_theme(const std::string &name = "");
 std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json);

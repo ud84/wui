@@ -26,11 +26,11 @@ enum class message_icon
     stop
 };
 
-enum class message_button : uint32_t
+enum class message_button
 {
     ok,
     ok_cancel,
-    abrot_retry_ignore,
+    abort_retry_ignore,
     yes_no,
     yes_no_cancel,
     retry_cancel,
@@ -76,6 +76,14 @@ public:
 
 private:
     std::shared_ptr<window> window, transient_window;
+
+    std::shared_ptr<image> icon;
+    std::shared_ptr<text> text_;
+    std::shared_ptr<button> button0, button1, button2;
+
+    void button0_click_callback();
+    void button1_click_callback();
+    void button2_click_callback();
 };
 
 message_result show_message(const std::string &message_,
