@@ -108,12 +108,12 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             if (plugged)
             {
                 Unplug();
-                tooltip_text = "Pin the window";
+                tooltip_text = wui::locale("window", "pin");
             }
             else
             {
                 Plug();
-                tooltip_text = "Unpin the window";
+                tooltip_text = wui::locale("window", "unpin");
             }
         });
 
