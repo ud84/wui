@@ -519,10 +519,20 @@ void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_,
     auto text_color = theme_color(tc, tv_text);
     auto font = theme_font(tc, tv_font);
 
-    auto text_height = gr.measure_text("Qq", font).height();
+    auto text = items[n_item].text;
+
+    auto text_size = gr.measure_text(text, font);
+
+    while (!text.empty() && text_size.width() > item_rect_.width() - item_rect_.height())
+    {
+        text.resize(text.size() - 1);
+        text_size = gr.measure_text(text, font);
+    }
+
+    auto text_height = text_size.height();
     if (text_height <= item_rect.height())
     {
-        gr.draw_text({ item_rect.left + select_horizontal_indent, item_rect_.top + (item_rect_.height() - text_height) / 2 }, item.text, text_color, font);
+        gr.draw_text({ item_rect.left + select_horizontal_indent, item_rect_.top + (item_rect_.height() - text_height) / 2 }, text, text_color, font);
     }
 }
 
