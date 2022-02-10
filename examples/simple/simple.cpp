@@ -285,6 +285,7 @@ int main(int argc, char *argv[])
             { 2, "Item 2" },
             { 3, "Item 3" },
             { 4, "Item 4" },
+            { 5, "Item 5" }
         });
     window->add_control(someSelect, { 320, 300, 890, 325 });
 

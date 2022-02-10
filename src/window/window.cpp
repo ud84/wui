@@ -1668,7 +1668,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     wnd->moving_mode_ = moving_mode::move;
                 }
 
-                if (flag_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)
+                if (flag_is_set(wnd->window_style_, window_style::resizable))
                 {
                     if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
                     {
@@ -2146,7 +2146,7 @@ void window::process_events()
                                 moving_mode_ = moving_mode::move;
                             }
 
-                            if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
+                            if (flag_is_set(window_style_, window_style::resizable))
                             {
                                 if (x_click > ws.width() - 5 && y_click > ws.height() - 5)
                                 {
