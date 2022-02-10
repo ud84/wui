@@ -23,7 +23,8 @@ message::message(const std::string &message_,
     : window(new wui::window()),
     transient_window(transient_window_)//,
     //icon(new image()),
-    //text_(new text(theme_))
+    //text_(new text(theme_)),
+    //button0(), button1(), button2()
 {
 
 }
