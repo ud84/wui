@@ -54,6 +54,7 @@ public:
     virtual bool enabled() const;
 
     void set_text(const std::string &text);
+	const std::string &get_text() const;
 public:
     /// Control name in theme
     static constexpr const char *tc = "text";

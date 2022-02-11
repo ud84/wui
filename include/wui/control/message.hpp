@@ -76,7 +76,9 @@ public:
     static constexpr const char *tv_font = "font";
 
 private:
-    std::shared_ptr<window> window;
+    std::shared_ptr<i_theme> theme_;
+
+    std::shared_ptr<window> window, transient_window_;
 
     std::shared_ptr<image> icon;
     std::shared_ptr<text> text_;
@@ -85,6 +87,8 @@ private:
     void button0_click();
     void button1_click();
     void button2_click();
+
+    rect get_text_size();
 };
 
 message_result show_message(const std::string &message_,

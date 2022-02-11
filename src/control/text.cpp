@@ -174,6 +174,11 @@ void text::set_text(const std::string &text__)
     redraw();
 }
 
+const std::string &text::get_text() const
+{
+	return text_;
+}
+
 void text::redraw()
 {
     if (showed_)
