@@ -34,11 +34,7 @@ message::message(std::shared_ptr<wui::window> transient_window__,
     button1(new button("", std::bind(&message::button1_click, this), theme_)),
     button2(new button("", std::bind(&message::button2_click, this), theme_))
 {
-    //window->add_control(icon, { 0 });
-	window->add_control(text_, { 0 });
-	window->add_control(button0, { 0 });
-
-	window->set_transient_for(transient_window_, docked_);
+    window->set_transient_for(transient_window_, docked_);
 }
 
 message::~message()
@@ -51,6 +47,7 @@ void message::show(const std::string &message_,
     message_button button__,
     std::function<void(message_result)> result_callback_)
 {
+    //window->add_control(icon, { 0 });
     text_->set_text(message_);
 
     icon_ = icon__;
@@ -59,10 +56,25 @@ void message::show(const std::string &message_,
 
     auto text_size = get_text_size();
 
-    auto width = text_size.width() + 60;
-    auto height = text_size.height() + 80;
+    auto width = text_size.width() + 100;
+    auto height = text_size.height() + 100;
 
-    text_->set_position({ 50, 40, 50 + text_size.width(), 40 + text_size.height() });
+    window->add_control(text_, { 80, 40, 80 + text_size.width(), 50 + text_size.height() });
+
+    switch (button_)
+    {
+        case message_button::ok:
+        {
+            auto btn_width = 100;
+            auto btn_height = 25;
+            auto left = (width - btn_width) / 2;
+            auto top = height - btn_height - 20;
+
+            button0->set_caption(locale("button", "ok"));
+            window->add_control(button0, { left, top, left + btn_width , top + btn_height });
+        }
+        break;
+    }
 
     window->init(title_, { 0, 0, width, height }, window_style::dialog, [this]() { /*window.reset();*/ }, theme_);
 }
@@ -74,17 +86,17 @@ message_result message::get_result() const
 
 void message::button0_click()
 {
-
+    window->destroy();
 }
 
 void message::button1_click()
 {
-
+    window->destroy();
 }
 
 void message::button2_click()
 {
-
+    window->destroy();
 }
 
 rect message::get_text_size()
