@@ -39,6 +39,7 @@ enum class message_button
 
 enum class message_result
 {
+	undef,
     ok,
     cancel,
     yes,
