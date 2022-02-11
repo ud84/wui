@@ -218,6 +218,8 @@ private:
     void set_focused(size_t index);
     std::shared_ptr<i_control> get_focused();
 
+	std::shared_ptr<window> get_transient_window();
+
     void update_buttons(bool theme_changed);
 
     void draw_border(graphic &gr);

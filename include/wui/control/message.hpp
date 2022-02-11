@@ -76,7 +76,7 @@ public:
     static constexpr const char *tv_font = "font";
 
 private:
-    std::shared_ptr<window> window, transient_window;
+    std::shared_ptr<window> window;
 
     std::shared_ptr<image> icon;
     std::shared_ptr<text> text_;

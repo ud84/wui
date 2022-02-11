@@ -11,6 +11,7 @@
 #include <wui/control/select.hpp>
 #include <wui/control/image.hpp>
 #include <wui/control/text.hpp>
+#include <wui/control/message.hpp>
 
 #ifdef _WIN32
 #include <Resource.h>
@@ -82,7 +83,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         : parentWindow(parentWindow_),
         window(new wui::window()),
         list(new wui::list()),
-        button1(new wui::button("Button 1", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
+		button1(new wui::button("Button 1", [this]() { wui::show_message("hello", "world", wui::message_icon::information, wui::message_button::ok, window); }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button2(new wui::button("Button 2", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
         button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
         creationButton(),

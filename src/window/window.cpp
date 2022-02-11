@@ -1146,6 +1146,18 @@ void window::send_size(int32_t width, int32_t height)
     send_event_to_plains(ev_);
 }
 
+std::shared_ptr<window> window::get_transient_window()
+{
+	auto transient_window_ = transient_window.lock();
+
+	while (transient_window_ && transient_window_->child() && transient_window_->parent.lock())
+	{
+		transient_window_ = transient_window_->parent.lock();
+	}
+
+	return transient_window_;
+}
+
 bool window::init(const std::string &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
 {
     auto old_position = position_;
@@ -1166,20 +1178,20 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     update_buttons(true);
 
-    auto transient_window_ = transient_window.lock();
+    auto transient_window_ = get_transient_window();
     if (transient_window_)
     {
-        if (docked_)
+		if (docked_)
         {
-            transient_window_->start_docking();
+			transient_window_->start_docking();
 
             int32_t left = (transient_window_->position().width() - position_.width()) / 2;
             int32_t top = (transient_window_->position().height() - position_.height()) / 2;
-            transient_window_->add_control(shared_from_this(), { left, top, left + position_.width(), top + position_.height() });
+			transient_window_->add_control(shared_from_this(), { left, top, left + position_.width(), top + position_.height() });
         }
         else
         {
-            transient_window_->disable();
+			transient_window_->disable();
         }
     }
 
@@ -1351,7 +1363,7 @@ void window::destroy()
     {
         parent_->remove_control(shared_from_this());
 
-        auto transient_window_ = transient_window.lock();
+		auto transient_window_ = get_transient_window();
         if (transient_window_)
         {
             transient_window_->end_docking();
@@ -1870,7 +1882,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 wnd->close_callback();
             }
 
-            auto transient_window_ = wnd->transient_window.lock();
+			auto transient_window_ = wnd->get_transient_window();
             if (transient_window_)
             {
                 transient_window_->enable();
@@ -2382,7 +2394,7 @@ void window::process_events()
                         close_callback();
                     }
 
-                    auto transient_window_ = transient_window.lock();
+					auto transient_window_ = get_transient_window();
                     if (transient_window_)
                     {
                         transient_window_->enable();
