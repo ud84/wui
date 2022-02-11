@@ -18,36 +18,58 @@
 namespace wui
 {
 
-message::message(const std::string &message_,
-    const std::string &title_,
-    message_icon icon_,
-    message_button button_,
-    std::function<void(message_result)> result_callback,
-    std::shared_ptr<wui::window> transient_window__, bool docked_,
+message::message(std::shared_ptr<wui::window> transient_window__,
+    bool docked__,
     std::shared_ptr<i_theme> theme__)
-    : theme_(theme__),
-	window(new wui::window()), transient_window_(transient_window__),
+    : icon_(message_icon::information),
+    button_(message_button::ok),
+    result_callback(),
+    transient_window_(transient_window__), docked_(docked__),
+    theme_(theme__),
+    result_(message_result::undef),
+	window(new wui::window()),
     //icon(new image()),
-    text_(new text(message_, theme_)),
+    text_(new text("", theme_)),
     button0(new button("", std::bind(&message::button0_click, this), theme_)),
     button1(new button("", std::bind(&message::button1_click, this), theme_)),
     button2(new button("", std::bind(&message::button2_click, this), theme_))
 {
+    //window->add_control(icon, { 0 });
+	window->add_control(text_, { 0 });
+	window->add_control(button0, { 0 });
+
+	window->set_transient_for(transient_window_, docked_);
+}
+
+message::~message()
+{
+}
+
+void message::show(const std::string &message_,
+    const std::string &title_,
+    message_icon icon__,
+    message_button button__,
+    std::function<void(message_result)> result_callback_)
+{
+    text_->set_text(message_);
+
+    icon_ = icon__;
+    button_ = button__;
+    result_callback_ = result_callback_;
+
     auto text_size = get_text_size();
 
     auto width = text_size.width() + 50;
     auto height = text_size.height() + 80;
 
-	//window->add_control(icon, { 0 });
-	window->add_control(text_, { 10, 30, 10 + text_size.width(), 30 + text_size.height() });
-	window->add_control(button0, { 0 });
+    text_->set_position({ 50, 40, 50 + text_size.width(), 40 + text_size.height() });
 
-	window->set_transient_for(transient_window_, docked_);
-	window->init(title_, { 0, 0, width, height }, window_style::dialog, [this]() { /*window.reset();*/ }, theme_);
+    window->init(title_, { 0, 0, width, height }, window_style::dialog, [this]() { /*window.reset();*/ }, theme_);
 }
 
-message::~message()
+message_result message::get_result() const
 {
+    return result_;
 }
 
 void message::button0_click()
@@ -97,39 +119,6 @@ rect message::get_text_size()
     auto text_size = mem_gr.measure_text(max_line, theme_font(tc, tv_font, theme_));
 
     return { 0, 0, text_size.width(), static_cast<int32_t>(text_size.height() * 1.2 * lines_count) };
-}
-
-message_result show_message(const std::string &message_,
-    const std::string &title_,
-    message_icon icon_,
-    message_button button_,
-    std::shared_ptr<window> transient_window_, bool docked_,
-    std::shared_ptr<i_theme> theme_)
-{
-    //message_result out_result = message_result::undef;
-
-    std::thread([&message_, &title_, &icon_, &button_, &transient_window_, &docked_, &theme_]() {
-        message_result out_result = message_result::undef;
-
-        auto end_callback = [&out_result](message_result result) noexcept -> void
-        {
-            out_result = result;
-        };
-
-        message dialog(message_, title_, icon_, button_, end_callback, transient_window_, docked_, theme_);
-
-        while (out_result == message_result::undef)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        }
-    }).detach();
-    
-    /*if (thread.joinable())
-    {
-        thread.join();
-    }*/
-
-    return message_result::undef;// out_result;
 }
 
 }

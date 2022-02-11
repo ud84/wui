@@ -39,6 +39,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     std::shared_ptr<wui::window> window;
     std::shared_ptr<wui::list> list;
     std::shared_ptr<wui::button> button1, button2, button3;
+    std::shared_ptr<wui::message> messageBox;
     std::weak_ptr<wui::button> creationButton;
 
     bool plugged;
@@ -84,13 +85,12 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         window(new wui::window()),
         list(new wui::list()),
 		button1(new wui::button("Button 1", [this]() { 
-            wui::show_message("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.", "hello world",
-			wui::message_icon::information, wui::message_button::ok, window, true); 
-            /*wui::message dialog("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-                "hello world", wui::message_icon::information, wui::message_button::ok, [](wui::message_result result) {}, window, false);*/
+            messageBox->show("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+                "hello world", wui::message_icon::information, wui::message_button::ok, [](wui::message_result result) {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button2(new wui::button("Button 2", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
         button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
+        messageBox(new wui::message(window, true)),
         creationButton(),
         plugged(false)
     {

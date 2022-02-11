@@ -52,14 +52,18 @@ enum class message_result
 class message
 {
 public:
-    message(const std::string &message_,
+    message(std::shared_ptr<window> transient_window_,
+        bool docked_ = true,
+        std::shared_ptr<i_theme> theme_ = nullptr);
+    ~message();
+
+    void show(const std::string &message_,
         const std::string &title_,
         message_icon icon_,
         message_button button_,
-        std::function<void(message_result)> result_callback,
-        std::shared_ptr<window> transient_window_, bool docked_ = true,
-        std::shared_ptr<i_theme> theme_ = nullptr);
-    ~message();
+        std::function<void(message_result)> result_callback);
+
+    message_result get_result() const;
 
 public:
     /// Control name in theme
@@ -76,9 +80,15 @@ public:
     static constexpr const char *tv_font = "font";
 
 private:
+    message_icon icon_;
+    message_button button_;
+    std::function<void(message_result)> result_callback;
+    std::shared_ptr<window> transient_window_; bool docked_;
     std::shared_ptr<i_theme> theme_;
 
-    std::shared_ptr<window> window, transient_window_;
+    message_result result_;
+    
+    std::shared_ptr<window> window;
 
     std::shared_ptr<image> icon;
     std::shared_ptr<text> text_;
@@ -90,12 +100,5 @@ private:
 
     rect get_text_size();
 };
-
-message_result show_message(const std::string &message_,
-    const std::string &title_,
-    message_icon icon_,
-    message_button button_,
-    std::shared_ptr<window> transient_window_, bool docked_ = true,
-    std::shared_ptr<i_theme> theme_ = nullptr);
 
 }
