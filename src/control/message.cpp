@@ -59,7 +59,7 @@ void message::show(const std::string &message_,
 
     auto text_size = get_text_size();
 
-    auto width = text_size.width() + 50;
+    auto width = text_size.width() + 60;
     auto height = text_size.height() + 80;
 
     text_->set_position({ 50, 40, 50 + text_size.width(), 40 + text_size.height() });
