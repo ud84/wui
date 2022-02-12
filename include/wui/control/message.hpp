@@ -46,7 +46,9 @@ enum class message_result
     no,
     abort,
     retry,
-    ignore
+    ignore,
+    try_,
+    continue_
 };
 
 class message
@@ -86,13 +88,13 @@ private:
     std::shared_ptr<window> transient_window_; bool docked_;
     std::shared_ptr<i_theme> theme_;
 
-    message_result result_;
-    
     std::shared_ptr<window> window;
 
     std::shared_ptr<image> icon;
     std::shared_ptr<text> text_;
     std::shared_ptr<button> button0, button1, button2;
+
+    message_result result_;
 
     void button0_click();
     void button1_click();

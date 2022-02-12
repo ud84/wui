@@ -26,13 +26,13 @@ message::message(std::shared_ptr<wui::window> transient_window__,
     result_callback(),
     transient_window_(transient_window__), docked_(docked__),
     theme_(theme__),
-    result_(message_result::undef),
 	window(new wui::window()),
     //icon(new image()),
     text_(new text("", theme_)),
     button0(new button("", std::bind(&message::button0_click, this), theme_)),
     button1(new button("", std::bind(&message::button1_click, this), theme_)),
-    button2(new button("", std::bind(&message::button2_click, this), theme_))
+    button2(new button("", std::bind(&message::button2_click, this), theme_)),
+    result_(message_result::undef)
 {
     window->set_transient_for(transient_window_, docked_);
 }
@@ -47,6 +47,8 @@ void message::show(const std::string &message_,
     message_button button__,
     std::function<void(message_result)> result_callback_)
 {
+    result_ = message_result::undef;
+
     //window->add_control(icon, { 0 });
     text_->set_text(message_);
 
@@ -57,26 +59,89 @@ void message::show(const std::string &message_,
     auto text_size = get_text_size();
 
     auto width = text_size.width() + 100;
-    auto height = text_size.height() + 100;
+    auto height = text_size.height() + 120;
 
     window->add_control(text_, { 80, 40, 80 + text_size.width(), 50 + text_size.height() });
+
+    auto btn_width = 100;
+    auto btn_height = 25;
+    auto top = height - btn_height - 20;
 
     switch (button_)
     {
         case message_button::ok:
         {
-            auto btn_width = 100;
-            auto btn_height = 25;
+            if (width <= btn_width)
+            {
+                width = btn_width * 2;
+            }
+
             auto left = (width - btn_width) / 2;
-            auto top = height - btn_height - 20;
 
             button0->set_caption(locale("button", "ok"));
             window->add_control(button0, { left, top, left + btn_width , top + btn_height });
         }
         break;
+        case message_button::ok_cancel: case message_button::yes_no: case message_button::retry_cancel:
+        {
+            if (width <= (btn_width + 10) * 2)
+            {
+                width = (btn_width + 10) * 3;
+            }
+
+            auto left = (width - (btn_width + 10) * 2) / 2;
+
+            std::string btn0_caption = "ok", btn1_caption = "cancel";
+            switch (button_)
+            {
+                case message_button::yes_no:
+                    btn0_caption = "yes", btn1_caption = "no";
+                break;
+                case message_button::retry_cancel:
+                    btn0_caption = "retry", btn1_caption = "cancel";
+                break;
+            }
+            
+            button0->set_caption(locale("button", btn0_caption));
+            window->add_control(button0, { left, top, left + btn_width , top + btn_height });
+
+            button1->set_caption(locale("button", btn1_caption));
+            window->add_control(button1, { left + btn_width + 20, top, left + (btn_width * 2) + 20, top + btn_height });
+        }
+        break;
+        case message_button::abort_retry_ignore: case message_button::cancel_try_continue:
+        {
+            if (width <= (btn_width + 10) * 3)
+            {
+                width = (btn_width + 10) * 4;
+            }
+
+            auto left = (width - (btn_width + 10) * 3) / 2;
+
+            std::string btn0_caption = "abort", btn1_caption = "retry", btn2_caption = "ignore";
+            if (button_ == message_button::cancel_try_continue)
+            {
+                btn0_caption = "cancel", btn1_caption = "try", btn2_caption = "continue";
+            }
+
+            button0->set_caption(locale("button", btn0_caption));
+            window->add_control(button0, { left, top, left + btn_width , top + btn_height });
+
+            button1->set_caption(locale("button", btn1_caption));
+            window->add_control(button1, { left + btn_width + 20, top, left + (btn_width * 2) + 20, top + btn_height });
+
+            button2->set_caption(locale("button", btn2_caption));
+            window->add_control(button2, { left + (btn_width * 2) + 40, top, left + (btn_width * 3) + 40, top + btn_height });
+        }
+        break;
     }
 
-    window->init(title_, { 0, 0, width, height }, window_style::dialog, [this]() { /*window.reset();*/ }, theme_);
+    window->init(title_, { 0, 0, width, height }, window_style::dialog, [this]() {
+        if (result_callback)
+        {
+            result_callback(result_);
+        }
+    }, theme_);
 }
 
 message_result message::get_result() const
@@ -86,16 +151,64 @@ message_result message::get_result() const
 
 void message::button0_click()
 {
+    switch (button_)
+    {
+        case message_button::ok: case message_button::ok_cancel:
+            result_ = message_result::ok;
+        break;
+        case message_button::abort_retry_ignore:
+            result_ = message_result::abort;
+        break;
+        case message_button::yes_no: case message_button::yes_no_cancel:
+            result_ = message_result::yes;
+        break;
+        case message_button::retry_cancel:
+            result_ = message_result::retry;
+        break;
+        case message_button::cancel_try_continue:
+            result_ = message_result::cancel;
+        break;
+    }
     window->destroy();
 }
 
 void message::button1_click()
 {
+    switch (button_)
+    {
+        case message_button::ok_cancel:
+            result_ = message_result::cancel;
+        break;
+        case message_button::abort_retry_ignore:
+            result_ = message_result::retry;
+        break;
+        case message_button::yes_no: case message_button::yes_no_cancel:
+            result_ = message_result::no;
+        break;
+        case message_button::retry_cancel:
+            result_ = message_result::cancel;
+        break;
+        case message_button::cancel_try_continue:
+            result_ = message_result::try_;
+        break;
+    }
     window->destroy();
 }
 
 void message::button2_click()
 {
+    switch (button_)
+    {
+        case message_button::abort_retry_ignore:
+            result_ = message_result::ignore;
+        break;
+        case message_button::yes_no_cancel:
+            result_ = message_result::cancel;
+        break;
+        case message_button::cancel_try_continue:
+            result_ = message_result::continue_;
+        break;
+    }
     window->destroy();
 }
 
