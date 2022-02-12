@@ -1160,8 +1160,6 @@ std::shared_ptr<window> window::get_transient_window()
 
 bool window::init(const std::string &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
 {
-    auto old_position = position_;
-
     caption = caption_;
     if (!position__.is_null())
     {
@@ -1171,27 +1169,35 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     close_callback = close_callback_;
     theme_ = theme__;
 
-    add_control(pin_button, { position_.right - 104, 0, position_.right - 78, 26 });
-    add_control(minimize_button, { position_.right - 78, 0, position_.right - 52, 26 });
-    add_control(expand_button, { position_.right - 52, 0, position_.right - 26, 26 });
-    add_control(close_button, { position_.right - 26, 0, position_.right, 26 });
+    add_control(pin_button, { 0 });
+    add_control(minimize_button, { 0 });
+    add_control(expand_button, { 0 });
+    add_control(close_button, { 0 });
 
     update_buttons(true);
 
     auto transient_window_ = get_transient_window();
     if (transient_window_)
     {
-		if (docked_)
+        if (docked_ && transient_window_->position_ > position_)
         {
 			transient_window_->start_docking();
 
             int32_t left = (transient_window_->position().width() - position_.width()) / 2;
             int32_t top = (transient_window_->position().height() - position_.height()) / 2;
+
 			transient_window_->add_control(shared_from_this(), { left, top, left + position_.width(), top + position_.height() });
         }
         else
         {
-			transient_window_->disable();
+            auto transient_window_pos = transient_window_->position();
+
+            int32_t left = transient_window_pos.left + ((transient_window_pos.width() - position_.width()) / 2);
+            int32_t top = transient_window_pos.top + ((transient_window_pos.height() - position_.height()) / 2);
+
+            position_.put(left, top);
+
+            transient_window_->disable();
         }
     }
 
@@ -1223,7 +1229,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     RegisterClassExW(&wcex);
 
     context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST, wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP,
-        position_.left, position_.top, position_.right, position_.bottom, nullptr, nullptr, h_inst, this);
+        position_.left, position_.top, position_.width(), position_.height(), nullptr, nullptr, h_inst, this);
 
     if (!context_.hwnd)
     {

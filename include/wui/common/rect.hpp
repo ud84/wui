@@ -23,6 +23,11 @@ struct rect
         return left == lv.left && top == lv.top && right == lv.right && bottom == lv.bottom;
     }
 
+    inline bool operator>(const rect &lv)
+    {
+        return width() > lv.width() && height() > lv.height();
+    }
+
     inline rect operator+(const rect &lv)
     {
         return rect{ left + lv.left, top + lv.top, left + lv.right, top + lv.bottom };
