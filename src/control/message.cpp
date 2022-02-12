@@ -27,7 +27,7 @@ message::message(std::shared_ptr<wui::window> transient_window__,
     transient_window_(transient_window__), docked_(docked__),
     theme_(theme__),
 	window(new wui::window()),
-    //icon(new image()),
+    icon(new image(theme_image("message_info", theme_))),
     text_(new text("", theme_)),
     button0(new button("", std::bind(&message::button0_click, this), theme_)),
     button1(new button("", std::bind(&message::button1_click, this), theme_)),
@@ -49,8 +49,23 @@ void message::show(const std::string &message_,
 {
     result_ = message_result::undef;
 
-    //window->add_control(icon, { 0 });
     text_->set_text(message_);
+
+    switch (icon_)
+    {
+        case message_icon::alert:
+            icon->change_image(theme_image("message_alert", theme_));
+        break;
+        case message_icon::information:
+            icon->change_image(theme_image("message_info", theme_));
+        break;
+        case message_icon::question:
+            icon->change_image(theme_image("message_question", theme_));
+        break;
+        case message_icon::stop:
+            icon->change_image(theme_image("message_stop", theme_));
+        break;
+    }
 
     icon_ = icon__;
     button_ = button__;
@@ -58,10 +73,12 @@ void message::show(const std::string &message_,
 
     auto text_size = get_text_size();
 
-    auto width = text_size.width() + 100;
+    auto width = text_size.width() + 110;
     auto height = text_size.height() + 120;
 
-    window->add_control(text_, { 80, 40, 80 + text_size.width(), 50 + text_size.height() });
+    window->add_control(icon, { 20, 50, 68, 98 });
+
+    window->add_control(text_, { 90, 40, 90 + text_size.width(), 50 + text_size.height() });
 
     auto btn_width = 100;
     auto btn_height = 25;
