@@ -26,7 +26,7 @@ message::message(std::shared_ptr<wui::window> transient_window__,
     result_callback(),
     transient_window_(transient_window__), docked_(docked__),
     theme_(theme__),
-	window(new wui::window()),
+	window_(new wui::window()),
     icon(new image(theme_image("message_info", theme_))),
     text_(new text("", theme_)),
     button0(new button("", std::bind(&message::button0_click, this), theme_)),
@@ -34,7 +34,7 @@ message::message(std::shared_ptr<wui::window> transient_window__,
     button2(new button("", std::bind(&message::button2_click, this), theme_)),
     result_(message_result::undef)
 {
-    window->set_transient_for(transient_window_, docked_);
+    window_->set_transient_for(transient_window_, docked_);
 }
 
 message::~message()
@@ -76,9 +76,9 @@ void message::show(const std::string &message_,
     auto width = text_size.width() + 110;
     auto height = text_size.height() + 120;
 
-    window->add_control(icon, { 20, 50, 68, 98 });
+    window_->add_control(icon, { 20, 50, 68, 98 });
 
-    window->add_control(text_, { 90, 40, 90 + text_size.width(), 50 + text_size.height() });
+    window_->add_control(text_, { 90, 40, 90 + text_size.width(), 50 + text_size.height() });
 
     auto btn_width = 100;
     auto btn_height = 25;
@@ -96,7 +96,7 @@ void message::show(const std::string &message_,
             auto left = (width - btn_width) / 2;
 
             button0->set_caption(locale("button", "ok"));
-            window->add_control(button0, { left, top, left + btn_width , top + btn_height });
+            window_->add_control(button0, { left, top, left + btn_width , top + btn_height });
         }
         break;
         case message_button::ok_cancel: case message_button::yes_no: case message_button::retry_cancel:
@@ -120,10 +120,10 @@ void message::show(const std::string &message_,
             }
             
             button0->set_caption(locale("button", btn0_caption));
-            window->add_control(button0, { left, top, left + btn_width , top + btn_height });
+            window_->add_control(button0, { left, top, left + btn_width , top + btn_height });
 
             button1->set_caption(locale("button", btn1_caption));
-            window->add_control(button1, { left + btn_width + 20, top, left + (btn_width * 2) + 20, top + btn_height });
+            window_->add_control(button1, { left + btn_width + 20, top, left + (btn_width * 2) + 20, top + btn_height });
         }
         break;
         case message_button::abort_retry_ignore: case message_button::cancel_try_continue:
@@ -142,18 +142,18 @@ void message::show(const std::string &message_,
             }
 
             button0->set_caption(locale("button", btn0_caption));
-            window->add_control(button0, { left, top, left + btn_width , top + btn_height });
+            window_->add_control(button0, { left, top, left + btn_width , top + btn_height });
 
             button1->set_caption(locale("button", btn1_caption));
-            window->add_control(button1, { left + btn_width + 20, top, left + (btn_width * 2) + 20, top + btn_height });
+            window_->add_control(button1, { left + btn_width + 20, top, left + (btn_width * 2) + 20, top + btn_height });
 
             button2->set_caption(locale("button", btn2_caption));
-            window->add_control(button2, { left + (btn_width * 2) + 40, top, left + (btn_width * 3) + 40, top + btn_height });
+            window_->add_control(button2, { left + (btn_width * 2) + 40, top, left + (btn_width * 3) + 40, top + btn_height });
         }
         break;
     }
 
-    window->init(title_, { 0, 0, width, height }, window_style::dialog, [this]() {
+    window_->init(title_, { 0, 0, width, height }, window_style::dialog, [this]() {
         if (result_callback)
         {
             result_callback(result_);
@@ -186,7 +186,7 @@ void message::button0_click()
             result_ = message_result::cancel;
         break;
     }
-    window->destroy();
+    window_->destroy();
 }
 
 void message::button1_click()
@@ -209,7 +209,7 @@ void message::button1_click()
             result_ = message_result::try_;
         break;
     }
-    window->destroy();
+    window_->destroy();
 }
 
 void message::button2_click()
@@ -226,7 +226,7 @@ void message::button2_click()
             result_ = message_result::continue_;
         break;
     }
-    window->destroy();
+    window_->destroy();
 }
 
 rect message::get_text_size()

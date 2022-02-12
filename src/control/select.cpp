@@ -20,6 +20,8 @@
 #include <boost/nowide/convert.hpp>
 #include <utf8/utf8.h>
 
+#include <algorithm>
+
 namespace wui
 {
 
@@ -397,12 +399,12 @@ void select::set_items(const select_items_t &items_)
     list_->set_item_count(static_cast<int32_t>(items.size()));
 }
 
-void select::update_item(const select_item &mi)
+void select::update_item(const select_item &si)
 {
-    auto it = std::find(items.begin(), items.end(), mi.id);
+    auto it = std::find(items.begin(), items.end(), si.id);
     if (it != items.end())
     {
-        *it = mi;
+        *it = si;
     }
     list_->set_item_count(static_cast<int32_t>(items.size()));
 }

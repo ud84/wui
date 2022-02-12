@@ -34,7 +34,7 @@ struct select_item
 
     std::string text;
 
-    inline bool operator==(const int32_t id_)
+    inline bool operator==(int32_t id_)
     {
         return id == id_;
     }

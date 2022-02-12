@@ -74,7 +74,7 @@ private:
     std::shared_ptr<window> transient_window_; bool docked_;
     std::shared_ptr<i_theme> theme_;
 
-    std::shared_ptr<window> window;
+    std::shared_ptr<window> window_;
 
     std::shared_ptr<image> icon;
     std::shared_ptr<text> text_;

@@ -57,7 +57,7 @@ struct menu_item
 
     int32_t level; menu_item_state prev_state; /// don't fill
 
-    inline bool operator==(const int32_t id_)
+    inline bool operator==(int32_t id_)
     {
         return id == id_;
     }
