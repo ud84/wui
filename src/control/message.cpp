@@ -49,7 +49,7 @@ void message::show(const std::string &message_,
 {
     icon_ = icon__;
     button_ = button__;
-    result_callback_ = result_callback_;
+    result_callback = result_callback_;
 
     result_ = message_result::undef;
 

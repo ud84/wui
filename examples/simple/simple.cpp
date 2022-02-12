@@ -86,7 +86,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         list(new wui::list()),
 		button1(new wui::button("Button 1", [this]() { 
             messageBox->show("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took\na galley of type and scrambled it to make a type specimen book.",
-                "hello world", wui::message_icon::stop, wui::message_button::ok, [](wui::message_result result) {});
+                "hello world", wui::message_icon::information, wui::message_button::ok, [](wui::message_result result) { });
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button2(new wui::button("Button 2", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
         button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
