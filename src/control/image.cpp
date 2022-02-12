@@ -320,6 +320,7 @@ void image::change_image(int32_t resource_index_)
 
     free_image(&img);
     load_image_from_resource(resource_index, boost::nowide::widen(theme_string(tc, tv_path, theme_)), &img);
+    
     redraw();
 }
 #endif
@@ -338,6 +339,8 @@ void image::change_image(const std::vector<uint8_t> &data)
 {
     free_image(&img);
     load_image_from_data(data, &img);
+
+    redraw();
 }
 
 int32_t image::width() const

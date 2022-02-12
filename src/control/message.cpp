@@ -47,6 +47,10 @@ void message::show(const std::string &message_,
     message_button button__,
     std::function<void(message_result)> result_callback_)
 {
+    icon_ = icon__;
+    button_ = button__;
+    result_callback_ = result_callback_;
+
     result_ = message_result::undef;
 
     text_->set_text(message_);
@@ -66,10 +70,6 @@ void message::show(const std::string &message_,
             icon->change_image(theme_image("message_stop", theme_));
         break;
     }
-
-    icon_ = icon__;
-    button_ = button__;
-    result_callback_ = result_callback_;
 
     auto text_size = get_text_size();
 
@@ -258,7 +258,7 @@ rect message::get_text_size()
     graphic mem_gr(ctx);
     mem_gr.init(transient_window_->position(), 0);
 
-    auto text_size = mem_gr.measure_text(max_line, theme_font(tc, tv_font, theme_));
+    auto text_size = mem_gr.measure_text(max_line, theme_font(text::tc, text::tv_font, theme_));
 
     return { 0, 0, text_size.width(), static_cast<int32_t>(text_size.height() * 1.2 * lines_count) };
 }

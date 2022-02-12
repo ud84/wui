@@ -67,20 +67,6 @@ public:
 
     message_result get_result() const;
 
-public:
-    /// Control name in theme
-    static constexpr const char *tc = "message";
-
-    /// Used theme values
-    static constexpr const char *tv_background = "background";
-    static constexpr const char *tv_button_calm = "calm";
-    static constexpr const char *tv_button_active = "active";
-    static constexpr const char *tv_border = "border";
-    static constexpr const char *tv_border_width = "border_width";
-    static constexpr const char *tv_text = "text";
-    static constexpr const char *tv_round = "round";
-    static constexpr const char *tv_font = "font";
-
 private:
     message_icon icon_;
     message_button button_;

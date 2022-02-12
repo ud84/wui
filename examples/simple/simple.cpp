@@ -86,7 +86,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         list(new wui::list()),
 		button1(new wui::button("Button 1", [this]() { 
             messageBox->show("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took\na galley of type and scrambled it to make a type specimen book.",
-                "hello world", wui::message_icon::information, wui::message_button::ok, [](wui::message_result result) {});
+                "hello world", wui::message_icon::stop, wui::message_button::ok, [](wui::message_result result) {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button2(new wui::button("Button 2", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
         button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
 #endif
     bool runned = true;
 
-    wui::set_default_theme_from_file("dark", "dark.json");
+    wui::set_default_theme_from_file("dark", "C:\\job\\wui\\res\\dark.json");
     wui::set_locale_from_json("en", en_locale);
 
     std::shared_ptr<wui::window> window(new wui::window());
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<wui::button> darkThemeButton(new wui::button("Set the dark theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
-        wui::set_default_theme_from_file("dark", "dark.json");
+        wui::set_default_theme_from_file("dark", "C:\\job\\wui\\res\\dark.json");
         window->update_theme();
         pluggedWindow->window->update_theme();
         dialog->update_theme(); 
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 	
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
-        wui::set_default_theme_from_file("white", "white.json");
+        wui::set_default_theme_from_file("white", "C:\\job\\wui\\res\\white.json");
         window->update_theme();
         pluggedWindow->window->update_theme();
         dialog->update_theme();
