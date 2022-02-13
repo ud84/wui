@@ -79,11 +79,12 @@ private:
     rect position_;
 
     std::weak_ptr<window> parent;
-    std::string my_subscriber_id;
+    std::string my_control_sid, my_plain_sid;
 
-    bool showed_, enabled_, active;
+    bool showed_, enabled_, active, mouse_on_control;
 
-    void receive_event(const event &ev);
+    void receive_control_events(const event &ev);
+    void receive_plain_events(const event &ev);
 
     void redraw();
 };

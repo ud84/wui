@@ -24,8 +24,8 @@ namespace wui
     theme_(theme__),
     position_(),
     parent(),
-    my_subscriber_id(),
-    showed_(true), enabled_(true), active(false)
+    my_control_sid(), my_plain_sid(),
+    showed_(true), enabled_(true), active(false), mouse_on_control(false)
 {
 }
 
@@ -48,7 +48,7 @@ void splitter::draw(graphic &gr, const rect &)
     gr.draw_rect(position(), theme_color(tc, active ? tv_active : tv_calm, theme_));
 }
 
-void splitter::receive_event(const event &ev)
+void splitter::receive_control_events(const event &ev)
 {
     if (!showed_ || !enabled_)
     {
@@ -61,7 +61,7 @@ void splitter::receive_event(const event &ev)
         {
             case mouse_event_type::enter:
             {
-                active = true;
+                mouse_on_control = true;
                 auto parent_ = parent.lock();
                 if (parent_)
                 {
@@ -74,24 +74,70 @@ void splitter::receive_event(const event &ev)
                         set_cursor(parent_->context(), cursor::size_ns);
                     }
                 }
-                redraw();
-
             }
             break;
             case mouse_event_type::leave:
             {
+                mouse_on_control = false;
+                if (!active)
+                {
+                    auto parent_ = parent.lock();
+                    if (parent_)
+                    {
+                        set_cursor(parent_->context(), cursor::default_);
+                    }
+                }
+            }
+            break;
+            case mouse_event_type::left_down:
+                active = true;
+                redraw();
+            break;
+            case mouse_event_type::left_up:
                 active = false;
                 redraw();
+            break;
+            case mouse_event_type::move:
+                if (callback)
+                {
+                    callback(ev.mouse_event_.x, ev.mouse_event_.y);
+                    /*if (orientation == splitter_orientation::vertical)
+                    {
+                        position_.move();
+                    }
+                    else if (orientation == splitter_orientation::horizontal)
+                    {
+                        set_cursor(parent_->context(), cursor::size_ns);
+                    }*/
+                    
+                }
+            break;
+        }
+    }
+}
+
+void splitter::receive_plain_events(const event &ev)
+{
+    if (!mouse_on_control)
+    {
+        switch (ev.mouse_event_.type)
+        {
+            case mouse_event_type::move:
+                if (active && callback)
+                {
+                    callback(ev.mouse_event_.x, ev.mouse_event_.y);
+                }
+            break;
+            case mouse_event_type::left_up:
+                active = false;
 
                 auto parent_ = parent.lock();
                 if (parent_)
                 {
                     set_cursor(parent_->context(), cursor::default_);
                 }
-            }
-            break;
-            case mouse_event_type::left_up:
 
+                redraw();
             break;
         }
     }
@@ -111,7 +157,8 @@ void splitter::set_parent(std::shared_ptr<window> window_)
 {
     parent = window_;
     
-    my_subscriber_id = window_->subscribe(std::bind(&splitter::receive_event, this, std::placeholders::_1), event_type::mouse, shared_from_this());
+    my_control_sid = window_->subscribe(std::bind(&splitter::receive_control_events, this, std::placeholders::_1), event_type::mouse, shared_from_this());
+    my_plain_sid = window_->subscribe(std::bind(&splitter::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
 }
 
 void splitter::clear_parent()
@@ -119,7 +166,8 @@ void splitter::clear_parent()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->unsubscribe(my_subscriber_id);
+        parent_->unsubscribe(my_control_sid);
+        parent_->unsubscribe(my_plain_sid);
     }
     parent.reset();
 }

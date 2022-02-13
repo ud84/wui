@@ -283,7 +283,13 @@ int main(int argc, char *argv[])
     createPluggedButton->disable();
     pluggedWindow->SetCreationButton(createPluggedButton);
 
-    std::shared_ptr<wui::splitter> vertSplitter(new wui::splitter(wui::splitter_orientation::vertical, [](int32_t x, int32_t y) {}));
+    std::shared_ptr<wui::splitter> vertSplitter(new wui::splitter(wui::splitter_orientation::vertical, [&pluggedWindow](int32_t x, int32_t y) {
+        if (pluggedWindow->plugged)
+        {
+            pluggedWindow->window->set_position({ 0, 30, x, 500 }, true);
+            //vertSplitter->set_position({ 300, 30, 305, h }, false);
+        }
+    }));
     window->add_control(vertSplitter, { 0 });
 
     window->add_control(createPluggedButton, { 320, 50, 400, 75 });
