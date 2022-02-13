@@ -97,6 +97,11 @@ void splitter::receive_control_events(const event &ev)
 
 void splitter::receive_plain_events(const event &ev)
 {
+    if (!showed_ || !enabled_)
+    {
+        return;
+    }
+
     switch (ev.mouse_event_.type)
     {
         case mouse_event_type::move:
