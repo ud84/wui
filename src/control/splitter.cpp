@@ -102,21 +102,18 @@ void splitter::receive_plain_events(const event &ev)
         case mouse_event_type::move:
         if (active)
         {
+            auto pos = position_;
+
             if (orientation == splitter_orientation::vertical)
             {
-                position_.put(ev.mouse_event_.x, 0);
+                pos.put(ev.mouse_event_.x, 0);
             }
             else if (orientation == splitter_orientation::horizontal)
             {
-                position_.put(0, ev.mouse_event_.y);
+                pos.put(0, ev.mouse_event_.y);
             }
 
-            /*auto parent_ = parent.lock();
-            if (parent_)
-            {
-                parent_->redraw(position(), false);
-            }*/
-            set_position(position_, true);
+            set_position(pos, true);
 
             if (callback)
             {
