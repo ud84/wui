@@ -286,8 +286,8 @@ int main(int argc, char *argv[])
     std::shared_ptr<wui::splitter> vertSplitter(new wui::splitter(wui::splitter_orientation::vertical, [&pluggedWindow](int32_t x, int32_t y) {
         if (pluggedWindow->plugged)
         {
-            pluggedWindow->window->set_position({ 0, 30, x, 500 }, true);
-            //vertSplitter->set_position({ 300, 30, 305, h }, false);
+            auto pos = pluggedWindow->window->position();
+            pluggedWindow->window->set_position({ 0, 30, x, pos.height() }, true);
         }
     }));
     window->add_control(vertSplitter, { 0 });
@@ -358,8 +358,9 @@ int main(int argc, char *argv[])
 
             if (pluggedWindow->plugged)
             {
-                pluggedWindow->window->set_position({ 0, 30, 300, h }, false);
-                vertSplitter->set_position({ 300, 30, 305, h }, false);
+                auto pos = pluggedWindow->window->position();
+                pluggedWindow->window->set_position({ 0, 30, pos.width(), h }, false);
+                vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h }, false);
             }
 
             menuButton->set_position({ w - 42, 50, w - 10, 82 }, false);
