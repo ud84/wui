@@ -25,7 +25,7 @@ namespace wui
     position_(),
     parent(),
     my_control_sid(), my_plain_sid(),
-    showed_(true), enabled_(true), active(false), mouse_on_control(false)
+    showed_(true), enabled_(true), active(false)
 {
 }
 
@@ -61,7 +61,6 @@ void splitter::receive_control_events(const event &ev)
         {
             case mouse_event_type::enter:
             {
-                mouse_on_control = true;
                 auto parent_ = parent.lock();
                 if (parent_)
                 {
@@ -78,7 +77,6 @@ void splitter::receive_control_events(const event &ev)
             break;
             case mouse_event_type::leave:
             {
-                mouse_on_control = false;
                 if (!active)
                 {
                     auto parent_ = parent.lock();
@@ -93,53 +91,52 @@ void splitter::receive_control_events(const event &ev)
                 active = true;
                 redraw();
             break;
-            case mouse_event_type::left_up:
-                active = false;
-                redraw();
-            break;
-            case mouse_event_type::move:
-                if (callback)
-                {
-                    callback(ev.mouse_event_.x, ev.mouse_event_.y);
-                    /*if (orientation == splitter_orientation::vertical)
-                    {
-                        position_.move();
-                    }
-                    else if (orientation == splitter_orientation::horizontal)
-                    {
-                        set_cursor(parent_->context(), cursor::size_ns);
-                    }*/
-                    
-                }
-            break;
         }
     }
 }
 
 void splitter::receive_plain_events(const event &ev)
 {
-    if (!mouse_on_control)
+    switch (ev.mouse_event_.type)
     {
-        switch (ev.mouse_event_.type)
+        case mouse_event_type::move:
+        if (active)
         {
-            case mouse_event_type::move:
-                if (active && callback)
-                {
-                    callback(ev.mouse_event_.x, ev.mouse_event_.y);
-                }
-            break;
-            case mouse_event_type::left_up:
+            if (orientation == splitter_orientation::vertical)
+            {
+                position_.put(ev.mouse_event_.x, 0);
+            }
+            else if (orientation == splitter_orientation::horizontal)
+            {
+                position_.put(0, ev.mouse_event_.y);
+            }
+
+            auto parent_ = parent.lock();
+            if (parent_)
+            {
+                parent_->redraw(position(), true);
+            }
+
+            if (callback)
+            {
+                callback(ev.mouse_event_.x, ev.mouse_event_.y);
+            }
+        }
+        break;
+        case mouse_event_type::left_up:
+            if (active)
+            {
                 active = false;
 
                 auto parent_ = parent.lock();
                 if (parent_)
                 {
-                    set_cursor(parent_->context(), cursor::default_);
+                   set_cursor(parent_->context(), cursor::default_);
                 }
 
                 redraw();
-            break;
-        }
+            }
+        break;
     }
 }
 

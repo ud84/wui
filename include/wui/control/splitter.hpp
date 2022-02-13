@@ -81,7 +81,7 @@ private:
     std::weak_ptr<window> parent;
     std::string my_control_sid, my_plain_sid;
 
-    bool showed_, enabled_, active, mouse_on_control;
+    bool showed_, enabled_, active;
 
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);
