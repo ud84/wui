@@ -111,11 +111,12 @@ void splitter::receive_plain_events(const event &ev)
                 position_.put(0, ev.mouse_event_.y);
             }
 
-            auto parent_ = parent.lock();
+            /*auto parent_ = parent.lock();
             if (parent_)
             {
-                parent_->redraw(position(), true);
-            }
+                parent_->redraw(position(), false);
+            }*/
+            set_position(position_, true);
 
             if (callback)
             {
