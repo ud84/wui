@@ -32,6 +32,7 @@
     <ClInclude Include="include\wui\control\menu.hpp" />
     <ClInclude Include="include\wui\control\message.hpp" />
     <ClInclude Include="include\wui\control\select.hpp" />
+    <ClInclude Include="include\wui\control\splitter.hpp" />
     <ClInclude Include="include\wui\control\text.hpp" />
     <ClInclude Include="include\wui\control\tooltip.hpp" />
     <ClInclude Include="include\wui\event\event.hpp" />
@@ -59,6 +60,7 @@
     <ClCompile Include="src\control\menu.cpp" />
     <ClCompile Include="src\control\message.cpp" />
     <ClCompile Include="src\control\select.cpp" />
+    <ClCompile Include="src\control\splitter.cpp" />
     <ClCompile Include="src\control\text.cpp" />
     <ClCompile Include="src\control\tooltip.cpp" />
     <ClCompile Include="src\graphic\graphic.cpp" />

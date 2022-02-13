@@ -153,6 +153,9 @@
     <ClInclude Include="include\wui\locale\locale_impl.hpp">
       <Filter>Header Files\wui\locale</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\control\splitter.hpp">
+      <Filter>Header Files\wui\control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -201,6 +204,9 @@
       <Filter>Source Files\locale</Filter>
     </ClCompile>
     <ClCompile Include="src\control\message.cpp">
+      <Filter>Source Files\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\splitter.cpp">
       <Filter>Source Files\control</Filter>
     </ClCompile>
   </ItemGroup>

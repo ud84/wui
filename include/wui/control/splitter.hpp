@@ -1,0 +1,91 @@
+//
+// Copyright (c) 2021-2022 Anton Golovkov (udattsk at gmail dot com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/ud84/wui
+//
+
+#pragma once
+
+#include <wui/control/i_control.hpp>
+#include <wui/graphic/graphic.hpp>
+#include <wui/event/event.hpp>
+#include <wui/common/rect.hpp>
+#include <wui/common/color.hpp>
+
+#include <functional>
+#include <memory>
+
+namespace wui
+{
+
+enum class splitter_orientation
+{
+    vertical,
+    horizontal
+};
+
+class splitter : public i_control, public std::enable_shared_from_this<splitter>
+{
+public:
+    splitter(splitter_orientation orientation, std::function<void(int32_t, int32_t)> callback, std::shared_ptr<i_theme> theme_ = nullptr);
+
+    ~splitter();
+
+    /// i_control impl
+    virtual void draw(graphic &gr, const rect &);
+
+    virtual void set_position(const rect &position, bool redraw = true);
+    virtual rect position() const;
+
+    virtual void set_parent(std::shared_ptr<window> window_);
+    virtual void clear_parent();
+
+    virtual bool topmost() const;
+
+    virtual void set_focus();
+    virtual bool remove_focus();
+    virtual bool focused() const;
+    virtual bool focusing() const;
+
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+
+    virtual void show();
+    virtual void hide();
+    virtual bool showed() const;
+
+    virtual void enable();
+    virtual void disable();
+    virtual bool enabled() const;
+
+    /// Splitter interface
+    void set_callback(std::function<void(int32_t, int32_t)> callback_);
+
+public:
+    /// Control name in theme
+    static constexpr const char *tc = "splitter";
+
+    /// Used theme values
+    static constexpr const char *tv_calm = "calm";
+    static constexpr const char *tv_active = "active";
+
+private:
+    splitter_orientation orientation;
+    std::function<void(int32_t, int32_t)> callback;
+    std::shared_ptr<i_theme> theme_;
+
+    rect position_;
+
+    std::weak_ptr<window> parent;
+    std::string my_subscriber_id;
+
+    bool showed_, enabled_, active;
+
+    void receive_event(const event &ev);
+
+    void redraw();
+};
+
+}
