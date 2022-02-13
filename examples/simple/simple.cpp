@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
         if (pluggedWindow->plugged)
         {
             auto pos = pluggedWindow->window->position();
-            pluggedWindow->window->set_position({ 0, 30, x, pos.height() }, true);
+            pluggedWindow->window->set_position({ 0, pos.top, x, pos.bottom }, true);
         }
     }));
     window->add_control(vertSplitter, { 0 });

@@ -233,6 +233,13 @@ void button::receive_event(const event &ev)
                 redraw();
             break;
             case mouse_event_type::left_up:
+                if (button_view_ == button_view::image && !caption.empty())
+                {
+                    tooltip_->hide();
+                }
+
+                active = false;
+
                 if (click_callback && enabled_)
                 {
                     click_callback();

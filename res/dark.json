@@ -124,8 +124,8 @@
     },
     {
       "type": "splitter",
-      "calm": "#2d2d30",
-      "active": "#171718"
+      "calm": "#1b1e24",
+      "active": "#55555c"
     }
   ],
   "images": [

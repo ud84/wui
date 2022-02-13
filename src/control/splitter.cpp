@@ -111,11 +111,11 @@ void splitter::receive_plain_events(const event &ev)
 
             if (orientation == splitter_orientation::vertical)
             {
-                pos.put(ev.mouse_event_.x, 0);
+                pos.put(ev.mouse_event_.x, pos.top);
             }
             else if (orientation == splitter_orientation::horizontal)
             {
-                pos.put(0, ev.mouse_event_.y);
+                pos.put(pos.left, ev.mouse_event_.y);
             }
 
             set_position(pos, true);
@@ -130,14 +130,16 @@ void splitter::receive_plain_events(const event &ev)
             if (active)
             {
                 active = false;
-
-                auto parent_ = parent.lock();
-                if (parent_)
-                {
-                   set_cursor(parent_->context(), cursor::default_);
-                }
-
                 redraw();
+
+                if (!position().in(ev.mouse_event_.x, ev.mouse_event_.y))
+                {
+                    auto parent_ = parent.lock();
+                    if (parent_)
+                    {
+                        set_cursor(parent_->context(), cursor::default_);
+                    }
+                }
             }
         break;
     }
