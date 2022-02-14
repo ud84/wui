@@ -33,6 +33,7 @@
     <ClInclude Include="include\wui\control\message.hpp" />
     <ClInclude Include="include\wui\control\progress.hpp" />
     <ClInclude Include="include\wui\control\select.hpp" />
+    <ClInclude Include="include\wui\control\slider.hpp" />
     <ClInclude Include="include\wui\control\splitter.hpp" />
     <ClInclude Include="include\wui\control\text.hpp" />
     <ClInclude Include="include\wui\control\tooltip.hpp" />
@@ -62,6 +63,7 @@
     <ClCompile Include="src\control\message.cpp" />
     <ClCompile Include="src\control\progress.cpp" />
     <ClCompile Include="src\control\select.cpp" />
+    <ClCompile Include="src\control\slider.cpp" />
     <ClCompile Include="src\control\splitter.cpp" />
     <ClCompile Include="src\control\text.cpp" />
     <ClCompile Include="src\control\tooltip.cpp" />
