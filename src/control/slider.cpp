@@ -58,7 +58,7 @@ void slider::draw(graphic &gr, const rect &)
     auto slider_height = theme_dimension(tc, tv_slider_height, theme_);
     auto slider_round = theme_dimension(tc, tv_slider_round, theme_);
 
-    auto slider_color = active || focused_ ? remain_color : perform_color;
+    auto slider_color = focused_ ? remain_color : perform_color;
 
     if (orientation == slider_orientation::horizontal)
     {
