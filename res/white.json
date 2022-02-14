@@ -126,6 +126,13 @@
       "type": "splitter",
       "calm": "#eeeef2",
       "active": "#777779"
+    },
+    {
+      "type": "progress",
+      "border": "#28788c",
+      "border_width": 1,
+      "background": "#dcdcdc",
+      "meter": "#8dd28a"
     }
   ],
   "images": [

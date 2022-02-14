@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
     menuButton->disable_focusing();
     window->add_control(menuButton, { 0 });
 
-    std::shared_ptr<wui::progress> horizProgressBar(new wui::progress(0, 100, 50));
+    std::shared_ptr<wui::progress> horizProgressBar(new wui::progress(0, 100, 100));
     window->add_control(horizProgressBar, { 450, 120, 650, 145 });
 
     std::shared_ptr<wui::progress> vertProgressBar(new wui::progress(0, 100, 80, wui::progress_orientation::vertical));

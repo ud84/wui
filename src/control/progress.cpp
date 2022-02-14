@@ -60,7 +60,7 @@ void progress::draw(graphic &gr, const rect &)
         border_width,
         0); 
 
-    double total = orientation == progress_orientation::horizontal ? control_pos.width() : control_pos.height();
+    double total = orientation == progress_orientation::horizontal ? control_pos.width() - border_width * 2 : control_pos.height() - border_width * 2;
 
     double meter_pos = (total * static_cast<double>(value)) / static_cast<double>(to - from);
 
