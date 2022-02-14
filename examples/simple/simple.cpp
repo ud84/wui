@@ -14,6 +14,7 @@
 #include <wui/control/message.hpp>
 #include <wui/control/splitter.hpp>
 #include <wui/control/progress.hpp>
+#include <wui/control/slider.hpp>
 
 #ifdef _WIN32
 #include <Resource.h>
@@ -272,10 +273,13 @@ int main(int argc, char *argv[])
     window->add_control(menuButton, { 0 });
 
     std::shared_ptr<wui::progress> horizProgressBar(new wui::progress(0, 100, 100));
-    window->add_control(horizProgressBar, { 450, 120, 650, 145 });
+    window->add_control(horizProgressBar, { 450, 100, 650, 125 });
 
     std::shared_ptr<wui::progress> vertProgressBar(new wui::progress(0, 100, 80, wui::progress_orientation::vertical));
-    window->add_control(vertProgressBar, { 700, 30, 725, 145 });
+    window->add_control(vertProgressBar, { 700, 30, 725, 125 });
+
+    std::shared_ptr<wui::slider> slider(new wui::slider(0, 100, 80, [](int32_t value) {}, wui::slider_orientation::horizontal));
+    window->add_control(slider, { 450, 140, 725, 165 });
 
     std::shared_ptr<wui::image> accountImage(new wui::image(IMG_ACCOUNT));
     window->add_control(accountImage, { 350, 100, 414, 164 });

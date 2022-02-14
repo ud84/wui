@@ -18,9 +18,9 @@
 namespace wui
 {
 
-slider::slider(int32_t value_, std::function<void(int32_t)> change_callback_, slider_orientation orientation_, std::shared_ptr<i_theme> theme__)
+slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(int32_t)> change_callback_, slider_orientation orientation_, std::shared_ptr<i_theme> theme__)
     : orientation(orientation_),
-    value(value_),
+    from(from_), to(to_), value(value_),
     change_callback(change_callback_),
     theme_(theme__),
     position_(),
@@ -46,7 +46,11 @@ void slider::draw(graphic &gr, const rect &)
         return;
     }
 
-    
+    auto control_pos = position();
+
+    auto center = control_pos.top + (control_pos.height() / 2) - 1;
+
+    gr.draw_rect({ control_pos.left, center - 1, control_pos.right, center + 1 }, theme_color(tc, tv_perform, theme_));
 }
 
 void slider::receive_control_events(const event &ev)
@@ -223,6 +227,14 @@ void slider::disable()
 bool slider::enabled() const
 {
     return enabled_;
+}
+
+void slider::set_range(int32_t from_, int32_t to_)
+{
+    from = from_;
+    to = to_;
+
+    redraw();
 }
 
 void slider::set_value(int32_t value_)

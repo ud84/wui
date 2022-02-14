@@ -31,7 +31,7 @@ enum class slider_orientation
 class slider : public i_control, public std::enable_shared_from_this<slider>
 {
 public:
-    slider(int32_t value, std::function<void(int32_t)> change_callback, slider_orientation orientation = slider_orientation::horizontal, std::shared_ptr<i_theme> theme_ = nullptr);
+    slider(int32_t from, int32_t to, int32_t value, std::function<void(int32_t)> change_callback, slider_orientation orientation = slider_orientation::horizontal, std::shared_ptr<i_theme> theme_ = nullptr);
 
     ~slider();
 
@@ -61,7 +61,8 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    /// slider's interface
+    /// Slider's interface
+    void set_range(int32_t from, int32_t to);
     void set_value(int32_t value);
 
     void set_callback(std::function<void(int32_t)> change_callback);
@@ -73,11 +74,11 @@ public:
     /// Used theme values
     static constexpr const char *tv_perform = "perform";
     static constexpr const char *tv_remain = "remain";
-    static constexpr const char *tv_slider = "slider";
+    static constexpr const char *tv_active = "active";
 
 private:
     slider_orientation orientation;
-    int32_t value;
+    int32_t from, to, value;
     std::function<void(int32_t)> change_callback;
     std::shared_ptr<i_theme> theme_;
 

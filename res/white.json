@@ -133,6 +133,12 @@
       "border_width": 1,
       "background": "#dcdcdc",
       "meter": "#8dd28a"
+    },
+    {
+      "type": "slider",
+      "perform": "#0078d7",
+      "remain": "#999999",
+      "active": "#171717"
     }
   ],
   "images": [

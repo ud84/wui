@@ -58,7 +58,7 @@ void progress::draw(graphic &gr, const rect &)
         theme_color(tc, tv_border, theme_),
         theme_color(tc, tv_background, theme_),
         border_width,
-        0); 
+        0);
 
     double total = orientation == progress_orientation::horizontal ? control_pos.width() - border_width * 2 : control_pos.height() - border_width * 2;
 
