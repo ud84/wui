@@ -272,14 +272,17 @@ int main(int argc, char *argv[])
     menuButton->disable_focusing();
     window->add_control(menuButton, { 0 });
 
-    std::shared_ptr<wui::progress> horizProgressBar(new wui::progress(0, 100, 100));
+    std::shared_ptr<wui::progress> horizProgressBar(new wui::progress(0, 100, 50));
     window->add_control(horizProgressBar, { 450, 100, 650, 125 });
+
+    std::shared_ptr<wui::slider> horizSlider(new wui::slider(0, 100, 50, [&horizProgressBar](int32_t value) { horizProgressBar->set_value(value); }, wui::slider_orientation::horizontal));
+    window->add_control(horizSlider, { 450, 140, 650, 165 });
 
     std::shared_ptr<wui::progress> vertProgressBar(new wui::progress(0, 100, 80, wui::progress_orientation::vertical));
     window->add_control(vertProgressBar, { 700, 30, 725, 125 });
 
-    std::shared_ptr<wui::slider> slider(new wui::slider(0, 100, 80, [](int32_t value) {}, wui::slider_orientation::horizontal));
-    window->add_control(slider, { 450, 140, 725, 165 });
+    std::shared_ptr<wui::slider> vertSlider(new wui::slider(0, 100, 80, [&vertProgressBar](int32_t value) { vertProgressBar->set_value(value); }, wui::slider_orientation::vertical));
+    window->add_control(vertSlider, { 660, 30, 685, 125 });
 
     std::shared_ptr<wui::image> accountImage(new wui::image(IMG_ACCOUNT));
     window->add_control(accountImage, { 350, 100, 414, 164 });

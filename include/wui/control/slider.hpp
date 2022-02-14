@@ -75,6 +75,9 @@ public:
     static constexpr const char *tv_perform = "perform";
     static constexpr const char *tv_remain = "remain";
     static constexpr const char *tv_active = "active";
+    static constexpr const char *tv_slider_width = "slider_width";
+    static constexpr const char *tv_slider_height = "slider_height";
+    static constexpr const char *tv_slider_round = "slider_round";
 
 private:
     slider_orientation orientation;

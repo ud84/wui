@@ -138,7 +138,10 @@
       "type": "slider",
       "perform": "#0078d7",
       "remain": "#999999",
-      "active": "#171717"
+      "active": "#171717",
+      "slider_width": 8,
+      "slider_height": 24,
+      "slider_round": 5
     }
   ],
   "images": [

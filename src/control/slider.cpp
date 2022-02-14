@@ -48,9 +48,48 @@ void slider::draw(graphic &gr, const rect &)
 
     auto control_pos = position();
 
-    auto center = control_pos.top + (control_pos.height() / 2) - 1;
+    double total = orientation == slider_orientation::horizontal ? control_pos.width() : control_pos.height();
+    double slider_pos = (total * static_cast<double>(value)) / static_cast<double>(to - from);
 
-    gr.draw_rect({ control_pos.left, center - 1, control_pos.right, center + 1 }, theme_color(tc, tv_perform, theme_));
+    auto perform_color = theme_color(tc, tv_perform, theme_);
+    auto remain_color = theme_color(tc, active || focused_ ? tv_active : tv_remain, theme_);
+
+    auto slider_width = theme_dimension(tc, tv_slider_width, theme_);
+    auto slider_height = theme_dimension(tc, tv_slider_height, theme_);
+    auto slider_round = theme_dimension(tc, tv_slider_round, theme_);
+
+    auto slider_color = active || focused_ ? remain_color : perform_color;
+
+    if (orientation == slider_orientation::horizontal)
+    {
+        auto center = control_pos.top + (control_pos.height() / 2) - 1;
+        gr.draw_rect({ control_pos.left, center - 1, control_pos.left + static_cast<int32_t>(slider_pos), center + 1 }, perform_color);
+        gr.draw_rect({ control_pos.left + static_cast<int32_t>(slider_pos), center - 1, control_pos.right, center + 1 }, remain_color);
+
+        gr.draw_rect({ control_pos.left + static_cast<int32_t>(slider_pos) - (slider_width / 2),
+                center - (slider_height / 2),
+                control_pos.left + static_cast<int32_t>(slider_pos) + (slider_width / 2),
+                center + (slider_height / 2) },
+            slider_color,
+            slider_color,
+            1,
+            slider_round);
+    }
+    else if (orientation == slider_orientation::vertical)
+    {
+        auto center = control_pos.left + (control_pos.width() / 2) - 1;
+        gr.draw_rect({ center - 1, control_pos.bottom, center + 1, control_pos.bottom - static_cast<int32_t>(slider_pos) }, perform_color);
+        gr.draw_rect({ center - 1, control_pos.top, center + 1, control_pos.bottom - static_cast<int32_t>(slider_pos) }, remain_color);
+
+        gr.draw_rect({ center - (slider_height / 2),
+                control_pos.bottom - static_cast<int32_t>(slider_pos) - (slider_width / 2),
+                center + (slider_height / 2),
+                control_pos.bottom - static_cast<int32_t>(slider_pos) + (slider_width / 2) },
+            slider_color,
+            slider_color,
+            1,
+            slider_round);
+    }
 }
 
 void slider::receive_control_events(const event &ev)
