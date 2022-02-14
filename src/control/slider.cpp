@@ -111,14 +111,15 @@ void slider::receive_control_events(const event &ev)
                 {
                     set_cursor(parent_->context(), cursor::default_);
                 }
-                redraw();
-
-                
+                redraw();   
             }
             break;
             case mouse_event_type::leave:
                 active = false;
                 redraw();
+            break;
+            case mouse_event_type::left_down:
+                
             break;
             case mouse_event_type::left_up:                
                 active = false;
