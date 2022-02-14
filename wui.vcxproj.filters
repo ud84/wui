@@ -156,6 +156,9 @@
     <ClInclude Include="include\wui\control\splitter.hpp">
       <Filter>Header Files\wui\control</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\control\progress.hpp">
+      <Filter>Header Files\wui\control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -207,6 +210,9 @@
       <Filter>Source Files\control</Filter>
     </ClCompile>
     <ClCompile Include="src\control\splitter.cpp">
+      <Filter>Source Files\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\progress.cpp">
       <Filter>Source Files\control</Filter>
     </ClCompile>
   </ItemGroup>

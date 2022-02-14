@@ -13,6 +13,7 @@
 #include <wui/control/text.hpp>
 #include <wui/control/message.hpp>
 #include <wui/control/splitter.hpp>
+#include <wui/control/progress.hpp>
 
 #ifdef _WIN32
 #include <Resource.h>
@@ -269,6 +270,12 @@ int main(int argc, char *argv[])
     menuButton->set_callback([&menu, &menuButton]() { menu->show_on_control(menuButton, 5); });
     menuButton->disable_focusing();
     window->add_control(menuButton, { 0 });
+
+    std::shared_ptr<wui::progress> horizProgressBar(new wui::progress(0, 100, 50));
+    window->add_control(horizProgressBar, { 450, 120, 650, 145 });
+
+    std::shared_ptr<wui::progress> vertProgressBar(new wui::progress(0, 100, 80, wui::progress_orientation::vertical));
+    window->add_control(vertProgressBar, { 700, 30, 725, 145 });
 
     std::shared_ptr<wui::image> accountImage(new wui::image(IMG_ACCOUNT));
     window->add_control(accountImage, { 350, 100, 414, 164 });
