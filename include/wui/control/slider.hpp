@@ -93,10 +93,24 @@ private:
     bool showed_, enabled_;
     bool active, focused_;
 
+    bool slider_scrolling, mouse_on_control;
+
+    rect slider_position;
+
+    int32_t diff_size;
+
+    int32_t prev_scroll_pos;
+
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);
 
     void redraw();
+
+    void calc_consts();
+
+    void move_slider(int32_t x, int32_t y);
+    void scroll_up();
+    void scroll_down();
 };
 
 }

@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
     window->add_control(horizProgressBar, { 450, 100, 650, 125 });
 
     std::shared_ptr<wui::slider> horizSlider(new wui::slider(0, 100, 50, [&horizProgressBar](int32_t value) { horizProgressBar->set_value(value); }, wui::slider_orientation::horizontal));
-    window->add_control(horizSlider, { 450, 140, 650, 165 });
+    window->add_control(horizSlider, { 450, 140, 550, 165 });
 
     std::shared_ptr<wui::progress> vertProgressBar(new wui::progress(0, 100, 80, wui::progress_orientation::vertical));
     window->add_control(vertProgressBar, { 700, 30, 725, 125 });

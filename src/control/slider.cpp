@@ -26,7 +26,11 @@ slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(in
     position_(),
     parent(),
     my_control_sid(), my_plain_sid(),
-    showed_(true), enabled_(true), active(false), focused_(false)
+    showed_(true), enabled_(true), active(false), focused_(false),
+    slider_scrolling(false), mouse_on_control(false),
+    slider_position({ 0 }),
+    diff_size(0),
+    prev_scroll_pos(0)
 {
 }
 
@@ -58,7 +62,7 @@ void slider::draw(graphic &gr, const rect &)
     auto slider_height = theme_dimension(tc, tv_slider_height, theme_);
     auto slider_round = theme_dimension(tc, tv_slider_round, theme_);
 
-    auto slider_color = focused_ ? remain_color : perform_color;
+    auto slider_color = active || focused_ ? remain_color : perform_color;
 
     if (orientation == slider_orientation::horizontal)
     {
@@ -66,10 +70,12 @@ void slider::draw(graphic &gr, const rect &)
         gr.draw_rect({ control_pos.left, center - 1, control_pos.left + static_cast<int32_t>(slider_pos), center + 1 }, perform_color);
         gr.draw_rect({ control_pos.left + static_cast<int32_t>(slider_pos), center - 1, control_pos.right, center + 1 }, remain_color);
 
-        gr.draw_rect({ control_pos.left + static_cast<int32_t>(slider_pos) - (slider_width / 2),
-                center - (slider_height / 2),
+        slider_position = { control_pos.left + static_cast<int32_t>(slider_pos) - (slider_width / 2),
+                center - (slider_height / 2) + 1,
                 control_pos.left + static_cast<int32_t>(slider_pos) + (slider_width / 2),
-                center + (slider_height / 2) },
+                center + (slider_height / 2) - 1 };
+
+        gr.draw_rect(slider_position,
             slider_color,
             slider_color,
             1,
@@ -81,10 +87,12 @@ void slider::draw(graphic &gr, const rect &)
         gr.draw_rect({ center - 1, control_pos.bottom, center + 1, control_pos.bottom - static_cast<int32_t>(slider_pos) }, perform_color);
         gr.draw_rect({ center - 1, control_pos.top, center + 1, control_pos.bottom - static_cast<int32_t>(slider_pos) }, remain_color);
 
-        gr.draw_rect({ center - (slider_height / 2),
+        slider_position = { center - (slider_height / 2) + 1,
                 control_pos.bottom - static_cast<int32_t>(slider_pos) - (slider_width / 2),
-                center + (slider_height / 2),
-                control_pos.bottom - static_cast<int32_t>(slider_pos) + (slider_width / 2) },
+                center + (slider_height / 2) - 1,
+                control_pos.bottom - static_cast<int32_t>(slider_pos) + (slider_width / 2) };
+
+        gr.draw_rect(slider_position,
             slider_color,
             slider_color,
             1,
@@ -105,37 +113,49 @@ void slider::receive_control_events(const event &ev)
         {
             case mouse_event_type::enter:
             {
-                active = true;
-                auto parent_ = parent.lock();
-                if (parent_)
+                mouse_on_control = true;
+                if (!slider_scrolling)
                 {
-                    set_cursor(parent_->context(), cursor::default_);
+                    active = true;
+                    redraw();
                 }
-                redraw();   
             }
             break;
             case mouse_event_type::leave:
-                active = false;
-                redraw();
+                mouse_on_control = false;
+                if (!slider_scrolling)
+                {
+                    active = false;
+                    redraw();
+                }
             break;
             case mouse_event_type::left_down:
-                
+                if (slider_position.in(ev.mouse_event_.x, ev.mouse_event_.y))
+                {
+                    slider_scrolling = true;
+                    prev_scroll_pos = ev.mouse_event_.y;
+                }
             break;
             case mouse_event_type::left_up:                
                 active = false;
-
-                if (change_callback && enabled_)
+                slider_scrolling = false;
+            break;
+            case mouse_event_type::move:
+                if (slider_scrolling)
                 {
-                    //change_callback();
+                    return move_slider(ev.mouse_event_.x, ev.mouse_event_.y);
                 }
             break;
-        }
-    }
-    else if (ev.type == event_type::internal)
-    {
-        if (ev.internal_event_.type == internal_event_type::execute_focused && change_callback)
-        {
-            //change_callback();
+            case mouse_event_type::wheel:
+                if (ev.mouse_event_.wheel_delta > 0)
+                {
+                    scroll_up();
+                }
+                else
+                {
+                    scroll_down();
+                }
+            break;
         }
     }
 }
@@ -146,11 +166,29 @@ void slider::receive_plain_events(const event &ev)
     {
         return;
     }
+
+    if (!mouse_on_control && ev.type == event_type::mouse)
+    {
+        switch (ev.mouse_event_.type)
+        {
+            case mouse_event_type::move:
+                if (slider_scrolling)
+                {
+                    move_slider(ev.mouse_event_.x, ev.mouse_event_.y);
+                }
+            break;
+            case mouse_event_type::left_up:
+                slider_scrolling = false;
+            break;
+        }
+    }
 }
 
 void slider::set_position(const rect &position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent);
+
+    calc_consts();
 }
 
 rect slider::position() const
@@ -274,6 +312,8 @@ void slider::set_range(int32_t from_, int32_t to_)
     from = from_;
     to = to_;
 
+    calc_consts();
+
     redraw();
 }
 
@@ -297,6 +337,86 @@ void slider::redraw()
         {
             parent_->redraw(position());
         }
+    }
+}
+
+void slider::calc_consts()
+{
+    diff_size = static_cast<int32_t>(round(static_cast<double>(orientation == slider_orientation::horizontal ? position_.width() : position_.height()) / static_cast<double>(to - from)));
+}
+
+void slider::move_slider(int32_t x, int32_t y)
+{
+    int32_t diff = prev_scroll_pos - (orientation == slider_orientation::horizontal ? x : y);
+    double diff_abs = labs(diff);
+
+    if (orientation == slider_orientation::horizontal)
+    {
+        diff = -diff;
+    }
+
+    auto count = static_cast<int32_t>(round(diff_abs / diff_size));
+
+    if (diff > 0)
+    {
+        for (auto i = 0; i != count; ++i)
+        {
+            scroll_up();
+        }
+    }
+    else
+    {
+        for (auto i = 0; i != count; ++i)
+        {
+            scroll_down();
+        }
+    }
+
+    if (count != 0)
+    {
+        prev_scroll_pos = (orientation == slider_orientation::horizontal ? x : y);
+    }
+}
+
+void slider::scroll_up()
+{
+    if (value == to)
+    {
+        return;
+    }
+
+    value += diff_size;
+    if (value > to)
+    {
+        value = to;
+    }
+
+    redraw();
+
+    if (change_callback)
+    {
+        change_callback(value);
+    }
+}
+
+void slider::scroll_down()
+{
+    if (value == from)
+    {
+        return;
+    }
+
+    value -= diff_size;
+    if (value < from)
+    {
+        value = from;
+    }
+
+    redraw();
+
+    if (change_callback)
+    {
+        change_callback(value);
     }
 }
 
