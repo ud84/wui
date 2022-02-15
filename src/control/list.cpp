@@ -562,7 +562,7 @@ int32_t list::selected_item() const
 
 void list::set_column_width(int32_t n_item, int32_t width)
 {
-    if (columns.size() > n_item)
+    if (static_cast<int32_t>(columns.size()) > n_item)
     {
         columns[n_item].width = width;
         redraw();

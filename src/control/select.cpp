@@ -85,7 +85,7 @@ void select::draw(graphic &gr, const rect &)
 
     auto font_ = theme_font(tc, tv_font, theme_);
 
-    if (items.size() <= list_->selected_item())
+    if (static_cast<int32_t>(items.size()) <= list_->selected_item())
     {
         return;
     }
@@ -131,7 +131,7 @@ void select::select_up()
 
 void select::select_down()
 {
-    if (!items.empty() && list_->selected_item() < items.size() - 1)
+    if (!items.empty() && list_->selected_item() < static_cast<int32_t>(items.size()) - 1)
     {
         list_->select_item(list_->selected_item() + 1);
         redraw();
@@ -463,7 +463,7 @@ select_item select::selected_item() const
 
     select_item result;
 
-    if (item_number != -1 && item_number < items.size())
+    if (item_number != -1 && item_number < static_cast<int32_t>(items.size()))
     {
         result = items[item_number];
     }
@@ -490,7 +490,7 @@ void select::redraw()
 
 void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &)
 {
-    if (items.size() <= n_item)
+    if (static_cast<int32_t>(items.size()) <= n_item)
     {
         return;
     }

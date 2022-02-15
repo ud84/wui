@@ -248,7 +248,7 @@ void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t wi
 {
     bool line_truncated = false;
     auto text_size = gr.measure_text(line, font_);
-    while (line.size() > truncating_count && text_size.width() > width)
+    while (static_cast<int32_t>(line.size()) > truncating_count && text_size.width() > width)
     {
         line.resize(line.size() - truncating_count);
         text_size = gr.measure_text(line, font_);
