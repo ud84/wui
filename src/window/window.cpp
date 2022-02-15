@@ -1527,6 +1527,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 {
                     set_cursor(wnd->context_, cursor::size_ns);
                 }
+                else if (!wnd->active_control)
+                {
+                    set_cursor(wnd->context_, cursor::default_);
+                }
             }
 
             if (!wnd->mouse_tracked)
@@ -2001,6 +2005,10 @@ void window::process_events()
                     else if (y_mouse > ws.height() - 5 || y_mouse < 5)
                     {
                     	set_cursor(context_, cursor::size_ns);
+                    }
+                    else if (!active_control)
+                    {
+                        set_cursor(context_, cursor::default_);
                     }
                 }
 
