@@ -26,6 +26,9 @@ public:
     virtual void set(const std::string &section, const std::string &value, const std::string &str);
     virtual const std::string &get(const std::string &section, const std::string &value) const;
 
+#ifdef _WIN32
+    virtual void load_resource(int32_t resource_index, const std::string &resource_section);
+#endif
     virtual void load_json(const std::string &json);
     virtual void load_file(const std::string &file_name);
     virtual void load_locale(const i_locale &locale_);

@@ -17,6 +17,9 @@ namespace wui
 {
 
 /// Set and get the current locale
+#ifdef _WIN32
+void set_locale_from_resource(const std::string &name, int32_t resource_index, const std::string &resource_section);
+#endif
 void set_locale_from_json(const std::string &name, const std::string &json);
 void set_locale_from_file(const std::string &name, const std::string &file_name);
 void set_locale_empty(const std::string &name);
