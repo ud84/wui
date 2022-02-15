@@ -656,20 +656,29 @@ void list::draw_titles(graphic &gr_)
         title_height = text_dimensions.width() + text_indent * 2;
     }
 
-    auto control_position = position();
-    
-    int32_t top = control_position.top + theme_dimension(tc, tv_border_width, theme_),
-        pos = control_position.left + theme_dimension(tc, tv_border_width, theme_);
-
+    auto border_width = theme_dimension(tc, tv_border_width, theme_);
     auto title_color = theme_color(tc, tv_title, theme_);
     auto title_text_color = theme_color(tc, tv_title_text, theme_);
 
+    auto control_position = position();
+    
+    int32_t top = control_position.top + border_width,
+        left = control_position.left + border_width;
+
     for (auto &c : columns)
     {
-        gr_.draw_rect({ pos, top, pos + c.width - 1, top + title_height }, title_color);
-        gr_.draw_text({ pos + text_indent, top + text_indent, 0, 0 }, c.caption, title_text_color, font);
+        if (left + c.width - 1 <= control_position.right)
+        {
+            gr_.draw_rect({ left, top, left + c.width - 1, top + title_height }, title_color);
+            gr_.draw_text({ left + text_indent, top + text_indent, 0, 0 }, c.caption, title_text_color, font);
+        }
+        else
+        {
+            gr_.draw_rect({ left, top, control_position.right, top + title_height }, title_color);
+            break;
+        }
         
-        pos += c.width + 1;
+        left += c.width + 1;
     }
 }
 
