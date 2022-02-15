@@ -97,9 +97,7 @@ private:
 
     rect slider_position;
 
-    int32_t diff_size;
-
-    int32_t prev_scroll_pos;
+    double diff_size;
 
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);

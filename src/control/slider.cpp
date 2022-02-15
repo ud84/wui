@@ -29,8 +29,7 @@ slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(in
     showed_(true), enabled_(true), active(false), focused_(false),
     slider_scrolling(false), mouse_on_control(false),
     slider_position({ 0 }),
-    diff_size(0),
-    prev_scroll_pos(0)
+    diff_size(0.)
 {
 }
 
@@ -52,15 +51,20 @@ void slider::draw(graphic &gr, const rect &)
 
     auto control_pos = position();
 
-    double total = orientation == slider_orientation::horizontal ? control_pos.width() : control_pos.height();
-    double slider_pos = (total * static_cast<double>(value)) / static_cast<double>(to - from);
-
-    auto perform_color = theme_color(tc, tv_perform, theme_);
-    auto remain_color = theme_color(tc, active || focused_ ? tv_active : tv_remain, theme_);
-
     auto slider_width = theme_dimension(tc, tv_slider_width, theme_);
     auto slider_height = theme_dimension(tc, tv_slider_height, theme_);
     auto slider_round = theme_dimension(tc, tv_slider_round, theme_);
+
+    double total = (orientation == slider_orientation::horizontal ? control_pos.width() : control_pos.height()) - slider_width / 2;
+    double slider_pos = (total * static_cast<double>(value)) / static_cast<double>(to - from);
+
+    if (slider_pos < slider_width / 2)
+    {
+        slider_pos = slider_width / 2;
+    }
+
+    auto perform_color = theme_color(tc, tv_perform, theme_);
+    auto remain_color = theme_color(tc, active || focused_ ? tv_active : tv_remain, theme_);
 
     auto slider_color = active || focused_ ? remain_color : perform_color;
 
@@ -133,7 +137,10 @@ void slider::receive_control_events(const event &ev)
                 if (slider_position.in(ev.mouse_event_.x, ev.mouse_event_.y))
                 {
                     slider_scrolling = true;
-                    prev_scroll_pos = ev.mouse_event_.y;
+                }
+                else
+                {
+                    move_slider(ev.mouse_event_.x, ev.mouse_event_.y);
                 }
             break;
             case mouse_event_type::left_up:                
@@ -143,7 +150,7 @@ void slider::receive_control_events(const event &ev)
             case mouse_event_type::move:
                 if (slider_scrolling)
                 {
-                    return move_slider(ev.mouse_event_.x, ev.mouse_event_.y);
+                    move_slider(ev.mouse_event_.x, ev.mouse_event_.y);
                 }
             break;
             case mouse_event_type::wheel:
@@ -154,6 +161,49 @@ void slider::receive_control_events(const event &ev)
                 else
                 {
                     scroll_down();
+                }
+            break;
+        }
+    }
+    else if (ev.type == event_type::keyboard)
+    {
+        switch (ev.keyboard_event_.type)
+        {
+            case keyboard_event_type::down:
+                switch (ev.keyboard_event_.key[0])
+                {
+                    case vk_end: case vk_page_up:
+                    {
+                        value = to;
+                        redraw();
+                        if (change_callback)
+                        {
+                            change_callback(value);
+                        }
+                    }
+                    break;
+                    case vk_home: case vk_page_down:
+                    {
+                        value = from;
+                        redraw();
+                        if (change_callback)
+                        {
+                            change_callback(value);
+                        }
+                    }
+                    break;
+                    case vk_up: case vk_right:
+                        if (value != to)
+                        {
+                            scroll_up();
+                        }
+                    break;
+                    case vk_down: case vk_left:
+                        if (value != from)
+                        {
+                            scroll_down();
+                        }
+                    break;
                 }
             break;
         }
@@ -342,39 +392,34 @@ void slider::redraw()
 
 void slider::calc_consts()
 {
-    diff_size = static_cast<int32_t>(round(static_cast<double>(orientation == slider_orientation::horizontal ? position_.width() : position_.height()) / static_cast<double>(to - from)));
+    diff_size = static_cast<double>(to - from) / static_cast<double>(orientation == slider_orientation::horizontal ? position_.width() : position_.height());
 }
 
 void slider::move_slider(int32_t x, int32_t y)
 {
-    int32_t diff = prev_scroll_pos - (orientation == slider_orientation::horizontal ? x : y);
-    double diff_abs = labs(diff);
-
     if (orientation == slider_orientation::horizontal)
     {
-        diff = -diff;
-    }
-
-    auto count = static_cast<int32_t>(round(diff_abs / diff_size));
-
-    if (diff > 0)
-    {
-        for (auto i = 0; i != count; ++i)
-        {
-            scroll_up();
-        }
+        value = static_cast<int32_t>((x - position().left) * diff_size);
     }
     else
     {
-        for (auto i = 0; i != count; ++i)
-        {
-            scroll_down();
-        }
+        value = static_cast<int32_t>((position().bottom - y) * diff_size);
     }
 
-    if (count != 0)
+    if (value > to)
     {
-        prev_scroll_pos = (orientation == slider_orientation::horizontal ? x : y);
+        value = to;
+    }
+    else if (value < from)
+    {
+        value = from;
+    }
+
+    redraw();
+
+    if (change_callback)
+    {
+        change_callback(value);
     }
 }
 
@@ -385,7 +430,7 @@ void slider::scroll_up()
         return;
     }
 
-    value += diff_size;
+    value += static_cast<int32_t>(round(diff_size));
     if (value > to)
     {
         value = to;
@@ -406,7 +451,7 @@ void slider::scroll_down()
         return;
     }
 
-    value -= diff_size;
+    value -= static_cast<int32_t>(round(diff_size));
     if (value < from)
     {
         value = from;
