@@ -6,6 +6,9 @@
 #define IMG_ACCOUNT				109
 #define IMG_SETTINGS    		110
 
+#define TXT_DARK_JSON           200
+#define TXT_WHITE_JSON          201
+
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED

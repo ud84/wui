@@ -19,6 +19,15 @@ static std::vector<uint8_t> dummy_image;
 
 /// Interface
 
+#ifdef _WIN32
+void set_default_theme_from_resource(const std::string &name, int32_t resource_index, const std::string &resource_section)
+{
+    instance.reset();
+    instance = std::shared_ptr<i_theme>(new theme_impl(name));
+    instance->load_resource(resource_index, resource_section);
+}
+#endif
+
 void set_default_theme_from_json(const std::string &name, const std::string &json)
 {
     instance.reset();

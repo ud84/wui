@@ -17,6 +17,9 @@ namespace wui
 {
 
 /// Set and get the current theme
+#ifdef _WIN32
+void set_default_theme_from_resource(const std::string &name, int32_t resource_index, const std::string &resource_section);
+#endif
 void set_default_theme_from_json(const std::string &name, const std::string &json);
 void set_default_theme_from_file(const std::string &name, const std::string &file_name);
 void set_default_theme_empty(const std::string &name);

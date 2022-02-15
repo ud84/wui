@@ -234,8 +234,13 @@ int main(int argc, char *argv[])
 #endif
     bool runned = true;
 
-    wui::set_default_theme_from_file("dark", "C:\\job\\wui\\res\\dark.json");
+#ifdef _WIN32
+    wui::set_default_theme_from_resource("dark", TXT_DARK_JSON, "JSONS");
     wui::set_locale_from_json("en", en_locale);
+#elif
+    wui::set_default_theme_from_file("dark", "dark.json");
+    wui::set_locale_from_json("en", en_locale);
+#endif
 
     std::shared_ptr<wui::window> window(new wui::window());
 
@@ -342,7 +347,12 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<wui::button> darkThemeButton(new wui::button("Set the dark theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
-        wui::set_default_theme_from_file("dark", "C:\\job\\wui\\res\\dark.json");
+#ifdef _WIN32
+        wui::set_default_theme_from_resource("dark", TXT_DARK_JSON, "JSONS");
+#elif
+        wui::set_default_theme_from_file("dark", "dark.json");
+#endif
+
         window->update_theme();
         pluggedWindow->window->update_theme();
         dialog->update_theme(); 
@@ -352,7 +362,12 @@ int main(int argc, char *argv[])
 	
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
-        wui::set_default_theme_from_file("white", "C:\\job\\wui\\res\\white.json");
+#ifdef _WIN32
+        wui::set_default_theme_from_resource("white", TXT_WHITE_JSON, "JSONS");
+#elif
+        wui::set_default_theme_from_file("white", "white.json");
+#endif
+
         window->update_theme();
         pluggedWindow->window->update_theme();
         dialog->update_theme();

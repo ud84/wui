@@ -13,6 +13,10 @@
 #include <boost/nowide/fstream.hpp>
 #include <sstream>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 namespace wui
 {
 
@@ -100,6 +104,32 @@ const std::vector<uint8_t> &theme_impl::get_image(const std::string &name)
     }
     return dummy_image;
 }
+
+#ifdef _WIN32
+void theme_impl::load_resource(int32_t resource_index, const std::string &resource_section)
+{
+    HINSTANCE h_inst = GetModuleHandle(NULL);
+    HRSRC h_resource = FindResource(h_inst, MAKEINTRESOURCE(resource_index), boost::nowide::widen(resource_section).c_str());
+    if (!h_resource)
+    {
+        return;
+    }
+
+    DWORD image_size = ::SizeofResource(h_inst, h_resource);
+    if (!image_size)
+    {
+        return;
+    }
+
+    const void* resource_data = ::LockResource(::LoadResource(h_inst, h_resource));
+    if (!resource_data)
+    {
+        return;
+    }
+
+    load_json(static_cast<const char*>(resource_data));
+}
+#endif
 
 void theme_impl::load_json(const std::string &json_)
 {

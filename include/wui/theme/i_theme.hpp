@@ -39,6 +39,9 @@ public:
     virtual void set_image(const std::string &name, const std::vector<uint8_t> &data) = 0;
     virtual const std::vector<uint8_t> &get_image(const std::string &name) = 0;
 
+#ifdef _WIN32
+    virtual void load_resource(int32_t resource_index, const std::string &resource_section) = 0;
+#endif
     virtual void load_json(const std::string &json) = 0;
     virtual void load_file(const std::string &file_name) = 0;
     virtual void load_theme(const i_theme &theme_) = 0;
