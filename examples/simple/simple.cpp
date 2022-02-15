@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
         }
     }, wui::event_type::internal);
 
-    window->init("Welcome to WUI!", { 100, 100, 900, 600 }, 
+    window->init("Welcome to WUI!", { -1, -1, 900, 600 }, 
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) | static_cast<uint32_t>(wui::window_style::border_all)),
         //wui::window_style::frame,
         [&runned]() {

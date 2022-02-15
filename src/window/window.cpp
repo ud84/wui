@@ -1225,6 +1225,23 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     RegisterClassExW(&wcex);
 
+    if (position_.left == -1)
+    {
+        RECT work_area;
+        SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
+        auto screen_width = work_area.right - work_area.left;
+        position_.left = (screen_width - position_.right) / 2;
+        position_.right += position_.left;
+    }
+    if (position_.top == -1)
+    {
+        RECT work_area;
+        SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
+        auto screen_height = work_area.bottom - work_area.top;
+        position_.top = (screen_height - position_.bottom) / 2;
+        position_.bottom += position_.top;
+    }
+
     context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST, wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP,
         position_.left, position_.top, position_.width(), position_.height(), nullptr, nullptr, h_inst, this);
 
@@ -1259,6 +1276,17 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     init_atoms();
 
     context_.screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
+
+    if (position_.left == -1)
+    {
+        position_.left = (context_.screen->width_in_pixels - position_.right) / 2;
+        position_.right += position_.left;
+    }
+    if (position_.top == -1)
+    {
+        position_.top = (context_.screen->height_in_pixels - position_.bottom) / 2;
+        position_.bottom += position_.top;
+    }
 
     context_.wnd = xcb_generate_id(context_.connection);
 
