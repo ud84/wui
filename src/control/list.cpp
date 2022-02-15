@@ -667,14 +667,14 @@ void list::draw_titles(graphic &gr_)
 
     for (auto &c : columns)
     {
-        if (left + c.width - 1 <= control_position.right)
+        if (left + c.width - 1 <= control_position.right - border_width)
         {
             gr_.draw_rect({ left, top, left + c.width - 1, top + title_height }, title_color);
             gr_.draw_text({ left + text_indent, top + text_indent, 0, 0 }, c.caption, title_text_color, font);
         }
         else
         {
-            gr_.draw_rect({ left, top, control_position.right, top + title_height }, title_color);
+            gr_.draw_rect({ left, top, control_position.right - border_width, top + title_height }, title_color);
             break;
         }
         
