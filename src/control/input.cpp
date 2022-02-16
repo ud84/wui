@@ -31,7 +31,7 @@ input::input(const std::string &text__, input_view input_view__, std::shared_ptr
     position_(),
     cursor_position(0), select_start_position(0), select_end_position(0),
     parent(),
-    my_subscriber_id(),
+    my_control_sid(), my_plain_sid(),
     timer_(std::bind(&input::redraw_cursor, this)),
     showed_(true), enabled_(true),
     focused_(false),
@@ -283,7 +283,7 @@ void input::move_cursor_right()
     }
 }
 
-void input::receive_event(const event &ev)
+void input::receive_control_events(const event &ev)
 {
     if (!showed_ || !enabled_)
     {
@@ -318,7 +318,6 @@ void input::receive_event(const event &ev)
                         cursor_position = 0;
                     }
                 }
-                selecting = false;
 
                 auto parent_ = parent.lock();
                 if (parent_)
@@ -499,6 +498,14 @@ void input::receive_event(const event &ev)
     }
 }
 
+void input::receive_plain_events(const event &ev)
+{
+    if (ev.type == event_type::mouse && ev.mouse_event_.type == mouse_event_type::left_up)
+    {
+        selecting = false;
+    }
+}
+
 void input::set_position(const rect &position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent);
@@ -512,9 +519,10 @@ rect input::position() const
 void input::set_parent(std::shared_ptr<window> window_)
 {
     parent = window_;
-    my_subscriber_id = window_->subscribe(std::bind(&input::receive_event, this, std::placeholders::_1),
+    my_control_sid = window_->subscribe(std::bind(&input::receive_control_events, this, std::placeholders::_1),
         static_cast<event_type>(static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
         shared_from_this());
+    my_plain_sid = window_->subscribe(std::bind(&input::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
 }
 
 void input::clear_parent()
@@ -522,7 +530,8 @@ void input::clear_parent()
     auto parent_ = parent.lock();
     if (parent_)
     {
-        parent_->unsubscribe(my_subscriber_id);
+        parent_->unsubscribe(my_control_sid);
+        parent_->unsubscribe(my_plain_sid);
     }
     parent.reset();
 }

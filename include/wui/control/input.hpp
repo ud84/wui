@@ -93,7 +93,7 @@ private:
     size_t cursor_position, select_start_position, select_end_position;
     
     std::weak_ptr<window> parent;
-    std::string my_subscriber_id;
+    std::string my_control_sid, my_plain_sid;
 
     timer timer_;
 
@@ -105,7 +105,8 @@ private:
 
     int32_t left_shift;
 
-    void receive_event(const event &ev);
+    void receive_control_events(const event &ev);
+    void receive_plain_events(const event &ev);
 
     void redraw();
 
