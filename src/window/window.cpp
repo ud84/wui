@@ -1045,6 +1045,7 @@ void window::update_buttons(bool theme_changed)
         close_button_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
         close_button_theme->set_color(button::tc, button::tv_calm, background_color);
         close_button_theme->set_color(button::tc, button::tv_active, make_color(235, 15, 20));
+        close_button_theme->set_color(button::tc, button::tv_disabled, background_color);
         close_button_theme->set_dimension(button::tc, button::tv_round, 0);
         close_button_theme->set_dimension(button::tc, button::tv_border_width, 0);
 
