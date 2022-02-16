@@ -40,6 +40,19 @@
       }
     },
     {
+      "type": "tool_button",
+      "calm": "#f0f0f0",
+      "active": "#dcdcdc",
+      "border_width": 0,
+      "text": "#191914",
+      "disabled": "#cdcdc8",
+      "round": 0,
+      "font": {
+        "name": "Segoe UI",
+        "size": 18
+      }
+    },
+    {
       "type": "input",
       "background": "#dcdcdc",
       "text": "#191914",

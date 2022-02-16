@@ -114,7 +114,7 @@ window::window()
     close_callback(),
     pin_callback(),
     switch_theme_callback(),
-    buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
+    close_button_theme(make_custom_theme()),
     switch_theme_button(new button(locale(tc, cl_light_theme), std::bind(&window::switch_theme, this), button_view::image, theme_image(ti_switch_theme), 24)),
     pin_button(new button(locale(tc, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24)),
     minimize_button(new button("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24)),
@@ -1026,29 +1026,23 @@ void window::update_buttons(bool theme_changed)
 
     if (theme_changed)
     {
-        buttons_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
-
-        buttons_theme->set_color(button::tc, button::tv_calm, background_color);
-        buttons_theme->set_color(button::tc, button::tv_active, theme_color(tc, tv_active_button, theme_));
-        buttons_theme->set_color(button::tc, button::tv_border, background_color);
-        buttons_theme->set_color(button::tc, button::tv_disabled, background_color);
-        buttons_theme->set_dimension(button::tc, button::tv_round, 0);
-
         switch_theme_button->set_image(theme_image(ti_switch_theme, theme_));
-        switch_theme_button->update_theme(buttons_theme);
+        switch_theme_button->set_theme_control_name("tool_button");
+
         pin_button->set_image(theme_image(ti_pin, theme_));
-        pin_button->update_theme(buttons_theme);
+        pin_button->set_theme_control_name("tool_button");
+
         minimize_button->set_image(theme_image(ti_minimize, theme_));
-        minimize_button->update_theme(buttons_theme);
+        minimize_button->set_theme_control_name("tool_button");
+
         expand_button->set_image(theme_image(window_state_ == window_state::normal ? ti_expand : ti_normal, theme_));
-        expand_button->update_theme(buttons_theme);
+        expand_button->set_theme_control_name("tool_button");
     
         close_button_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
         close_button_theme->set_color(button::tc, button::tv_calm, background_color);
         close_button_theme->set_color(button::tc, button::tv_active, make_color(235, 15, 20));
-        close_button_theme->set_color(button::tc, button::tv_border, background_color);
-        close_button_theme->set_color(button::tc, button::tv_disabled, background_color);
         close_button_theme->set_dimension(button::tc, button::tv_round, 0);
+        close_button_theme->set_dimension(button::tc, button::tv_border_width, 0);
 
         close_button->set_image(theme_image(ti_close, theme_));
         close_button->update_theme(close_button_theme);

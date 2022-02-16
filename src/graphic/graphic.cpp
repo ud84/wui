@@ -450,7 +450,7 @@ void graphic::draw_rect(const rect &position, color fill_color)
 void graphic::draw_rect(const rect &position, color border_color, color fill_color, uint32_t border_width, uint32_t rnd)
 {
 #ifdef _WIN32
-    auto pen = CreatePen(PS_SOLID, border_width, border_color);
+    auto pen = CreatePen(border_width != 0 ? PS_SOLID : PS_NULL, border_width, border_color);
     auto old_pen = (HPEN)SelectObject(mem_dc, pen);
 
     auto brush = CreateSolidBrush(fill_color);
@@ -466,19 +466,22 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
 #elif __linux__
     draw_rect(position, fill_color);
 
-    auto gc_ = xcb_generate_id(context_.connection);
-    uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_LINE_WIDTH;
-    uint32_t value[] = { static_cast<uint32_t>(border_color), border_width };
-    auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
+    if (border_width != 0)
+    {
+        auto gc_ = xcb_generate_id(context_.connection);
+        uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_LINE_WIDTH;
+        uint32_t value[] = { static_cast<uint32_t>(border_color), border_width };
+        auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
 
-    xcb_rectangle_t rct = { static_cast<int16_t>(position.left),
-            static_cast<int16_t>(position.top),
-            static_cast<uint16_t>(position.width() - 1),
-            static_cast<uint16_t>(position.height() - 1) };
+        xcb_rectangle_t rct = { static_cast<int16_t>(position.left),
+                static_cast<int16_t>(position.top),
+                static_cast<uint16_t>(position.width() - 1),
+                static_cast<uint16_t>(position.height() - 1) };
 
-    xcb_poly_rectangle(context_.connection, mem_pixmap, gc_, 1, &rct);
+        xcb_poly_rectangle(context_.connection, mem_pixmap, gc_, 1, &rct);
 
-    xcb_free_gc(context_.connection, gc_);
+        xcb_free_gc(context_.connection, gc_);
+    }
 #endif
 }
 
