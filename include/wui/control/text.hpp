@@ -22,10 +22,17 @@
 namespace wui
 {
 
+enum class text_alignment
+{
+    left,
+    center,
+    right
+};
+
 class text : public i_control, public std::enable_shared_from_this<text>
 {
 public:
-    text(const std::string &text, std::shared_ptr<i_theme> theme_ = nullptr);
+    text(const std::string &text, text_alignment alignment = text_alignment::left, std::shared_ptr<i_theme> theme_ = nullptr);
     ~text();
 
     virtual void draw(graphic &gr, const rect &);
@@ -55,6 +62,8 @@ public:
 
     void set_text(const std::string &text);
 	const std::string &get_text() const;
+
+    void set_alignment(text_alignment alignment);
 public:
     /// Control name in theme
     static constexpr const char *tc = "text";
@@ -73,6 +82,8 @@ private:
     bool showed_;
 
     std::string text_;
+
+    text_alignment alignment;
 	
     void redraw();
 };

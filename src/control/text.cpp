@@ -22,12 +22,13 @@
 namespace wui
 {
 
-text::text(const std::string &text__, std::shared_ptr<i_theme> theme_)
+text::text(const std::string &text__, text_alignment alignment_, std::shared_ptr<i_theme> theme_)
     : theme_(theme_),
     position_(),
     parent(),
     showed_(true),
-    text_(text__)
+    text_(text__),
+    alignment(alignment_)
 {
 }
 
@@ -68,7 +69,28 @@ void text::draw(graphic &gr, const rect &)
     {
         truncate_line(line, gr, font_, control_pos.width());
 
-        gr.draw_text({ control_pos.left, line_top }, line, theme_color(tc, tv_color, theme_), font_);
+        int32_t left = control_pos.left;
+
+        switch (alignment)
+        {
+            case text_alignment::left:
+                // do nothing
+            break;
+            case text_alignment::center:
+            {
+                auto line_width = gr.measure_text(line, font_).width();
+                left += ((control_pos.width() - line_width) / 2);
+            }
+            break;
+            case text_alignment::right:
+            {
+                auto line_width = gr.measure_text(line, font_).width();
+                left += (control_pos.width() - line_width);
+            }
+            break;
+        }
+        
+        gr.draw_text({ left, line_top }, line, theme_color(tc, tv_color, theme_), font_);
 
         line_top += static_cast<int32_t>(text_height * 1.2);
 
@@ -143,11 +165,7 @@ void text::show()
 void text::hide()
 {
     showed_ = false;
-    auto parent_ = parent.lock();
-    if (parent_)
-    {
-        parent_->redraw(position(), true);
-    }
+    redraw();
 }
 
 bool text::showed() const
@@ -179,6 +197,12 @@ const std::string &text::get_text() const
 	return text_;
 }
 
+void text::set_alignment(text_alignment alignment_)
+{
+    alignment = alignment_;
+    redraw();
+}
+
 void text::redraw()
 {
     if (showed_)
@@ -186,7 +210,7 @@ void text::redraw()
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position());
+            parent_->redraw(position(), true);
         }
     }
 }
