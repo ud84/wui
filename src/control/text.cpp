@@ -165,7 +165,11 @@ void text::show()
 void text::hide()
 {
     showed_ = false;
-    redraw();
+    auto parent_ = parent.lock();
+    if (parent_)
+    {
+        parent_->redraw(position(), true);
+    }
 }
 
 bool text::showed() const
