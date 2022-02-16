@@ -6,6 +6,7 @@
       "border": "#9a9a9a",
       "border_width": 1,
       "text": "#191914",
+      "active_button": "#dcdcdc",
       "caption_font": {
         "name": "Segoe UI",
         "size": 18
@@ -31,19 +32,6 @@
       "border_width": 1,
       "focused_border": "#140a14",
       "text": "#181818",
-      "disabled": "#cdcdc8",
-      "round": 0,
-      "font": {
-        "name": "Segoe UI",
-        "size": 18
-      }
-    },
-    {
-      "type": "tool_button",
-      "calm": "#f0f0f0",
-      "active": "#dcdcdc",
-      "border_width": 0,
-      "text": "#191914",
       "disabled": "#cdcdc8",
       "round": 0,
       "font": {

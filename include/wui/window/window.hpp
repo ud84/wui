@@ -112,6 +112,7 @@ public:
     static constexpr const char *tv_border_width = "border_width";
     static constexpr const char *tv_text = "text";
     static constexpr const char *tv_caption_font = "caption_font";
+    static constexpr const char *tv_active_button = "active_button";
 
     ///Used theme images
     static constexpr const char *ti_close = "window_close";
@@ -181,7 +182,7 @@ private:
     std::function<void(std::string &tooltip_text)> pin_callback;
     std::function<void(std::string &tooltip_text)> switch_theme_callback;
 
-    std::shared_ptr<i_theme> close_button_theme;
+    std::shared_ptr<i_theme> buttons_theme, close_button_theme;
     std::shared_ptr<button> switch_theme_button, pin_button, minimize_button, expand_button, close_button;
 
 #ifdef _WIN32

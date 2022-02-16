@@ -26,6 +26,40 @@ const std::string IMG_ACCOUNT = "account.png";
 const std::string IMG_SETTINGS = "settings.png";
 #endif
 
+std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
+{
+    auto redButtonTheme = wui::make_custom_theme();
+
+    redButtonTheme->load_theme(*wui::get_default_theme());
+
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_calm, wui::make_color(205, 15, 20));
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_active, wui::make_color(235, 15, 20));
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_border, wui::make_color(200, 215, 200));
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_focused_border, wui::make_color(20, 215, 20));
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_text, wui::make_color(190, 205, 190));
+    redButtonTheme->set_color(wui::button::tc, wui::button::tv_disabled, wui::make_color(180, 190, 180));
+    //redButtonTheme->set_string(wui::image::tc, wui::image::tv_path, "IMAGES_DARK");
+
+    return redButtonTheme;
+}
+
+std::shared_ptr<wui::i_theme> MakeToolButtonTheme()
+{
+    auto toolButtonTheme = wui::make_custom_theme();
+
+    toolButtonTheme->load_theme(*wui::get_default_theme());
+
+    auto background_color = wui::theme_color(wui::window::tc, wui::window::tv_background);
+
+    toolButtonTheme->set_color(wui::button::tc, wui::button::tv_calm, background_color);
+    toolButtonTheme->set_color(wui::button::tc, wui::button::tv_active, wui::theme_color(wui::window::tc, wui::window::tv_active_button));
+    toolButtonTheme->set_color(wui::button::tc, wui::button::tv_disabled, background_color);
+    toolButtonTheme->set_dimension(wui::button::tc, wui::button::tv_round, 0);
+    toolButtonTheme->set_dimension(wui::button::tc, wui::button::tv_border_width, 0);
+
+    return toolButtonTheme;
+}
+
 struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 {
     std::weak_ptr<wui::window> parentWindow;
@@ -89,11 +123,8 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         plugged(false)
     {
         button1->disable_focusing();
-        button1->set_theme_control_name("tool_button");
         button2->disable_focusing();
-        button2->set_theme_control_name("tool_button");
         button3->disable_focusing();
-        button3->set_theme_control_name("tool_button");
 
         list->set_draw_callback(std::bind(&PluggedWindow::DrawListItem, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 
@@ -171,23 +202,6 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     }
 };
 
-std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
-{
-    auto redButtonTheme = wui::make_custom_theme();
-
-    redButtonTheme->load_theme(*wui::get_default_theme());
-
-    redButtonTheme->set_color(wui::button::tc, wui::button::tv_calm, wui::make_color(205, 15, 20));
-    redButtonTheme->set_color(wui::button::tc, wui::button::tv_active, wui::make_color(235, 15, 20));
-    redButtonTheme->set_color(wui::button::tc, wui::button::tv_border, wui::make_color(200, 215, 200));
-    redButtonTheme->set_color(wui::button::tc, wui::button::tv_focused_border, wui::make_color(20, 215, 20));
-    redButtonTheme->set_color(wui::button::tc, wui::button::tv_text, wui::make_color(190, 205, 190));
-    redButtonTheme->set_color(wui::button::tc, wui::button::tv_disabled, wui::make_color(180, 190, 180));
-    //redButtonTheme->set_string(wui::image::tc, wui::image::tv_path, "IMAGES_DARK");
-    
-    return redButtonTheme;
-}
-
 #ifdef _WIN32
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -247,10 +261,9 @@ int main(int argc, char *argv[])
 
     window->add_control(menu, { 0 });
 
-    std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() {}, wui::button_view::image, IMG_SETTINGS, 32));
+    std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() {}, wui::button_view::image, IMG_SETTINGS, 32, MakeToolButtonTheme()));
     menuButton->set_callback([&menu, &menuButton]() { menu->show_on_control(menuButton, 5); });
     menuButton->disable_focusing();
-    menuButton->set_theme_control_name("tool_button");
     window->add_control(menuButton, { 0 });
 
     std::shared_ptr<wui::progress> horizProgressBar(new wui::progress(0, 100, 50));

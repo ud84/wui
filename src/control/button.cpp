@@ -28,7 +28,6 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     image_size(0),
     tooltip_(new tooltip(caption_, theme__)),
     click_callback(click_callback_),
-    theme_control_name(tc),
     theme_(theme__),
     position_(),
     parent(),
@@ -46,7 +45,6 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     image_size(image_size_),
     tooltip_(new tooltip(caption_, theme__)),
     click_callback(click_callback_),
-    theme_control_name(tc),
     theme_(theme__),
     position_(),
     parent(),
@@ -63,7 +61,6 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     image_size(image_size_),
     tooltip_(new tooltip(caption_, theme__)),
     click_callback(click_callback_),
-    theme_control_name(tc),
     theme_(theme__),
     position_(),
     parent(),
@@ -79,7 +76,6 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     image_size(image_size_),
     tooltip_(new tooltip(caption_, theme__)),
     click_callback(click_callback_),
-    theme_control_name(tc),
     theme_(theme__),
     position_(),
     parent(),
@@ -104,7 +100,7 @@ void button::draw(graphic &gr, const rect &)
         return;
     }
 
-    auto font_ = theme_font(theme_control_name, tv_font, theme_);
+    auto font_ = theme_font(tc, tv_font, theme_);
 
     auto text_rect = gr.measure_text(caption, font_);
 
@@ -176,15 +172,15 @@ void button::draw(graphic &gr, const rect &)
     }
 
     color border_color = !focused_ ?
-        (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_control_name, tv_border, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
-        theme_color(theme_control_name, tv_focused_border, theme_);
+        (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_border, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
+        theme_color(tc, tv_focused_border, theme_);
 
     color fill_color = enabled_ ?
-        (active ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_control_name, tv_active, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
-        (button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_control_name, tv_calm, theme_) : theme_color(window::tc, window::tv_background, theme_))) :
-        button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_control_name, tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_);
+        (active ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_active, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
+        (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_calm, theme_) : theme_color(window::tc, window::tv_background, theme_))) :
+        button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_);
 
-    gr.draw_rect(position(), border_color, fill_color, theme_dimension(theme_control_name, tv_border_width, theme_), theme_dimension(theme_control_name, tv_round, theme_));
+    gr.draw_rect(position(), border_color, fill_color, theme_dimension(tc, tv_border_width, theme_), theme_dimension(tc, tv_round, theme_));
 	
     if (button_view_ != button_view::text && image_)
     {
@@ -195,7 +191,7 @@ void button::draw(graphic &gr, const rect &)
     if (button_view_ != button_view::image)
     {
         gr.draw_text(rect{ text_left, text_top, text_left, text_top }, caption, 
-            button_view_ != button_view::image_right_text_no_frame ? theme_color(theme_control_name, tv_text, theme_) : theme_color(window::tc, tv_text, theme_),
+            button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_text, theme_) : theme_color(window::tc, tv_text, theme_),
             font_);
     }
 }
@@ -243,6 +239,7 @@ void button::receive_event(const event &ev)
                 }
 
                 active = false;
+                redraw();
 
                 if (click_callback && enabled_)
                 {
@@ -455,12 +452,6 @@ void button::disable_focusing()
 void button::set_callback(std::function<void(void)> click_callback_)
 {
     click_callback = click_callback_;
-}
-
-void button::set_theme_control_name(const std::string &theme_control_name_)
-{
-    theme_control_name = theme_control_name_;
-    redraw();
 }
 
 void button::redraw()

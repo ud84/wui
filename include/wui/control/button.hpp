@@ -88,8 +88,6 @@ public:
 
     void set_callback(std::function<void(void)> click_callback);
 
-    void set_theme_control_name(const std::string &theme_control_name);
-
 public:
     /// Default control name in theme
     static constexpr const char *tc = "button";
@@ -115,8 +113,7 @@ private:
     std::shared_ptr<tooltip> tooltip_;
     
     std::function<void(void)> click_callback;
-    
-    std::string theme_control_name;
+
     std::shared_ptr<i_theme> theme_;
 
     rect position_;
