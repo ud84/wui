@@ -1026,6 +1026,7 @@ void window::update_buttons(bool theme_changed)
 
     if (theme_changed)
     {
+        buttons_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
         buttons_theme->set_color(button::tc, button::tv_calm, background_color);
         buttons_theme->set_color(button::tc, button::tv_active, theme_color(tc, tv_active_button, theme_));
         buttons_theme->set_color(button::tc, button::tv_disabled, background_color);
