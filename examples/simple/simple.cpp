@@ -354,7 +354,7 @@ int main(int argc, char *argv[])
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
 #ifdef _WIN32
-        wui::set_default_theme_from_resource("white", TXT_WHITE_THEME, "JSONS");
+        wui::set_default_theme_from_resource("white", TXT_LIGHT_THEME, "JSONS");
 #elif
         wui::set_default_theme_from_file("white", "white.json");
 #endif
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
         {
             tooltip_text = wui::locale("window", "dark_theme");
 #ifdef _WIN32
-            wui::set_default_theme_from_resource("white", TXT_WHITE_THEME, "JSONS");
+            wui::set_default_theme_from_resource("white", TXT_LIGHT_THEME, "JSONS");
 #elif
             wui::set_default_theme_from_file("white", "white.json");
 #endif

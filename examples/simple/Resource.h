@@ -7,7 +7,7 @@
 #define IMG_SETTINGS    		110
 
 #define TXT_DARK_THEME          200
-#define TXT_WHITE_THEME         201
+#define TXT_LIGHT_THEME         201
 
 #define TXT_LOCALE_EN           210
 #define TXT_LOCALE_RU           211

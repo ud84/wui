@@ -79,7 +79,7 @@
     <None Include="res\dark.json" />
     <None Include="res\en_locale.json" />
     <None Include="res\ru_locale.json" />
-    <None Include="res\white.json" />
+    <None Include="res\light.json" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

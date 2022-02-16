@@ -226,13 +226,13 @@
     <None Include="res\dark.json">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\white.json">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="res\en_locale.json">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="res\ru_locale.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\light.json">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
