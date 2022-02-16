@@ -113,7 +113,9 @@ window::window()
     x_click(0), y_click(0),
     close_callback(),
     pin_callback(),
+    switch_theme_callback(),
     buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
+    switch_theme_button(new button(locale(tc, cl_light_theme), std::bind(&window::switch_theme, this), button_view::image, theme_image(ti_switch_theme), 24)),
     pin_button(new button(locale(tc, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24)),
     minimize_button(new button("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24)),
     expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24)),
@@ -127,6 +129,7 @@ window::window()
     thread()
 #endif
 {
+    switch_theme_button->disable_focusing();
     pin_button->disable_focusing();
     minimize_button->disable_focusing();
     expand_button->disable_focusing();
@@ -599,6 +602,16 @@ bool window::enabled() const
     return enabled_;
 }
 
+void window::switch_theme()
+{
+    if (switch_theme_callback)
+    {
+        std::string tooltip_text;
+        switch_theme_callback(tooltip_text);
+        switch_theme_button->set_caption(tooltip_text);
+    }
+}
+
 void window::pin()
 {
     if (active_control)
@@ -789,6 +802,11 @@ bool window::child() const
 void window::set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback_)
 {
     pin_callback = pin_callback_;
+}
+
+void window::set_switch_theme_callback(std::function<void(std::string &tooltip_text)> switch_theme_callback_)
+{
+    switch_theme_callback = switch_theme_callback_;
 }
 
 void window::send_event_to_control(std::shared_ptr<i_control> &control_, const event &ev)
@@ -1016,6 +1034,8 @@ void window::update_buttons(bool theme_changed)
         buttons_theme->set_color(button::tc, button::tv_disabled, background_color);
         buttons_theme->set_dimension(button::tc, button::tv_round, 0);
 
+        switch_theme_button->set_image(theme_image(ti_switch_theme, theme_));
+        switch_theme_button->update_theme(buttons_theme);
         pin_button->set_image(theme_image(ti_pin, theme_));
         pin_button->update_theme(buttons_theme);
         minimize_button->set_image(theme_image(ti_minimize, theme_));
@@ -1087,10 +1107,24 @@ void window::update_buttons(bool theme_changed)
     {
         pin_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
         pin_button->show();
+
+        left -= btn_size;
     }
     else
     {
         pin_button->hide();
+    }
+
+    if (flag_is_set(window_style_, window_style::switch_theme_button))
+    {
+        switch_theme_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
+        switch_theme_button->show();
+
+        left -= btn_size;
+    }
+    else
+    {
+        switch_theme_button->hide();
     }
 }
 
@@ -1166,6 +1200,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     close_callback = close_callback_;
     theme_ = theme__;
 
+    add_control(switch_theme_button, { 0 });
     add_control(pin_button, { 0 });
     add_control(minimize_button, { 0 });
     add_control(expand_button, { 0 });

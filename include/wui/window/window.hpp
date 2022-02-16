@@ -91,6 +91,7 @@ public:
     bool child() const;
 
     /// Window state methods
+    void switch_theme();
     void pin();
     void minimize();
     void expand();
@@ -99,6 +100,7 @@ public:
 
     /// Callbacks
     void set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback);
+    void set_switch_theme_callback(std::function<void(std::string &tooltip_text)> switch_theme_callback);
 
 public:
     /// Control name in theme / locale
@@ -118,10 +120,13 @@ public:
     static constexpr const char *ti_normal = "window_normal";
     static constexpr const char *ti_minimize = "window_minimize";
     static constexpr const char *ti_pin = "window_pin";
+    static constexpr const char *ti_switch_theme = "window_switch_theme";
 
     /// Used locale values (from section window)
     static constexpr const char *cl_pin = "pin";
     static constexpr const char *cl_unpin = "unpin";
+    static constexpr const char *cl_dark_theme = "dark_theme";
+    static constexpr const char *cl_light_theme = "light_theme";
 
 private:
     system_context context_;
@@ -175,9 +180,10 @@ private:
 
     std::function<void(void)> close_callback;
     std::function<void(std::string &tooltip_text)> pin_callback;
+    std::function<void(std::string &tooltip_text)> switch_theme_callback;
 
     std::shared_ptr<i_theme> buttons_theme, close_button_theme;
-    std::shared_ptr<button> pin_button, minimize_button, expand_button, close_button;
+    std::shared_ptr<button> switch_theme_button, pin_button, minimize_button, expand_button, close_button;
 
 #ifdef _WIN32
 

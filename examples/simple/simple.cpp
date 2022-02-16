@@ -392,8 +392,38 @@ int main(int argc, char *argv[])
         }
     }, wui::event_type::internal);
 
+    window->set_switch_theme_callback([&window, &pluggedWindow, &dialog, &cancelButton](std::string &tooltip_text) {
+        auto theme_name = wui::get_default_theme()->get_name();
+
+        if (theme_name == "dark")
+        {
+            tooltip_text = wui::locale("window", "dark_theme");
+#ifdef _WIN32
+            wui::set_default_theme_from_resource("white", TXT_WHITE_THEME, "JSONS");
+#elif
+            wui::set_default_theme_from_file("white", "white.json");
+#endif
+        }
+        else if (theme_name == "white")
+        {
+            tooltip_text = wui::locale("window", "light_theme");
+#ifdef _WIN32
+            wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
+#elif
+            wui::set_default_theme_from_file("dark", "dark.json");
+#endif
+        }
+
+        window->update_theme();
+        pluggedWindow->window->update_theme();
+        dialog->update_theme();
+        cancelButton->update_theme(MakeRedButtonTheme());
+    });
+
     window->init("Welcome to WUI!", { -1, -1, 900, 600 }, 
-        static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) | static_cast<uint32_t>(wui::window_style::border_all)),
+        static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
+            static_cast<uint32_t>(wui::window_style::switch_theme_button) |
+            static_cast<uint32_t>(wui::window_style::border_all)),
         //wui::window_style::frame,
         [&runned]() {
 #ifdef _WIN32

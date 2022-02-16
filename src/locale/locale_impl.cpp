@@ -48,15 +48,15 @@ const std::string &locale_impl::get(const std::string &control, const std::strin
 #ifdef _WIN32
 void locale_impl::load_resource(int32_t resource_index, const std::string &resource_section)
 {
-    HINSTANCE h_inst = GetModuleHandle(NULL);
-    HRSRC h_resource = FindResource(h_inst, MAKEINTRESOURCE(resource_index), boost::nowide::widen(resource_section).c_str());
+    auto h_inst = GetModuleHandle(NULL);
+    auto h_resource = FindResource(h_inst, MAKEINTRESOURCE(resource_index), boost::nowide::widen(resource_section).c_str());
     if (!h_resource)
     {
         return;
     }
 
-    DWORD image_size = ::SizeofResource(h_inst, h_resource);
-    if (!image_size)
+    auto resource_size = ::SizeofResource(h_inst, h_resource);
+    if (!resource_size)
     {
         return;
     }
@@ -67,7 +67,7 @@ void locale_impl::load_resource(int32_t resource_index, const std::string &resou
         return;
     }
 
-    load_json(static_cast<const char*>(resource_data));
+    load_json(std::string(static_cast<const char*>(resource_data), resource_size));
 }
 #endif
 

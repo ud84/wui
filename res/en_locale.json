@@ -16,7 +16,9 @@
       "type": "window",
 
       "pin": "Pin the window",
-      "unpin": "Unpin the window"
+      "unpin": "Unpin the window",
+	  "dark_theme": "Apply a dark theme",
+	  "light_theme": "Apply a light theme"
     },
     {
       "type": "edit",
