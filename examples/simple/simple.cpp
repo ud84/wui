@@ -121,7 +121,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 "hello world", wui::message_icon::information, wui::message_button::ok, [](wui::message_result) {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button2(new wui::button("Button 2", [this]() {
-            window->emit_event(100, 200);
+            window->emit_event(310, 200);
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
         messageBox(new wui::message(window, true)),

@@ -102,7 +102,7 @@ private:
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);
 
-    void redraw();
+    void redraw(bool clear = false);
 
     void calc_consts();
 

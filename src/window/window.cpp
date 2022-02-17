@@ -815,18 +815,33 @@ bool window::child() const
 
 void window::emit_event(int32_t x, int32_t y)
 {
-#ifdef _WIN32
     auto parent_ = parent.lock();
     if (!parent_)
     {
+#ifdef _WIN32
         PostMessage(context_.hwnd, WM_USER, x, y);
+#elif __linux__
+        if (context_.connection)
+        {
+            xcb_client_message_event_t event = { 0 };
+
+            event.window = context_.wnd;
+            event.response_type = XCB_CLIENT_MESSAGE;
+            event.type = XCB_ATOM_WM_COMMAND;
+            event.format = 32;
+            event.data.data32[0] = 0;
+            event.data.data32[1] = x;
+            event.data.data32[2] = y;
+
+            xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_NO_EVENT, (const char*)&event);
+            xcb_flush(context_.connection);
+        }
+#endif
     }
     else
     {
         parent_->emit_event(x, y);
     }
-#elif __linux__
-#endif
 }
 
 void window::set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback_)
@@ -2478,7 +2493,15 @@ void window::process_events()
             }
             break;
             case XCB_CLIENT_MESSAGE:
-            	if ((*(xcb_client_message_event_t*)e).data.data32[0] == wm_delete_msg)
+            	if ((*(xcb_client_message_event_t*)e).data.data32[0] != wm_delete_msg)
+            	{
+                    event ev;
+                    ev.type = event_type::internal;
+                    ev.internal_event_ = internal_event{ internal_event_type::user_emitted, static_cast<int32_t>((*(xcb_client_message_event_t*)e).data.data32[1]), static_cast<int32_t>((*(xcb_client_message_event_t*)e).data.data32[2]) };
+
+                    send_event_to_plains(ev);
+            	}
+            	else
                 {
 #ifdef __linux__
             	    graphic_.end_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
@@ -2522,6 +2545,7 @@ void window::init_atoms()
     auto wm_delete_msg_reply = xcb_intern_atom_reply(context_.connection,
         xcb_intern_atom(context_.connection, 0, 16, "WM_DELETE_WINDOW"), NULL);
     wm_delete_msg = wm_delete_msg_reply->atom;
+    printf("%d\n", wm_delete_msg);
     free(wm_delete_msg_reply);
 
     auto wm_change_state_reply = xcb_intern_atom_reply(context_.connection,

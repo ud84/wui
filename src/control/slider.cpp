@@ -177,7 +177,7 @@ void slider::receive_control_events(const event &ev)
                     case vk_end: case vk_page_up:
                     {
                         value = to;
-                        redraw();
+                        redraw(true);
                         if (change_callback)
                         {
                             change_callback(value);
@@ -187,7 +187,7 @@ void slider::receive_control_events(const event &ev)
                     case vk_home: case vk_page_down:
                     {
                         value = from;
-                        redraw();
+                        redraw(true);
                         if (change_callback)
                         {
                             change_callback(value);
@@ -380,14 +380,14 @@ void slider::set_callback(std::function<void(int32_t)> change_callback_)
     change_callback = change_callback_;
 }
 
-void slider::redraw()
+void slider::redraw(bool clear)
 {
     if (showed_)
     {
         auto parent_ = parent.lock();
         if (parent_)
         {
-            parent_->redraw(position());
+            parent_->redraw(position(), clear);
         }
     }
 }
@@ -417,7 +417,7 @@ void slider::move_slider(int32_t x, int32_t y)
         value = from;
     }
 
-    redraw();
+    redraw(true);
 
     if (change_callback)
     {
@@ -438,7 +438,7 @@ void slider::scroll_up()
         value = to;
     }
 
-    redraw();
+    redraw(true);
 
     if (change_callback)
     {
@@ -459,7 +459,7 @@ void slider::scroll_down()
         value = from;
     }
 
-    redraw();
+    redraw(true);
 
     if (change_callback)
     {
