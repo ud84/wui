@@ -423,7 +423,7 @@ void input::receive_control_events(const event &ev)
                         }
                     break;
                     case vk_del:
-                        if (input_view_ != input_view::readonly && !text_.empty())
+                        if (input_view_ != input_view::readonly && !text_.empty() && text_.size() != cursor_position)
                         {
                             if (!clear_selected_text())
                             {
