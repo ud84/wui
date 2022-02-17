@@ -10,7 +10,8 @@
       "abort": "Abort",
       "retry": "Retry",
       "ignore": "Ignore",
-      "try_continue": "Try continue"
+      "try_continue": "Try continue",
+	  "complete": "Complete"
     },
     {
       "type": "window",
