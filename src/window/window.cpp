@@ -332,11 +332,7 @@ void window::receive_control_events(const event &ev)
 
 void window::receive_plain_events(const event &ev)
 {
-    if (ev.type == event_type::system || ev.type == event_type::mouse || ev.type == event_type::keyboard)
-    {
-        send_event_to_plains(ev);
-    }
-    else if (ev.type == event_type::internal && ev.internal_event_.type == wui::internal_event_type::size_changed)
+    if (ev.type == event_type::internal && ev.internal_event_.type == wui::internal_event_type::size_changed)
     {
         int32_t w = ev.internal_event_.x, h = ev.internal_event_.y;
         if (docked_)
@@ -347,8 +343,12 @@ void window::receive_plain_events(const event &ev)
             auto new_position = position_;
             new_position.put(left, top);
             set_position(new_position, false);
+            
+            return;
         }
     }
+
+    send_event_to_plains(ev);
 }
 
 void window::set_position(const rect &position__, bool redraw)
@@ -797,6 +797,22 @@ void window::end_docking()
 bool window::child() const
 {
     return parent.lock() != nullptr;
+}
+
+void window::emit_event(int32_t x, int32_t y)
+{
+#ifdef _WIN32
+    auto parent_ = parent.lock();
+    if (!parent_)
+    {
+        PostMessage(context_.hwnd, WM_USER, x, y);
+    }
+    else
+    {
+        parent_->emit_event(x, y);
+    }
+#elif
+#endif
 }
 
 void window::set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback_)
@@ -1933,6 +1949,17 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 }
                 wnd->send_event_to_plains(ev);
             }
+        break;
+        case WM_USER:
+        {
+            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+            event ev;
+            ev.type = event_type::internal;
+            ev.internal_event_ = internal_event{ internal_event_type::user_emitted, static_cast<int32_t>(w_param), static_cast<int32_t>(l_param) };
+            
+            wnd->send_event_to_plains(ev);
+        }
         break;
         case WM_DESTROY:
         {

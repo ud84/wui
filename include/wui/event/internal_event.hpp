@@ -15,10 +15,13 @@ namespace wui
 enum class internal_event_type
 {
     execute_focused,
+    
     size_changed,
     position_changed,
+    
     pin_clicked,
-    popup_close
+
+    user_emitted
 };
 
 struct internal_event

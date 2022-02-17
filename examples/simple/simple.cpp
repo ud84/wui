@@ -117,9 +117,11 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         panel(new wui::panel()),
 		button1(new wui::button("Button 1", [this]() { 
             messageBox->show("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took\na galley of type and scrambled it to make a type specimen book.",
-                "hello world", wui::message_icon::information, wui::message_button::ok, [](wui::message_result result) { });
+                "hello world", wui::message_icon::information, wui::message_button::ok, [](wui::message_result) {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
-        button2(new wui::button("Button 2", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
+        button2(new wui::button("Button 2", [this]() {
+            window->emit_event(100, 200);
+        }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
         messageBox(new wui::message(window, true)),
         creationButton(),
@@ -165,6 +167,13 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 button1->set_position({ 10, h - 30, 30, h - 10 }, false);
                 button2->set_position({ 40, h - 30, 60, h - 10 }, false);
                 button3->set_position({ 70, h - 30, 90, h - 10 }, false);
+            }
+            else if (e.internal_event_.type == wui::internal_event_type::user_emitted)
+            {
+                int32_t x = e.internal_event_.x, y = e.internal_event_.y;
+
+                messageBox->show("user emitted event received, x: " + std::to_string(x) + ", y: " + std::to_string(y),
+                    "user emitted event", wui::message_icon::information, wui::message_button::ok, [](wui::message_result) {});
             }
         }, wui::event_type::internal);
 

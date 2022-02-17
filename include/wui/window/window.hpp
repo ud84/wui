@@ -98,6 +98,9 @@ public:
     void normal();
     window_state state() const;
 
+    /// Emit event methods
+    void emit_event(int32_t x, int32_t y);
+
     /// Callbacks
     void set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback);
     void set_switch_theme_callback(std::function<void(std::string &tooltip_text)> switch_theme_callback);
