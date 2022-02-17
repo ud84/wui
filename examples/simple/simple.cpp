@@ -70,6 +70,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     std::shared_ptr<wui::panel> panel;
     std::shared_ptr<wui::button> button1, button2, button3;
     std::shared_ptr<wui::message> messageBox;
+    std::shared_ptr<wui::window> dialog;
     std::weak_ptr<wui::button> creationButton;
 
     bool plugged;
@@ -124,6 +125,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
         messageBox(new wui::message(window, true)),
+        dialog(new wui::window()),
         creationButton(),
         plugged(false)
     {
@@ -173,7 +175,13 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 int32_t x = e.internal_event_.x, y = e.internal_event_.y;
 
                 messageBox->show("user emitted event received, x: " + std::to_string(x) + ", y: " + std::to_string(y),
-                    "user emitted event", wui::message_icon::information, wui::message_button::ok, [](wui::message_result) {});
+                    "user emitted event", wui::message_icon::information, wui::message_button::yes_no, [this](wui::message_result result) {
+                    if (result == wui::message_result::yes)
+                    {
+                        dialog->set_transient_for(window);
+                        dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, []() {});
+                    }
+                });
             }
         }, wui::event_type::internal);
 
