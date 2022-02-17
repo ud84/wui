@@ -900,7 +900,9 @@ bool window::check_control_here(int32_t x, int32_t y)
 {
     for (auto &control : controls)
     {
-        if (control->showed() && control->position().in(x, y))
+        if (control->showed() &&
+            control->position().in(x, y) &&
+            std::find_if(subscribers_.begin(), subscribers_.end(), [&control](const event_subscriber &es) { return es.control == control; }) != subscribers_.end())
         {
             return true;
         }
