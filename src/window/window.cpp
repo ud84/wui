@@ -825,7 +825,7 @@ void window::emit_event(int32_t x, int32_t y)
     {
         parent_->emit_event(x, y);
     }
-#elif
+#elif __linux__
 #endif
 }
 
@@ -1398,7 +1398,6 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
         net_wm_state, XCB_ATOM_ATOM, 32, styles_count, styles);
 
-    auto transient_window_ = get_transient_window();
     if (transient_window_)
     {
         xcb_icccm_set_wm_transient_for(context_.connection, context_.wnd, transient_window_->context().wnd);

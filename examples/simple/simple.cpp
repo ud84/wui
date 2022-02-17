@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
     wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
     wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
-#elif
+#elif __linux__
     wui::set_default_theme_from_file("dark", "dark.json");
     wui::set_locale_from_file("en", "en_locale.json");
 #endif
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
     {
 #ifdef _WIN32
         wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
-#elif
+#elif __linux__
         wui::set_default_theme_from_file("dark", "dark.json");
 #endif
 
@@ -374,9 +374,9 @@ int main(int argc, char *argv[])
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
 #ifdef _WIN32
-        wui::set_default_theme_from_resource("white", TXT_LIGHT_THEME, "JSONS");
-#elif
-        wui::set_default_theme_from_file("white", "white.json");
+        wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
+#elif __linux__
+        wui::set_default_theme_from_file("light", "light.json");
 #endif
 
         window->update_theme();
@@ -419,17 +419,17 @@ int main(int argc, char *argv[])
         {
             tooltip_text = wui::locale("window", "dark_theme");
 #ifdef _WIN32
-            wui::set_default_theme_from_resource("white", TXT_LIGHT_THEME, "JSONS");
-#elif
-            wui::set_default_theme_from_file("white", "white.json");
+            wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
+#elif __linux__
+            wui::set_default_theme_from_file("light", "light.json");
 #endif
         }
-        else if (theme_name == "white")
+        else if (theme_name == "light")
         {
             tooltip_text = wui::locale("window", "light_theme");
 #ifdef _WIN32
             wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
-#elif
+#elif __linux__
             wui::set_default_theme_from_file("dark", "dark.json");
 #endif
         }

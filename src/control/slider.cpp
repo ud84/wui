@@ -15,6 +15,8 @@
 
 #include <wui/system/tools.hpp>
 
+#include <cmath>
+
 namespace wui
 {
 
