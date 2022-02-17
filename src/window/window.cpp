@@ -107,7 +107,7 @@ window::window()
     focused_index(0),
     parent(),
     my_control_sid(), my_plain_sid(),
-    transient_window(), docked_(false),
+    transient_window(), docked_(false), prev_disabled_controls(),
     subscribers_(),
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
@@ -163,15 +163,21 @@ void window::add_control(std::shared_ptr<i_control> control, const rect &control
 
 void window::remove_control(std::shared_ptr<i_control> control)
 {
-    auto exist = std::find(controls.begin(), controls.end(), control);
-    if (exist != controls.end())
+    auto exists = std::find(controls.begin(), controls.end(), control);
+    if (exists != controls.end())
     {
-        auto clear_pos = (*exist)->position();
+        auto clear_pos = (*exists)->position();
 
-        (*exist)->clear_parent();
-		controls.erase(exist);
+        (*exists)->clear_parent();
+		controls.erase(exists);
 
         redraw(clear_pos, true);
+
+        auto prev_exists = std::find(prev_disabled_controls.begin(), prev_disabled_controls.end(), control);
+        if (prev_exists != prev_disabled_controls.end())
+        {
+            prev_disabled_controls.erase(prev_exists);
+        }
     }
 }
 
@@ -572,10 +578,7 @@ void window::enable()
 {
     enabled_ = true;
 
-    for (auto &control : controls)
-    {
-        control->enable();
-    }
+    end_docking();
 
 #ifdef _WIN32
     EnableWindow(context_.hwnd, TRUE);
@@ -587,10 +590,7 @@ void window::disable()
 {
     enabled_ = false;
 
-    for (auto &control : controls)
-    {
-        control->disable();
-    }
+    start_docking();
 
 #ifdef _WIN32
     EnableWindow(context_.hwnd, FALSE);
@@ -782,7 +782,17 @@ void window::start_docking()
 {
     for (auto &control : controls)
     {
-        control->disable();
+        if (control->showed())
+        {
+            if (control->enabled())
+            {
+                control->disable();
+            }
+            else
+            {
+                prev_disabled_controls.emplace_back(control);
+            }
+        }
     }
 }
 
@@ -790,8 +800,12 @@ void window::end_docking()
 {
     for (auto &control : controls)
     {
-        control->enable();
+        if (control->showed() && std::find(prev_disabled_controls.begin(), prev_disabled_controls.end(), control) == prev_disabled_controls.end())
+        {
+            control->enable();
+        }
     }
+    prev_disabled_controls.clear();
 }
 
 bool window::child() const

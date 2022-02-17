@@ -154,6 +154,7 @@ private:
 
     std::weak_ptr<window> transient_window;
     bool docked_;
+    std::vector<std::shared_ptr<i_control>> prev_disabled_controls;
 
     struct event_subscriber
     {
