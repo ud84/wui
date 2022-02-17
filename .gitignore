@@ -11,3 +11,5 @@
 /examples/simple/x64/Release
 /build/
 /examples/simple/Debug
+/examples/simple/Release/simple.tlog
+/examples/simple/Release
