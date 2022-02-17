@@ -1435,6 +1435,11 @@ void window::destroy()
         {
             transient_window_->end_docking();
         }
+
+        if (close_callback)
+        {
+            close_callback();
+        }
     }
     else
     {
@@ -1444,11 +1449,6 @@ void window::destroy()
 #elif __linux__
         send_destroy_event();
 #endif
-    }
-
-    if (close_callback)
-    {
-        close_callback();
     }
 }
 
