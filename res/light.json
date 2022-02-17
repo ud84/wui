@@ -142,6 +142,10 @@
       "slider_width": 8,
       "slider_height": 24,
       "slider_round": 5
+    },
+	{
+      "type": "panel",
+      "background": "#131519"
     }
   ],
   "images": [

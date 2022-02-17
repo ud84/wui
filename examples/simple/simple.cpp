@@ -15,6 +15,7 @@
 #include <wui/control/splitter.hpp>
 #include <wui/control/progress.hpp>
 #include <wui/control/slider.hpp>
+#include <wui/control/panel.hpp>
 
 #ifdef _WIN32
 #include <Resource.h>
@@ -66,6 +67,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     std::shared_ptr<wui::window> window;
     std::shared_ptr<wui::list> list;
+    std::shared_ptr<wui::panel> panel;
     std::shared_ptr<wui::button> button1, button2, button3;
     std::shared_ptr<wui::message> messageBox;
     std::weak_ptr<wui::button> creationButton;
@@ -112,6 +114,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         : parentWindow(parentWindow_),
         window(new wui::window()),
         list(new wui::list()),
+        panel(new wui::panel()),
 		button1(new wui::button("Button 1", [this]() { 
             messageBox->show("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took\na galley of type and scrambled it to make a type specimen book.",
                 "hello world", wui::message_icon::information, wui::message_button::ok, [](wui::message_result result) { });
@@ -134,6 +137,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         list->set_item_count(100);
 
         window->add_control(list, { 0 });
+        window->add_control(panel, { 0 });
         window->add_control(button1, { 0 });
         window->add_control(button2, { 0 });
         window->add_control(button3, { 0 });
@@ -157,6 +161,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
                 list->set_position({ 10, 30, w - 10, h - 40 }, false);
+                panel->set_position({ 0, h - 35, w, h }, false);
                 button1->set_position({ 10, h - 30, 30, h - 10 }, false);
                 button2->set_position({ 40, h - 30, 60, h - 10 }, false);
                 button3->set_position({ 70, h - 30, 90, h - 10 }, false);
