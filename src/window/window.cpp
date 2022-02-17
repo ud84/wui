@@ -1384,6 +1384,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
         net_wm_state, XCB_ATOM_ATOM, 32, styles_count, styles);
 
+    auto transient_window_ = get_transient_window();
     if (transient_window_)
     {
         xcb_icccm_set_wm_transient_for(context_.connection, context_.wnd, transient_window_->context().wnd);
@@ -1970,16 +1971,15 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->context_.hwnd = 0;
             wnd->context_.dc = 0;
 
-            auto parent_ = wnd->parent.lock();
-            if (!parent_ && wnd->close_callback)
-            {
-                wnd->close_callback();
-            }
-
             auto transient_window_ = wnd->get_transient_window();
             if (transient_window_)
             {
                 transient_window_->enable();
+            }
+
+            if (wnd->close_callback)
+            {
+                wnd->close_callback();
             }
         }
         break;
@@ -2482,16 +2482,15 @@ void window::process_events()
 
                     runned = false;
 
-                    auto parent_ = parent.lock();
-                    if (!parent_ && close_callback)
-                    {
-                        close_callback();
-                    }
-
                     auto transient_window_ = get_transient_window();
                     if (transient_window_)
                     {
                         transient_window_->enable();
+                    }
+
+                    if (close_callback)
+                    {
+                        close_callback();
                     }
                 }
             break;
