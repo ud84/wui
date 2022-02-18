@@ -15,6 +15,8 @@
 
 #include <wui/system/tools.hpp>
 
+#include <wui/locale/locale.hpp>
+
 #include <boost/nowide/convert.hpp>
 #include <utf8/utf8.h>
 
@@ -33,6 +35,7 @@ input::input(const std::string &text__, input_view input_view__, std::shared_ptr
     parent(),
     my_control_sid(), my_plain_sid(),
     timer_(std::bind(&input::redraw_cursor, this)),
+    menu_(new menu(theme_)),
     showed_(true), enabled_(true),
     focused_(false),
     focusing_(true),
@@ -40,6 +43,11 @@ input::input(const std::string &text__, input_view input_view__, std::shared_ptr
     selecting(false),
     left_shift(0)
 {
+    menu_->set_items({
+            { 0, menu_item_state::normal, locale(tc, cl_cut), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); } },
+            { 1, menu_item_state::normal, locale(tc, cl_copy), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); } },
+            { 2, menu_item_state::normal, locale(tc, cl_paste), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); } }
+        });
 }
 
 input::~input()
@@ -337,6 +345,17 @@ void input::receive_control_events(const event &ev)
             break;
             case mouse_event_type::left_up:
                 selecting = false;
+                menu_->hide();
+            break;
+            case mouse_event_type::right_up:
+                menu_->update_item({ 0, select_start_position != select_end_position && input_view_ != input_view::readonly ? menu_item_state::normal : menu_item_state::disabled,
+                    locale(tc, cl_cut), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); } });
+                menu_->update_item({ 1, select_start_position != select_end_position ? menu_item_state::normal : menu_item_state::disabled,
+                    locale(tc, cl_copy), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); } });
+                menu_->update_item({ 2, input_view_ != input_view::readonly ? menu_item_state::normal : menu_item_state::disabled,
+                    locale(tc, cl_paste), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); } });
+
+                menu_->show_on_control(shared_from_this(), 0, ev.mouse_event_.x);
             break;
             case mouse_event_type::move:
                 if (selecting)
@@ -523,6 +542,8 @@ void input::set_parent(std::shared_ptr<window> window_)
         static_cast<event_type>(static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
         shared_from_this());
     my_plain_sid = window_->subscribe(std::bind(&input::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
+
+    window_->add_control(menu_, { 0 });
 }
 
 void input::clear_parent()

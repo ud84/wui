@@ -22,7 +22,7 @@
 	  "light_theme": "Светлая тема"
     },
     {
-      "type": "edit",
+      "type": "input",
 
       "copy": "Копировать",
       "cut": "Вырезать",

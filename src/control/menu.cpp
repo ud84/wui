@@ -371,13 +371,18 @@ void menu::update_size()
     size_updated = true;
 }
 
-void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent)
+void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent, int32_t x)
 {
     activation_control = control;
 
     update_size();
 
     auto pos = get_best_position_on_control(parent, control->position(), position_, indent);
+
+    if (x != 0)
+    {
+        pos.put(x, pos.top);
+    }
 
     list_->set_position(pos, true);
     list_->show();
@@ -437,7 +442,7 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
         item->image_->draw(gr, { 0 });
     }
 
-    auto text_color = theme_color(tc, tv_text);
+    auto text_color = item->state != menu_item_state::disabled ? theme_color(tc, tv_text) : theme_color(tc, tv_disabled_text);
     auto font = theme_font(tc, tv_font);
 
     auto text_height = gr.measure_text("Qq", font).height();
@@ -489,6 +494,11 @@ void menu::activate_list_item(int32_t n_item)
         size_updated = false;
         list_->set_item_count(calc_items_count(items));
         show_on_control(activation_control, 5);
+    }
+    
+    if (item->children.empty() && item->state != menu_item_state::disabled)
+    {
+        list_->hide();
     }
 
     if (item->click_callback)

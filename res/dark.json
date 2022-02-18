@@ -99,6 +99,7 @@
       "border": "#333337",
       "border_width": 1,
       "text": "#f1f1f1",
+      "disabled_text": "#adadad",
       "scrollbar": "#3e3e42",
       "scrollbar_slider": "#686868",
       "scrollbar_slider_active": "#9e9e9e",

@@ -15,6 +15,7 @@
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
 #include <wui/system/timer.hpp>
+#include <wui/control/menu.hpp>
 
 #include <string>
 #include <functional>
@@ -83,6 +84,11 @@ public:
     static constexpr const char *tv_round = "round";
     static constexpr const char *tv_font = "font";
 
+    /// Used locale values (from section input)
+    static constexpr const char *cl_copy = "copy";
+    static constexpr const char *cl_cut = "cut";
+    static constexpr const char *cl_paste = "paste";
+
 private:
     input_view input_view_;
     std::string text_;
@@ -96,6 +102,8 @@ private:
     std::string my_control_sid, my_plain_sid;
 
     timer timer_;
+
+    std::shared_ptr<menu> menu_;
 
     bool showed_, enabled_;
     bool focused_;

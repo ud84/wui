@@ -101,7 +101,7 @@ public:
 
     void set_item_height(int32_t item_height);
 
-    void show_on_control(std::shared_ptr<i_control> control, int32_t indent);
+    void show_on_control(std::shared_ptr<i_control> control, int32_t indent, int32_t x = 0);
 
 public:
     /// Control name in theme
@@ -112,6 +112,7 @@ public:
     static constexpr const char *tv_border = "border";
     static constexpr const char *tv_border_width = "border_width";
     static constexpr const char *tv_text = "text";
+    static constexpr const char *tv_disabled_text = "disabled_text";
     static constexpr const char *tv_selected_item = "selected_item";
     static constexpr const char *tv_scrollbar = "scrollbar";
     static constexpr const char *tv_scrollbar_slider = "scrollbar_slider";
