@@ -11,15 +11,15 @@
       "retry": "Продолжить",
       "ignore": "Пропустить",
       "try_continue": "Попробовать продолжить",
-	  "complete": "Готово"
+      "complete": "Готово"
     },
     {
       "type": "window",
 
       "pin": "Прикрепить окно",
       "unpin": "Открепить окно",
-	  "dark_theme": "Темная тема",
-	  "light_theme": "Светлая тема"
+      "dark_theme": "Темная тема",
+      "light_theme": "Светлая тема"
     },
     {
       "type": "input",
