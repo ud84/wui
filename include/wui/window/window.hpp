@@ -100,6 +100,9 @@ public:
 
     /// Emit event methods
     void emit_event(int32_t x, int32_t y);
+    
+    /// Method to set the focus of the child control
+    void set_focused(std::shared_ptr<i_control> control);
 
     /// Callbacks
     void set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback);
@@ -224,7 +227,6 @@ private:
 
     void change_focus();
     void execute_focused();
-    void set_focused(std::shared_ptr<i_control> &control);
     void set_focused(size_t index);
     std::shared_ptr<i_control> get_focused();
 

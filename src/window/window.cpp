@@ -780,6 +780,8 @@ void window::set_transient_for(std::shared_ptr<window> window_, bool docked__)
 
 void window::start_docking()
 {
+    set_focused(nullptr);
+
     for (auto &control : controls)
     {
         if (control->showed())
@@ -1008,7 +1010,7 @@ void window::execute_focused()
     }
 }
 
-void window::set_focused(std::shared_ptr<i_control> &control)
+void window::set_focused(std::shared_ptr<i_control> control)
 {
     size_t index = 0;
     for (auto &c : controls)
@@ -1033,7 +1035,10 @@ void window::set_focused(std::shared_ptr<i_control> &control)
         }
     }
 
-    control->set_focus();
+    if (control)
+    {
+        control->set_focus();
+    }
 }
 
 void window::set_focused(size_t focused_index_)
@@ -1064,7 +1069,7 @@ std::shared_ptr<i_control> window::get_focused()
         }
     }
 
-    return std::shared_ptr<i_control>();
+    return nullptr;
 }
 
 void window::update_buttons(bool theme_changed)

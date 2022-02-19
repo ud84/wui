@@ -55,12 +55,7 @@ public:
     virtual void clear_parent();
 
     virtual bool topmost() const;
-
-    virtual void set_focus();
-    virtual bool remove_focus();
-    virtual bool focused() const;
-    virtual bool focusing() const;
-
+ 
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -71,6 +66,14 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
+private:
+    virtual void set_focus();
+    virtual bool remove_focus();
+    virtual bool focused() const;
+    virtual bool focusing() const;
+
+public:
+    /// Select's interface
     void set_items(const select_items_t &items);
     void update_item(const select_item &mi);
     void swap_items(int32_t first_item_id, int32_t second_item_id);

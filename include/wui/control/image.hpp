@@ -48,11 +48,6 @@ public:
 
     virtual bool topmost() const;
 
-    virtual void set_focus();
-    virtual bool remove_focus();
-    virtual bool focused() const;
-    virtual bool focusing() const;
-
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -63,6 +58,14 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
+private:
+    virtual void set_focus();
+    virtual bool remove_focus();
+    virtual bool focused() const;
+    virtual bool focusing() const;
+
+public:
+    /// Image's interface
 #ifdef _WIN32
     void change_image(int32_t resource_index);
 #endif

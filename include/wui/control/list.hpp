@@ -41,11 +41,6 @@ public:
 
     virtual bool topmost() const;
 
-    virtual void set_focus();
-    virtual bool remove_focus();
-    virtual bool focused() const;
-    virtual bool focusing() const;
-
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -56,7 +51,14 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    /// list interface
+private:
+    virtual void set_focus();
+    virtual bool remove_focus();
+    virtual bool focused() const;
+    virtual bool focusing() const;
+
+public:
+    /// List's interface
     struct column
     {
         int32_t width;

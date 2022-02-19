@@ -386,7 +386,12 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent, i
 
     list_->set_position(pos, true);
     list_->show();
-    list_->set_focus();
+    
+    auto parent_ = parent.lock();
+    if (parent_)
+    {
+        parent_->set_focused(list_);
+    }
 }
 
 void menu::draw_arrow_down(graphic &gr, rect pos, bool expanded)

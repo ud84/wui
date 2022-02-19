@@ -145,7 +145,12 @@ void select::show_list()
 
     list_->set_position(pos, true);
     list_->show();
-    list_->set_focus();
+    
+    auto parent_ = parent.lock();
+    if (parent_)
+    {
+        parent_->set_focused(list_);
+    }
 }
 
 void select::receive_control_events(const event &ev)

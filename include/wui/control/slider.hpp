@@ -46,11 +46,6 @@ public:
 
     virtual bool topmost() const;
 
-    virtual void set_focus();
-    virtual bool remove_focus();
-    virtual bool focused() const;
-    virtual bool focusing() const;
-
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -61,6 +56,13 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
+private:
+    virtual void set_focus();
+    virtual bool remove_focus();
+    virtual bool focused() const;
+    virtual bool focusing() const;
+
+public:
     /// Slider's interface
     void set_range(int32_t from, int32_t to);
     void set_value(int32_t value);

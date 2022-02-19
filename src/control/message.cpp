@@ -152,6 +152,8 @@ void message::show(const std::string &message_,
         }
         break;
     }
+    
+    window_->set_focused(button0);
 
     window_->init(title_, { 0, 0, width, height }, window_style::dialog, [this]() {
         if (result_callback)

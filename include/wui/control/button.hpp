@@ -58,11 +58,6 @@ public:
 
     virtual bool topmost() const;
 
-    virtual void set_focus();
-    virtual bool remove_focus();
-    virtual bool focused() const;
-    virtual bool focusing() const;
-
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -73,7 +68,14 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-    /// button's interface
+private:
+    virtual void set_focus();
+    virtual bool remove_focus();
+    virtual bool focused() const;
+    virtual bool focusing() const;
+
+public:
+    /// Button's interface
     void set_caption(const std::string &caption);
 
     void set_button_view(button_view button_view_);

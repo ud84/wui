@@ -38,11 +38,6 @@ public:
 
     virtual bool topmost() const;
 
-    virtual void set_focus();
-    virtual bool remove_focus();
-    virtual bool focused() const;
-    virtual bool focusing() const;
-
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -52,6 +47,12 @@ public:
     virtual void enable();
     virtual void disable();
     virtual bool enabled() const;
+
+private:
+    virtual void set_focus();
+    virtual bool remove_focus();
+    virtual bool focused() const;
+    virtual bool focusing() const;
 
 public:
     /// Control name in theme
