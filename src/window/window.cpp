@@ -552,7 +552,8 @@ void window::hide()
 {
     showed_ = false;
 
-    if (!parent.lock())
+    auto parent_ = parent.lock();
+    if (!parent_)
     {
 #ifdef _WIN32
         ShowWindow(context_.hwnd, SW_HIDE);
@@ -566,6 +567,8 @@ void window::hide()
         {
             control->hide();
         }
+
+        parent_->redraw(position(), true);
     }
 }
 
