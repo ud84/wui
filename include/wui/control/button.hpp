@@ -78,9 +78,9 @@ public:
 
     void set_button_view(button_view button_view_);
 #ifdef _WIN32
-    void set_image(int32_t resourceIndex);
+    void set_image(int32_t resource_index);
 #endif
-    void set_image(const std::string &fileName);
+    void set_image(const std::string &file_name);
     void set_image(const std::vector<uint8_t> &image_data);
 
     void enable_focusing();
