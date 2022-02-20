@@ -104,7 +104,7 @@ public:
 
     void set_item_height(int32_t item_height);
 
-    void show_on_control(std::shared_ptr<i_control> control, int32_t indent, int32_t x = 0);
+    void show_on_control(std::shared_ptr<i_control> control, int32_t indent, int32_t x = -1);
 
 public:
     /// Control name in theme

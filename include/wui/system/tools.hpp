@@ -35,14 +35,17 @@ enum class cursor
 
 void set_cursor(system_context &context, cursor cursor_);
 
+/// This function should be used when changing the position of a control (inside the set_position() of the control)
 void update_control_position(rect &control_position,
     const rect &new_control_position,
     bool redraw,
     std::weak_ptr<window> parent);
 
+/// This function returns the absolute position of the control on the physical window. Must be called inside the control's position() method
 rect get_control_position(const rect &control_position, std::weak_ptr<window> parent);
 
-rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &control_position, const rect &my_position, int32_t indent);
+/// This function calculates the position of the popup item relative to some control
+rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &control_position, const rect &my_position, int32_t indent, int32_t x = -1);
 
 void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t width, int32_t truncating_count = 10);
 

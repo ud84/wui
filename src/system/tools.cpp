@@ -162,7 +162,7 @@ rect get_control_position(const rect &control_position, std::weak_ptr<window> pa
     return out_pos;
 }
 
-rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &control_pos, const rect &my_pos, int32_t indent)
+rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &control_pos, const rect &my_pos, int32_t indent, int32_t x)
 {
     auto parent_ = parent.lock();
     if (!parent_)
@@ -239,6 +239,16 @@ rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &cont
     if (out_pos.bottom > parent_pos.height())
     {
         out_pos.bottom = parent_pos.height();
+    }
+
+    if (x != -1)
+    {
+        out_pos.put(x, out_pos.top);
+
+        if (out_pos.right + indent > parent_pos.right)
+        {
+            out_pos.put(parent_pos.right - out_pos.width() - indent, out_pos.top);
+        }
     }
 
     return out_pos;
