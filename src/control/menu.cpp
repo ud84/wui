@@ -74,6 +74,8 @@ menu::menu(std::shared_ptr<i_theme> theme__)
     position_(),
     parent(),
     my_subscriber_id(),
+    activation_control(),
+    indent(0), x(-1), y(-1),
     items(),
     max_text_width(0), max_hotkey_width(0),
     showed_(false),
@@ -160,7 +162,8 @@ void menu::receive_event(const event &ev)
         case event_type::mouse:
             if (ev.mouse_event_.type == mouse_event_type::left_up && 
                 !list_->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }) &&
-                activation_control && !activation_control->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }))
+                (!activation_control ||
+                (activation_control && !activation_control->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }))))
             {
                 list_->hide();
             }
@@ -371,13 +374,16 @@ void menu::update_size()
     size_updated = true;
 }
 
-void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent, int32_t x)
+void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, int32_t x_, int32_t y_)
 {
     activation_control = control;
+    indent = indent_;
+    x = x_;
+    y = y_;
 
     update_size();
 
-    auto pos = get_best_position_on_control(parent, control->position(), position_, indent, x);
+    auto pos = get_best_position_on_control(parent, control ? control->position() : rect{ 0 }, position_, indent, x, y);
 
     list_->set_position(pos, true);
     list_->show();
@@ -387,6 +393,11 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent, i
     {
         parent_->set_focused(list_);
     }
+}
+
+void menu::show_on_point(int32_t x, int32_t y)
+{
+    show_on_control(nullptr, 0, x, y);
 }
 
 void menu::draw_arrow_down(graphic &gr, rect pos, bool expanded)
@@ -493,7 +504,7 @@ void menu::activate_list_item(int32_t n_item)
         }
         size_updated = false;
         list_->set_item_count(calc_items_count(items));
-        show_on_control(activation_control, 5);
+        show_on_control(activation_control, indent, x, y);
     }
     
     if (item->children.empty() && item->state != menu_item_state::disabled)

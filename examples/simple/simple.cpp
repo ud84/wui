@@ -391,26 +391,36 @@ int main(int argc, char *argv[])
 
     window->set_min_size(100, 100);
 
-    auto sid = window->subscribe([&menuButton, text0, &pluggedWindow, &vertSplitter, &nameInput, &someSelect, &okButton, &cancelButton](const wui::event &e) {
-        if (e.internal_event_.type == wui::internal_event_type::size_changed)
+    auto sid = window->subscribe([&menuButton, &menu, text0, &pluggedWindow, &vertSplitter, &nameInput, &someSelect, &okButton, &cancelButton](const wui::event &e) {
+        if (e.type == wui::event_type::mouse)
         {
-            int32_t w = e.internal_event_.x, h = e.internal_event_.y;
-
-            if (pluggedWindow->plugged)
+            if (e.mouse_event_.type == wui::mouse_event_type::right_up)
             {
-                auto pos = pluggedWindow->window->position();
-                pluggedWindow->window->set_position({ 0, 30, pos.width(), h }, false);
-                vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h }, false);
+                menu->show_on_point(e.mouse_event_.x, e.mouse_event_.y);
             }
-
-            menuButton->set_position({ w - 42, 50, w - 10, 82 }, false);
-            text0->set_position({ 320, 180, w - 10, 240 }, false);
-            nameInput->set_position({ 320, 250, w - 10, 275 }, false);
-            someSelect->set_position({ 320, 300, w - 10, 325 }, false);
-            okButton->set_position({ w - 250, h - 50, w - 150, h - 20 }, false);
-            cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 }, false);
         }
-    }, wui::event_type::internal);
+        else if (e.type == wui::event_type::internal)
+        {
+            if (e.internal_event_.type == wui::internal_event_type::size_changed)
+            {
+                int32_t w = e.internal_event_.x, h = e.internal_event_.y;
+
+                if (pluggedWindow->plugged)
+                {
+                    auto pos = pluggedWindow->window->position();
+                    pluggedWindow->window->set_position({ 0, 30, pos.width(), h }, false);
+                    vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h }, false);
+                }
+
+                menuButton->set_position({ w - 42, 50, w - 10, 82 }, false);
+                text0->set_position({ 320, 180, w - 10, 240 }, false);
+                nameInput->set_position({ 320, 250, w - 10, 275 }, false);
+                someSelect->set_position({ 320, 300, w - 10, 325 }, false);
+                okButton->set_position({ w - 250, h - 50, w - 150, h - 20 }, false);
+                cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 }, false);
+            }
+        }
+    }, static_cast<wui::event_type>(static_cast<uint32_t>(wui::event_type::mouse) | static_cast<uint32_t>(wui::event_type::internal)));
 
     window->set_switch_theme_callback([&window, &pluggedWindow, &dialog, &cancelButton](std::string &tooltip_text) {
         auto theme_name = wui::get_default_theme()->get_name();

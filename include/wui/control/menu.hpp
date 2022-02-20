@@ -104,7 +104,9 @@ public:
 
     void set_item_height(int32_t item_height);
 
-    void show_on_control(std::shared_ptr<i_control> control, int32_t indent, int32_t x = -1);
+    void show_on_control(std::shared_ptr<i_control> control, int32_t indent, int32_t x = -1, int32_t y = -1);
+
+    void show_on_point(int32_t x, int32_t y);
 
 public:
     /// Control name in theme
@@ -135,6 +137,7 @@ private:
     std::string my_subscriber_id;
 
     std::shared_ptr<i_control> activation_control;
+    int32_t indent, x, y;
 
     std::vector<menu_item> items;
 
