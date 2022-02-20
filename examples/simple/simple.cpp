@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
             if (pluggedWindow->plugged)
             {
                 auto pos = pluggedWindow->window->position();
-                pluggedWindow->window->set_position({ 0, 130, pos.width(), h }, false);
+                pluggedWindow->window->set_position({ 0, 30, pos.width(), h }, false);
                 vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h }, false);
             }
 

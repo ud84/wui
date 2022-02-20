@@ -261,6 +261,8 @@ rect get_best_position_on_control(std::weak_ptr<window> parent, const rect &cont
         }
     }
 
+    out_pos.move(-parent_pos.left, -parent_pos.top);
+
     return out_pos;
 }
 
