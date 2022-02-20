@@ -383,18 +383,24 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
 
     update_size();
 
-    auto control_pos = control ? control->position() : rect{ 0 };
+    auto base_pos = control ? control->position() : rect{ 0 };
+
+    OutputDebugStringA("x: ");
+    OutputDebugStringA(std::to_string(x).c_str());
+    OutputDebugStringA(", y: ");
+    OutputDebugStringA(std::to_string(y).c_str());
+    OutputDebugStringA("\n");
 
     if (x != -1)
     {
-        control_pos.put(x, control_pos.top);
+        base_pos.put(x, base_pos.top);
     }
     if (y != -1)
     {
-        control_pos.put(control_pos.left, y);
+        base_pos.put(base_pos.left, y);
     }
 
-    auto pos = get_popup_position(parent, control_pos, position_, indent);
+    auto pos = get_popup_position(parent, base_pos, position_, indent);
 
     list_->set_position(pos, true);
     list_->show();
