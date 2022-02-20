@@ -67,8 +67,10 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
     std::shared_ptr<wui::window> window;
     std::shared_ptr<wui::list> list;
+    std::shared_ptr<wui::menu> popupMenu;
     std::shared_ptr<wui::panel> panel;
     std::shared_ptr<wui::button> button1, button2, button3;
+    std::shared_ptr<wui::input> input;
     std::shared_ptr<wui::message> messageBox;
     std::shared_ptr<wui::window> dialog;
     std::weak_ptr<wui::button> creationButton;
@@ -115,6 +117,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         : parentWindow(parentWindow_),
         window(new wui::window()),
         list(new wui::list()),
+        popupMenu(new wui::menu()),
         panel(new wui::panel()),
 		button1(new wui::button("Button 1", [this]() { 
             messageBox->show("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took\na galley of type and scrambled it to make a type specimen book.",
@@ -124,6 +127,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             window->emit_event(310, 200);
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
+        input(new wui::input()),
         messageBox(new wui::message(window, true)),
         dialog(new wui::window()),
         creationButton(),
@@ -135,16 +139,27 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
         list->set_draw_callback(std::bind(&PluggedWindow::DrawListItem, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
 
+        list->set_item_right_click_callback([this](int32_t item, int32_t x, int32_t y) { popupMenu->show_on_point(x, y); });
+
         list->update_columns({ { 30, "##" }, { 100, "Name" }, { 100, "Role" } });
         
         list->set_item_height(32);
         list->set_item_count(100);
+
+        popupMenu->set_items({
+            { 0, wui::menu_item_state::normal, "Bla bla bla", "", nullptr, {}, [](int32_t i) {} },
+            { 1, wui::menu_item_state::separator, "Other", "", nullptr, {}, [](int32_t i) {} },
+            { 2, wui::menu_item_state::normal, "Another", "", nullptr, {}, [](int32_t i) {} }
+            });
+
+        window->add_control(popupMenu, { 0 });
 
         window->add_control(list, { 0 });
         window->add_control(panel, { 0 });
         window->add_control(button1, { 0 });
         window->add_control(button2, { 0 });
         window->add_control(button3, { 0 });
+        window->add_control(input, { 0 });
 
         window->set_pin_callback([this](std::string &tooltip_text) {
             if (plugged)
@@ -159,7 +174,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             }
         });
 
-        auto sid = window->subscribe([this](const wui::event &e) {
+        window->subscribe([this](const wui::event &e) {
             if (e.internal_event_.type == wui::internal_event_type::size_changed)
             {
                 int32_t w = e.internal_event_.x, h = e.internal_event_.y;
@@ -169,6 +184,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 button1->set_position({ 10, h - 30, 30, h - 10 }, false);
                 button2->set_position({ 40, h - 30, 60, h - 10 }, false);
                 button3->set_position({ 70, h - 30, 90, h - 10 }, false);
+                input->set_position({ 100, h - 30, w - 10, h - 10 }, false);
             }
             else if (e.internal_event_.type == wui::internal_event_type::user_emitted)
             {
@@ -391,36 +407,26 @@ int main(int argc, char *argv[])
 
     window->set_min_size(100, 100);
 
-    auto sid = window->subscribe([&menuButton, &menu, text0, &pluggedWindow, &vertSplitter, &nameInput, &someSelect, &okButton, &cancelButton](const wui::event &e) {
-        if (e.type == wui::event_type::mouse)
+    auto sid = window->subscribe([&menuButton, text0, &pluggedWindow, &vertSplitter, &nameInput, &someSelect, &okButton, &cancelButton](const wui::event &e) {
+        if (e.internal_event_.type == wui::internal_event_type::size_changed)
         {
-            if (e.mouse_event_.type == wui::mouse_event_type::right_up)
-            {
-                menu->show_on_point(e.mouse_event_.x, e.mouse_event_.y);
-            }
-        }
-        else if (e.type == wui::event_type::internal)
-        {
-            if (e.internal_event_.type == wui::internal_event_type::size_changed)
-            {
-                int32_t w = e.internal_event_.x, h = e.internal_event_.y;
+            int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                if (pluggedWindow->plugged)
-                {
-                    auto pos = pluggedWindow->window->position();
-                    pluggedWindow->window->set_position({ 0, 30, pos.width(), h }, false);
-                    vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h }, false);
-                }
-
-                menuButton->set_position({ w - 42, 50, w - 10, 82 }, false);
-                text0->set_position({ 320, 180, w - 10, 240 }, false);
-                nameInput->set_position({ 320, 250, w - 10, 275 }, false);
-                someSelect->set_position({ 320, 300, w - 10, 325 }, false);
-                okButton->set_position({ w - 250, h - 50, w - 150, h - 20 }, false);
-                cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 }, false);
+            if (pluggedWindow->plugged)
+            {
+                auto pos = pluggedWindow->window->position();
+                pluggedWindow->window->set_position({ 0, 130, pos.width(), h }, false);
+                vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h }, false);
             }
+
+            menuButton->set_position({ w - 42, 50, w - 10, 82 }, false);
+            text0->set_position({ 320, 180, w - 10, 240 }, false);
+            nameInput->set_position({ 320, 250, w - 10, 275 }, false);
+            someSelect->set_position({ 320, 300, w - 10, 325 }, false);
+            okButton->set_position({ w - 250, h - 50, w - 150, h - 20 }, false);
+            cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 }, false);
         }
-    }, static_cast<wui::event_type>(static_cast<uint32_t>(wui::event_type::mouse) | static_cast<uint32_t>(wui::event_type::internal)));
+    }, wui::event_type::internal);
 
     window->set_switch_theme_callback([&window, &pluggedWindow, &dialog, &cancelButton](std::string &tooltip_text) {
         auto theme_name = wui::get_default_theme()->get_name();
