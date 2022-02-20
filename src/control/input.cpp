@@ -38,7 +38,6 @@ input::input(const std::string &text__, input_view input_view__, std::shared_ptr
     menu_(new menu(theme_)),
     showed_(true), enabled_(true),
     focused_(false),
-    focusing_(true),
     cursor_visible(false),
     selecting(false),
     left_shift(0)
@@ -515,6 +514,33 @@ void input::receive_control_events(const event &ev)
             break;
         }
     }
+    else if (ev.type == event_type::internal)
+    {
+        switch (ev.internal_event_.type)
+        {
+            case internal_event_type::set_focus:
+                if (enabled_ && showed_)
+                {
+                    focused_ = true;
+
+                    redraw();
+
+                    timer_.start(500);
+                }
+            break;
+            case internal_event_type::remove_focus:
+                focused_ = false;
+
+                cursor_visible = false;
+
+                selecting = false;
+
+                timer_.stop();
+
+                redraw();
+            break;
+        }
+    }
 }
 
 void input::receive_plain_events(const event &ev)
@@ -539,7 +565,7 @@ void input::set_parent(std::shared_ptr<window> window_)
 {
     parent = window_;
     my_control_sid = window_->subscribe(std::bind(&input::receive_control_events, this, std::placeholders::_1),
-        static_cast<event_type>(static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
+        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
         shared_from_this());
     my_plain_sid = window_->subscribe(std::bind(&input::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
 
@@ -562,33 +588,6 @@ bool input::topmost() const
     return false;
 }
 
-void input::set_focus()
-{
-    if (focusing_ && enabled_ && showed_)
-    {
-        focused_ = true;
-
-        redraw();
-
-        timer_.start(500);
-    }
-}
-
-bool input::remove_focus()
-{
-    focused_ = false;
-
-    cursor_visible = false;
-
-    selecting = false;
-
-    timer_.stop();
-
-    redraw();
-
-    return true;
-}
-
 bool input::focused() const
 {
     return focused_;
@@ -596,7 +595,7 @@ bool input::focused() const
 
 bool input::focusing() const
 {
-    return enabled_ && showed_ && focusing_;
+    return enabled_ && showed_;
 }
 
 void input::update_theme(std::shared_ptr<i_theme> theme__)

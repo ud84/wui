@@ -56,9 +56,6 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
-private:
-    virtual void set_focus();
-    virtual bool remove_focus();
     virtual bool focused() const;
     virtual bool focusing() const;
 

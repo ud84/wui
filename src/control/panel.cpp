@@ -85,15 +85,6 @@ bool panel::topmost() const
     return false;
 }
 
-void panel::set_focus()
-{
-}
-
-bool panel::remove_focus()
-{
-    return true;
-}
-
 bool panel::focused() const
 {
     return false;

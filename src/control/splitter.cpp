@@ -179,15 +179,6 @@ bool splitter::topmost() const
     return false;
 }
 
-void splitter::set_focus()
-{
-}
-
-bool splitter::remove_focus()
-{
-    return true;
-}
-
 bool splitter::focused() const
 {
     return false;

@@ -107,15 +107,6 @@ bool progress::topmost() const
     return false;
 }
 
-void progress::set_focus()
-{
-}
-
-bool progress::remove_focus()
-{
-    return true;
-}
-
 bool progress::focused() const
 {
     return false;

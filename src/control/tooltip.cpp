@@ -87,15 +87,6 @@ bool tooltip::topmost() const
     return true;
 }
 
-void tooltip::set_focus()
-{
-}
-
-bool tooltip::remove_focus()
-{
-    return true;
-}
-
 bool tooltip::focused() const
 {
     return false;

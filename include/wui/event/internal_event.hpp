@@ -14,12 +14,12 @@ namespace wui
 
 enum class internal_event_type
 {
+    set_focus,
+    remove_focus,
     execute_focused,
     
     size_changed,
     position_changed,
-    
-    pin_clicked,
 
     user_emitted
 };

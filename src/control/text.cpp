@@ -126,15 +126,6 @@ bool text::topmost() const
     return false;
 }
 
-void text::set_focus()
-{
-}
-
-bool text::remove_focus()
-{
-    return true;
-}
-
 bool text::focused() const
 {
     return false;

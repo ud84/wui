@@ -42,10 +42,6 @@ public:
     virtual void disable() = 0;
     virtual bool enabled() const = 0;
 
-private:
-    /// The set_focused() method of the parent window should be used to control the focus
-    virtual void set_focus() = 0;
-    virtual bool remove_focus() = 0;   /// Returns false if the control changes focus within its internal controls
     virtual bool focused() const = 0;  /// Returns true if the control is focused
     virtual bool focusing() const = 0; /// Returns true if the control receives focus
 

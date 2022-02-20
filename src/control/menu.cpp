@@ -185,15 +185,6 @@ bool menu::topmost() const
     return true;
 }
 
-void menu::set_focus()
-{
-}
-
-bool menu::remove_focus()
-{
-    return true;
-}
-
 bool menu::focused() const
 {
     return false;

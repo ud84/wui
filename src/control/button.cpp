@@ -250,9 +250,26 @@ void button::receive_event(const event &ev)
     }
     else if (ev.type == event_type::internal)
     {
-        if (ev.internal_event_.type == internal_event_type::execute_focused && click_callback)
+        switch (ev.internal_event_.type)
         {
-            click_callback();
+            case internal_event_type::set_focus:
+                if (focusing_ && enabled_ && showed_)
+                {
+                    focused_ = true;
+
+                    redraw();
+                }
+            break;
+            case internal_event_type::remove_focus:
+                focused_ = false;
+                redraw();
+            break;
+            case internal_event_type::execute_focused:
+                if (click_callback)
+                {
+                    click_callback();
+                }
+            break;
         }
     }
 }
@@ -289,25 +306,6 @@ void button::clear_parent()
 bool button::topmost() const
 {
     return false;
-}
-
-void button::set_focus()
-{
-    if (focusing_ && enabled_ && showed_)
-    {
-        focused_ = true;
-
-        redraw();
-    }
-}
-
-bool button::remove_focus()
-{
-    focused_ = false;
-
-    redraw();
-
-    return true;
 }
 
 bool button::focused() const

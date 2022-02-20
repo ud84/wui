@@ -65,8 +65,6 @@ public:
 
     virtual bool topmost() const;
 
-    virtual void set_focus();
-    virtual bool remove_focus();
     virtual bool focused() const;
     virtual bool focusing() const;
 
@@ -219,7 +217,7 @@ private:
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);
 
-    void send_event_to_control(std::shared_ptr<i_control> &control, const event &ev);
+    void send_event_to_control(const std::shared_ptr<i_control> &control, const event &ev);
     void send_event_to_plains(const event &ev);
     void send_mouse_event(const mouse_event &ev);
 

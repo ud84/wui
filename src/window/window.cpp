@@ -328,6 +328,40 @@ void window::receive_control_events(const event &ev)
         case event_type::internal:
             switch (ev.internal_event_.type)
             {
+                case internal_event_type::set_focus:
+                    change_focus();
+                break;
+                case internal_event_type::remove_focus:
+                {
+                    size_t focusing_controls = 0;
+                    for (const auto &control : controls)
+                    {
+                        if (control->focused())
+                        {
+                            event ev;
+                            ev.type = event_type::internal;
+                            ev.internal_event_ = internal_event{ internal_event_type::remove_focus };
+                            send_event_to_control(control, ev);
+
+                            ++focused_index;
+                        }
+
+                        if (control->focusing())
+                        {
+                            ++focusing_controls;
+                        }
+                    }
+
+                    if (focused_index >= focusing_controls)
+                    {
+                        focused_index = 0;
+                    }
+                    else
+                    {
+                        set_focused(focused_index);
+                    }
+                }
+                break;
                 case internal_event_type::execute_focused:
                     execute_focused();
                 break;
@@ -432,39 +466,6 @@ void window::clear_parent()
 bool window::topmost() const
 {
     return docked_ || flag_is_set(window_style_, window_style::topmost);
-}
-
-void window::set_focus()
-{
-    change_focus();
-}
-
-bool window::remove_focus()
-{
-    size_t focusing_controls = 0;
-    for (const auto &control : controls)
-    {
-        if (control->focused())
-        {
-            control->remove_focus();
-            ++focused_index;
-        }
-
-        if (control->focusing())
-        {
-            ++focusing_controls;
-        }
-    }
-
-    if (focused_index >= focusing_controls)
-    {
-        focused_index = 0;
-        return true;
-    }
-
-    set_focused(focused_index);
-
-    return false;
 }
 
 bool window::focused() const
@@ -859,7 +860,7 @@ void window::set_switch_theme_callback(std::function<void(std::string &tooltip_t
     switch_theme_callback = switch_theme_callback_;
 }
 
-void window::send_event_to_control(std::shared_ptr<i_control> &control_, const event &ev)
+void window::send_event_to_control(const std::shared_ptr<i_control> &control_, const event &ev)
 {
     auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [control_, ev](const event_subscriber &es) {
         return flag_is_set(es.event_types, ev.type) && es.control == control_;
@@ -971,7 +972,12 @@ void window::change_focus()
     {
         if (control->focused())
         {
-            if (control->remove_focus()) /// need to change the focus inside the internal elements of the control
+            event ev;
+            ev.type = event_type::internal;
+            ev.internal_event_ = internal_event{ internal_event_type::remove_focus };
+            send_event_to_control(control, ev);
+
+            if (!control->focused()) /// need to change the focus inside the internal elements of the control
             {
                 ++focused_index;
             }
@@ -1029,7 +1035,10 @@ void window::set_focused(std::shared_ptr<i_control> control)
 
         if (c->focused())
         {
-            c->remove_focus();
+            event ev;
+            ev.type = event_type::internal;
+            ev.internal_event_ = internal_event{ internal_event_type::remove_focus };
+            send_event_to_control(c, ev);
         }
 
         if (c->focusing())
@@ -1040,7 +1049,10 @@ void window::set_focused(std::shared_ptr<i_control> control)
 
     if (control)
     {
-        control->set_focus();
+        event ev;
+        ev.type = event_type::internal;
+        ev.internal_event_ = internal_event{ internal_event_type::set_focus };
+        send_event_to_control(control, ev);
     }
 }
 
@@ -1053,7 +1065,11 @@ void window::set_focused(size_t focused_index_)
         {
             if (index == focused_index_)
             {
-                control->set_focus();
+                event ev;
+                ev.type = event_type::internal;
+                ev.internal_event_ = internal_event{ internal_event_type::set_focus };
+                send_event_to_control(control, ev);
+
                 break;
             }
 

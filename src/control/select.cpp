@@ -226,6 +226,24 @@ void select::receive_control_events(const event &ev)
             break;
         }
     }
+    else if (ev.type == event_type::internal)
+    {
+        switch (ev.internal_event_.type)
+        {
+            case internal_event_type::set_focus:
+                if (focusing_ && enabled_ && showed_)
+                {
+                    focused_ = true;
+
+                    redraw();
+                }
+            break;
+            case internal_event_type::remove_focus:
+                focused_ = false;
+                redraw();
+            break;
+        }
+    }
 }
 
 void select::receive_plain_events(const event &ev)
@@ -291,7 +309,7 @@ void select::set_parent(std::shared_ptr<window> window_)
         list_->hide();
 
         my_control_sid = window_->subscribe(std::bind(&select::receive_control_events, this, std::placeholders::_1),
-            static_cast<event_type>(static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
+            static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
             shared_from_this());
 
         my_plain_sid = window_->subscribe(std::bind(&select::receive_plain_events, this, std::placeholders::_1),
@@ -318,25 +336,6 @@ void select::clear_parent()
 bool select::topmost() const
 {
     return false;
-}
-
-void select::set_focus()
-{
-    if (focusing_ && enabled_ && showed_)
-    {
-        focused_ = true;
-
-        redraw();
-    }
-}
-
-bool select::remove_focus()
-{
-    focused_ = false;
-
-    redraw();
-
-    return true;
 }
 
 bool select::focused() const

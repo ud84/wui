@@ -355,9 +355,31 @@ void list::receive_control_events(const event &ev)
     }
     else if (ev.type == event_type::internal)
     {
-        if (ev.internal_event_.type == internal_event_type::execute_focused && selected_item_ != -1 && item_activate_callback)
+        switch (ev.internal_event_.type)
         {
-            item_activate_callback(selected_item_);
+            case internal_event_type::set_focus:
+                if (enabled_ && showed_)
+                {
+                    focused_ = true;
+
+                    scrollbar_state_ = scrollbar_state::tiny;
+
+                    redraw();
+                }
+            break;
+            case internal_event_type::remove_focus:
+                focused_ = false;
+
+                scrollbar_state_ = scrollbar_state::hide;
+
+                redraw();
+            break;
+            case internal_event_type::execute_focused:
+                if (selected_item_ != -1 && item_activate_callback)
+                {
+                    item_activate_callback(selected_item_);
+                }
+            break;
         }
     }
 }
@@ -423,29 +445,6 @@ void list::clear_parent()
 bool list::topmost() const
 {
     return topmost_;
-}
-
-void list::set_focus()
-{
-    if (enabled_ && showed_)
-    {
-        focused_ = true;
-
-        scrollbar_state_ = scrollbar_state::tiny;
-
-        redraw();
-    }
-}
-
-bool list::remove_focus()
-{
-    focused_ = false;
-
-    scrollbar_state_ = scrollbar_state::hide;
-
-    redraw();
-
-    return true;
 }
 
 bool list::focused() const

@@ -239,15 +239,6 @@ bool image::topmost() const
     return false;
 }
 
-void image::set_focus()
-{
-}
-
-bool image::remove_focus()
-{
-    return true;
-}
-
 bool image::focused() const
 {
     return false;
