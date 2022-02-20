@@ -383,7 +383,18 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
 
     update_size();
 
-    auto pos = get_best_position_on_control(parent, control ? control->position() : rect{ 0 }, position_, indent, x, y);
+    auto control_pos = control ? control->position() : rect{ 0 };
+
+    if (x != -1)
+    {
+        control_pos.put(x, control_pos.top);
+    }
+    if (y != -1)
+    {
+        control_pos.put(control_pos.left, y);
+    }
+
+    auto pos = get_popup_position(parent, control_pos, position_, indent);
 
     list_->set_position(pos, true);
     list_->show();
