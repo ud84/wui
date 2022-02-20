@@ -581,7 +581,6 @@ bool input::remove_focus()
     cursor_visible = false;
 
     selecting = false;
-    select_start_position = 0; select_end_position = 0;
 
     timer_.stop();
 
