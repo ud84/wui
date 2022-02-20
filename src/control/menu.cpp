@@ -385,12 +385,6 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
 
     auto base_pos = control ? control->position() : rect{ 0 };
 
-    OutputDebugStringA("x: ");
-    OutputDebugStringA(std::to_string(x).c_str());
-    OutputDebugStringA(", y: ");
-    OutputDebugStringA(std::to_string(y).c_str());
-    OutputDebugStringA("\n");
-
     if (x != -1)
     {
         base_pos.put(x, base_pos.top);
