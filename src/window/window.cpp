@@ -1347,7 +1347,18 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
         position_.bottom += position_.top;
     }
 
-    context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST, wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP,
+    int32_t state_style = 0;
+    switch (window_state_)
+    {
+        case window_state::maximized:
+            state_style = WS_MAXIMIZE;
+        break;
+        case window_state::minimized:
+            state_style = WS_MINIMIZE;
+        break;
+    }
+
+    context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST, wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP | state_style,
         position_.left, position_.top, position_.width(), position_.height(), nullptr, nullptr, h_inst, this);
 
     if (!context_.hwnd)
