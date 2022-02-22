@@ -645,6 +645,10 @@ void window::minimize()
 #ifdef _WIN32
     ShowWindow(context_.hwnd, SW_MINIMIZE);
 #elif __linux__
+    if (!context_.connection)
+    {
+        return;
+    }
 
     xcb_client_message_event_t event = { 0 };
 
@@ -688,6 +692,11 @@ void window::expand()
         }
     }
 #elif __linux__
+    if (!context_.connection)
+    {
+        return;
+    }
+
     if (flag_is_set(window_style_, window_style::title_showed)) // normal window maximization
     {
         xcb_ewmh_connection_t ewmh_connection;
@@ -1346,24 +1355,18 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
         position_.top = (screen_height - position_.bottom) / 2;
         position_.bottom += position_.top;
     }
-
-    int32_t state_style = 0;
-    switch (window_state_)
-    {
-        case window_state::maximized:
-            state_style = WS_MAXIMIZE;
-        break;
-        case window_state::minimized:
-            state_style = WS_MINIMIZE;
-        break;
-    }
-
-    context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST, wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP | state_style,
+    
+    context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST, wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP | (window_state_ == window_state::minimized ? WS_MINIMIZE : 0),
         position_.left, position_.top, position_.width(), position_.height(), nullptr, nullptr, h_inst, this);
 
     if (!context_.hwnd)
     {
         return false;
+    }
+
+    if (window_state_ == window_state::maximized)
+    {
+        expand();
     }
 
     SetWindowText(context_.hwnd, boost::nowide::widen(caption).c_str());
@@ -1447,6 +1450,27 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     }
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
         net_wm_state, XCB_ATOM_ATOM, 32, styles_count, styles);
+
+    switch (window_state_)
+    {
+        case window_state::minimized:
+        {
+            xcb_client_message_event_t event = { 0 };
+
+            event.window = context_.wnd;
+            event.response_type = XCB_CLIENT_MESSAGE;
+            event.type = wm_change_state;
+            event.format = 32;
+            event.data.data32[0] = XCB_ICCCM_WM_STATE_ICONIC;
+
+            xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+            xcb_flush(context_.connection);
+        }
+        break;
+        case window_state::maximized:
+            expand();
+        break;
+    }
 
     if (transient_window_)
     {
