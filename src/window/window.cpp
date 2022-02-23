@@ -1587,7 +1587,6 @@ void window::destroy()
     {
 #ifdef _WIN32
         DestroyWindow(context_.hwnd);
-        context_.hwnd = 0;
 #elif __linux__
         send_destroy_event();
 #endif
@@ -2095,9 +2094,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->graphic_.release();
 
-            wnd->context_.hwnd = 0;
-            wnd->context_.dc = 0;
-
             auto transient_window_ = wnd->get_transient_window();
             if (transient_window_)
             {
@@ -2108,6 +2104,9 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->close_callback();
             }
+
+            wnd->context_.hwnd = 0;
+            wnd->context_.dc = 0;
         }
         break;
         default:
@@ -2614,11 +2613,6 @@ void window::process_events()
             	    xcb_destroy_window(context_.connection, context_.wnd);
             	    XCloseDisplay(context_.display);
 
-                    context_.wnd = 0;
-                    context_.screen = nullptr;
-                    context_.connection = nullptr;
-                    context_.display = nullptr;
-
                     runned = false;
 
                     auto transient_window_ = get_transient_window();
@@ -2631,6 +2625,11 @@ void window::process_events()
                     {
                         close_callback();
                     }
+
+                    context_.wnd = 0;
+                    context_.screen = nullptr;
+                    context_.connection = nullptr;
+                    context_.display = nullptr;
                 }
             break;
         }
