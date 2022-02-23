@@ -79,6 +79,7 @@ public:
     virtual bool enabled() const;
 
     /// Window style methods
+    void set_caption(const std::string &caption);
     void set_style(window_style style);
     void set_min_size(int32_t width, int32_t height);
 
@@ -235,6 +236,7 @@ private:
     void draw_border(graphic &gr);
 
     void send_size(int32_t width, int32_t height);
+    void send_position(int32_t left, int32_t top);
 };
 
 }

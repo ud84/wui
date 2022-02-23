@@ -761,6 +761,36 @@ window_state window::state() const
     return window_state_;
 }
 
+void window::set_caption(const std::string &caption_)
+{
+    caption = caption_;
+
+    if (flag_is_set(window_style_, window_style::title_showed) && !child())
+    {
+#ifdef _WIN32
+        SetWindowText(context_.hwnd, boost::nowide::widen(caption).c_str());
+#elif __linux__
+        if (context_.connection)
+        {
+            xcb_icccm_set_wm_name(context_.connection, context_.wnd,
+                XCB_ATOM_STRING, 8,
+                caption.size(), caption.c_str());
+
+            xcb_icccm_set_wm_icon_name(context_.connection, context_.wnd,
+                XCB_ATOM_STRING, 8,
+                caption.size(), caption.c_str());
+
+            size_t class_len = caption.size() + 1 + caption.size() + 1;
+            char *class_hint = (char *)malloc(class_len);
+            strncpy(class_hint, caption.c_str(), caption.size());
+            strncpy(class_hint + caption.size() + 1, caption.c_str(), caption.size());
+        }
+#endif
+    }
+
+    redraw({ 0, 0, position_.width(), 30 }, true);
+}
+
 void window::set_style(window_style style)
 {
     window_style_ = style;
@@ -1253,6 +1283,14 @@ void window::send_size(int32_t width, int32_t height)
     event ev_;
     ev_.type = event_type::internal;
     ev_.internal_event_ = internal_event{ internal_event_type::size_changed, width, height };
+    send_event_to_plains(ev_);
+}
+
+void window::send_position(int32_t left, int32_t top)
+{
+    event ev_;
+    ev_.type = event_type::internal;
+    ev_.internal_event_ = internal_event{ internal_event_type::position_changed, left, top };
     send_event_to_plains(ev_);
 }
 
@@ -1966,6 +2004,8 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             RECT window_rect = { 0 };
             GetWindowRect(hwnd, &window_rect);
             wnd->position_ = rect{ window_rect.left, window_rect.top, window_rect.right, window_rect.bottom };
+
+            wnd->send_position(window_rect.left, window_rect.top);
         }
         break;
         case WM_SYSCOMMAND:
@@ -2517,6 +2557,10 @@ void window::process_events()
                     if (ev.width != old_position.width() || ev.height != old_position.height())
                     {
                         send_size(ev.width, ev.height);
+                    }
+                    else
+                    {
+                        send_position(ev.x, ev.y);
                     }
                 }
             }
