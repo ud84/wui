@@ -370,9 +370,9 @@ void input::receive_control_events(const event &ev)
                 menu_->hide();
             break;
             case mouse_event_type::right_up:
-                menu_->update_item({ 0, select_start_position != select_end_position && input_view_ != input_view::readonly ? menu_item_state::normal : menu_item_state::disabled,
+                menu_->update_item({ 0, select_start_position != select_end_position && input_view_ != input_view::readonly && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
                     locale(tc, cl_cut), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); } });
-                menu_->update_item({ 1, select_start_position != select_end_position ? menu_item_state::normal : menu_item_state::disabled,
+                menu_->update_item({ 1, select_start_position != select_end_position && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
                     locale(tc, cl_copy), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); } });
                 menu_->update_item({ 2, input_view_ != input_view::readonly ? menu_item_state::normal : menu_item_state::disabled,
                     locale(tc, cl_paste), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); } });
@@ -717,7 +717,7 @@ void input::redraw_cursor()
 #ifdef _WIN32
 void input::buffer_copy()
 {
-    if (select_start_position == select_end_position)
+    if (select_start_position == select_end_position || input_view_ == input_view::password)
     {
         return;
     }
