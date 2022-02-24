@@ -73,21 +73,6 @@ void input::draw(graphic &gr, const rect &)
         return;
     }
 
-    std::string text__(text_);
-
-    /*if (input_view_ == input_view::password)
-    {
-        text__.clear();
-        for (int i = 0; i != text_.size(); ++i)
-        {
-            if (check_count_valid(i))
-            {
-                //text__.append("●");
-                text__.append("*");
-            }
-        }
-    }*/
-
     /// Draw the frame
     gr.draw_rect(position(),
         !focused_ ? theme_color(tc, tv_border, theme_) : theme_color(tc, tv_focused_border, theme_),
@@ -96,9 +81,17 @@ void input::draw(graphic &gr, const rect &)
         theme_dimension(tc, tv_round, theme_));
 
     auto font_ = theme_font(tc, tv_font, theme_);
+    if (input_view_ == input_view::password)
+    {
+#ifdef _WIN32
+        font_.name = "Courier New";
+#elif __linux__
+        font_.name = "Terminus";
+#endif
+    }
 
     /// Create memory dc for text and selection bar
-    auto full_text_width = get_text_width(gr, text__, text__.size(), font_) + 1;
+    auto full_text_width = get_text_width(gr, text_, text_.size(), font_) + 1;
     auto text_height = font_.size;
 
 #ifdef _WIN32
@@ -117,17 +110,32 @@ void input::draw(graphic &gr, const rect &)
     /// Draw the selection bar
     if (select_start_position != select_end_position)
     {
-        auto start_coordinate = get_text_width(mem_gr, text__, select_start_position, font_);
-        auto end_coordinate = get_text_width(mem_gr, text__, select_end_position, font_);
+        auto start_coordinate = get_text_width(mem_gr, text_, select_start_position, font_);
+        auto end_coordinate = get_text_width(mem_gr, text_, select_end_position, font_);
 
         mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, text_height }, theme_color(tc, tv_selection, theme_));
     }
 
     /// Draw the text
-    mem_gr.draw_text(rect{ 0 }, text__, theme_color(tc, tv_text, theme_), font_);
-    
+    if (input_view_ != input_view::password)
+    {
+        mem_gr.draw_text(rect{ 0 }, text_, theme_color(tc, tv_text, theme_), font_);
+    }
+    else
+    {
+        std::string text__;
+        for (auto i = 0; i != text_.size(); ++i)
+        {
+            if (check_count_valid(i))
+            {
+                text__.append("●");
+            }
+        }
+        mem_gr.draw_text(rect{ 0 }, text__, theme_color(tc, tv_text, theme_), font_);
+    }
+            
     /// Draw the cursor
-    auto cursor_coordinate = get_text_width(mem_gr, text__, cursor_position, font_);
+    auto cursor_coordinate = get_text_width(mem_gr, text_, cursor_position, font_);
     mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, text_height },
         cursor_visible ? theme_color(tc, tv_cursor, theme_) :
         (select_start_position != select_end_position && cursor_position >= select_start_position && cursor_position <= select_end_position ? theme_color(tc, tv_selection, theme_) : theme_color(tc, tv_background, theme_)));
