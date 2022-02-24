@@ -127,7 +127,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             window->emit_event(310, 200);
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
-        input(new wui::input()),
+        input(new wui::input("", wui::input_view::password)),
         messageBox(new wui::message(window, true)),
         dialog(new wui::window()),
         creationButton(),

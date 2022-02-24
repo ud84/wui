@@ -28,7 +28,8 @@ enum class input_view
 {
     singleline,
     multiline,
-    readonly
+    readonly,
+    password
 };
 
 class input : public i_control, public std::enable_shared_from_this<input>
