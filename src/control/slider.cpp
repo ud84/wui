@@ -295,7 +295,7 @@ bool slider::topmost() const
 
 bool slider::focused() const
 {
-    return focused_;
+    return enabled_ && showed_ && focused_;
 }
 
 bool slider::focusing() const

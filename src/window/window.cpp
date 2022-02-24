@@ -352,7 +352,7 @@ void window::receive_control_events(const event &ev)
                         }
                     }
 
-                    if (focused_index >= focusing_controls)
+                    if (focused_index > focusing_controls)
                     {
                         focused_index = 0;
                     }

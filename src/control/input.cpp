@@ -371,11 +371,11 @@ void input::receive_control_events(const event &ev)
             break;
             case mouse_event_type::right_up:
                 menu_->update_item({ 0, select_start_position != select_end_position && input_view_ != input_view::readonly && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_cut), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); } });
+                    locale(tc, cl_cut), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); parent.lock()->set_focused(shared_from_this()); } });
                 menu_->update_item({ 1, select_start_position != select_end_position && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_copy), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); } });
+                    locale(tc, cl_copy), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); parent.lock()->set_focused(shared_from_this()); } });
                 menu_->update_item({ 2, input_view_ != input_view::readonly ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_paste), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); } });
+                    locale(tc, cl_paste), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); parent.lock()->set_focused(shared_from_this()); } });
 
                 menu_->show_on_control(shared_from_this(), 0, ev.mouse_event_.x);
             break;
@@ -738,13 +738,13 @@ void input::buffer_copy()
     std::string copy_text = text_.substr(start, end - start);
     auto wide_str = boost::nowide::widen(copy_text);
 
-    if (OpenClipboard(NULL))
+    if (OpenClipboard(parent.lock()->context().hwnd))
     {
-        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, copy_text.size() + 2);
+        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, wide_str.size() * sizeof(wchar_t) + 2);
         if (hGlobal != NULL)
         {
             LPVOID lpText = GlobalLock(hGlobal);
-            memcpy(lpText, wide_str.c_str(), copy_text.size() + 2);
+            memcpy(lpText, wide_str.c_str(), wide_str.size() * sizeof(wchar_t));
 
             EmptyClipboard();
             GlobalUnlock(hGlobal);

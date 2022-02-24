@@ -340,7 +340,7 @@ bool select::topmost() const
 
 bool select::focused() const
 {
-    return focused_;
+    return enabled_ && showed_ && focused_;
 }
 
 bool select::focusing() const

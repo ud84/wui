@@ -449,7 +449,7 @@ bool list::topmost() const
 
 bool list::focused() const
 {
-    return focused_;
+    return enabled_ && showed_ && focused_;
 }
 
 bool list::focusing() const

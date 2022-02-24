@@ -310,7 +310,7 @@ bool button::topmost() const
 
 bool button::focused() const
 {
-    return focused_;
+    return enabled_ && showed_ && focused_;
 }
 
 bool button::focusing() const
