@@ -514,7 +514,7 @@ void menu::activate_list_item(int32_t n_item)
         list_->hide();
     }
 
-    if (item->click_callback)
+    if (item->click_callback && item->state != menu_item_state::disabled)
     {
         item->click_callback(n_item);
     }
