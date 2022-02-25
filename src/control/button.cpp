@@ -106,31 +106,33 @@ void button::draw(graphic &gr, const rect &)
 
     int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
 
+    auto control_pos = position();
+
     switch (button_view_)
     {
         case button_view::text:
-            if (text_rect.right + 10 > position().width())
+            if (text_rect.right + 10 > control_pos.width())
             {
-                position_.right = position().left + text_rect.right + 10;
+                position_.right = control_pos.left + text_rect.right + 10;
             }
 
-            text_top = position().top + ((position().height() - text_rect.bottom) / 2);
-            text_left = position().left + ((position().width() - text_rect.right) / 2);
+            text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
+            text_left = control_pos.left + ((control_pos.width() - text_rect.right) / 2);
         break;
         case button_view::image:
             if (image_)
 	        {
-                if (image_size > position().width())
+                if (image_size > control_pos.width())
                 {
-                    position_.right = position().left + image_size;
+                    position_.right = control_pos.left + image_size;
                 }
-                if (image_size > position().height())
+                if (image_size > control_pos.height())
                 {
-                    position_.bottom = position().top + image_size;
+                    position_.bottom = control_pos.top + image_size;
                 }
 
-                image_top = position().top + ((position().height() - image_size) / 2);
-                image_left = position().left + ((position().width() - image_size) / 2);
+                image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
+                image_left = control_pos.left + ((control_pos.width() - image_size) / 2);
             }
         break;
         case button_view::image_right_text: case button_view::image_right_text_no_frame:
@@ -138,54 +140,57 @@ void button::draw(graphic &gr, const rect &)
             {
                 if (image_size + text_rect.right + 6 > position_.width())
                 {
-                    position_.right = position().left + text_rect.right + image_size + 6;
+                    position_.right = control_pos.left + text_rect.right + image_size + 6;
                 }
-                if (image_size + 6 > position().height())
+                if (image_size + 6 > control_pos.height())
                 {
-                    position_.bottom = position().top + image_size + 6;
+                    position_.bottom = control_pos.top + image_size + 6;
                 }
 
-                text_top = position().top + ((position().height() - text_rect.bottom) / 2);
-                image_left = position().left + ((position().width() - text_rect.right - image_size - 5) / 2);
-                image_top = position().top + ((position().height() - image_size) / 2);
+                text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
+                image_left = control_pos.left + ((control_pos.width() - text_rect.right - image_size - 5) / 2);
+                image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
                 text_left = image_left + image_size + 5;
             }
         break;
         case button_view::image_bottom_text:
             if (image_)
             {
-                if (image_size + 6 > position().width())
+                if (image_size + 6 > control_pos.width())
                 {
-                    position_.right = position().left + image_size + 6;
+                    position_.right = control_pos.left + image_size + 6;
                 }
-                if (image_size + text_rect.bottom + 6 > position().height())
+                if (image_size + text_rect.bottom + 6 > control_pos.height())
                 {
-                    position_.bottom = position().top + text_rect.bottom + image_size + 6;
+                    position_.bottom = control_pos.top + text_rect.bottom + image_size + 6;
                 }
 
-                image_top = position().top + ((position().height() - text_rect.bottom - image_size - 5) / 2);
+                image_top = control_pos.top + ((control_pos.height() - text_rect.bottom - image_size - 5) / 2);
                 text_top = image_top + image_size + 5;
-                text_left = position().left + ((position().width() - text_rect.right) / 2);
-                image_left = position().left + ((position().width() - image_size) / 2);
+                text_left = control_pos.left + ((control_pos.width() - text_rect.right) / 2);
+                image_left = control_pos.left + ((control_pos.width() - image_size) / 2);
             }
         break;
     }
 
-    color border_color = !focused_ ?
-        (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_border, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
-        theme_color(tc, tv_focused_border, theme_);
+    if (button_view_ != button_view::image_right_text_no_frame)
+    {
+        color border_color = !focused_ ?
+            (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_border, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
+            theme_color(tc, tv_focused_border, theme_);
 
-    color fill_color = enabled_ ?
-        (active ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_active, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
-        (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_calm, theme_) : theme_color(window::tc, window::tv_background, theme_))) :
-        button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_);
+        color fill_color = enabled_ ?
+            (active ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_active, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
+            (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_calm, theme_) : theme_color(window::tc, window::tv_background, theme_))) :
+            button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_);
 
-    gr.draw_rect(position(), border_color, fill_color, theme_dimension(tc, tv_border_width, theme_), theme_dimension(tc, tv_round, theme_));
+        gr.draw_rect(control_pos, border_color, fill_color, theme_dimension(tc, tv_border_width, theme_), theme_dimension(tc, tv_round, theme_));
+    }
 	
     if (button_view_ != button_view::text && image_)
     {
         image_->set_position( { image_left, image_top, image_left + image_size, image_top + image_size }, false );
-        image_->draw(gr, rect{ 0 });
+        image_->draw(gr, { 0 });
     }
 
     if (button_view_ != button_view::image)
