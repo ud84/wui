@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
         pluggedWindow->window->update_theme();
         dialog->update_theme();
         cancelButton->update_theme(MakeRedButtonTheme());
-    }));
+    }, wui::button_view::anchor));
     window->add_control(whiteThemeButton, { 460, 350, 580, 375 });
 
     window->add_control(okButton, { 240, 450, 350, 480 });

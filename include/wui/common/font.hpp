@@ -19,9 +19,9 @@ enum class decorations : uint32_t
 {
     normal = 0,
     bold = (1 << 0),
-    italic = (2 << 0),
-    underline = (3 << 1),
-    strike_out = (4 << 2)
+    italic = (1 << 1),
+    underline = (1 << 2),
+    strike_out = (1 << 3)
 };
 
 struct font

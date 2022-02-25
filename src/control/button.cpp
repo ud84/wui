@@ -204,7 +204,7 @@ void button::draw(graphic &gr, const rect &)
         break;
     }
 
-    if (button_view_ != button_view::image_right_text_no_frame && button_view_ != button_view::switcher)
+    if (button_view_ != button_view::image_right_text_no_frame && button_view_ != button_view::anchor && button_view_ != button_view::switcher)
     {
         color border_color = !focused_ ?
             (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_border, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
@@ -226,9 +226,14 @@ void button::draw(graphic &gr, const rect &)
 
     if (button_view_ != button_view::image)
     {
+        if (button_view_ == button_view::anchor)
+        {
+            font_.decorations_ = decorations::underline;
+        }
+
         gr.draw_text(rect{ text_left, text_top }, caption, 
-            button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_text, theme_) : 
-                (button_view_ == button_view::anchor ? theme_color(window::tc, tv_anchor, theme_) : theme_color(window::tc, tv_text, theme_)),
+            button_view_ != button_view::image_right_text_no_frame ? (button_view_ == button_view::anchor ? theme_color(tc, tv_anchor, theme_) : theme_color(tc, tv_text, theme_)) :
+                theme_color(window::tc, tv_text, theme_),
             font_);
     }
 }
