@@ -120,7 +120,7 @@ void button::draw(graphic &gr, const rect &)
         case button_view::text:
             if (text_rect.right + 10 > control_pos.width())
             {
-                position_.right = control_pos.left + text_rect.right + 10;
+                position_.right = position_.left + text_rect.right + 10;
                 return redraw();
             }
 
@@ -132,12 +132,12 @@ void button::draw(graphic &gr, const rect &)
 	        {
                 if (image_size > control_pos.width())
                 {
-                    position_.right = control_pos.left + image_size;
+                    position_.right = position_.left + image_size;
                     return redraw();
                 }
                 if (image_size > control_pos.height())
                 {
-                    position_.bottom = control_pos.top + image_size;
+                    position_.bottom = position_.top + image_size;
                     return redraw();
                 }
 
@@ -150,12 +150,12 @@ void button::draw(graphic &gr, const rect &)
             {
                 if (image_size + text_rect.right + 10 > position_.width())
                 {
-                    position_.right = control_pos.left + text_rect.right + image_size + 10;
+                    position_.right = position_.left + text_rect.right + image_size + 10;
                     return redraw();
                 }
                 if (image_size + 10 > control_pos.height())
                 {
-                    position_.bottom = control_pos.top + image_size + 10;
+                    position_.bottom = position_.top + image_size + 10;
                     return redraw();
                 }
 
@@ -170,12 +170,12 @@ void button::draw(graphic &gr, const rect &)
             {
                 if (image_size + 10 > control_pos.width())
                 {
-                    position_.right = control_pos.left + image_size + 10;
+                    position_.right = position_.left + image_size + 10;
                     return redraw();
                 }
                 if (image_size + text_rect.bottom + 10 > control_pos.height())
                 {
-                    position_.bottom = control_pos.top + text_rect.bottom + image_size + 10;
+                    position_.bottom = position_.top + text_rect.bottom + image_size + 10;
                     return redraw();
                 }
 
