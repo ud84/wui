@@ -209,7 +209,7 @@ void button::draw(graphic &gr, const rect &)
 
     if (button_view_ != button_view::image)
     {
-        gr.draw_text(rect{ text_left, text_top, text_left, text_top }, caption, 
+        gr.draw_text(rect{ text_left, text_top }, caption, 
             button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_text, theme_) : theme_color(window::tc, tv_text, theme_),
             font_);
     }

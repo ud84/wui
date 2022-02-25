@@ -197,11 +197,11 @@ void image::draw(graphic &gr_, const rect &)
     {
         Gdiplus::Graphics gr(gr_.drawable());
 
-        auto pos = position();
+        auto control_pos = position();
 
         gr.DrawImage(
             img->Clone(),
-            Gdiplus::Rect(pos.left, pos.top, pos.width(), pos.height()),
+            Gdiplus::Rect(control_pos.left, control_pos.top, control_pos.width(), control_pos.height()),
             0, 0, img->GetWidth(), img->GetHeight(),
             Gdiplus::UnitPixel,
             nullptr);
