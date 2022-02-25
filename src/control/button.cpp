@@ -34,7 +34,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true),
-    switched_(false),
+    switched_(true),
     text_rect{ 0 }
 {
 }
@@ -52,7 +52,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true),
-    switched_(false),
+    switched_(true),
     text_rect{ 0 }
 {
 }
@@ -70,7 +70,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true),
-    switched_(false),
+    switched_(true),
     text_rect{ 0 }
 {
 }
@@ -88,7 +88,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true),
-    switched_(false),
+    switched_(true),
     text_rect{ 0 }
 {
 }
@@ -105,7 +105,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true),
-    switched_(false),
+    switched_(true),
     text_rect{ 0 }
 {
 }
@@ -370,6 +370,10 @@ void button::receive_event(const event &ev)
                 redraw();
             break;
             case internal_event_type::execute_focused:
+                if (button_view_ == button_view::switcher)
+                {
+                    switch_(!switched_);
+                }
                 if (click_callback)
                 {
                     click_callback();
@@ -433,7 +437,11 @@ void button::update_theme(std::shared_ptr<i_theme> theme__)
 
     tooltip_->update_theme(theme_);
 
-    if (image_)
+    if (button_view_ == button_view::switcher)
+    {
+        image_->change_image(theme_image(switched_ ? ti_switcher_on : ti_switcher_off));
+    }
+    else if (image_)
     {
         image_->update_theme(theme_);
     }
