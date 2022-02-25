@@ -124,6 +124,8 @@ private:
     bool active, focused_;
     bool focusing_;
 
+    rect text_rect;
+
     void receive_event(const event &ev);
 
     void redraw();

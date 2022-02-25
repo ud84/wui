@@ -33,7 +33,8 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
-    focusing_(true)
+    focusing_(true),
+    text_rect{ 0 }
 {
 }
 
@@ -49,7 +50,8 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     position_(),
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
-    focusing_(true)
+    focusing_(true),
+    text_rect{ 0 }
 {
 }
 #endif
@@ -65,7 +67,8 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     position_(),
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
-    focusing_(true)
+    focusing_(true),
+    text_rect{ 0 }
 {
 }
 
@@ -80,7 +83,8 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     position_(),
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
-    focusing_(true)
+    focusing_(true),
+    text_rect{ 0 }
 {
 }
 
@@ -102,7 +106,10 @@ void button::draw(graphic &gr, const rect &)
 
     auto font_ = theme_font(tc, tv_font, theme_);
 
-    auto text_rect = gr.measure_text(caption, font_);
+    if (button_view_ != button_view::image && !caption.empty() && text_rect.width() == 0)
+    {
+        text_rect = gr.measure_text(caption, font_);
+    }
 
     int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
 
@@ -114,10 +121,11 @@ void button::draw(graphic &gr, const rect &)
             if (text_rect.right + 10 > control_pos.width())
             {
                 position_.right = control_pos.left + text_rect.right + 10;
+                return redraw();
             }
 
-            text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
             text_left = control_pos.left + ((control_pos.width() - text_rect.right) / 2);
+            text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
         break;
         case button_view::image:
             if (image_)
@@ -125,14 +133,16 @@ void button::draw(graphic &gr, const rect &)
                 if (image_size > control_pos.width())
                 {
                     position_.right = control_pos.left + image_size;
+                    return redraw();
                 }
                 if (image_size > control_pos.height())
                 {
                     position_.bottom = control_pos.top + image_size;
+                    return redraw();
                 }
 
-                image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
                 image_left = control_pos.left + ((control_pos.width() - image_size) / 2);
+                image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
             }
         break;
         case button_view::image_right_text: case button_view::image_right_text_no_frame:
@@ -141,16 +151,18 @@ void button::draw(graphic &gr, const rect &)
                 if (image_size + text_rect.right + 6 > position_.width())
                 {
                     position_.right = control_pos.left + text_rect.right + image_size + 6;
+                    return redraw();
                 }
                 if (image_size + 6 > control_pos.height())
                 {
                     position_.bottom = control_pos.top + image_size + 6;
+                    return redraw();
                 }
 
-                text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
-                image_left = control_pos.left + ((control_pos.width() - text_rect.right - image_size - 5) / 2);
+                image_left = control_pos.left;
                 image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
                 text_left = image_left + image_size + 5;
+                text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
             }
         break;
         case button_view::image_bottom_text:
@@ -159,16 +171,18 @@ void button::draw(graphic &gr, const rect &)
                 if (image_size + 6 > control_pos.width())
                 {
                     position_.right = control_pos.left + image_size + 6;
+                    return redraw();
                 }
                 if (image_size + text_rect.bottom + 6 > control_pos.height())
                 {
                     position_.bottom = control_pos.top + text_rect.bottom + image_size + 6;
+                    return redraw();
                 }
 
-                image_top = control_pos.top + ((control_pos.height() - text_rect.bottom - image_size - 5) / 2);
-                text_top = image_top + image_size + 5;
                 text_left = control_pos.left + ((control_pos.width() - text_rect.right) / 2);
+                text_top = image_top + image_size + 5;                
                 image_left = control_pos.left + ((control_pos.width() - image_size) / 2);
+                image_top = control_pos.top + ((control_pos.height() - text_rect.bottom - image_size - 5) / 2);
             }
         break;
     }
@@ -390,6 +404,8 @@ void button::set_caption(const std::string &caption_)
 {
     caption = caption_;
     tooltip_->set_text(caption_);
+
+    text_rect = { 0 };
     
     redraw();
 }
