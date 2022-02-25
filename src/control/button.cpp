@@ -148,14 +148,14 @@ void button::draw(graphic &gr, const rect &)
         case button_view::image_right_text: case button_view::image_right_text_no_frame:
             if (image_)
             {
-                if (image_size + text_rect.right + 6 > position_.width())
+                if (image_size + text_rect.right + 10 > position_.width())
                 {
-                    position_.right = control_pos.left + text_rect.right + image_size + 6;
+                    position_.right = control_pos.left + text_rect.right + image_size + 10;
                     return redraw();
                 }
-                if (image_size + 6 > control_pos.height())
+                if (image_size + 10 > control_pos.height())
                 {
-                    position_.bottom = control_pos.top + image_size + 6;
+                    position_.bottom = control_pos.top + image_size + 10;
                     return redraw();
                 }
 
@@ -168,14 +168,14 @@ void button::draw(graphic &gr, const rect &)
         case button_view::image_bottom_text:
             if (image_)
             {
-                if (image_size + 6 > control_pos.width())
+                if (image_size + 10 > control_pos.width())
                 {
-                    position_.right = control_pos.left + image_size + 6;
+                    position_.right = control_pos.left + image_size + 10;
                     return redraw();
                 }
-                if (image_size + text_rect.bottom + 6 > control_pos.height())
+                if (image_size + text_rect.bottom + 10 > control_pos.height())
                 {
-                    position_.bottom = control_pos.top + text_rect.bottom + image_size + 6;
+                    position_.bottom = control_pos.top + text_rect.bottom + image_size + 10;
                     return redraw();
                 }
 
