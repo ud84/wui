@@ -159,7 +159,7 @@ void button::draw(graphic &gr, const rect &)
                     return redraw();
                 }
 
-                image_left = control_pos.left;
+                image_left = button_view_ == button_view::image_right_text ? control_pos.left + ((control_pos.width() - text_rect.right - image_size - 5) / 2) : control_pos.left;
                 image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
                 text_left = image_left + image_size + 5;
                 text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
@@ -180,7 +180,7 @@ void button::draw(graphic &gr, const rect &)
                 }
 
                 text_left = control_pos.left + ((control_pos.width() - text_rect.right) / 2);
-                text_top = image_top + image_size + 5;                
+                text_top = image_top + image_size + 5;
                 image_left = control_pos.left + ((control_pos.width() - image_size) / 2);
                 image_top = control_pos.top + ((control_pos.height() - text_rect.bottom - image_size - 5) / 2);
             }
