@@ -38,6 +38,23 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 {
 }
 
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, std::shared_ptr<i_theme> theme__)
+    : button_view_(button_view__),
+    caption(caption_),
+    image_(button_view_ == button_view::switcher ? new image(theme_image(ti_switcher_on, theme__)) : nullptr),
+    image_size(0),
+    tooltip_(new tooltip(caption_, theme__)),
+    click_callback(click_callback_),
+    theme_(theme__),
+    position_(),
+    parent(),
+    my_subscriber_id(),
+    showed_(true), enabled_(true), active(false), focused_(false),
+    focusing_(true),
+    text_rect{ 0 }
+{
+}
+
 #ifdef _WIN32
 button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, int32_t image_resource_index_, int32_t image_size_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
@@ -117,7 +134,7 @@ void button::draw(graphic &gr, const rect &)
 
     switch (button_view_)
     {
-        case button_view::text:
+        case button_view::text: case button_view::anchor:
             if (text_rect.right + 10 > control_pos.width())
             {
                 position_.right = position_.left + text_rect.right + 10;
@@ -145,7 +162,7 @@ void button::draw(graphic &gr, const rect &)
                 image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
             }
         break;
-        case button_view::image_right_text: case button_view::image_right_text_no_frame:
+        case button_view::image_right_text: case button_view::image_right_text_no_frame: case button_view::switcher:
             if (image_)
             {
                 if (image_size + text_rect.right + 10 > position_.width())
@@ -187,7 +204,7 @@ void button::draw(graphic &gr, const rect &)
         break;
     }
 
-    if (button_view_ != button_view::image_right_text_no_frame)
+    if (button_view_ != button_view::image_right_text_no_frame && button_view_ != button_view::switcher)
     {
         color border_color = !focused_ ?
             (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_border, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
@@ -201,7 +218,7 @@ void button::draw(graphic &gr, const rect &)
         gr.draw_rect(control_pos, border_color, fill_color, theme_dimension(tc, tv_border_width, theme_), theme_dimension(tc, tv_round, theme_));
     }
 	
-    if (button_view_ != button_view::text && image_)
+    if (button_view_ != button_view::text && button_view_ != button_view::anchor && image_)
     {
         image_->set_position( { image_left, image_top, image_left + image_size, image_top + image_size }, false );
         image_->draw(gr, { 0 });
@@ -210,7 +227,8 @@ void button::draw(graphic &gr, const rect &)
     if (button_view_ != button_view::image)
     {
         gr.draw_text(rect{ text_left, text_top }, caption, 
-            button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_text, theme_) : theme_color(window::tc, tv_text, theme_),
+            button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_text, theme_) : 
+                (button_view_ == button_view::anchor ? theme_color(window::tc, tv_anchor, theme_) : theme_color(window::tc, tv_text, theme_)),
             font_);
     }
 }
@@ -232,7 +250,7 @@ void button::receive_event(const event &ev)
                 auto parent_ = parent.lock();
                 if (parent_)
                 {
-                    set_cursor(parent_->context(), cursor::default_);
+                    set_cursor(parent_->context(), button_view_ != button_view::anchor ? cursor::default_ : cursor::hand);
                 }
                 redraw();
 
@@ -243,13 +261,20 @@ void button::receive_event(const event &ev)
             }
             break;
             case mouse_event_type::leave:
+            {
                 if (button_view_ == button_view::image && !caption.empty())
                 {
                     tooltip_->hide();
                 }
 
                 active = false;
+                auto parent_ = parent.lock();
+                if (parent_)
+                {
+                    set_cursor(parent_->context(), cursor::default_);
+                }
                 redraw();
+            }
             break;
             case mouse_event_type::left_up:
                 if (button_view_ == button_view::image && !caption.empty())

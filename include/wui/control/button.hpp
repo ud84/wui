@@ -32,13 +32,16 @@ enum class button_view
     image,
     image_right_text,
     image_bottom_text,
-    image_right_text_no_frame
+    image_right_text_no_frame,
+    switcher,
+    anchor
 };
 
 class button : public i_control, public std::enable_shared_from_this<button>
 {
 public:
     button(const std::string &caption, std::function<void(void)> click_callback, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, std::shared_ptr<i_theme> theme_ = nullptr);
 
 #ifdef _WIN32
     button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, int32_t image_resource_index, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
@@ -99,8 +102,13 @@ public:
     static constexpr const char *tv_focused_border = "focused_border";
     static constexpr const char *tv_text = "text";
     static constexpr const char *tv_disabled = "disabled";
+    static constexpr const char *tv_anchor = "anchor";
     static constexpr const char *tv_round = "round";
     static constexpr const char *tv_font = "font";
+
+    ///Used theme images
+    static constexpr const char *ti_switcher_off = "button_switcher_off";
+    static constexpr const char *ti_switcher_on = "button_switcher_on";
 
 private:
     button_view button_view_;
