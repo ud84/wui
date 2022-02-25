@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
     window->add_control(accountImage, { 350, 100, 414, 164 });
 
     std::shared_ptr<PluggedWindow> pluggedWindow(new PluggedWindow(window));
-    std::shared_ptr<wui::button> createPluggedButton(new wui::button("Create plugged window", []() { }));
+    std::shared_ptr<wui::button> createPluggedButton(new wui::button("Create plugged window", []() {}));
     createPluggedButton->set_callback([&window, &pluggedWindow, &createPluggedButton]() {
         pluggedWindow.reset();
         pluggedWindow = std::shared_ptr<PluggedWindow>(new PluggedWindow(window));
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
         pluggedWindow->window->update_theme();
         dialog->update_theme();
         cancelButton->update_theme(MakeRedButtonTheme());
-    }, wui::button_view::anchor));
+    }, wui::button_view::switcher));
     window->add_control(whiteThemeButton, { 460, 350, 580, 375 });
 
     window->add_control(okButton, { 240, 450, 350, 480 });

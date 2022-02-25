@@ -34,6 +34,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true),
+    switched_(false),
     text_rect{ 0 }
 {
 }
@@ -51,6 +52,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true),
+    switched_(false),
     text_rect{ 0 }
 {
 }
@@ -68,6 +70,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true),
+    switched_(false),
     text_rect{ 0 }
 {
 }
@@ -85,6 +88,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true),
+    switched_(false),
     text_rect{ 0 }
 {
 }
@@ -101,6 +105,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(true),
+    switched_(false),
     text_rect{ 0 }
 {
 }
@@ -140,6 +145,11 @@ void button::draw(graphic &gr, const rect &)
                 position_.right = position_.left + text_rect.right + 10;
                 return redraw();
             }
+            if (text_rect.bottom + 6 > control_pos.height())
+            {
+                position_.bottom = position_.top + text_rect.bottom + 6;
+                return redraw();
+            }
 
             text_left = control_pos.left + ((control_pos.width() - text_rect.right) / 2);
             text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
@@ -162,7 +172,7 @@ void button::draw(graphic &gr, const rect &)
                 image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
             }
         break;
-        case button_view::image_right_text: case button_view::image_right_text_no_frame: case button_view::switcher:
+        case button_view::image_right_text: case button_view::image_right_text_no_frame:
             if (image_)
             {
                 if (image_size + text_rect.right + 10 > position_.width())
@@ -175,10 +185,40 @@ void button::draw(graphic &gr, const rect &)
                     position_.bottom = position_.top + image_size + 10;
                     return redraw();
                 }
+                if (text_rect.bottom + 6 > control_pos.height())
+                {
+                    position_.bottom = position_.top + text_rect.bottom + 6;
+                    return redraw();
+                }
 
                 image_left = button_view_ == button_view::image_right_text ? control_pos.left + ((control_pos.width() - text_rect.right - image_size - 5) / 2) : control_pos.left;
                 image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
                 text_left = image_left + image_size + 5;
+                text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
+            }
+        break;
+        case button_view::switcher:
+            if (image_)
+            {
+                if (image_->width() + text_rect.right + 10 > position_.width())
+                {
+                    position_.right = position_.left + text_rect.right + image_->width() + 10;
+                    return redraw();
+                }
+                if (image_->height() + 6 > control_pos.height())
+                {
+                    position_.bottom = position_.top + image_->height() + 6;
+                    return redraw();
+                }
+                if (text_rect.bottom + 6 > control_pos.height())
+                {
+                    position_.bottom = position_.top + text_rect.bottom + 6;
+                    return redraw();
+                }
+
+                image_left = control_pos.left;
+                image_top = control_pos.top + ((control_pos.height() - image_->height()) / 2);
+                text_left = image_left + image_->width() + 5;
                 text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
             }
         break;
@@ -195,11 +235,16 @@ void button::draw(graphic &gr, const rect &)
                     position_.bottom = position_.top + text_rect.bottom + image_size + 10;
                     return redraw();
                 }
+                if (text_rect.bottom + 6 > control_pos.height())
+                {
+                    position_.bottom = position_.top + text_rect.bottom + 6;
+                    return redraw();
+                }
 
-                text_left = control_pos.left + ((control_pos.width() - text_rect.right) / 2);
-                text_top = image_top + image_size + 5;
                 image_left = control_pos.left + ((control_pos.width() - image_size) / 2);
                 image_top = control_pos.top + ((control_pos.height() - text_rect.bottom - image_size - 5) / 2);
+                text_left = control_pos.left + ((control_pos.width() - text_rect.right) / 2);
+                text_top = image_top + image_size + 5;
             }
         break;
     }
@@ -220,20 +265,26 @@ void button::draw(graphic &gr, const rect &)
 	
     if (button_view_ != button_view::text && button_view_ != button_view::anchor && image_)
     {
-        image_->set_position( { image_left, image_top, image_left + image_size, image_top + image_size }, false );
+        image_->set_position( { image_left,
+            image_top,
+            image_left + (button_view_ != button_view::switcher ? image_size : image_->width()),
+            image_top + (button_view_ != button_view::switcher ? image_size : image_->height()) },
+            false );
         image_->draw(gr, { 0 });
     }
 
     if (button_view_ != button_view::image)
     {
+        color color_ = button_view_ == button_view::image_right_text_no_frame ? theme_color(tc, tv_text, theme_) : theme_color(window::tc, tv_text, theme_);
+
         if (button_view_ == button_view::anchor)
         {
+            color_ = enabled_ ? theme_color(tc, tv_anchor, theme_) : theme_color(window::tc, tv_text, theme_);
             font_.decorations_ = decorations::underline;
         }
 
         gr.draw_text(rect{ text_left, text_top }, caption, 
-            button_view_ != button_view::image_right_text_no_frame ? (button_view_ == button_view::anchor ? theme_color(tc, tv_anchor, theme_) : theme_color(tc, tv_text, theme_)) :
-                theme_color(window::tc, tv_text, theme_),
+            color_,
             font_);
     }
 }
@@ -285,6 +336,11 @@ void button::receive_event(const event &ev)
                 if (button_view_ == button_view::image && !caption.empty())
                 {
                     tooltip_->hide();
+                }
+
+                if (button_view_ == button_view::switcher)
+                {
+                    switch_(!switched_);
                 }
 
                 active = false;
@@ -496,6 +552,21 @@ void button::enable_focusing()
 void button::disable_focusing()
 {
     focusing_ = false;
+}
+
+void button::switch_(bool on)
+{
+    switched_ = on;
+    if (button_view_ == button_view::switcher)
+    {
+        image_->change_image(theme_image(switched_ ? ti_switcher_on : ti_switcher_off));
+        redraw();
+    }
+}
+
+bool button::switched() const
+{
+    return switched_;
 }
 
 void button::set_callback(std::function<void(void)> click_callback_)

@@ -88,6 +88,9 @@ public:
     void enable_focusing();
     void disable_focusing();
 
+    void switch_(bool on);
+    bool switched() const;
+
     void set_callback(std::function<void(void)> click_callback);
 
 public:
@@ -131,6 +134,8 @@ private:
     bool showed_, enabled_;
     bool active, focused_;
     bool focusing_;
+
+    bool switched_;
 
     rect text_rect;
 
