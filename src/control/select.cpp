@@ -413,7 +413,7 @@ void select::update_item(const select_item &si)
     list_->set_item_count(static_cast<int32_t>(items.size()));
 }
 
-void select::swap_items(int32_t first_item_id, int32_t second_item_id)
+void select::swap_items(int64_t first_item_id, int64_t second_item_id)
 {
     auto first_it = std::find(items.begin(), items.end(), first_item_id);
     if (first_it != items.end())
@@ -427,7 +427,7 @@ void select::swap_items(int32_t first_item_id, int32_t second_item_id)
     list_->set_item_count(static_cast<int32_t>(items.size()));
 }
 
-void select::delete_item(int32_t id)
+void select::delete_item(int64_t id)
 {
     auto it = std::find(items.begin(), items.end(), id);
     if (it != items.end())
@@ -448,14 +448,13 @@ void select::select_item_number(int32_t index)
     redraw();
 }
 
-void select::select_item_id(int32_t id)
+void select::select_item_id(int64_t id)
 {
     for (int32_t i = 0; i != static_cast<int32_t>(items.size()); ++i)
     {
         if (items[i].id == id)
         {
-            list_->select_item(i);
-            redraw();
+            select_item_number(i);
             break;
         }
     }
