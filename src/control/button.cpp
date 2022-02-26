@@ -140,12 +140,12 @@ void button::draw(graphic &gr, const rect &)
     switch (button_view_)
     {
         case button_view::text: case button_view::anchor:
-            if (text_rect.right + 10 > control_pos.width())
+            if (text_rect.right + 10 > position_.width())
             {
                 position_.right = position_.left + text_rect.right + 10;
                 return redraw();
             }
-            if (text_rect.bottom + 6 > control_pos.height())
+            if (text_rect.bottom + 6 > position_.height())
             {
                 position_.bottom = position_.top + text_rect.bottom + 6;
                 return redraw();
@@ -157,12 +157,12 @@ void button::draw(graphic &gr, const rect &)
         case button_view::image:
             if (image_)
 	        {
-                if (image_size > control_pos.width())
+                if (image_size > position_.width())
                 {
                     position_.right = position_.left + image_size;
                     return redraw();
                 }
-                if (image_size > control_pos.height())
+                if (image_size > position_.height())
                 {
                     position_.bottom = position_.top + image_size;
                     return redraw();
@@ -180,12 +180,12 @@ void button::draw(graphic &gr, const rect &)
                     position_.right = position_.left + text_rect.right + image_size + 10;
                     return redraw();
                 }
-                if (image_size + 10 > control_pos.height())
+                if (image_size + 10 > position_.height())
                 {
                     position_.bottom = position_.top + image_size + 10;
                     return redraw();
                 }
-                if (text_rect.bottom + 6 > control_pos.height())
+                if (text_rect.bottom + 6 > position_.height())
                 {
                     position_.bottom = position_.top + text_rect.bottom + 6;
                     return redraw();
@@ -205,12 +205,12 @@ void button::draw(graphic &gr, const rect &)
                     position_.right = position_.left + text_rect.right + image_->width() + 10;
                     return redraw();
                 }
-                if (image_->height() + 6 > control_pos.height())
+                if (image_->height() + 6 > position_.height())
                 {
                     position_.bottom = position_.top + image_->height() + 6;
                     return redraw();
                 }
-                if (text_rect.bottom + 6 > control_pos.height())
+                if (text_rect.bottom + 6 > position_.height())
                 {
                     position_.bottom = position_.top + text_rect.bottom + 6;
                     return redraw();
@@ -225,17 +225,17 @@ void button::draw(graphic &gr, const rect &)
         case button_view::image_bottom_text:
             if (image_)
             {
-                if (image_size + 10 > control_pos.width())
+                if (image_size + 10 > position_.width())
                 {
                     position_.right = position_.left + image_size + 10;
                     return redraw();
                 }
-                if (image_size + text_rect.bottom + 10 > control_pos.height())
+                if (image_size + text_rect.bottom + 10 > position_.height())
                 {
                     position_.bottom = position_.top + text_rect.bottom + image_size + 10;
                     return redraw();
                 }
-                if (text_rect.bottom + 6 > control_pos.height())
+                if (text_rect.bottom + 6 > position_.height())
                 {
                     position_.bottom = position_.top + text_rect.bottom + 6;
                     return redraw();
