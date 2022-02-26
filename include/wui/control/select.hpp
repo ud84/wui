@@ -30,11 +30,11 @@ typedef std::vector<select_item> select_items_t;
 
 struct select_item
 {
-    int32_t id;
+    int64_t id;
 
     std::string text;
 
-    inline bool operator==(int32_t id_)
+    inline bool operator==(int64_t id_)
     {
         return id == id_;
     }
