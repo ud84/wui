@@ -245,12 +245,12 @@ void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t wi
     auto text_size = gr.measure_text(line, font_);
     while (static_cast<int32_t>(line.size()) > truncating_count && text_size.width() > width)
     {
-        auto actual_truncated = truncating_count;
+        auto actual_truncated = line.size() - truncating_count;
         while (actual_truncated > 0 && utf8::find_invalid(line.begin(), line.begin() + actual_truncated) != line.begin() + actual_truncated)
         {
             --actual_truncated;
         }
-        line.resize(line.size() - actual_truncated);
+        line.resize(actual_truncated);
         text_size = gr.measure_text(line, font_);
         line_truncated = true;
     }
