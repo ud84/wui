@@ -30,11 +30,11 @@ typedef std::vector<select_item> select_items_t;
 
 struct select_item
 {
-    int32_t id;
+    int64_t id;
 
     std::string text;
 
-    inline bool operator==(int32_t id_)
+    inline bool operator==(int64_t id_)
     {
         return id == id_;
     }
@@ -73,13 +73,13 @@ public:
     /// Select's interface
     void set_items(const select_items_t &items);
     void update_item(const select_item &mi);
-    void swap_items(int32_t first_item_id, int32_t second_item_id);
-    void delete_item(int32_t id);
+    void swap_items(int64_t first_item_id, int64_t second_item_id);
+    void delete_item(int64_t id);
 
     void set_item_height(int32_t item_height);
 
     void select_item_number(int32_t index);
-    void select_item_id(int32_t id);
+    void select_item_id(int64_t id);
     select_item selected_item() const;
 
     void set_change_callback(std::function<void(int32_t, const std::string&)> change_callback);
