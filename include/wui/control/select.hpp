@@ -69,7 +69,6 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
-public:
     /// Select's interface
     void set_items(const select_items_t &items);
     void update_item(const select_item &mi);

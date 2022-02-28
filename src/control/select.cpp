@@ -454,8 +454,7 @@ void select::select_item_id(int64_t id)
     {
         if (items[i].id == id)
         {
-            list_->select_item(i);
-            redraw();
+            select_item_number(i);
             break;
         }
     }

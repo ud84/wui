@@ -423,8 +423,8 @@ int main(int argc, char *argv[])
             text0->set_position({ 320, 180, w - 10, 240 }, false);
             nameInput->set_position({ 320, 250, w - 10, 275 }, false);
             someSelect->set_position({ 320, 300, w - 10, 325 }, false);
-            okButton->set_position({ w - 250, h - 50, w - 150, h - 20 }, false);
-            cancelButton->set_position({ w - 120, h - 50, w - 20, h - 20 }, false);
+            okButton->set_position({ w - 250, h - 55, w - 150, h - 20 }, false);
+            cancelButton->set_position({ w - 120, h - 55, w - 20, h - 20 }, false);
         }
     }, wui::event_type::internal);
 
