@@ -154,9 +154,11 @@ void tooltip::set_text(const std::string &text_)
 {
     text = text_;
 
-    size_updated = false;
-
-    redraw();
+    if (showed_)
+    {
+        size_updated = false;
+        update_size();
+    }
 }
 
 void tooltip::update_size()
@@ -194,13 +196,15 @@ void tooltip::update_size()
 
     auto old_position = position_;
 
-    position_ = mem_gr.measure_text(text, font_);
+    auto position__ = mem_gr.measure_text(text, font_);
 
     auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
-    position_.right += text_indent * 2;
-    position_.bottom += text_indent * 2;
+    position__.right += text_indent * 2;
+    position__.bottom += text_indent * 2;
 
-    position_.move(old_position.left, old_position.top);
+    position__.move(old_position.left, old_position.top);
+
+    set_position(position__, true);
 
 #ifdef _WIN32
     ReleaseDC(ctx.hwnd, ctx.dc);
