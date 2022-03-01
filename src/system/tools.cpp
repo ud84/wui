@@ -135,14 +135,14 @@ void update_control_position(rect &control_position,
         auto parent_ = parent.lock();
         if (parent_)
         {
-            if (parent_->child())
+            if (parent_->parent().lock() != nullptr)
             {
                 prev_position.move(parent_->position().left, parent_->position().top);
             }
             parent_->redraw(prev_position, true);
 
             auto new_position = control_position;
-            if (parent_->child())
+            if (parent_->parent().lock() != nullptr)
             {
                 new_position.move(parent_->position().left, parent_->position().top);
             }
@@ -156,7 +156,7 @@ rect get_control_position(const rect &control_position, std::weak_ptr<window> pa
     auto out_pos = control_position;
 
     auto parent_ = parent.lock();
-    if (parent_ && parent_->child())
+    if (parent_ && parent_->parent().lock() != nullptr)
     {
         out_pos.move(parent_->position().left, parent_->position().top);
     }
@@ -172,11 +172,15 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
         return { 0 };
     }
 
-    auto parent_pos = parent_->position();
-    if (!parent_->child())
+    while (parent_->parent().lock() != nullptr)
     {
-        parent_pos = { 0, 0, parent_pos.width(), parent_pos.height() };
+        parent_ = parent_->parent().lock();
     }
+
+    rect parent_pos = { parent.lock()->parent().lock() != nullptr ? parent.lock()->position().left : 0,
+        parent.lock()->parent().lock() != nullptr ? parent.lock()->position().top : 0,
+        parent_->position().width(),
+        parent_->position().height() };
 
     auto out_pos = popup_control_position;
 

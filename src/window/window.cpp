@@ -105,7 +105,7 @@ window::window()
     theme_(),
     showed_(true), enabled_(true),
     focused_index(0),
-    parent(),
+    parent_(),
     my_control_sid(), my_plain_sid(),
     transient_window(), docked_(false), prev_disabled_controls(),
     subscribers_(),
@@ -138,10 +138,10 @@ window::window()
 
 window::~window()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 #ifdef __linux__
     send_destroy_event();
@@ -183,10 +183,10 @@ void window::remove_control(std::shared_ptr<i_control> control)
 
 void window::redraw(const rect &redraw_position, bool clear)
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->redraw(redraw_position, clear);
+        parent__->redraw(redraw_position, clear);
     }
     else
     {
@@ -245,14 +245,14 @@ void window::unsubscribe(const std::string &subscriber_id)
 
 system_context &window::context()
 {
-    auto parent_ = parent.lock();
-	if (!parent_)
+    auto parent__ = parent_.lock();
+	if (!parent__)
 	{
         return context_;
 	}
 	else
 	{
-        return parent_->context();
+        return parent__->context();
 	}
 }
 
@@ -408,9 +408,9 @@ void window::set_position(const rect &position__, bool redraw)
     }
 #endif
     auto old_position = position_;
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 
-    if (parent.lock())
+    if (parent_.lock())
     {
         send_size(position__.width(), position__.height());
 
@@ -423,12 +423,12 @@ void window::set_position(const rect &position__, bool redraw)
 
 rect window::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void window::set_parent(std::shared_ptr<window> window)
 {
-    parent = window;
+    parent_ = window;
 
     if (window)
     {
@@ -453,14 +453,14 @@ void window::set_parent(std::shared_ptr<window> window)
 
 void window::clear_parent()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->unsubscribe(my_control_sid);
-        parent_->unsubscribe(my_plain_sid);
+        parent__->unsubscribe(my_control_sid);
+        parent__->unsubscribe(my_plain_sid);
     }
 
-    parent.reset();
+    parent_.reset();
 }
 
 bool window::topmost() const
@@ -502,7 +502,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-    if (context_.valid() && !parent.lock())
+    if (context_.valid() && !parent_.lock())
     {
         graphic_.set_background_color(theme_color(tc, tv_background, theme_));
 
@@ -532,7 +532,7 @@ void window::show()
 {
     showed_ = true;
 
-    if (!parent.lock())
+    if (!parent_.lock())
     {
 #ifdef _WIN32
         ShowWindow(context_.hwnd, SW_SHOW);
@@ -553,8 +553,8 @@ void window::hide()
 {
     showed_ = false;
 
-    auto parent_ = parent.lock();
-    if (!parent_)
+    auto parent__ = parent_.lock();
+    if (!parent__)
     {
 #ifdef _WIN32
         ShowWindow(context_.hwnd, SW_HIDE);
@@ -569,7 +569,7 @@ void window::hide()
             control->hide();
         }
 
-        parent_->redraw(position(), true);
+        parent__->redraw(position(), true);
     }
 }
 
@@ -765,7 +765,7 @@ void window::set_caption(const std::string &caption_)
 {
     caption = caption_;
 
-    if (flag_is_set(window_style_, window_style::title_showed) && !child())
+    if (flag_is_set(window_style_, window_style::title_showed) && parent_.lock() == nullptr)
     {
 #ifdef _WIN32
         SetWindowText(context_.hwnd, boost::nowide::widen(caption).c_str());
@@ -853,15 +853,15 @@ void window::end_docking()
     prev_disabled_controls.clear();
 }
 
-bool window::child() const
+std::weak_ptr<window> window::parent()
 {
-    return parent.lock() != nullptr;
+    return parent_;
 }
 
 void window::emit_event(int32_t x, int32_t y)
 {
-    auto parent_ = parent.lock();
-    if (!parent_)
+    auto parent__ = parent_.lock();
+    if (!parent__)
     {
 #ifdef _WIN32
         PostMessage(context_.hwnd, WM_USER, x, y);
@@ -885,7 +885,7 @@ void window::emit_event(int32_t x, int32_t y)
     }
     else
     {
-        parent_->emit_event(x, y);
+        parent__->emit_event(x, y);
     }
 }
 
@@ -1246,7 +1246,7 @@ void window::draw_border(graphic &gr)
 
     auto pos = position();
 
-    if (parent.lock())
+    if (parent_.lock())
     {
         l = pos.left;
         t = pos.top;
@@ -1298,9 +1298,9 @@ std::shared_ptr<window> window::get_transient_window()
 {
     auto transient_window_ = transient_window.lock();
 
-    while (transient_window_ && transient_window_->child() && transient_window_->parent.lock())
+    while (transient_window_ && transient_window_->parent_.lock() != nullptr)
     {
-        transient_window_ = transient_window_->parent.lock();
+        transient_window_ = transient_window_->parent_.lock();
     }
 
     return transient_window_;
@@ -1350,12 +1350,12 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
         }
     }
 
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
         send_size(position_.width(), position_.height());
 
-        parent_->redraw(position());
+        parent__->redraw(position());
 
         return true;
     }
@@ -1567,10 +1567,10 @@ void window::destroy()
     active_control.reset();
     controls.clear();
 
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
 
         auto transient_window_ = get_transient_window();
         if (transient_window_)
@@ -1656,7 +1656,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->graphic_.clear(paint_rect);
             }
-            if (flag_is_set(wnd->window_style_, window_style::title_showed) && !wnd->child())
+            if (flag_is_set(wnd->window_style_, window_style::title_showed) && wnd->parent_.lock() == nullptr)
             {
                 auto caption_font = theme_font(tc, tv_caption_font, wnd->theme_);
 
@@ -2145,7 +2145,7 @@ void window::process_events()
                     graphic_.clear(paint_rect);
                 }
 
-                if (flag_is_set(window_style_, window_style::title_showed) && !child())
+                if (flag_is_set(window_style_, window_style::title_showed) && parent_.lock() == nullptr)
 	            {
                     auto caption_font = theme_font(tc, tv_caption_font, theme_);
 

@@ -87,7 +87,7 @@ public:
     void start_docking();
     void end_docking();
 
-    bool child() const;
+    std::weak_ptr<window> parent();
 
     /// Window state methods
     void switch_theme();
@@ -151,7 +151,7 @@ private:
 
     size_t focused_index;
 
-    std::weak_ptr<window> parent;
+    std::weak_ptr<window> parent_;
     std::string my_control_sid, my_plain_sid;
 
     std::weak_ptr<window> transient_window;
