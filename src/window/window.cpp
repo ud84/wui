@@ -465,7 +465,7 @@ void window::clear_parent()
 
 bool window::topmost() const
 {
-    return docked_ || flag_is_set(window_style_, window_style::topmost);
+    return docked_ || parent_.lock() || flag_is_set(window_style_, window_style::topmost);
 }
 
 bool window::focused() const
@@ -1165,7 +1165,7 @@ void window::update_buttons(bool theme_changed)
 
     auto btn_size = 26;
     auto left = position().width() - btn_size;
-    auto top = 0;
+    auto top = flag_is_set(window_style_, window_style::border_top) ? theme_dimension(tc, tv_border_width, theme_) : 0;
 
     if (flag_is_set(window_style_, window_style::close_button))
     {

@@ -156,7 +156,7 @@ rect get_control_position(const rect &control_position, std::weak_ptr<window> pa
     auto out_pos = control_position;
 
     auto parent_ = parent.lock();
-    if (parent_ && parent_->parent().lock() != nullptr)
+    if (parent_ && parent_->parent().lock())
     {
         out_pos.move(parent_->position().left, parent_->position().top);
     }
@@ -164,7 +164,7 @@ rect get_control_position(const rect &control_position, std::weak_ptr<window> pa
     return out_pos;
 }
 
-rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position, const rect &popup_control_position, int32_t indent)
+rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position, const rect &popup_control_position, int32_t indent, bool use_physical_parent)
 {
     auto parent_ = parent.lock();
     if (!parent_)
@@ -172,13 +172,16 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
         return { 0 };
     }
 
-    while (parent_->parent().lock() != nullptr)
+    if (use_physical_parent)
     {
-        parent_ = parent_->parent().lock();
+        while (parent_->parent().lock())
+        {
+            parent_ = parent_->parent().lock();
+        }
     }
 
-    rect parent_pos = { parent.lock()->parent().lock() != nullptr ? parent.lock()->position().left : 0,
-        parent.lock()->parent().lock() != nullptr ? parent.lock()->position().top : 0,
+    rect parent_pos = { parent.lock()->parent().lock() ? parent.lock()->position().left : 0,
+        parent.lock()->parent().lock() ? parent.lock()->position().top : 0,
         parent_->position().width(),
         parent_->position().height() };
 

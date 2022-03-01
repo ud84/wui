@@ -141,7 +141,7 @@ void select::select_down()
 void select::show_list()
 {
     list_->set_position({ position_.left, position_.top, position_.right, position_.top + list_->get_item_height() * static_cast<int32_t>(items.size()) });
-    auto pos = get_popup_position(parent, position(), list_->position(), 0);
+    auto pos = get_popup_position(parent, position(), list_->position(), 0, false);
 
     list_->set_position(pos, true);
     list_->show();
