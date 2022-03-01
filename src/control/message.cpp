@@ -47,6 +47,11 @@ void message::show(const std::string &message_,
     message_button button__,
     std::function<void(message_result)> result_callback_)
 {
+    if (window_->context().valid())
+    {
+        return;
+    }
+
     icon_ = icon__;
     button_ = button__;
     result_callback = result_callback_;
