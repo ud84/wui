@@ -333,22 +333,17 @@ void button::receive_event(const event &ev)
             }
             break;
             case mouse_event_type::left_up:
-                if (button_view_ == button_view::image && !caption.empty())
+                if (enabled_)
                 {
-                    tooltip_->hide();
-                }
+                    if (button_view_ == button_view::switcher)
+                    {
+                        switch_(!switched_);
+                    }
 
-                if (button_view_ == button_view::switcher)
-                {
-                    switch_(!switched_);
-                }
-
-                active = false;
-                redraw();
-
-                if (click_callback && enabled_)
-                {
-                    click_callback();
+                    if (click_callback)
+                    {
+                        click_callback();
+                    }
                 }
             break;
         }
