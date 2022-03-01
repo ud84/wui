@@ -277,6 +277,8 @@ void window::draw(graphic &gr, const rect &paint_rect)
             theme_font(tc, tv_caption_font, theme_));
     }
 
+    draw_border(gr);
+
     std::vector<std::shared_ptr<i_control>> topmost_controls;
     
     for (auto &control : controls)
@@ -298,8 +300,6 @@ void window::draw(graphic &gr, const rect &paint_rect)
     {
         control->draw(gr, paint_rect);
     }
-
-    draw_border(gr);
 }
 
 void window::receive_control_events(const event &ev)
@@ -1672,6 +1672,8 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         caption_font);
                 }
             }
+            
+            wnd->draw_border(wnd->graphic_);
 
             std::vector<std::shared_ptr<i_control>> topmost_controls;
 
@@ -1694,8 +1696,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 control->draw(wnd->graphic_, paint_rect);
             }
-
-            wnd->draw_border(wnd->graphic_);
 
             wnd->graphic_.flush(paint_rect);
 
@@ -2162,6 +2162,8 @@ void window::process_events()
                     }
 	            }
 
+                draw_border(graphic_);
+
                 std::vector<std::shared_ptr<i_control>> topmost_controls;
 
                 for (auto &control : controls)
@@ -2184,8 +2186,6 @@ void window::process_events()
                     control->draw(graphic_, paint_rect);
                 }
                 
-                draw_border(graphic_);
-
                 graphic_.flush(paint_rect);
             }
             break;

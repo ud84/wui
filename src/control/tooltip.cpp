@@ -23,7 +23,6 @@ tooltip::tooltip(const std::string &text_, std::shared_ptr<i_theme> theme__)
     position_(),
     parent(),
     showed_(false),
-    size_updated(false),
     text(text_)
 {
 }
@@ -105,8 +104,6 @@ void tooltip::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-    size_updated = false;
-
     redraw();
 }
 
@@ -154,16 +151,12 @@ void tooltip::set_text(const std::string &text_)
 {
     text = text_;
 
-    if (showed_)
-    {
-        size_updated = false;
-        update_size();
-    }
+    redraw();
 }
 
 void tooltip::update_size()
 {
-    if (size_updated || text.empty())
+    if (text.empty())
     {
         return;
     }
@@ -209,8 +202,6 @@ void tooltip::update_size()
 #ifdef _WIN32
     ReleaseDC(ctx.hwnd, ctx.dc);
 #endif
-
-    size_updated = true;
 }
 
 void tooltip::show_on_control(i_control &control, int32_t indent)

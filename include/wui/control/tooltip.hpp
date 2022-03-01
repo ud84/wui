@@ -80,8 +80,6 @@ private:
 
     bool showed_;
 
-    bool size_updated;
-
     void update_size();
 
     void redraw();

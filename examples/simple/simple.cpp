@@ -329,6 +329,8 @@ int main(int argc, char *argv[])
     createPluggedButton->disable();
     pluggedWindow->SetCreationButton(createPluggedButton);
 
+    window->add_control(createPluggedButton, { 320, 50, 340, 75 });
+
     std::shared_ptr<wui::splitter> vertSplitter(new wui::splitter(wui::splitter_orientation::vertical, [&pluggedWindow](int32_t x, int32_t y) {
         if (pluggedWindow->plugged)
         {
@@ -337,8 +339,6 @@ int main(int argc, char *argv[])
         }
     }));
     window->add_control(vertSplitter, { 0 });
-
-    window->add_control(createPluggedButton, { 320, 50, 340, 75 });
 
     std::shared_ptr<wui::text> text0(new wui::text("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."));
     window->add_control(text0, { 320, 180, 890, 240 });
