@@ -151,7 +151,12 @@ void tooltip::set_text(const std::string &text_)
 {
     text = text_;
 
-    redraw();
+    if (showed_)
+    {
+        update_size();
+
+        redraw();
+    }
 }
 
 void tooltip::update_size()
