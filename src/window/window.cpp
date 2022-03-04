@@ -1692,10 +1692,9 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 }
             }
 
-            auto end = topmost_controls.rend();
-            for (auto control = topmost_controls.rbegin(); control != end; ++control)
+            for (auto &control : topmost_controls)
             {
-                (*control)->draw(wnd->graphic_, paint_rect);
+                control->draw(wnd->graphic_, paint_rect);
             }
 
             wnd->graphic_.flush(paint_rect);
@@ -2182,10 +2181,9 @@ void window::process_events()
                     }
                 }
 
-                auto end = topmost_controls.rend();
-                for (auto control = topmost_controls.rbegin(); control != end; ++control)
+                for (auto &control : topmost_controls)
                 {
-                    (*control)->draw(graphic_, paint_rect);
+                    control->draw(graphic_, paint_rect);
                 }
 
                 graphic_.flush(paint_rect);
