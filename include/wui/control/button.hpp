@@ -40,14 +40,14 @@ enum class button_view
 class button : public i_control, public std::enable_shared_from_this<button>
 {
 public:
-    button(const std::string &caption, std::function<void(void)> click_callback, std::shared_ptr<i_theme> theme_ = nullptr);
-    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(const std::string &caption, std::function<void(void)> click_callback, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
 
 #ifdef _WIN32
-    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, int32_t image_resource_index, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, int32_t image_resource_index, int32_t image_size, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
 #endif
-    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::string &image_file_name, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
-    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::vector<uint8_t> &image_data, int32_t image_size, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::string &image_file_name, int32_t image_size, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::vector<uint8_t> &image_data, int32_t image_size, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~button();
 
     /// i_control impl
@@ -94,8 +94,10 @@ public:
     void set_callback(std::function<void(void)> click_callback);
 
 public:
-    /// Default control name in theme
+    /// Possible control names in theme
     static constexpr const char *tc = "button";
+    static constexpr const char *tc_tool = "tool_button";
+    static constexpr const char *tc_tool_red = "red_tool_button";
 
     /// Used theme values
     static constexpr const char *tv_calm = "calm";
@@ -116,6 +118,7 @@ public:
 private:
     button_view button_view_;
     std::string caption;
+    std::string tcn; /// control name in theme
 
     std::shared_ptr<image> image_;
     int32_t image_size;

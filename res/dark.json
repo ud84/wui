@@ -41,6 +41,32 @@
       }
     },
     {
+      "type": "tool_button",
+      "calm": "#131519",
+      "active": "#3b3d41",
+      "border_width": 0,
+      "text": "#f0f1f1",
+      "disabled": "#131519",
+      "round": 0,
+      "font": {
+        "name": "Segoe UI",
+        "size": 18
+      }
+    },
+    {
+      "type": "red_tool_button",
+      "calm": "#131519",
+      "active": "#eb0f14",
+      "border_width": 0,
+      "text": "#f0f1f1",
+      "disabled": "#131519",
+      "round": 0,
+      "font": {
+        "name": "Segoe UI",
+        "size": 18
+      }
+    },
+    {
       "type": "input",
       "background": "#27292d",
       "text": "#f0ebf0",

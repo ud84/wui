@@ -29,9 +29,9 @@ message::message(std::shared_ptr<wui::window> transient_window__,
 	window_(new wui::window()),
     icon(new image(theme_image("message_info", theme_))),
     text_(new text("", text_alignment::left, theme_)),
-    button0(new button("", std::bind(&message::button0_click, this), theme_)),
-    button1(new button("", std::bind(&message::button1_click, this), theme_)),
-    button2(new button("", std::bind(&message::button2_click, this), theme_)),
+    button0(new button("", std::bind(&message::button0_click, this), button::tc, theme_)),
+    button1(new button("", std::bind(&message::button1_click, this), button::tc, theme_)),
+    button2(new button("", std::bind(&message::button2_click, this), button::tc, theme_)),
     result_(message_result::undef)
 {
     window_->set_transient_for(transient_window_, docked_);

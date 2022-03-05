@@ -114,12 +114,11 @@ window::window()
     close_callback(),
     pin_callback(),
     switch_theme_callback(),
-    buttons_theme(make_custom_theme()), close_button_theme(make_custom_theme()),
-    switch_theme_button(new button(locale(tc, cl_light_theme), std::bind(&window::switch_theme, this), button_view::image, theme_image(ti_switch_theme), 24)),
-    pin_button(new button(locale(tc, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24)),
-    minimize_button(new button("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24)),
-    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24)),
-    close_button(new button("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24)),
+    switch_theme_button(new button(locale(tc, cl_light_theme), std::bind(&window::switch_theme, this), button_view::image, theme_image(ti_switch_theme), 24, button::tc_tool)),
+    pin_button(new button(locale(tc, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24, button::tc_tool)),
+    minimize_button(new button("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24, button::tc_tool)),
+    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24, button::tc_tool)),
+    close_button(new button("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24, button::tc_tool_red)),
 #ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__
@@ -416,7 +415,7 @@ void window::set_position(const rect &position__, bool redraw)
 
         if (old_position.width() != position_.width())
         {
-            update_buttons(false);
+            update_buttons();
         }
     }
 }
@@ -525,7 +524,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
         control->update_theme(theme_);
     }
 
-    update_buttons(true);
+    update_button_images();
 }
 
 void window::show()
@@ -751,7 +750,7 @@ void window::normal()
 
     send_size(normal_position.width(), normal_position.height());
 
-    update_buttons(false);
+    update_buttons();
 
     redraw({ 0, 0, normal_position.width(), normal_position.height() }, true);
 }
@@ -795,7 +794,7 @@ void window::set_style(window_style style)
 {
     window_style_ = style;
 
-    update_buttons(false);
+    update_buttons();
 
 #ifdef _WIN32
     if (topmost())
@@ -1130,39 +1129,17 @@ std::shared_ptr<i_control> window::get_focused()
     return nullptr;
 }
 
-void window::update_buttons(bool theme_changed)
+void window::update_button_images()
 {
-    auto background_color = theme_color(tc, tv_background, theme_);
+    switch_theme_button->set_image(theme_image(ti_switch_theme, theme_));
+    pin_button->set_image(theme_image(ti_pin, theme_));
+    minimize_button->set_image(theme_image(ti_minimize, theme_));
+    expand_button->set_image(theme_image(window_state_ == window_state::normal ? ti_expand : ti_normal, theme_));
+    close_button->set_image(theme_image(ti_close, theme_));
+}
 
-    if (theme_changed)
-    {
-        buttons_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
-        buttons_theme->set_color(button::tc, button::tv_calm, background_color);
-        buttons_theme->set_color(button::tc, button::tv_active, theme_color(tc, tv_active_button, theme_));
-        buttons_theme->set_color(button::tc, button::tv_disabled, background_color);
-        buttons_theme->set_dimension(button::tc, button::tv_round, 0);
-        buttons_theme->set_dimension(button::tc, button::tv_border_width, 0);
-
-        switch_theme_button->set_image(theme_image(ti_switch_theme, theme_));
-        switch_theme_button->update_theme(buttons_theme);
-        pin_button->set_image(theme_image(ti_pin, theme_));
-        pin_button->update_theme(buttons_theme);
-        minimize_button->set_image(theme_image(ti_minimize, theme_));
-        minimize_button->update_theme(buttons_theme);
-        expand_button->set_image(theme_image(window_state_ == window_state::normal ? ti_expand : ti_normal, theme_));
-        expand_button->update_theme(buttons_theme);
-    
-        close_button_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
-        close_button_theme->set_color(button::tc, button::tv_calm, background_color);
-        close_button_theme->set_color(button::tc, button::tv_active, make_color(235, 15, 20));
-        close_button_theme->set_color(button::tc, button::tv_disabled, background_color);
-        close_button_theme->set_dimension(button::tc, button::tv_round, 0);
-        close_button_theme->set_dimension(button::tc, button::tv_border_width, 0);
-
-        close_button->set_image(theme_image(ti_close, theme_));
-        close_button->update_theme(close_button_theme);
-    }
-
+void window::update_buttons()
+{
     auto btn_size = 26;
     auto left = position().width() - btn_size;
     auto top = flag_is_set(window_style_, window_style::border_top) ? theme_dimension(tc, tv_border_width, theme_) : 0;
@@ -1323,7 +1300,8 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     add_control(expand_button, { 0 });
     add_control(close_button, { 0 });
 
-    update_buttons(true);
+    update_button_images();
+    update_buttons();
 
     auto transient_window_ = get_transient_window();
     if (transient_window_)
@@ -1985,7 +1963,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->position_ = rect{ wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height };
 
-            wnd->update_buttons(false);
+            wnd->update_buttons();
 
             wnd->send_size(width, height);
 

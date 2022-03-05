@@ -44,23 +44,6 @@ std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
     return redButtonTheme;
 }
 
-std::shared_ptr<wui::i_theme> MakeToolButtonTheme()
-{
-    auto toolButtonTheme = wui::make_custom_theme();
-
-    toolButtonTheme->load_theme(*wui::get_default_theme());
-
-    auto background_color = wui::theme_color(wui::window::tc, wui::window::tv_background);
-
-    toolButtonTheme->set_color(wui::button::tc, wui::button::tv_calm, background_color);
-    toolButtonTheme->set_color(wui::button::tc, wui::button::tv_active, wui::theme_color(wui::window::tc, wui::window::tv_active_button));
-    toolButtonTheme->set_color(wui::button::tc, wui::button::tv_disabled, background_color);
-    toolButtonTheme->set_dimension(wui::button::tc, wui::button::tv_round, 0);
-    toolButtonTheme->set_dimension(wui::button::tc, wui::button::tv_border_width, 0);
-
-    return toolButtonTheme;
-}
-
 struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 {
     std::weak_ptr<wui::window> parentWindow;
@@ -299,7 +282,7 @@ int main(int argc, char *argv[])
 
     window->add_control(menu, { 0 });
 
-    std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() {}, wui::button_view::image, IMG_SETTINGS, 32, MakeToolButtonTheme()));
+    std::shared_ptr<wui::button> menuButton(new wui::button("Settings", []() {}, wui::button_view::image, IMG_SETTINGS, 32, wui::button::tc_tool));
     menuButton->set_callback([&menu, &menuButton]() { menu->show_on_control(menuButton, 5); });
     menuButton->disable_focusing();
     window->add_control(menuButton, { 0 });
@@ -370,7 +353,7 @@ int main(int argc, char *argv[])
         dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
     }));
 
-    std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IMG_ACCOUNT, 24, MakeRedButtonTheme()));
+    std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IMG_ACCOUNT, 24, wui::button::tc, MakeRedButtonTheme()));
 
     std::shared_ptr<wui::button> darkThemeButton(new wui::button("Set the dark theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {

@@ -21,9 +21,10 @@
 namespace wui
 {
 
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, std::shared_ptr<i_theme> theme__)
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view::text),
     caption(caption_),
+    tcn(theme_control_name_),
     image_(),
     image_size(0),
     tooltip_(new tooltip(caption_, theme__)),
@@ -39,9 +40,10 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 {
 }
 
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, std::shared_ptr<i_theme> theme__)
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
+    tcn(theme_control_name_),
     image_(button_view_ == button_view::switcher ? new image(theme_image(ti_switcher_on, theme__)) : nullptr),
     image_size(0),
     tooltip_(new tooltip(caption_, theme__)),
@@ -58,9 +60,10 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 }
 
 #ifdef _WIN32
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, int32_t image_resource_index_, int32_t image_size_, std::shared_ptr<i_theme> theme__)
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, int32_t image_resource_index_, int32_t image_size_, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
+    tcn(theme_control_name_),
     image_(new image(image_resource_index_, theme__)),
     image_size(image_size_),
     tooltip_(new tooltip(caption_, theme__)),
@@ -76,9 +79,10 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 }
 #endif
 
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::string &imageFileName_, int32_t image_size_, std::shared_ptr<i_theme> theme__)
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::string &imageFileName_, int32_t image_size_, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
+    tcn(theme_control_name_),
     image_(new image(imageFileName_, theme__)),
     image_size(image_size_),
     tooltip_(new tooltip(caption_, theme__)),
@@ -93,9 +97,10 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 {
 }
 
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::vector<uint8_t> &image_data, int32_t image_size_, std::shared_ptr<i_theme> theme__)
+button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::vector<uint8_t> &image_data, int32_t image_size_, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
+    tcn(theme_control_name_),
     image_(new image(image_data)),
     image_size(image_size_),
     tooltip_(new tooltip(caption_, theme__)),
@@ -126,7 +131,7 @@ void button::draw(graphic &gr, const rect &)
         return;
     }
 
-    auto font_ = theme_font(tc, tv_font, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
 
     if (button_view_ != button_view::image && !caption.empty() && text_rect.width() == 0)
     {
@@ -252,15 +257,15 @@ void button::draw(graphic &gr, const rect &)
     if (button_view_ != button_view::image_right_text_no_frame && button_view_ != button_view::anchor && button_view_ != button_view::switcher)
     {
         color border_color = !focused_ ?
-            (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_border, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
-            theme_color(tc, tv_focused_border, theme_);
+            (button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_border, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
+            theme_color(tcn, tv_focused_border, theme_);
 
         color fill_color = enabled_ ?
-            (active ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_active, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
-            (button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_calm, theme_) : theme_color(window::tc, window::tv_background, theme_))) :
-            button_view_ != button_view::image_right_text_no_frame ? theme_color(tc, tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_);
+            (active ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_active, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
+            (button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_calm, theme_) : theme_color(window::tc, window::tv_background, theme_))) :
+            button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_);
 
-        gr.draw_rect(control_pos, border_color, fill_color, theme_dimension(tc, tv_border_width, theme_), theme_dimension(tc, tv_round, theme_));
+        gr.draw_rect(control_pos, border_color, fill_color, theme_dimension(tcn, tv_border_width, theme_), theme_dimension(tcn, tv_round, theme_));
     }
 	
     if (button_view_ != button_view::text && button_view_ != button_view::anchor && image_)
@@ -275,11 +280,11 @@ void button::draw(graphic &gr, const rect &)
 
     if (button_view_ != button_view::image)
     {
-        color color_ = button_view_ == button_view::image_right_text_no_frame ? theme_color(tc, tv_text, theme_) : theme_color(window::tc, tv_text, theme_);
+        color color_ = button_view_ == button_view::image_right_text_no_frame ? theme_color(tcn, tv_text, theme_) : theme_color(window::tc, tv_text, theme_);
 
         if (button_view_ == button_view::anchor)
         {
-            color_ = enabled_ ? theme_color(tc, tv_anchor, theme_) : theme_color(window::tc, tv_text, theme_);
+            color_ = enabled_ ? theme_color(tcn, tv_anchor, theme_) : theme_color(window::tc, tv_text, theme_);
             font_.decorations_ = decorations::underline;
         }
 
