@@ -24,7 +24,7 @@ namespace wui
 class tooltip : public i_control, public std::enable_shared_from_this<tooltip>
 {
 public:
-    tooltip(const std::string &text, std::shared_ptr<i_theme> theme_ = nullptr);
+    tooltip(const std::string &text, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~tooltip();
 
     virtual void draw(graphic &gr, const rect &);
@@ -70,6 +70,7 @@ public:
     static constexpr const char *tv_font = "font";
 
 private:
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     std::string text;

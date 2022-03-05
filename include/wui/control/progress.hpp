@@ -30,7 +30,7 @@ enum class progress_orientation
 class progress : public i_control, public std::enable_shared_from_this<progress>
 {
 public:
-    progress(int32_t from, int32_t to, int32_t value, progress_orientation orientation = progress_orientation::horizontal, std::shared_ptr<i_theme> theme_ = nullptr);
+    progress(int32_t from, int32_t to, int32_t value, progress_orientation orientation = progress_orientation::horizontal, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~progress();
 
     virtual void draw(graphic &gr, const rect &);
@@ -72,6 +72,7 @@ public:
     static constexpr const char *tv_meter = "meter";
 
 private:
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     rect position_;

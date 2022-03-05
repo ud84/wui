@@ -32,7 +32,7 @@ enum class text_alignment
 class text : public i_control, public std::enable_shared_from_this<text>
 {
 public:
-    text(const std::string &text, text_alignment alignment = text_alignment::left, std::shared_ptr<i_theme> theme_ = nullptr);
+    text(const std::string &text, text_alignment alignment = text_alignment::left, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~text();
 
     virtual void draw(graphic &gr, const rect &);
@@ -74,6 +74,7 @@ public:
     static constexpr const char *tv_font = "font";
 
 private:
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     rect position_;

@@ -18,8 +18,9 @@
 namespace wui
 {
 
-panel::panel(std::shared_ptr<i_theme> theme__)
-    : theme_(theme__),
+panel::panel(const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+    : tcn(theme_control_name),
+    theme_(theme__),
     position_(),
     parent(),
     showed_(true),
@@ -27,8 +28,9 @@ panel::panel(std::shared_ptr<i_theme> theme__)
 {
 }
 
-panel::panel(std::function<void(graphic&)> draw_callback_, std::shared_ptr<i_theme> theme__)
-    : theme_(theme__),
+panel::panel(std::function<void(graphic&)> draw_callback_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+    : tcn(theme_control_name),
+    theme_(theme__),
     position_(),
     parent(),
     showed_(true),
@@ -52,7 +54,7 @@ void panel::draw(graphic &gr, const rect &)
         return;
     }
 
-    gr.draw_rect(position(), theme_color(tc, tv_background, theme_));
+    gr.draw_rect(position(), theme_color(tcn, tv_background, theme_));
 
     if (draw_callback)
     {

@@ -22,8 +22,9 @@
 namespace wui
 {
 
-text::text(const std::string &text__, text_alignment alignment_, std::shared_ptr<i_theme> theme_)
-    : theme_(theme_),
+text::text(const std::string &text__, text_alignment alignment_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme_)
+    : tcn(theme_control_name),
+    theme_(theme_),
     position_(),
     parent(),
     showed_(true),
@@ -48,7 +49,7 @@ void text::draw(graphic &gr, const rect &)
         return;
     }
 
-    auto font_ = theme_font(tc, tv_font, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
 
     std::stringstream text__(text_);
     std::string line;
@@ -90,7 +91,7 @@ void text::draw(graphic &gr, const rect &)
             break;
         }
         
-        gr.draw_text({ left, line_top }, line, theme_color(tc, tv_color, theme_), font_);
+        gr.draw_text({ left, line_top }, line, theme_color(tcn, tv_color, theme_), font_);
 
         line_top += static_cast<int32_t>(text_height * 1.2);
 

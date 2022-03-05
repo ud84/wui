@@ -27,15 +27,16 @@ namespace wui
 
 static const int32_t select_horizontal_indent = 5;
 
-select::select(std::shared_ptr<i_theme> theme__)
+select::select(const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
     : items(),
     change_callback(),
+    tcn(theme_control_name),
     theme_(theme__),
     position_(),
     parent(),
     my_control_sid(), my_plain_sid(),
     list_theme(make_custom_theme()),
-    list_(new list(list_theme)),
+    list_(new list(list::tc, list_theme)),
     showed_(true), enabled_(true), active(false),
     focused_(false),
     focusing_(true),
@@ -65,14 +66,14 @@ void select::draw(graphic &gr, const rect &)
     }
 
     auto control_pos = position();
-    auto border_width = theme_dimension(tc, tv_border_width, theme_);
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
 
     /// Draw the frame
     gr.draw_rect(control_pos,
-        !focused_ ? theme_color(tc, tv_border, theme_) : theme_color(tc, tv_focused_border, theme_),
-        theme_color(tc, tv_background, theme_),
+        !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
+        theme_color(tcn, tv_background, theme_),
         border_width,
-        theme_dimension(tc, tv_round, theme_));
+        theme_dimension(tcn, tv_round, theme_));
 
     if (control_pos.width() < control_pos.height())
     {
@@ -83,7 +84,7 @@ void select::draw(graphic &gr, const rect &)
     draw_arrow_down(gr, { control_pos.right - static_cast<int32_t>(control_pos.height() / 1.5),
             control_pos.top + static_cast<int32_t>(control_pos.height() / 2.1)});
 
-    auto font_ = theme_font(tc, tv_font, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
 
     if (static_cast<int32_t>(items.size()) <= list_->selected_item())
     {
@@ -99,14 +100,14 @@ void select::draw(graphic &gr, const rect &)
     gr.draw_text({ control_pos.left + border_width + select_horizontal_indent,
         control_pos.top + (control_pos.height() - text_size.height()) / 2 },
         text,
-        theme_color(tc, tv_text, theme_),
+        theme_color(tcn, tv_text, theme_),
         font_);
 }
 
 
 void select::draw_arrow_down(graphic &gr, rect pos)
 {
-    auto color = theme_color(tc, !active ? tv_border : tv_focused_border, theme_);
+    auto color = theme_color(tcn, !active ? tv_border : tv_focused_border, theme_);
 
     int w = 8, h = 4;
 
@@ -279,14 +280,14 @@ void select::update_list_theme()
 {
     list_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
 
-    list_theme->set_color(list::tc, list::tv_background, theme_color(tc, tv_background, theme_));
-    list_theme->set_color(list::tc, list::tv_border, theme_color(tc, tv_border, theme_));
-    list_theme->set_color(list::tc, list::tv_focused_border, theme_color(tc, tv_border, theme_));
-    list_theme->set_dimension(list::tc, list::tv_border_width, theme_dimension(tc, tv_border_width, theme_));
-    list_theme->set_color(list::tc, list::tv_scrollbar, theme_color(tc, tv_scrollbar, theme_));
-    list_theme->set_color(list::tc, list::tv_scrollbar_slider, theme_color(tc, tv_scrollbar_slider, theme_));
-    list_theme->set_color(list::tc, list::tv_scrollbar_slider_acive, theme_color(tc, tv_scrollbar_slider_acive, theme_));
-    list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tc, tv_round, theme_));
+    list_theme->set_color(list::tc, list::tv_background, theme_color(tcn, tv_background, theme_));
+    list_theme->set_color(list::tc, list::tv_border, theme_color(tcn, tv_border, theme_));
+    list_theme->set_color(list::tc, list::tv_focused_border, theme_color(tcn, tv_border, theme_));
+    list_theme->set_dimension(list::tc, list::tv_border_width, theme_dimension(tcn, tv_border_width, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar, theme_color(tcn, tv_scrollbar, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar_slider, theme_color(tcn, tv_scrollbar_slider, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar_slider_acive, theme_color(tcn, tv_scrollbar_slider_acive, theme_));
+    list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tcn, tv_round, theme_));
 }
 
 void select::set_position(const rect &position__, bool redraw)
@@ -500,7 +501,7 @@ void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_,
 
     auto item = items[n_item];
     
-    auto border_width = theme_dimension(tc, tv_border_width);
+    auto border_width = theme_dimension(tcn, tv_border_width);
 
     auto item_rect = item_rect_;
 
@@ -511,15 +512,15 @@ void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_,
 
     if (state == wui::list::item_state::active)
     {
-        gr.draw_rect(item_rect, wui::theme_color(tc, tv_active_item));
+        gr.draw_rect(item_rect, wui::theme_color(tcn, tv_active_item));
     }
     else if (state == wui::list::item_state::selected)
     {
-        gr.draw_rect(item_rect, wui::theme_color(tc, tv_selected_item));
+        gr.draw_rect(item_rect, wui::theme_color(tcn, tv_selected_item));
     }
 
-    auto text_color = theme_color(tc, tv_text);
-    auto font = theme_font(tc, tv_font);
+    auto text_color = theme_color(tcn, tv_text);
+    auto font = theme_font(tcn, tv_font);
 
     auto text = items[n_item].text;
 

@@ -67,9 +67,10 @@ menu_item *get_item(menu_items_t &items, int32_t n_item, int32_t pos = 0, int32_
     return nullptr;
 }
 
-menu::menu(std::shared_ptr<i_theme> theme__)
+menu::menu(const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
     : list_theme(make_custom_theme()),
-    list_(new list(list_theme)),
+    list_(new list(list::tc, list_theme)),
+    tcn(theme_control_name),
     theme_(theme__),
     position_(),
     parent(),
@@ -140,14 +141,14 @@ void menu::update_list_theme()
 {
     list_theme->load_theme(theme_ ? *theme_ : *get_default_theme());
 
-    list_theme->set_color(list::tc, list::tv_background, theme_color(tc, tv_background, theme_));
-    list_theme->set_color(list::tc, list::tv_border, theme_color(tc, tv_border, theme_));
-    list_theme->set_color(list::tc, list::tv_focused_border, theme_color(tc, tv_border, theme_));
-    list_theme->set_dimension(list::tc, list::tv_border_width, theme_dimension(tc, tv_border_width, theme_));
-    list_theme->set_color(list::tc, list::tv_scrollbar, theme_color(tc, tv_scrollbar, theme_));
-    list_theme->set_color(list::tc, list::tv_scrollbar_slider, theme_color(tc, tv_scrollbar_slider, theme_));
-    list_theme->set_color(list::tc, list::tv_scrollbar_slider_acive, theme_color(tc, tv_scrollbar_slider_acive, theme_));
-    list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tc, tv_round, theme_));
+    list_theme->set_color(list::tc, list::tv_background, theme_color(tcn, tv_background, theme_));
+    list_theme->set_color(list::tc, list::tv_border, theme_color(tcn, tv_border, theme_));
+    list_theme->set_color(list::tc, list::tv_focused_border, theme_color(tcn, tv_border, theme_));
+    list_theme->set_dimension(list::tc, list::tv_border_width, theme_dimension(tcn, tv_border_width, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar, theme_color(tcn, tv_scrollbar, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar_slider, theme_color(tcn, tv_scrollbar_slider, theme_));
+    list_theme->set_color(list::tc, list::tv_scrollbar_slider_acive, theme_color(tcn, tv_scrollbar_slider_acive, theme_));
+    list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tcn, tv_round, theme_));
 }
 
 void menu::receive_event(const event &ev)
@@ -323,7 +324,7 @@ void menu::update_size()
     graphic mem_gr(ctx);
     mem_gr.init(rect{ 0, 0, 1024, 500 }, 0);
 
-    auto font_ = theme_font(tc, tv_font, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
 
     max_text_width = 0, max_hotkey_width = 0;
 
@@ -404,7 +405,7 @@ void menu::show_on_point(int32_t x, int32_t y)
 
 void menu::draw_arrow_down(graphic &gr, rect pos, bool expanded)
 {
-    auto color = theme_color(tc, !expanded ? tv_text : tv_scrollbar_slider_acive, theme_);
+    auto color = theme_color(tcn, !expanded ? tv_text : tv_scrollbar_slider_acive, theme_);
 
     int w = 8, h = 4;
 
@@ -426,7 +427,7 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
         return;
     }
 
-    auto border_width = theme_dimension(tc, tv_border_width);
+    auto border_width = theme_dimension(tcn, tv_border_width);
 
     auto item_rect = item_rect_;
 
@@ -437,7 +438,7 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
 
     if (state == list::item_state::selected)
     {
-        gr.draw_rect({ item_rect.left, item_rect.top + 1, item_rect.right, item_rect.bottom - 1 }, theme_color(tc, tv_selected_item));
+        gr.draw_rect({ item_rect.left, item_rect.top + 1, item_rect.right, item_rect.bottom - 1 }, theme_color(tcn, tv_selected_item));
     }
     
     if (item->image_)
@@ -455,8 +456,8 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
         item->image_->draw(gr, { 0 });
     }
 
-    auto text_color = item->state != menu_item_state::disabled ? theme_color(tc, tv_text) : theme_color(tc, tv_disabled_text);
-    auto font = theme_font(tc, tv_font);
+    auto text_color = item->state != menu_item_state::disabled ? theme_color(tcn, tv_text) : theme_color(tcn, tv_disabled_text);
+    auto font = theme_font(tcn, tv_font);
 
     auto text_height = gr.measure_text("Qq", font).height();
     if (text_height <= item_rect.height())

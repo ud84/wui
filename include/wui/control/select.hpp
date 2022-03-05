@@ -43,7 +43,7 @@ struct select_item
 class select : public i_control, public std::enable_shared_from_this<select>
 {
 public:
-    select(std::shared_ptr<i_theme> theme_ = nullptr);
+    select(const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~select();
 
     virtual void draw(graphic &gr, const rect &);
@@ -107,6 +107,8 @@ private:
     std::vector<select_item> items;
 
     std::function<void(int32_t, const std::string&)> change_callback;
+    
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     rect position_;;

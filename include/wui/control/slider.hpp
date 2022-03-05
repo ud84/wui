@@ -31,7 +31,12 @@ enum class slider_orientation
 class slider : public i_control, public std::enable_shared_from_this<slider>
 {
 public:
-    slider(int32_t from, int32_t to, int32_t value, std::function<void(int32_t)> change_callback, slider_orientation orientation = slider_orientation::horizontal, std::shared_ptr<i_theme> theme_ = nullptr);
+    slider(int32_t from,
+        int32_t to,
+        int32_t value,
+        std::function<void(int32_t)> change_callback,
+        slider_orientation orientation = slider_orientation::horizontal,
+        const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
 
     ~slider();
 
@@ -82,6 +87,8 @@ private:
     slider_orientation orientation;
     int32_t from, to, value;
     std::function<void(int32_t)> change_callback;
+
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     rect position_;

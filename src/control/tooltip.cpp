@@ -18,8 +18,9 @@
 namespace wui
 {
 
-tooltip::tooltip(const std::string &text_, std::shared_ptr<i_theme> theme__)
-    : theme_(theme__),
+tooltip::tooltip(const std::string &text_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+    : tcn(theme_control_name),
+    theme_(theme__),
     position_(),
     parent(),
     showed_(false),
@@ -46,19 +47,19 @@ void tooltip::draw(graphic &gr, const rect &)
     auto control_position = position();
 
     gr.draw_rect(control_position,
-        theme_color(tc, tv_border, theme_),
-        theme_color(tc, tv_background, theme_),
-        theme_dimension(tc, tv_border_width, theme_),
-        theme_dimension(tc, tv_round, theme_));
+        theme_color(tcn, tv_border, theme_),
+        theme_color(tcn, tv_background, theme_),
+        theme_dimension(tcn, tv_border_width, theme_),
+        theme_dimension(tcn, tv_round, theme_));
 
-    auto font_ = theme_font(tc, tv_font, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
 
-    auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
+    auto text_indent = theme_dimension(tcn, tv_text_indent, theme_);
 
     auto text_position = control_position;
     text_position.move(text_indent, text_indent);
 
-    gr.draw_text(text_position, text, theme_color(tc, tv_text, theme_), font_);
+    gr.draw_text(text_position, text, theme_color(tcn, tv_text, theme_), font_);
 }
 
 void tooltip::set_position(const rect &position__, bool redraw)
@@ -190,13 +191,13 @@ void tooltip::update_size()
     graphic mem_gr(ctx);
     mem_gr.init(rect{ 0, 0, 1024, 500 }, 0);
 
-    auto font_ = theme_font(tc, tv_font, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
 
     auto old_position = position_;
 
     auto position__ = mem_gr.measure_text(text, font_);
 
-    auto text_indent = theme_dimension(tc, tv_text_indent, theme_);
+    auto text_indent = theme_dimension(tcn, tv_text_indent, theme_);
     position__.right += text_indent * 2;
     position__.bottom += text_indent * 2;
 

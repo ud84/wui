@@ -118,7 +118,6 @@ public:
 private:
     button_view button_view_;
     std::string caption;
-    std::string tcn; /// control name in theme
 
     std::shared_ptr<image> image_;
     int32_t image_size;
@@ -127,6 +126,7 @@ private:
     
     std::function<void(void)> click_callback;
 
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     rect position_;

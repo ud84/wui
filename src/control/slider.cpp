@@ -20,10 +20,11 @@
 namespace wui
 {
 
-slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(int32_t)> change_callback_, slider_orientation orientation_, std::shared_ptr<i_theme> theme__)
+slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(int32_t)> change_callback_, slider_orientation orientation_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
     : orientation(orientation_),
     from(from_), to(to_), value(value_),
     change_callback(change_callback_),
+    tcn(theme_control_name),
     theme_(theme__),
     position_(),
     parent(),
@@ -53,9 +54,9 @@ void slider::draw(graphic &gr, const rect &)
 
     auto control_pos = position();
 
-    auto slider_width = theme_dimension(tc, tv_slider_width, theme_);
-    auto slider_height = theme_dimension(tc, tv_slider_height, theme_);
-    auto slider_round = theme_dimension(tc, tv_slider_round, theme_);
+    auto slider_width = theme_dimension(tcn, tv_slider_width, theme_);
+    auto slider_height = theme_dimension(tcn, tv_slider_height, theme_);
+    auto slider_round = theme_dimension(tcn, tv_slider_round, theme_);
 
     double total = (orientation == slider_orientation::horizontal ? control_pos.width() : control_pos.height()) - slider_width / 2;
     double slider_pos = (total * static_cast<double>(value)) / static_cast<double>(to - from);
@@ -65,8 +66,8 @@ void slider::draw(graphic &gr, const rect &)
         slider_pos = slider_width / 2;
     }
 
-    auto perform_color = theme_color(tc, tv_perform, theme_);
-    auto remain_color = theme_color(tc, active || focused_ ? tv_active : tv_remain, theme_);
+    auto perform_color = theme_color(tcn, tv_perform, theme_);
+    auto remain_color = theme_color(tcn, active || focused_ ? tv_active : tv_remain, theme_);
 
     auto slider_color = active || focused_ ? remain_color : perform_color;
 

@@ -35,7 +35,7 @@ enum class input_view
 class input : public i_control, public std::enable_shared_from_this<input>
 {
 public:
-    input(const std::string &text = "", input_view input_view_ = input_view::singleline, std::shared_ptr<i_theme> theme_ = nullptr);
+    input(const std::string &text = "", input_view input_view_ = input_view::singleline, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~input();
 
     virtual void draw(graphic &gr, const rect &);
@@ -94,6 +94,8 @@ private:
     input_view input_view_;
     std::string text_;
     std::function<void(const std::string&)> change_callback;
+
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     rect position_;

@@ -28,7 +28,7 @@ namespace wui
 class list : public i_control, public std::enable_shared_from_this<list>
 {
 public:
-    list(std::shared_ptr<i_theme> theme_ = nullptr);
+    list(const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~list();
 
     virtual void draw(graphic &gr, const rect &);
@@ -113,6 +113,7 @@ public:
     static constexpr const char *tv_font = "font";
 
 private:
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     rect position_;

@@ -25,17 +25,18 @@ namespace wui
 
 static const int32_t input_horizontal_indent = 5;
 
-input::input(const std::string &text__, input_view input_view__, std::shared_ptr<i_theme> theme__)
+input::input(const std::string &text__, input_view input_view__, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
     : input_view_(input_view__),
     text_(text__),
     change_callback(),
+    tcn(theme_control_name_),
     theme_(theme__),
     position_(),
     cursor_position(0), select_start_position(0), select_end_position(0),
     parent(),
     my_control_sid(), my_plain_sid(),
     timer_(std::bind(&input::redraw_cursor, this)),
-    menu_(new menu(theme_)),
+    menu_(new menu(menu::tc, theme_)),
     showed_(true), enabled_(true),
     focused_(false),
     cursor_visible(false),
@@ -75,12 +76,12 @@ void input::draw(graphic &gr, const rect &)
 
     /// Draw the frame
     gr.draw_rect(position(),
-        !focused_ ? theme_color(tc, tv_border, theme_) : theme_color(tc, tv_focused_border, theme_),
-        theme_color(tc, tv_background, theme_),
-        theme_dimension(tc, tv_border_width, theme_),
-        theme_dimension(tc, tv_round, theme_));
+        !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
+        theme_color(tcn, tv_background, theme_),
+        theme_dimension(tcn, tv_border_width, theme_),
+        theme_dimension(tcn, tv_round, theme_));
 
-    auto font_ = theme_font(tc, tv_font, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
     if (input_view_ == input_view::password)
     {
 #ifdef _WIN32
@@ -105,7 +106,7 @@ void input::draw(graphic &gr, const rect &)
     }
 #endif
     graphic mem_gr(ctx);
-    mem_gr.init(rect{ 0, 0, full_text_width, text_height }, theme_color(tc, tv_background, theme_));
+    mem_gr.init(rect{ 0, 0, full_text_width, text_height }, theme_color(tcn, tv_background, theme_));
 
     /// Draw the selection bar
     if (select_start_position != select_end_position)
@@ -113,13 +114,13 @@ void input::draw(graphic &gr, const rect &)
         auto start_coordinate = get_text_width(mem_gr, text_, select_start_position, font_);
         auto end_coordinate = get_text_width(mem_gr, text_, select_end_position, font_);
 
-        mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, text_height }, theme_color(tc, tv_selection, theme_));
+        mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, text_height }, theme_color(tcn, tv_selection, theme_));
     }
 
     /// Draw the text
     if (input_view_ != input_view::password)
     {
-        mem_gr.draw_text(rect{ 0 }, text_, theme_color(tc, tv_text, theme_), font_);
+        mem_gr.draw_text(rect{ 0 }, text_, theme_color(tcn, tv_text, theme_), font_);
     }
     else
     {
@@ -131,14 +132,14 @@ void input::draw(graphic &gr, const rect &)
                 text__.append("●");
             }
         }
-        mem_gr.draw_text(rect{ 0 }, text__, theme_color(tc, tv_text, theme_), font_);
+        mem_gr.draw_text(rect{ 0 }, text__, theme_color(tcn, tv_text, theme_), font_);
     }
             
     /// Draw the cursor
     auto cursor_coordinate = get_text_width(mem_gr, text_, cursor_position, font_);
     mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, text_height },
-        cursor_visible ? theme_color(tc, tv_cursor, theme_) :
-        (select_start_position != select_end_position && cursor_position >= select_start_position && cursor_position <= select_end_position ? theme_color(tc, tv_selection, theme_) : theme_color(tc, tv_background, theme_)));
+        cursor_visible ? theme_color(tcn, tv_cursor, theme_) :
+        (select_start_position != select_end_position && cursor_position >= select_start_position && cursor_position <= select_end_position ? theme_color(tcn, tv_selection, theme_) : theme_color(tcn, tv_background, theme_)));
     
     while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
     {
@@ -181,7 +182,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     graphic mem_gr(ctx);
     mem_gr.init(position_, 0);
 
-    auto font_ = theme_font(tc, tv_font, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
 
     int32_t text_width = 0;
     size_t count = 0;

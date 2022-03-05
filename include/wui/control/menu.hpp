@@ -66,7 +66,7 @@ struct menu_item
 class menu : public i_control, public std::enable_shared_from_this<menu>
 {
 public:
-    menu(std::shared_ptr<i_theme> theme_ = nullptr);
+    menu(const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~menu();
 
     virtual void draw(graphic &gr, const rect &);
@@ -126,6 +126,7 @@ private:
     std::shared_ptr<i_theme> list_theme;
     std::shared_ptr<list> list_;
 
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     rect position_;

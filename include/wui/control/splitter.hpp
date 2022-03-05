@@ -30,7 +30,7 @@ enum class splitter_orientation
 class splitter : public i_control, public std::enable_shared_from_this<splitter>
 {
 public:
-    splitter(splitter_orientation orientation, std::function<void(int32_t, int32_t)> callback, std::shared_ptr<i_theme> theme_ = nullptr);
+    splitter(splitter_orientation orientation, std::function<void(int32_t, int32_t)> callback, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
 
     ~splitter();
 
@@ -73,6 +73,8 @@ public:
 private:
     splitter_orientation orientation;
     std::function<void(int32_t, int32_t)> callback;
+
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     rect position_;

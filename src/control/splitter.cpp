@@ -18,9 +18,10 @@
 namespace wui
 {
 
- splitter::splitter(splitter_orientation orientation_, std::function<void(int32_t, int32_t)> callback_, std::shared_ptr<i_theme> theme__)
+ splitter::splitter(splitter_orientation orientation_, std::function<void(int32_t, int32_t)> callback_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
     : orientation(orientation_),
     callback(callback_),
+    tcn(theme_control_name),
     theme_(theme__),
     position_(),
     parent(),
@@ -45,7 +46,7 @@ void splitter::draw(graphic &gr, const rect &)
         return;
     }
     
-    gr.draw_rect(position(), theme_color(tc, active ? tv_active : tv_calm, theme_));
+    gr.draw_rect(position(), theme_color(tcn, active ? tv_active : tv_calm, theme_));
 }
 
 void splitter::receive_control_events(const event &ev)

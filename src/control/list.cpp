@@ -21,8 +21,9 @@
 namespace wui
 {
 
-list::list(std::shared_ptr<i_theme> theme__)
-    : theme_(theme__),
+list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
+    : tcn(theme_control_name_),
+    theme_(theme__),
     position_(),
     parent(),
     my_control_sid(), my_plain_sid(),
@@ -64,10 +65,10 @@ void list::draw(graphic &gr, const rect &)
     }
 
     gr.draw_rect(position(),
-        !focused_ ? theme_color(tc, tv_border, theme_) : theme_color(tc, tv_focused_border, theme_),
-        theme_color(tc, tv_background, theme_),
-        theme_dimension(tc, tv_border_width, theme_),
-        theme_dimension(tc, tv_round, theme_));
+        !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
+        theme_color(tcn, tv_background, theme_),
+        theme_dimension(tcn, tv_border_width, theme_),
+        theme_dimension(tcn, tv_round, theme_));
 
     draw_titles(gr);
 
@@ -214,7 +215,7 @@ void list::receive_control_events(const event &ev)
                 }
 
                 auto has_scrollbar_ = has_scrollbar();
-                if (has_scrollbar_ && ev.mouse_event_.x > position().right - full_scrollbar_width - theme_dimension(tc, tv_border_width, theme_) * 2)
+                if (has_scrollbar_ && ev.mouse_event_.x > position().right - full_scrollbar_width - theme_dimension(tcn, tv_border_width, theme_) * 2)
                 {
                     if (scrollbar_state_ != scrollbar_state::full)
                     {
@@ -639,7 +640,7 @@ void list::redraw_item(int32_t item)
 
 void list::draw_titles(graphic &gr_)
 {
-    auto font = theme_font(tc, tv_font, theme_);
+    auto font = theme_font(tcn, tv_font, theme_);
     auto text_indent = 5;
 
     if (title_height == -1)
@@ -655,9 +656,9 @@ void list::draw_titles(graphic &gr_)
         title_height = text_dimensions.width() + text_indent * 2;
     }
 
-    auto border_width = theme_dimension(tc, tv_border_width, theme_);
-    auto title_color = theme_color(tc, tv_title, theme_);
-    auto title_text_color = theme_color(tc, tv_title_text, theme_);
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+    auto title_color = theme_color(tcn, tv_title, theme_);
+    auto title_text_color = theme_color(tcn, tv_title_text, theme_);
 
     auto control_position = position();
     
@@ -700,9 +701,9 @@ void list::draw_items(graphic &gr_)
     }
 
     auto control_position = position();
-    int32_t top_ = control_position.top + theme_dimension(tc, tv_border_width, theme_),
-        left = control_position.left + theme_dimension(tc, tv_border_width, theme_),
-        right = control_position.right - theme_dimension(tc, tv_border_width, theme_);
+    int32_t top_ = control_position.top + theme_dimension(tcn, tv_border_width, theme_),
+        left = control_position.left + theme_dimension(tcn, tv_border_width, theme_),
+        right = control_position.right - theme_dimension(tcn, tv_border_width, theme_);
 
     int32_t scrollbar_width = 0;
     if (has_scrollbar())
@@ -753,26 +754,26 @@ void list::draw_scrollbar(graphic &gr)
         return;
     }
 
-    gr.draw_rect(bar_rect, theme_color(tc, tv_scrollbar, theme_));
+    gr.draw_rect(bar_rect, theme_color(tcn, tv_scrollbar, theme_));
 
-    gr.draw_rect(top_button_rect, theme_color(tc, tv_scrollbar_slider, theme_));
+    gr.draw_rect(top_button_rect, theme_color(tcn, tv_scrollbar_slider, theme_));
     if (scrollbar_state_ == scrollbar_state::full)
     {
         draw_arrow_up(gr, top_button_rect);
     }
 
-    gr.draw_rect(bottom_button_rect, theme_color(tc, tv_scrollbar_slider, theme_));
+    gr.draw_rect(bottom_button_rect, theme_color(tcn, tv_scrollbar_slider, theme_));
     if (scrollbar_state_ == scrollbar_state::full)
     {
         draw_arrow_down(gr, bottom_button_rect);
     }
 
-    gr.draw_rect(slider_rect, theme_color(tc, scrollbar_state_ == scrollbar_state::full ? tv_scrollbar_slider_acive : tv_scrollbar_slider, theme_));
+    gr.draw_rect(slider_rect, theme_color(tcn, scrollbar_state_ == scrollbar_state::full ? tv_scrollbar_slider_acive : tv_scrollbar_slider, theme_));
 }
 
 void list::draw_arrow_up(graphic &gr, rect button_pos)
 {
-    auto color = theme_color(tc, tv_scrollbar_slider_acive, theme_);
+    auto color = theme_color(tcn, tv_scrollbar_slider_acive, theme_);
 
     int w = 8, h = 4;
 
@@ -788,7 +789,7 @@ void list::draw_arrow_up(graphic &gr, rect button_pos)
 
 void list::draw_arrow_down(graphic &gr, rect button_pos)
 {
-    auto color = theme_color(tc, tv_scrollbar_slider_acive, theme_);
+    auto color = theme_color(tcn, tv_scrollbar_slider_acive, theme_);
 
     int w = 8, h = 4;
 
@@ -900,7 +901,7 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
         return;
     }
 
-    auto border_width = theme_dimension(tc, tv_border_width, theme_);
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
 
     const int32_t SB_WIDTH = scrollbar_width,
         SB_HEIGHT = full_scrollbar_width, SB_SILDER_MIN_WIDTH = 5,
@@ -961,7 +962,7 @@ bool list::is_click_on_scrollbar(int32_t x)
 
 void list::update_selected_item(int32_t y)
 {
-    auto border_width = theme_dimension(tc, tv_border_width, theme_);
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
     auto item = static_cast<int32_t>(floor((double)(y - position().top - title_height - border_width) / item_height)) + start_item;
 
     if (item > item_count)
@@ -989,7 +990,7 @@ void list::update_active_item(int32_t y)
 {
     int32_t prev_active_item_ = active_item_;
     
-    auto border_width = theme_dimension(tc, tv_border_width, theme_);
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
     active_item_ = static_cast<int32_t>(floor((double)(y - position().top - title_height - border_width) / item_height)) + start_item;
 
     if (active_item_ > item_count)
