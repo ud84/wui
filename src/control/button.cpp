@@ -34,7 +34,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
-    focusing_(true),
+    focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     switched_(true),
     text_rect{ 0 }
 {
@@ -53,7 +53,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
-    focusing_(true),
+    focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     switched_(true),
     text_rect{ 0 }
 {
@@ -72,7 +72,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     position_(),
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
-    focusing_(true),
+    focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     switched_(true),
     text_rect{ 0 }
 {
@@ -91,7 +91,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     position_(),
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
-    focusing_(true),
+    focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     switched_(true),
     text_rect{ 0 }
 {
@@ -109,7 +109,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     position_(),
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
-    focusing_(true),
+    focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     switched_(true),
     text_rect{ 0 }
 {

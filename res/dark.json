@@ -35,6 +35,7 @@
       "disabled": "#a5a5a0",
       "anchor": "#0066cc",
       "round": 0,
+      "focusing": 1,
       "font": {
         "name": "Segoe UI",
         "size": 18
@@ -48,6 +49,7 @@
       "text": "#f0f1f1",
       "disabled": "#131519",
       "round": 0,
+      "focusing": 0,
       "font": {
         "name": "Segoe UI",
         "size": 18
@@ -61,6 +63,7 @@
       "text": "#f0f1f1",
       "disabled": "#131519",
       "round": 0,
+      "focusing": 0,
       "font": {
         "name": "Segoe UI",
         "size": 18

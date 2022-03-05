@@ -109,6 +109,7 @@ public:
     static constexpr const char *tv_disabled = "disabled";
     static constexpr const char *tv_anchor = "anchor";
     static constexpr const char *tv_round = "round";
+    static constexpr const char *tv_focusing = "focusing";
     static constexpr const char *tv_font = "font";
 
     ///Used theme images
