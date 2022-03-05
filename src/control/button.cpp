@@ -392,10 +392,6 @@ void button::set_parent(std::shared_ptr<window> window_)
 {
     active = false;
     focused_ = false;
-    if (button_view_ == button_view::image && !caption.empty())
-    {
-        tooltip_->hide();
-    }
 
     parent = window_;
     window_->add_control(tooltip_, tooltip_->position());
