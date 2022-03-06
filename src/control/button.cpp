@@ -293,9 +293,9 @@ void button::draw(graphic &gr, const rect &)
             font_);
     }
 
-    if (button_view_ == button_view::sheet && turned_)
+    if (button_view_ == button_view::sheet)
     {
-        gr.draw_rect({ control_pos.left, control_pos.bottom - 1, control_pos.right, control_pos.bottom + 1 }, theme_color(tcn, enabled_ ? tv_calm : tv_disabled, theme_));
+        gr.draw_rect({ control_pos.left, control_pos.bottom - 2, control_pos.right, control_pos.bottom }, turned_ ? theme_color(tcn, enabled_ ? tv_calm : tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_));
     }
 }
 
