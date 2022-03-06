@@ -37,11 +37,11 @@ class button;
 class window : public i_window, public i_control, public std::enable_shared_from_this<window>
 {
 public:
-    window();
+    window(const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     virtual ~window();
 
     /// IWindow
-    virtual bool init(const std::string &caption, const rect &position, window_style style, std::function<void(void)> close_callback, std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual bool init(const std::string &caption, const rect &position, window_style style, std::function<void(void)> close_callback);
     virtual void destroy();
 
     virtual void add_control(std::shared_ptr<i_control> control, const rect &position);
@@ -144,6 +144,8 @@ private:
     int32_t min_width, min_height;
     window_style window_style_;
     wui::window_state window_state_, prev_window_state_;
+
+    std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
     bool showed_, enabled_;

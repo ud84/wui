@@ -26,7 +26,7 @@ message::message(std::shared_ptr<wui::window> transient_window__,
     result_callback(),
     transient_window_(transient_window__), docked_(docked__),
     theme_(theme__),
-	window_(new wui::window()),
+	window_(new window(window::tc, theme_)),
     icon(new image(theme_image("message_info", theme_))),
     text_(new text("", text_alignment::left, text::tc, theme_)),
     button0(new button("", std::bind(&message::button0_click, this), button::tc, theme_)),
@@ -165,7 +165,7 @@ void message::show(const std::string &message_,
         {
             result_callback(result_);
         }
-    }, theme_);
+    });
 }
 
 message_result message::get_result() const

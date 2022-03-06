@@ -92,7 +92,7 @@ wui::rect get_window_size(wui::system_context &context)
 namespace wui
 {
 
-window::window()
+window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> theme_)
     : context_{ 0 },
     graphic_(context_),
     controls(),
@@ -102,7 +102,8 @@ window::window()
     min_width(0), min_height(0),
     window_style_(window_style::frame),
     window_state_(window_state::normal), prev_window_state_(window_state_),
-    theme_(),
+    tcn(theme_control_name),
+    theme_(theme_),
     showed_(true), enabled_(true),
     focused_index(0),
     parent_(),
@@ -1283,16 +1284,17 @@ std::shared_ptr<window> window::get_transient_window()
     return transient_window_;
 }
 
-bool window::init(const std::string &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_, std::shared_ptr<i_theme> theme__)
+bool window::init(const std::string &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_)
 {
     caption = caption_;
+
     if (!position__.is_null())
     {
         position_ = position__;
     }
+
     window_style_ = style;
     close_callback = close_callback_;
-    theme_ = theme__;
 
     add_control(switch_theme_button, { 0 });
     add_control(pin_button, { 0 });
