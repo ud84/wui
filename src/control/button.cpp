@@ -576,8 +576,8 @@ void button::turn(bool on)
     if (button_view_ == button_view::switcher)
     {
         image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
-        redraw();
     }
+    redraw();
 }
 
 bool button::turned() const
