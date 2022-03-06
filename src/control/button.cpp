@@ -35,7 +35,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
-    switched_(true),
+    turned_(false),
     text_rect{ 0 }
 {
 }
@@ -43,7 +43,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
-    image_(button_view_ == button_view::switcher ? new image(theme_image(ti_switcher_on, theme__)) : nullptr),
+    image_(button_view_ == button_view::switcher ? new image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off, theme__)) : nullptr),
     image_size(0),
     tooltip_(new tooltip(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
@@ -54,7 +54,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
-    switched_(true),
+    turned_(false),
     text_rect{ 0 }
 {
 }
@@ -73,7 +73,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
-    switched_(true),
+    turned_(false),
     text_rect{ 0 }
 {
 }
@@ -92,7 +92,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
-    switched_(true),
+    turned_(false),
     text_rect{ 0 }
 {
 }
@@ -110,7 +110,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
-    switched_(true),
+    turned_(false),
     text_rect{ 0 }
 {
 }
@@ -261,7 +261,7 @@ void button::draw(graphic &gr, const rect &)
             theme_color(tcn, tv_focused_border, theme_);
 
         color fill_color = enabled_ ?
-            (active ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_active, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
+            (active || turned_ ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_active, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
             (button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_calm, theme_) : theme_color(window::tc, window::tv_background, theme_))) :
             button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_);
 
@@ -342,7 +342,7 @@ void button::receive_event(const event &ev)
                 {
                     if (button_view_ == button_view::switcher)
                     {
-                        switch_(!switched_);
+                        turn(!turned_);
                     }
 
                     if (click_callback)
@@ -372,7 +372,7 @@ void button::receive_event(const event &ev)
             case internal_event_type::execute_focused:
                 if (button_view_ == button_view::switcher)
                 {
-                    switch_(!switched_);
+                    turn(!turned_);
                 }
                 if (click_callback)
                 {
@@ -442,7 +442,7 @@ void button::update_theme(std::shared_ptr<i_theme> theme__)
 
     if (button_view_ == button_view::switcher)
     {
-        image_->change_image(theme_image(switched_ ? ti_switcher_on : ti_switcher_off));
+        image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
     }
     else if (image_)
     {
@@ -565,19 +565,19 @@ void button::disable_focusing()
     focusing_ = false;
 }
 
-void button::switch_(bool on)
+void button::turn(bool on)
 {
-    switched_ = on;
+    turned_ = on;
     if (button_view_ == button_view::switcher)
     {
-        image_->change_image(theme_image(switched_ ? ti_switcher_on : ti_switcher_off));
+        image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
         redraw();
     }
 }
 
-bool button::switched() const
+bool button::turned() const
 {
-    return switched_;
+    return turned_;
 }
 
 void button::set_callback(std::function<void(void)> click_callback_)
