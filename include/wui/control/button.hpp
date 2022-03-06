@@ -32,9 +32,9 @@ enum class button_view
     image,
     image_right_text,
     image_bottom_text,
-    image_right_text_no_frame,
     switcher,
-    anchor
+    anchor,
+    sheet
 };
 
 class button : public i_control, public std::enable_shared_from_this<button>

@@ -144,7 +144,7 @@ void button::draw(graphic &gr, const rect &)
 
     switch (button_view_)
     {
-        case button_view::text: case button_view::anchor:
+        case button_view::text: case button_view::anchor: case button_view::sheet:
             if (text_rect.right + 10 > position_.width())
             {
                 position_.right = position_.left + text_rect.right + 10;
@@ -156,7 +156,7 @@ void button::draw(graphic &gr, const rect &)
                 return redraw();
             }
 
-            text_left = button_view_ != button_view::anchor ? control_pos.left + ((control_pos.width() - text_rect.right) / 2) : control_pos.left;
+            text_left = button_view_ == button_view::text ? control_pos.left + ((control_pos.width() - text_rect.right) / 2) : control_pos.left;
             text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
         break;
         case button_view::image:
@@ -177,7 +177,7 @@ void button::draw(graphic &gr, const rect &)
                 image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
             }
         break;
-        case button_view::image_right_text: case button_view::image_right_text_no_frame:
+        case button_view::image_right_text:
             if (image_)
             {
                 if (image_size + text_rect.right + 10 > position_.width())
@@ -254,16 +254,11 @@ void button::draw(graphic &gr, const rect &)
         break;
     }
 
-    if (button_view_ != button_view::image_right_text_no_frame && button_view_ != button_view::anchor && button_view_ != button_view::switcher)
+    if (button_view_ != button_view::anchor && button_view_ != button_view::switcher && button_view_ != button_view::sheet)
     {
-        color border_color = !focused_ ?
-            (button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_border, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
-            theme_color(tcn, tv_focused_border, theme_);
+        auto border_color = !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_);
 
-        color fill_color = enabled_ ?
-            (active || turned_ ? (button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_active, theme_) : theme_color(window::tc, window::tv_background, theme_)) :
-            (button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_calm, theme_) : theme_color(window::tc, window::tv_background, theme_))) :
-            button_view_ != button_view::image_right_text_no_frame ? theme_color(tcn, tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_);
+        auto fill_color = enabled_ ? (active || turned_ ? theme_color(tcn, tv_active, theme_) : theme_color(tcn, tv_calm, theme_)) : theme_color(tcn, tv_disabled, theme_);
 
         gr.draw_rect(control_pos, border_color, fill_color, theme_dimension(tcn, tv_border_width, theme_), theme_dimension(tcn, tv_round, theme_));
     }
@@ -280,17 +275,27 @@ void button::draw(graphic &gr, const rect &)
 
     if (button_view_ != button_view::image)
     {
-        color color_ = button_view_ == button_view::image_right_text_no_frame ? theme_color(tcn, tv_text, theme_) : theme_color(window::tc, tv_text, theme_);
+        auto color_ = theme_color(tcn, tv_text, theme_);
 
         if (button_view_ == button_view::anchor)
         {
-            color_ = enabled_ ? theme_color(tcn, tv_anchor, theme_) : theme_color(window::tc, tv_text, theme_);
+            color_ = theme_color(tcn, tv_anchor, theme_);
             font_.decorations_ = decorations::underline;
+        }
+
+        if (!enabled_ && (button_view_ == button_view::anchor || button_view_ == button_view::sheet))
+        {
+            color_ = theme_color(tcn, tv_disabled, theme_);
         }
 
         gr.draw_text(rect{ text_left, text_top }, caption, 
             color_,
             font_);
+    }
+
+    if (button_view_ == button_view::sheet && turned_)
+    {
+        gr.draw_rect({ control_pos.left, control_pos.bottom - 1, control_pos.right, control_pos.bottom + 1 }, theme_color(tcn, enabled_ ? tv_calm : tv_disabled, theme_));
     }
 }
 

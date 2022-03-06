@@ -367,8 +367,10 @@ int main(int argc, char *argv[])
         pluggedWindow->window->update_theme();
         dialog->update_theme(); 
         cancelButton->update_theme(MakeRedButtonTheme());
-    }));
+    }, wui::button_view::sheet));
     window->add_control(darkThemeButton, { 320, 350, 440, 375 });
+
+    darkThemeButton->turn(true);
 	
     std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
     {
@@ -382,7 +384,7 @@ int main(int argc, char *argv[])
         pluggedWindow->window->update_theme();
         dialog->update_theme();
         cancelButton->update_theme(MakeRedButtonTheme());
-    }, wui::button_view::switcher));
+    }, wui::button_view::sheet));
     window->add_control(whiteThemeButton, { 460, 350, 580, 375 });
 
     window->add_control(okButton, { 240, 450, 350, 480 });
