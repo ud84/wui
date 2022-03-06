@@ -115,8 +115,8 @@ window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     close_callback(),
     pin_callback(),
     switch_theme_callback(),
-    switch_theme_button(new button(locale(tc, cl_light_theme), std::bind(&window::switch_theme, this), button_view::image, theme_image(ti_switch_theme), 24, button::tc_tool)),
-    pin_button(new button(locale(tc, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24, button::tc_tool)),
+    switch_theme_button(new button(locale(tcn, cl_light_theme), std::bind(&window::switch_theme, this), button_view::image, theme_image(ti_switch_theme), 24, button::tc_tool)),
+    pin_button(new button(locale(tcn, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24, button::tc_tool)),
     minimize_button(new button("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24, button::tc_tool)),
     expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24, button::tc_tool)),
     close_button(new button("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24, button::tc_tool_red)),
@@ -267,14 +267,14 @@ void window::draw(graphic &gr, const rect &paint_rect)
 
     auto window_pos = position();
 
-    gr.draw_rect(window_pos, theme_color(tc, tv_background, theme_));
+    gr.draw_rect(window_pos, theme_color(tcn, tv_background, theme_));
     
     if (flag_is_set(window_style_, window_style::title_showed))
     {
         gr.draw_text({ window_pos.left + 5, window_pos.top + 5, 0, 0 },
             caption,
-            theme_color(tc, tv_text, theme_),
-            theme_font(tc, tv_caption_font, theme_));
+            theme_color(tcn, tv_text, theme_),
+            theme_font(tcn, tv_caption_font, theme_));
     }
 
     draw_border(gr);
@@ -447,7 +447,7 @@ void window::set_parent(std::shared_ptr<window> window)
         my_control_sid = window->subscribe(std::bind(&window::receive_control_events, this, std::placeholders::_1), event_type::all, shared_from_this());
         my_plain_sid = window->subscribe(std::bind(&window::receive_plain_events, this, std::placeholders::_1), event_type::all);
 
-        pin_button->set_caption(locale(tc, cl_unpin));
+        pin_button->set_caption(locale(tcn, cl_unpin));
     }
 }
 
@@ -504,7 +504,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 
     if (context_.valid() && !parent_.lock())
     {
-        graphic_.set_background_color(theme_color(tc, tv_background, theme_));
+        graphic_.set_background_color(theme_color(tcn, tv_background, theme_));
 
 #ifdef _WIN32
         
@@ -1143,7 +1143,7 @@ void window::update_buttons()
 {
     auto btn_size = 26;
     auto left = position().width() - btn_size;
-    auto top = flag_is_set(window_style_, window_style::border_top) ? theme_dimension(tc, tv_border_width, theme_) : 0;
+    auto top = flag_is_set(window_style_, window_style::border_top) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
 
     if (flag_is_set(window_style_, window_style::close_button))
     {
@@ -1217,8 +1217,8 @@ void window::update_buttons()
 
 void window::draw_border(graphic &gr)
 {
-    auto c = theme_color(tc, tv_border, theme_);
-    auto x = theme_dimension(tc, tv_border_width, theme_);
+    auto c = theme_color(tcn, tv_border, theme_);
+    auto x = theme_dimension(tcn, tv_border_width, theme_);
 
     int32_t l = 0, t = 0, w = 0, h = 0;
 
@@ -1518,7 +1518,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     send_size(position_.width(), position_.height());
 
-    graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tc, tv_background, theme_)); // todo: need calc real desktop resolution
+    graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tcn, tv_background, theme_)); // todo: need calc real desktop resolution
 #ifdef __linux__
     graphic_.start_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
 #endif
@@ -1617,7 +1617,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->context_.dc = GetDC(hwnd);
 
-            wnd->graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tc, tv_background, wnd->theme_));
+            wnd->graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(wnd->tcn, tv_background, wnd->theme_));
         }
         break;
         case WM_PAINT:
@@ -1638,17 +1638,17 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             }
             if (flag_is_set(wnd->window_style_, window_style::title_showed) && wnd->parent_.lock() == nullptr)
             {
-                auto caption_font = theme_font(tc, tv_caption_font, wnd->theme_);
+                auto caption_font = theme_font(wnd->tcn, tv_caption_font, wnd->theme_);
 
                 auto caption_rect = wnd->graphic_.measure_text(wnd->caption, caption_font);
                 caption_rect.move(5, 5);
 
                 if (caption_rect.in(paint_rect))
                 {
-                    wnd->graphic_.draw_rect(caption_rect, theme_color(tc, tv_background, wnd->theme_));
+                    wnd->graphic_.draw_rect(caption_rect, theme_color(wnd->tcn, tv_background, wnd->theme_));
                     wnd->graphic_.draw_text(caption_rect,
                         wnd->caption,
-                        theme_color(tc, tv_text, wnd->theme_),
+                        theme_color(wnd->tcn, tv_text, wnd->theme_),
                         caption_font);
                 }
             }
@@ -2127,17 +2127,17 @@ void window::process_events()
 
                 if (flag_is_set(window_style_, window_style::title_showed) && parent_.lock() == nullptr)
 	            {
-                    auto caption_font = theme_font(tc, tv_caption_font, theme_);
+                    auto caption_font = theme_font(tcn, tv_caption_font, theme_);
 
                     auto caption_rect = graphic_.measure_text(caption, caption_font);
                     caption_rect.move(5, 5);
 
                     if (caption_rect.in(paint_rect))
                     {
-                        graphic_.draw_rect(caption_rect, theme_color(tc, tv_background, theme_));
+                        graphic_.draw_rect(caption_rect, theme_color(tcn, tv_background, theme_));
 	                    graphic_.draw_text(caption_rect,
 	                        caption,
-	                        theme_color(tc, tv_text, theme_),
+	                        theme_color(tcn, tv_text, theme_),
 	                        caption_font);
                     }
 	            }
