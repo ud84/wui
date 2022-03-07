@@ -492,7 +492,7 @@ void graphic::draw_buffer(const rect &position__, uint8_t *buffer, size_t buffer
 #endif
 }
 
-void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left_shift, int32_t right_shift)
+void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left_shift, int32_t top_shift)
 {
 #ifdef _WIN32
     if (graphic_.drawable())
@@ -504,7 +504,7 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
             position.bottom,
             graphic_.drawable(),
             left_shift,
-            right_shift,
+            top_shift,
             SRCCOPY);
     }
 #elif __linux__
@@ -515,7 +515,7 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
             mem_pixmap,
             gc,
             left_shift,
-            right_shift,
+            top_shift,
             position.left,
             position.top,
             position.right,

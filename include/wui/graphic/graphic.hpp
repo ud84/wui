@@ -53,7 +53,7 @@ public:
     void draw_buffer(const rect &position, uint8_t *buffer, size_t buffer_size);
 
     /// draw another graphic on context
-    void draw_graphic(const rect &position, graphic &graphic_, int32_t left_shift, int32_t right_shift);
+    void draw_graphic(const rect &position, graphic &graphic_, int32_t left_shift, int32_t top_shift);
 
 #ifdef _WIN32
     HDC drawable();
