@@ -72,7 +72,6 @@ struct rect
         bottom = y + height();
         left = x;
         top = y;
-        
     }
 };
 
