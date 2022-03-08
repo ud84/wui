@@ -33,7 +33,7 @@ select::select(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     tcn(theme_control_name),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     my_control_sid(), my_plain_sid(),
     list_theme(make_custom_theme()),
     list_(new list(list::tc, list_theme)),
@@ -51,10 +51,10 @@ select::select(const std::string &theme_control_name, std::shared_ptr<i_theme> t
 
 select::~select()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 }
 
@@ -142,15 +142,15 @@ void select::select_down()
 void select::show_list()
 {
     list_->set_position({ position_.left, position_.top, position_.right, position_.top + list_->get_item_height() * static_cast<int32_t>(items.size()) });
-    auto pos = get_popup_position(parent, position(), list_->position(), 0, false);
+    auto pos = get_popup_position(parent_, position(), list_->position(), 0, false);
 
     list_->set_position(pos, true);
     list_->show();
     
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->set_focused(list_);
+        parent__->set_focused(list_);
     }
 }
 
@@ -292,17 +292,17 @@ void select::update_list_theme()
 
 void select::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
 rect select::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void select::set_parent(std::shared_ptr<window> window_)
 {
-    parent = window_;
+    parent_ = window_;
 
     if (window_)
     {
@@ -318,20 +318,25 @@ void select::set_parent(std::shared_ptr<window> window_)
     }
 }
 
+std::weak_ptr<window> select::parent() const
+{
+    return parent_;
+}
+
 void select::clear_parent()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
         list_->clear_parent();
         
-        parent_->unsubscribe(my_control_sid);
+        parent__->unsubscribe(my_control_sid);
         my_control_sid = -1;
 
-        parent_->unsubscribe(my_plain_sid);
+        parent__->unsubscribe(my_plain_sid);
         my_plain_sid = -1;
     }
-    parent.reset();
+    parent_.reset();
 }
 
 bool select::topmost() const
@@ -369,10 +374,10 @@ void select::show()
 void select::hide()
 {
     showed_ = false;
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->redraw(position(), true);
+        parent__->redraw(position(), true);
     }
 }
 
@@ -484,10 +489,10 @@ void select::redraw()
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position());
+            parent__->redraw(position());
         }
     }
 }

@@ -26,7 +26,7 @@ text::text(const std::string &text__, text_alignment alignment_, const std::stri
     : tcn(theme_control_name),
     theme_(theme_),
     position_(),
-    parent(),
+    parent_(),
     showed_(true),
     text_(text__),
     alignment(alignment_)
@@ -35,10 +35,10 @@ text::text(const std::string &text__, text_alignment alignment_, const std::stri
 
 text::~text()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 }
 
@@ -104,22 +104,27 @@ void text::draw(graphic &gr, const rect &)
 
 void text::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
 rect text::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void text::set_parent(std::shared_ptr<window> window)
 {
-    parent = window;
+    parent_ = window;
+}
+
+std::weak_ptr<window> text::parent() const
+{
+    return parent_;
 }
 
 void text::clear_parent()
 {
-    parent.reset();
+    parent_.reset();
 }
 
 bool text::topmost() const
@@ -157,10 +162,10 @@ void text::show()
 void text::hide()
 {
     showed_ = false;
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->redraw(position(), true);
+        parent__->redraw(position(), true);
     }
 }
 
@@ -203,10 +208,10 @@ void text::redraw()
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position(), true);
+            parent__->redraw(position(), true);
         }
     }
 }

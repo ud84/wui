@@ -73,7 +73,7 @@ menu::menu(const std::string &theme_control_name, std::shared_ptr<i_theme> theme
     tcn(theme_control_name),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     my_subscriber_id(),
     activation_control(),
     indent(0), x(-1), y(-1),
@@ -91,10 +91,10 @@ menu::menu(const std::string &theme_control_name, std::shared_ptr<i_theme> theme
 
 menu::~menu()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(list_);
+        parent__->remove_control(list_);
     }
 }
 
@@ -114,7 +114,7 @@ rect menu::position() const
 
 void menu::set_parent(std::shared_ptr<window> window)
 {
-    parent = window;
+    parent_ = window;
 
     if (window)
     {
@@ -125,16 +125,21 @@ void menu::set_parent(std::shared_ptr<window> window)
     }
 }
 
+std::weak_ptr<window> menu::parent() const
+{
+    return parent_;
+}
+
 void menu::clear_parent()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
         list_->clear_parent();
-        parent_->unsubscribe(my_subscriber_id);
+        parent__->unsubscribe(my_subscriber_id);
     }
 
-    parent.reset();
+    parent_.reset();
 }
 
 void menu::update_list_theme()
@@ -301,11 +306,11 @@ void menu::update_size()
     }
 
     system_context ctx = { 0 };
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
 #ifdef _WIN32
-        ctx = { parent_->context().hwnd, GetDC(parent_->context().hwnd) };
+        ctx = { parent__->context().hwnd, GetDC(parent__->context().hwnd) };
 
         if (!ctx.hwnd)
         {
@@ -386,15 +391,15 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
         base_pos.put(base_pos.left, y);
     }
 
-    auto pos = get_popup_position(parent, base_pos, position_, indent, false);
+    auto pos = get_popup_position(parent_, base_pos, position_, indent, false);
 
     list_->set_position(pos, true);
     list_->show();
     
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->set_focused(list_);
+        parent__->set_focused(list_);
     }
 }
 

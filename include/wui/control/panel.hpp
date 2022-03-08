@@ -34,6 +34,7 @@ public:
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);
+    virtual std::weak_ptr<window> parent() const;
     virtual void clear_parent();
 
     virtual bool topmost() const;
@@ -64,7 +65,7 @@ private:
 
     rect position_;
 
-    std::weak_ptr<window> parent;
+    std::weak_ptr<window> parent_;
 
     bool showed_;
 

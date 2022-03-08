@@ -22,7 +22,7 @@ tooltip::tooltip(const std::string &text_, const std::string &theme_control_name
     : tcn(theme_control_name),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     showed_(false),
     text(text_)
 {
@@ -30,10 +30,10 @@ tooltip::tooltip(const std::string &text_, const std::string &theme_control_name
 
 tooltip::~tooltip()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 }
 
@@ -64,22 +64,27 @@ void tooltip::draw(graphic &gr, const rect &)
 
 void tooltip::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
 rect tooltip::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void tooltip::set_parent(std::shared_ptr<window> window)
 {
-    parent = window;
+    parent_ = window;
+}
+
+std::weak_ptr<window> tooltip::parent() const
+{
+    return parent_;
 }
 
 void tooltip::clear_parent()
 {
-    parent.reset();
+    parent_.reset();
 }
 
 bool tooltip::topmost() const
@@ -123,10 +128,10 @@ void tooltip::show()
 void tooltip::hide()
 {
     showed_ = false;
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->redraw(position(), true);
+        parent__->redraw(position(), true);
     }
 }
 
@@ -168,18 +173,18 @@ void tooltip::update_size()
     }
 
     system_context ctx = { 0 };
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
 #ifdef _WIN32
-        ctx = { parent_->context().hwnd, GetDC(parent_->context().hwnd) };
+        ctx = { parent__->context().hwnd, GetDC(parent__->context().hwnd) };
 
         if (!ctx.hwnd)
         {
             return;
         }
 #elif __linux__
-        ctx = parent_->context();
+        ctx = parent__->context();
 
         if (!ctx.display)
         {
@@ -214,7 +219,7 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
 {
     update_size();
 
-    auto pos = get_popup_position(parent, control.position(), position_, indent, true);
+    auto pos = get_popup_position(parent_, control.position(), position_, indent, true);
     
     set_position(pos, false);
     show();
@@ -224,10 +229,10 @@ void tooltip::redraw()
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position());
+            parent__->redraw(position());
         }
     }
 }

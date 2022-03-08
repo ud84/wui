@@ -136,7 +136,7 @@ namespace wui
 image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     showed_(true),
     file_name(),
     resource_index(resource_index_),
@@ -149,7 +149,7 @@ image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
 image::image(const std::string &file_name_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     showed_(true),
     file_name(file_name_),
 #ifdef _WIN32
@@ -163,7 +163,7 @@ image::image(const std::string &file_name_, std::shared_ptr<i_theme> theme__)
 image::image(const std::vector<uint8_t> &data)
     : theme_(),
     position_(),
-    parent(),
+    parent_(),
     showed_(true),
     file_name(),
 #ifdef _WIN32
@@ -178,10 +178,10 @@ image::~image()
 {
     free_image(&img);
 
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 }
 
@@ -216,22 +216,27 @@ void image::draw(graphic &gr_, const rect &)
 
 void image::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
 rect image::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void image::set_parent(std::shared_ptr<window> window)
 {
-    parent = window;
+    parent_ = window;
+}
+
+std::weak_ptr<window> image::parent() const
+{
+    return parent_;
 }
 
 void image::clear_parent()
 {
-    parent.reset();
+    parent_.reset();
 }
 
 bool image::topmost() const
@@ -279,10 +284,10 @@ void image::show()
 void image::hide()
 {
     showed_ = false;
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->redraw(position(), true);
+        parent__->redraw(position(), true);
     }
 }
 
@@ -364,10 +369,10 @@ void image::redraw()
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position());
+            parent__->redraw(position());
         }
     }
 }

@@ -451,6 +451,11 @@ void window::set_parent(std::shared_ptr<window> window)
     }
 }
 
+std::weak_ptr<window> window::parent() const
+{
+    return parent_;
+}
+
 void window::clear_parent()
 {
     auto parent__ = parent_.lock();
@@ -851,11 +856,6 @@ void window::end_docking()
         }
     }
     prev_disabled_controls.clear();
-}
-
-std::weak_ptr<window> window::parent()
-{
-    return parent_;
 }
 
 void window::emit_event(int32_t x, int32_t y)

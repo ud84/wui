@@ -33,7 +33,7 @@ input::input(const std::string &text__, input_view input_view__, const std::stri
     theme_(theme__),
     position_(),
     cursor_position(0), select_start_position(0), select_end_position(0),
-    parent(),
+    parent_(),
     my_control_sid(), my_plain_sid(),
     timer_(std::bind(&input::redraw_cursor, this)),
     menu_(new menu(menu::tc, theme_)),
@@ -52,10 +52,10 @@ input::input(const std::string &text__, input_view input_view__, const std::stri
 
 input::~input()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 }
 
@@ -170,11 +170,11 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     x -= position().left + input_horizontal_indent - left_shift;
 
     system_context ctx = { 0 };
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
 #ifdef _WIN32
-        ctx = { parent_->context().hwnd, GetDC(parent_->context().hwnd) };
+        ctx = { parent__->context().hwnd, GetDC(parent__->context().hwnd) };
 #elif __linux__
         ctx = parent_->context();
 #endif
@@ -327,10 +327,10 @@ void input::receive_control_events(const event &ev)
         {
             case mouse_event_type::enter:
             {
-                auto parent_ = parent.lock();
-                if (parent_)
+                auto parent__ = parent_.lock();
+                if (parent__)
                 {
-                    set_cursor(parent_->context(), cursor::ibeam);
+                    set_cursor(parent__->context(), cursor::ibeam);
                 }
             }
             break;
@@ -350,10 +350,10 @@ void input::receive_control_events(const event &ev)
                     }
                 }
 
-                auto parent_ = parent.lock();
-                if (parent_)
+                auto parent__ = parent_.lock();
+                if (parent__)
                 {
-                    set_cursor(parent_->context(), cursor::default_);
+                    set_cursor(parent__->context(), cursor::default_);
                 }
             }
             break;
@@ -372,11 +372,11 @@ void input::receive_control_events(const event &ev)
             break;
             case mouse_event_type::right_up:
                 menu_->update_item({ 0, select_start_position != select_end_position && input_view_ != input_view::readonly && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_cut), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); parent.lock()->set_focused(shared_from_this()); } });
+                    locale(tc, cl_cut), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); parent_.lock()->set_focused(shared_from_this()); } });
                 menu_->update_item({ 1, select_start_position != select_end_position && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_copy), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); parent.lock()->set_focused(shared_from_this()); } });
+                    locale(tc, cl_copy), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); parent_.lock()->set_focused(shared_from_this()); } });
                 menu_->update_item({ 2, input_view_ != input_view::readonly ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_paste), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); parent.lock()->set_focused(shared_from_this()); } });
+                    locale(tc, cl_paste), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); parent_.lock()->set_focused(shared_from_this()); } });
 
                 menu_->show_on_control(shared_from_this(), 0, ev.mouse_event_.x);
             break;
@@ -585,17 +585,17 @@ void input::receive_plain_events(const event &ev)
 
 void input::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
 rect input::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void input::set_parent(std::shared_ptr<window> window_)
 {
-    parent = window_;
+    parent_ = window_;
     my_control_sid = window_->subscribe(std::bind(&input::receive_control_events, this, std::placeholders::_1),
         static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
         shared_from_this());
@@ -604,15 +604,20 @@ void input::set_parent(std::shared_ptr<window> window_)
     window_->add_control(menu_, { 0 });
 }
 
+std::weak_ptr<window> input::parent() const
+{
+    return parent_;
+}
+
 void input::clear_parent()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->unsubscribe(my_control_sid);
-        parent_->unsubscribe(my_plain_sid);
+        parent__->unsubscribe(my_control_sid);
+        parent__->unsubscribe(my_plain_sid);
     }
-    parent.reset();
+    parent_.reset();
 }
 
 bool input::topmost() const
@@ -648,10 +653,10 @@ void input::show()
 void input::hide()
 {
     showed_ = false;
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->redraw(position(), true);
+        parent__->redraw(position(), true);
     }
 }
 
@@ -702,10 +707,10 @@ void input::redraw()
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position());
+            parent__->redraw(position());
         }
     }
 }
@@ -740,7 +745,7 @@ void input::buffer_copy()
     std::string copy_text = text_.substr(start, end - start);
     auto wide_str = boost::nowide::widen(copy_text);
 
-    if (OpenClipboard(parent.lock()->context().hwnd))
+    if (OpenClipboard(parent_.lock()->context().hwnd))
     {
         HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, wide_str.size() * sizeof(wchar_t) + 2);
         if (hGlobal != NULL)

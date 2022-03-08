@@ -27,7 +27,7 @@ slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(in
     tcn(theme_control_name),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     my_control_sid(), my_plain_sid(),
     showed_(true), enabled_(true), active(false), focused_(false),
     slider_scrolling(false), mouse_on_control(false),
@@ -38,10 +38,10 @@ slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(in
 
 slider::~slider()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 }
 
@@ -257,19 +257,19 @@ void slider::receive_plain_events(const event &ev)
 
 void slider::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 
     calc_consts();
 }
 
 rect slider::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void slider::set_parent(std::shared_ptr<window> window_)
 {
-    parent = window_;
+    parent_ = window_;
 
     my_control_sid = window_->subscribe(std::bind(&slider::receive_control_events, this, std::placeholders::_1),
         static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::keyboard) | static_cast<uint32_t>(event_type::mouse)),
@@ -278,15 +278,20 @@ void slider::set_parent(std::shared_ptr<window> window_)
     my_plain_sid = window_->subscribe(std::bind(&slider::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
 }
 
+std::weak_ptr<window> slider::parent() const
+{
+    return parent_;
+}
+
 void slider::clear_parent()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->unsubscribe(my_control_sid);
-        parent_->unsubscribe(my_plain_sid);
+        parent__->unsubscribe(my_control_sid);
+        parent__->unsubscribe(my_plain_sid);
     }
-    parent.reset();
+    parent_.reset();
 }
 
 bool slider::topmost() const
@@ -329,10 +334,10 @@ void slider::hide()
     if (showed_)
     {
         showed_ = false;
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position(), true);
+            parent__->redraw(position(), true);
         }
     }
 }
@@ -384,10 +389,10 @@ void slider::redraw(bool clear)
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position(), clear);
+            parent__->redraw(position(), clear);
         }
     }
 }

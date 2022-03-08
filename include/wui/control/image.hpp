@@ -41,6 +41,7 @@ public:
     virtual void draw(graphic &gr, const rect &);
 
     virtual void set_position(const rect &position, bool redraw = true);
+    virtual std::weak_ptr<window> parent() const;
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);
@@ -85,7 +86,7 @@ private:
 
     rect position_;
 
-    std::weak_ptr<window> parent;
+    std::weak_ptr<window> parent_;
 
     bool showed_;
 

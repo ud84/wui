@@ -28,6 +28,7 @@ public:
     virtual rect position() const = 0;
 
     virtual void set_parent(std::shared_ptr<window> window_) = 0;
+    virtual std::weak_ptr<window> parent() const = 0;
     virtual void clear_parent() = 0;
 
     virtual bool topmost() const = 0;

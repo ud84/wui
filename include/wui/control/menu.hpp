@@ -75,6 +75,7 @@ public:
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);
+    virtual std::weak_ptr<window> parent() const;
     virtual void clear_parent();
 
     virtual bool topmost() const;
@@ -131,7 +132,7 @@ private:
 
     rect position_;
 
-    std::weak_ptr<window> parent;
+    std::weak_ptr<window> parent_;
     std::string my_subscriber_id;
 
     std::shared_ptr<i_control> activation_control;

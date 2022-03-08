@@ -31,7 +31,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     tcn(theme_control_name_),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
@@ -50,7 +50,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     tcn(theme_control_name_),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
@@ -70,7 +70,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     tcn(theme_control_name_),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     turned_(false),
@@ -89,7 +89,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     tcn(theme_control_name_),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     turned_(false),
@@ -107,7 +107,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     tcn(theme_control_name_),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     showed_(true), enabled_(true), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     turned_(false),
@@ -117,10 +117,10 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 
 button::~button()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 }
 
@@ -313,10 +313,10 @@ void button::receive_event(const event &ev)
             case mouse_event_type::enter:
             {
                 active = true;
-                auto parent_ = parent.lock();
-                if (parent_)
+                auto parent__ = parent_.lock();
+                if (parent__)
                 {
-                    set_cursor(parent_->context(), button_view_ != button_view::anchor ? cursor::default_ : cursor::hand);
+                    set_cursor(parent__->context(), button_view_ != button_view::anchor ? cursor::default_ : cursor::hand);
                 }
                 redraw();
 
@@ -334,10 +334,10 @@ void button::receive_event(const event &ev)
                 }
 
                 active = false;
-                auto parent_ = parent.lock();
-                if (parent_)
+                auto parent__ = parent_.lock();
+                if (parent__)
                 {
-                    set_cursor(parent_->context(), cursor::default_);
+                    set_cursor(parent__->context(), cursor::default_);
                 }
                 redraw();
             }
@@ -390,12 +390,12 @@ void button::receive_event(const event &ev)
 
 void button::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
 rect button::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void button::set_parent(std::shared_ptr<window> window_)
@@ -403,21 +403,26 @@ void button::set_parent(std::shared_ptr<window> window_)
     active = false;
     focused_ = false;
 
-    parent = window_;
+    parent_ = window_;
     window_->add_control(tooltip_, tooltip_->position());
     my_subscriber_id = window_->subscribe(std::bind(&button::receive_event, this, std::placeholders::_1),
         static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse)),
         shared_from_this());
 }
 
+std::weak_ptr<window> button::parent() const
+{
+    return parent_;
+}
+
 void button::clear_parent()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->unsubscribe(my_subscriber_id);
+        parent__->unsubscribe(my_subscriber_id);
     }
-    parent.reset();
+    parent_.reset();
 }
 
 bool button::topmost() const
@@ -472,10 +477,10 @@ void button::hide()
     {
         showed_ = false;
         tooltip_->hide();
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position(), true);
+            parent__->redraw(position(), true);
         }
     }
 }
@@ -594,10 +599,10 @@ void button::redraw()
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position());
+            parent__->redraw(position());
         }
     }
 }

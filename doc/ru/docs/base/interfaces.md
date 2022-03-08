@@ -83,6 +83,7 @@
 		virtual rect position() const = 0;
 
 		virtual void set_parent(std::shared_ptr<window> window_) = 0;
+		virtual std::weak_ptr<window> parent() const = 0;
 		virtual void clear_parent() = 0;
 
 		virtual bool topmost() const = 0;
@@ -126,6 +127,9 @@
 
 ## set_parent
 Метод, вызываемый родительским окном при вызове ```add_control()```, позволяет контролу получить указатель на свое родителькое окно.
+
+## parent
+Возвращает указатель на содержащее контрол окно
 
 ## clear_parent
 Метод, вызываемый родительским окном при вызове ```remove_control()``` очищает указатель на родителькое окно контрола

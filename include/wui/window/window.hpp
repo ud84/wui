@@ -61,6 +61,7 @@ public:
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);
+    virtual std::weak_ptr<window> parent() const;
     virtual void clear_parent();
 
     virtual bool topmost() const;
@@ -86,8 +87,6 @@ public:
     void set_transient_for(std::shared_ptr<window> window_, bool docked = true);
     void start_docking();
     void end_docking();
-
-    std::weak_ptr<window> parent();
 
     /// Window state methods
     void switch_theme();

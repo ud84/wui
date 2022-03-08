@@ -25,7 +25,7 @@ namespace wui
 progress::progress(int32_t from_, int32_t to_, int32_t value_, progress_orientation orientation_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     showed_(true),
     from(from_),
     to(to_),
@@ -36,10 +36,10 @@ progress::progress(int32_t from_, int32_t to_, int32_t value_, progress_orientat
 
 progress::~progress()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 }
 
@@ -84,22 +84,27 @@ void progress::draw(graphic &gr, const rect &)
 
 void progress::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
 rect progress::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void progress::set_parent(std::shared_ptr<window> window)
 {
-    parent = window;
+    parent_ = window;
+}
+
+std::weak_ptr<window> progress::parent() const
+{
+    return parent_;
 }
 
 void progress::clear_parent()
 {
-    parent.reset();
+    parent_.reset();
 }
 
 bool progress::topmost() const
@@ -137,10 +142,10 @@ void progress::show()
 void progress::hide()
 {
     showed_ = false;
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->redraw(position(), true);
+        parent__->redraw(position(), true);
     }
 }
 
@@ -181,10 +186,10 @@ void progress::redraw()
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position());
+            parent__->redraw(position());
         }
     }
 }

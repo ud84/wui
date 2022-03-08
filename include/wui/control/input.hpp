@@ -44,6 +44,7 @@ public:
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);
+    virtual std::weak_ptr<window> parent() const;
     virtual void clear_parent();
 
     virtual bool topmost() const;
@@ -101,7 +102,7 @@ private:
     rect position_;
     size_t cursor_position, select_start_position, select_end_position;
     
-    std::weak_ptr<window> parent;
+    std::weak_ptr<window> parent_;
     std::string my_control_sid, my_plain_sid;
 
     timer timer_;

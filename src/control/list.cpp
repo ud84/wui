@@ -25,7 +25,7 @@ list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> them
     : tcn(theme_control_name_),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     my_control_sid(), my_plain_sid(),
     showed_(true), enabled_(true), focused_(false), topmost_(false), mouse_on_control(false),
     columns(),
@@ -48,10 +48,10 @@ list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> them
 
 list::~list()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 
     end_work();
@@ -93,10 +93,10 @@ void list::receive_control_events(const event &ev)
                 mouse_on_control = true;
                 if (!slider_scrolling)
                 {
-                    auto parent_ = parent.lock();
-                    if (parent_)
+                    auto parent__ = parent_.lock();
+                    if (parent__)
                     {
-                        set_cursor(parent_->context(), cursor::default_);
+                        set_cursor(parent__->context(), cursor::default_);
                     }
                     if (has_scrollbar())
                     {
@@ -412,17 +412,17 @@ void list::receive_plain_events(const event &ev)
 
 void list::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
 rect list::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void list::set_parent(std::shared_ptr<window> window)
 {
-    parent = window;
+    parent_ = window;
     my_control_sid = window->subscribe(std::bind(&list::receive_control_events, this, std::placeholders::_1),
         static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
         shared_from_this());
@@ -430,17 +430,22 @@ void list::set_parent(std::shared_ptr<window> window)
     my_plain_sid = window->subscribe(std::bind(&list::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
 }
 
+std::weak_ptr<window> list::parent() const
+{
+    return parent_;
+}
+
 void list::clear_parent()
 {
     end_work();
 
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->unsubscribe(my_control_sid);
-        parent_->unsubscribe(my_plain_sid);
+        parent__->unsubscribe(my_control_sid);
+        parent__->unsubscribe(my_plain_sid);
     }
-    parent.reset();
+    parent_.reset();
 }
 
 bool list::topmost() const
@@ -483,10 +488,10 @@ void list::hide()
     if (showed_)
     {
         showed_ = false;
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position(), true);
+            parent__->redraw(position(), true);
         }
     }
 }
@@ -614,10 +619,10 @@ void list::redraw()
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position());
+            parent__->redraw(position());
         }
     }
 }
@@ -630,10 +635,10 @@ void list::redraw_item(int32_t item)
 
         auto top = control_pos.top + (item_height * item) + title_height;
 
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw({ control_pos.left, top, control_pos.right, top + item_height + 1 });
+            parent__->redraw({ control_pos.left, top, control_pos.right, top + item_height + 1 });
         }
     }
 }
@@ -1035,11 +1040,11 @@ void list::work()
             {
                 progress += 4;
 
-                auto parent_ = parent.lock();
-                if (parent_)
+                auto parent__ = parent_.lock();
+                if (parent__)
                 {
                     auto control_pos = position();
-                    parent_->redraw({ control_pos.right - progress, control_pos.top, control_pos.right, control_pos.bottom });
+                    parent__->redraw({ control_pos.right - progress, control_pos.top, control_pos.right, control_pos.bottom });
                 }
             }
             else

@@ -22,7 +22,7 @@ panel::panel(const std::string &theme_control_name, std::shared_ptr<i_theme> the
     : tcn(theme_control_name),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     showed_(true),
     draw_callback()
 {
@@ -32,7 +32,7 @@ panel::panel(std::function<void(graphic&)> draw_callback_, const std::string &th
     : tcn(theme_control_name),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     showed_(true),
     draw_callback(draw_callback_)
 {
@@ -40,10 +40,10 @@ panel::panel(std::function<void(graphic&)> draw_callback_, const std::string &th
 
 panel::~panel()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 }
 
@@ -64,22 +64,27 @@ void panel::draw(graphic &gr, const rect &)
 
 void panel::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
 rect panel::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void panel::set_parent(std::shared_ptr<window> window)
 {
-    parent = window;
+    parent_ = window;
+}
+
+std::weak_ptr<window> panel::parent() const
+{
+    return parent_;
 }
 
 void panel::clear_parent()
 {
-    parent.reset();
+    parent_.reset();
 }
 
 bool panel::topmost() const
@@ -117,10 +122,10 @@ void panel::show()
 void panel::hide()
 {
     showed_ = false;
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->redraw(position(), true);
+        parent__->redraw(position(), true);
     }
 }
 
@@ -146,10 +151,10 @@ void panel::redraw()
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position());
+            parent__->redraw(position());
         }
     }
 }

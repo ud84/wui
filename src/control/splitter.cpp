@@ -24,7 +24,7 @@ namespace wui
     tcn(theme_control_name),
     theme_(theme__),
     position_(),
-    parent(),
+    parent_(),
     my_control_sid(), my_plain_sid(),
     showed_(true), enabled_(true), active(false)
 {
@@ -32,10 +32,10 @@ namespace wui
 
 splitter::~splitter()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->remove_control(shared_from_this());
+        parent__->remove_control(shared_from_this());
     }
 }
 
@@ -62,16 +62,16 @@ void splitter::receive_control_events(const event &ev)
         {
             case mouse_event_type::enter:
             {
-                auto parent_ = parent.lock();
-                if (parent_)
+                auto parent__ = parent_.lock();
+                if (parent__)
                 {
                     if (orientation == splitter_orientation::vertical)
                     {
-                        set_cursor(parent_->context(), cursor::size_we);
+                        set_cursor(parent__->context(), cursor::size_we);
                     }
                     else if (orientation == splitter_orientation::horizontal)
                     {
-                        set_cursor(parent_->context(), cursor::size_ns);
+                        set_cursor(parent__->context(), cursor::size_ns);
                     }
                 }
             }
@@ -80,10 +80,10 @@ void splitter::receive_control_events(const event &ev)
             {
                 if (!active)
                 {
-                    auto parent_ = parent.lock();
-                    if (parent_)
+                    auto parent__ = parent_.lock();
+                    if (parent__)
                     {
-                        set_cursor(parent_->context(), cursor::default_);
+                        set_cursor(parent__->context(), cursor::default_);
                     }
                 }
             }
@@ -135,10 +135,10 @@ void splitter::receive_plain_events(const event &ev)
 
                 if (!position().in(ev.mouse_event_.x, ev.mouse_event_.y))
                 {
-                    auto parent_ = parent.lock();
-                    if (parent_)
+                    auto parent__ = parent_.lock();
+                    if (parent__)
                     {
-                        set_cursor(parent_->context(), cursor::default_);
+                        set_cursor(parent__->context(), cursor::default_);
                     }
                 }
             }
@@ -148,31 +148,36 @@ void splitter::receive_plain_events(const event &ev)
 
 void splitter::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent);
+    update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
 rect splitter::position() const
 {
-    return get_control_position(position_, parent);
+    return get_control_position(position_, parent_);
 }
 
 void splitter::set_parent(std::shared_ptr<window> window_)
 {
-    parent = window_;
+    parent_ = window_;
     
     my_control_sid = window_->subscribe(std::bind(&splitter::receive_control_events, this, std::placeholders::_1), event_type::mouse, shared_from_this());
     my_plain_sid = window_->subscribe(std::bind(&splitter::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
 }
 
+std::weak_ptr<window> splitter::parent() const
+{
+    return parent_;
+}
+
 void splitter::clear_parent()
 {
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        parent_->unsubscribe(my_control_sid);
-        parent_->unsubscribe(my_plain_sid);
+        parent__->unsubscribe(my_control_sid);
+        parent__->unsubscribe(my_plain_sid);
     }
-    parent.reset();
+    parent_.reset();
 }
 
 bool splitter::topmost() const
@@ -216,10 +221,10 @@ void splitter::hide()
     {
         showed_ = false;
         
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position(), true);
+            parent__->redraw(position(), true);
         }
     }
 }
@@ -255,10 +260,10 @@ void splitter::redraw()
 {
     if (showed_)
     {
-        auto parent_ = parent.lock();
-        if (parent_)
+        auto parent__ = parent_.lock();
+        if (parent__)
         {
-            parent_->redraw(position());
+            parent__->redraw(position());
         }
     }
 }
