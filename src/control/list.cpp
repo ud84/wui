@@ -536,7 +536,14 @@ void list::set_mode(list_mode mode_)
 
 void list::select_item(int32_t n_item)
 {
+    int32_t prev_selected_item_ = selected_item_;
+    
     selected_item_ = n_item;
+
+    if (prev_selected_item_ != selected_item_ && item_change_callback)
+    {
+        item_change_callback(selected_item_);
+    }
 
     auto visible_item_count = get_visible_item_count();
 
