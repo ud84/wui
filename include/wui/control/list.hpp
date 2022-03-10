@@ -89,6 +89,7 @@ public:
     };
 
     void set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state, const std::vector<column> &columns)> draw_callback_);
+    void set_item_click_callback(std::function<void(int32_t)> item_click_callback_);
     void set_item_change_callback(std::function<void(int32_t)> item_change_callback_);
     void set_item_activate_callback(std::function<void(int32_t)> item_activate_callback_);
     void set_column_click_callback(std::function<void(int32_t)> column_click_callback_);
@@ -163,6 +164,7 @@ private:
     static const int32_t full_scrollbar_width = 14;
 
     std::function<void(graphic&, int32_t, const rect&, item_state state, const std::vector<column> &columns)> draw_callback;
+    std::function<void(int32_t)> item_click_callback;
     std::function<void(int32_t)> item_change_callback;
     std::function<void(int32_t)> item_activate_callback;
     std::function<void(int32_t)> column_click_callback;

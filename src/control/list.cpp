@@ -40,6 +40,7 @@ list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> them
     title_height(-1),
     draw_callback(),
     item_change_callback(),
+    item_click_callback(),
     column_click_callback(),
     item_activate_callback(),
     item_right_click_callback()
@@ -183,6 +184,11 @@ void list::receive_control_events(const event &ev)
                     else
                     {
                         update_selected_item(ev.mouse_event_.y);
+
+                        if (item_click_callback)
+                        {
+                            item_click_callback(selected_item_);
+                        }
                     }
                 }
             }
@@ -606,6 +612,11 @@ void list::set_item_count(int32_t count)
 void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state, const std::vector<column> &columns)> draw_callback_)
 {
     draw_callback = draw_callback_;
+}
+
+void list::set_item_click_callback(std::function<void(int32_t)> item_click_callback_)
+{
+    item_click_callback = item_click_callback_;
 }
 
 void list::set_item_change_callback(std::function<void(int32_t)> item_change_callback_)
