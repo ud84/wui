@@ -183,17 +183,11 @@ void list::receive_control_events(const event &ev)
                     else
                     {
                         update_selected_item(ev.mouse_event_.y);
-                        
-                        if (selected_item_ != -1 && item_activate_callback)
-                        {
-                            item_activate_callback(selected_item_);
-                        }
                     }
                 }
             }
             break;
             case mouse_event_type::right_up:
-            {
                 if (ev.mouse_event_.y - position().top <= title_height || is_click_on_scrollbar(ev.mouse_event_.x))
                 {
                     return;
@@ -205,7 +199,19 @@ void list::receive_control_events(const event &ev)
                 {
                     item_right_click_callback(selected_item_, ev.mouse_event_.x, ev.mouse_event_.y);
                 }
-            }
+            break;
+            case mouse_event_type::left_double:
+                if (ev.mouse_event_.y - position().top <= title_height || is_click_on_scrollbar(ev.mouse_event_.x))
+                {
+                    return;
+                }
+
+                update_selected_item(ev.mouse_event_.y);
+                
+                if (selected_item_ != -1 && item_activate_callback)
+                {
+                    item_activate_callback(selected_item_);
+                }
             break;
             case mouse_event_type::move:
             {
