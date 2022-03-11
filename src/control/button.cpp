@@ -345,6 +345,9 @@ void button::receive_event(const event &ev)
             case mouse_event_type::left_up:
                 if (enabled_)
                 {
+                    active = false;
+                    tooltip_->hide();
+
                     if (button_view_ == button_view::switcher)
                     {
                         turn(!turned_);
