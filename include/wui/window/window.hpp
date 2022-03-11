@@ -41,7 +41,7 @@ public:
     virtual ~window();
 
     /// IWindow
-    virtual bool init(const std::string &caption, const rect &position, window_style style, std::function<void(void)> close_callback);
+    virtual bool init(const std::string &caption, const rect &position, window_style style, std::function<void(void)> close_callback = []() {});
     virtual void destroy();
 
     virtual void add_control(std::shared_ptr<i_control> control, const rect &position);
