@@ -63,7 +63,7 @@ public:
         const std::string &title_,
         message_icon icon_,
         message_button button_,
-        std::function<void(message_result)> result_callback);
+        std::function<void(message_result)> result_callback = [](message_result) {});
 
     message_result get_result() const;
 
