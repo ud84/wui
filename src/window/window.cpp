@@ -913,7 +913,8 @@ void window::send_event_to_control(const std::shared_ptr<i_control> &control_, c
 
 void window::send_event_to_plains(const event &ev)
 {
-    for (auto &s : subscribers_)
+    auto subscribers__ = subscribers_; // This is necessary to be able to remove the subscriber in the callback
+    for (auto &s : subscribers__)
     {
         if (!s.control && flag_is_set(s.event_types, ev.type))
         {
