@@ -485,9 +485,25 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
 #endif
 }
 
-void graphic::draw_buffer(const rect &position__, uint8_t *buffer, size_t buffer_size)
+void graphic::draw_buffer(const rect &position, uint8_t *buffer, size_t buffer_size)
 {
 #ifdef _WIN32
+    HBITMAP source_bitmap = CreateBitmap(position.width(), position.height(), 1, 32, buffer);
+    auto source_dc = CreateCompatibleDC(mem_dc);
+    SelectObject(source_dc, source_bitmap);
+
+    BitBlt(mem_dc,
+        position.left,
+        position.top,
+        position.width(),
+        position.height(),
+        source_dc,
+        0,
+        0,
+        SRCCOPY);
+
+    DeleteObject(source_bitmap);
+    DeleteDC(source_dc);
 #elif __linux__
 #endif
 }
