@@ -50,7 +50,7 @@ public:
     void draw_rect(const rect &position, color border_color, color fill_color, uint32_t border_width, uint32_t round);
 
     /// draw some buffer on context
-    void draw_buffer(const rect &position, uint8_t *buffer, size_t buffer_size);
+    void draw_buffer(const rect &position, uint8_t *buffer, int32_t left_shift, int32_t top_shift);
 
     /// draw another graphic on context
     void draw_graphic(const rect &position, graphic &graphic_, int32_t left_shift, int32_t top_shift);
