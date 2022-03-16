@@ -2526,7 +2526,7 @@ void window::process_events()
 
                     if (ev.width != old_position.width())
                     {
-                        update_buttons(false);
+                        update_buttons();
                     }
 
                     if (ev.width != old_position.width() || ev.height != old_position.height())

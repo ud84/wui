@@ -317,7 +317,7 @@ void menu::update_size()
             return;
         }
 #elif __linux__
-        ctx = parent_->context();
+        ctx = parent__->context();
 
         if (!ctx.display)
         {

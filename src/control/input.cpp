@@ -99,10 +99,10 @@ void input::draw(graphic &gr, const rect &)
     system_context ctx = { 0, gr.drawable() };
 #elif __linux__
     system_context ctx = { 0 };
-    auto parent_ = parent.lock();
-    if (parent_)
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        ctx = { parent_->context().display, parent_->context().connection, parent_->context().screen, gr.drawable() };
+        ctx = { parent__->context().display, parent__->context().connection, parent__->context().screen, gr.drawable() };
     }
 #endif
     graphic mem_gr(ctx);
@@ -176,7 +176,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
 #ifdef _WIN32
         ctx = { parent__->context().hwnd, GetDC(parent__->context().hwnd) };
 #elif __linux__
-        ctx = parent_->context();
+        ctx = parent__->context();
 #endif
     }
     graphic mem_gr(ctx);
