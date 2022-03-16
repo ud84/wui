@@ -46,6 +46,7 @@ select::select(const std::string &theme_control_name, std::shared_ptr<i_theme> t
 
     list_->set_mode(list::list_mode::simple_topmost);
     list_->set_draw_callback(std::bind(&select::draw_list_item, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+    list_->set_item_click_callback(std::bind(&select::activate_list_item, this, std::placeholders::_1));
     list_->set_item_activate_callback(std::bind(&select::activate_list_item, this, std::placeholders::_1));
 }
 
