@@ -2628,7 +2628,6 @@ void window::init_atoms()
     auto wm_delete_msg_reply = xcb_intern_atom_reply(context_.connection,
         xcb_intern_atom(context_.connection, 0, 16, "WM_DELETE_WINDOW"), NULL);
     wm_delete_msg = wm_delete_msg_reply->atom;
-    printf("%d\n", wm_delete_msg);
     free(wm_delete_msg_reply);
 
     auto wm_change_state_reply = xcb_intern_atom_reply(context_.connection,
