@@ -11,13 +11,9 @@ target_link_libraries(simple
 	xcb-cursor
 	xcb-ewmh
 	xcb-icccm
+	xcb-shm
 	X11
 	X11-xcb
-	pangocairo-1.0
-	pango-1.0
-	gobject-2.0
-	glib-2.0
-	harfbuzz
 	cairo
 	pthread
 )

@@ -20,6 +20,13 @@
 
 #include <algorithm>
 
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <xcb/shm.h>
+#include <xcb/xcb_image.h>
+
+#include <string.h>
+
 xcb_visualtype_t *default_visual_type(wui::system_context &context_)
 {
     auto depth_iter = xcb_screen_allowed_depths_iterator(context_.screen);
@@ -505,6 +512,70 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
     DeleteObject(source_bitmap);
     DeleteDC(source_dc);
 #elif __linux__
+    auto *reply = xcb_shm_query_version_reply(
+        context_.connection,
+        xcb_shm_query_version(context_.connection),
+        NULL
+    );
+
+    if(!reply || !reply->shared_pixmaps)
+    {
+    	fprintf(stderr, "WUI Shm error...\n");
+    	return;
+    }
+
+    xcb_shm_segment_info_t info;
+
+    info.shmid   = shmget(IPC_PRIVATE, position.width() * position.height() * 4, IPC_CREAT | 0600);
+    info.shmaddr = static_cast<uint8_t*>(shmat(info.shmid, 0, 0));
+
+    info.shmseg = xcb_generate_id(context_.connection);
+    xcb_shm_attach(context_.connection, info.shmseg, info.shmid, 0);
+    shmctl(info.shmid, IPC_RMID, 0);
+
+    memcpy(info.shmaddr, buffer, position.width() * position.height() * 4);
+
+    xcb_pixmap_t pix = xcb_generate_id(context_.connection);
+    auto shm_create_pixmap_cookie = xcb_shm_create_pixmap(
+        context_.connection,
+        pix,
+		context_.wnd,
+        position.width(), position.height(),
+		context_.screen->root_depth,
+        info.shmseg,
+        0
+    );
+
+    if (!check_cookie(shm_create_pixmap_cookie, context_.connection, "graphic::draw_buffer xcb_copy_area"))
+    {
+        xcb_shm_detach(context_.connection, info.shmseg);
+        shmdt(info.shmaddr);
+
+        xcb_free_pixmap(context_.connection, pix);
+
+        return;
+    }
+
+    auto copy_area_cookie = xcb_copy_area(context_.connection,
+        pix,
+        mem_pixmap,
+        gc,
+        left_shift,
+        top_shift,
+        position.left,
+        position.top,
+        position.right,
+        position.bottom);
+
+    xcb_shm_detach(context_.connection, info.shmseg);
+    shmdt(info.shmaddr);
+
+    xcb_free_pixmap(context_.connection, pix);
+
+    if (!check_cookie(copy_area_cookie, context_.connection, "graphic::draw_buffer xcb_copy_area"))
+    {
+        return;
+    }
 #endif
 }
 
