@@ -14,18 +14,13 @@
 #include <boost/nowide/convert.hpp>
 
 #ifdef __linux__
+#include <xcb/xcb_image.h>
+
 #include <cairo.h>
 #include <cairo-xcb.h>
 #include <cmath>
 
 #include <algorithm>
-
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <xcb/shm.h>
-#include <xcb/xcb_image.h>
-
-#include <string.h>
 
 xcb_visualtype_t *default_visual_type(wui::system_context &context_)
 {
@@ -512,52 +507,40 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
     DeleteObject(source_bitmap);
     DeleteDC(source_dc);
 #elif __linux__
-    auto *reply = xcb_shm_query_version_reply(
-        context_.connection,
-        xcb_shm_query_version(context_.connection),
-        NULL
-    );
-
-    if(!reply || !reply->shared_pixmaps)
-    {
-    	fprintf(stderr, "WUI Shm error...\n");
-    	return;
-    }
-
-    xcb_shm_segment_info_t info;
-
-    info.shmid   = shmget(IPC_PRIVATE, position.width() * position.height() * 4, IPC_CREAT | 0600);
-    info.shmaddr = static_cast<uint8_t*>(shmat(info.shmid, 0, 0));
-
-    info.shmseg = xcb_generate_id(context_.connection);
-    xcb_shm_attach(context_.connection, info.shmseg, info.shmid, 0);
-    shmctl(info.shmid, IPC_RMID, 0);
-
-    memcpy(info.shmaddr, buffer, position.width() * position.height() * 4);
-
-    xcb_pixmap_t pix = xcb_generate_id(context_.connection);
-    auto shm_create_pixmap_cookie = xcb_shm_create_pixmap(
-        context_.connection,
-        pix,
+    auto pixmap = xcb_generate_id(context_.connection);
+    auto pixmap_cookie = xcb_create_pixmap(context_.connection,
+        context_.screen->root_depth,
+		pixmap,
 		context_.wnd,
-        position.width(), position.height(),
-		context_.screen->root_depth,
-        info.shmseg,
-        0
-    );
+		position.width(), position.height());
 
-    if (!check_cookie(shm_create_pixmap_cookie, context_.connection, "graphic::draw_buffer xcb_copy_area"))
+    if (!check_cookie(pixmap_cookie, context_.connection, "graphic::draw_buffer xcb_create_pixmap"))
     {
-        xcb_shm_detach(context_.connection, info.shmseg);
-        shmdt(info.shmaddr);
-
-        xcb_free_pixmap(context_.connection, pix);
-
         return;
     }
 
+    auto image = xcb_image_create_native(context_.connection,
+           position.width(), position.height(),
+    	   XCB_IMAGE_FORMAT_Z_PIXMAP,
+    	   context_.screen->root_depth,
+    	   nullptr,
+    	   position.width() * position.height() * 4,
+		   nullptr);
+
+    if (!image)
+    {
+    	fprintf(stderr, "WUI error: graphic::draw_buffer xcb_image_create_native\n");
+    	return;
+    }
+
+    image->data = buffer;
+
+    xcb_image_put(context_.connection, pixmap, gc, image, 0, 0, 0);
+
+    xcb_image_destroy(image);
+
     auto copy_area_cookie = xcb_copy_area(context_.connection,
-        pix,
+        pixmap,
         mem_pixmap,
         gc,
         left_shift,
@@ -567,10 +550,7 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
         position.right,
         position.bottom);
 
-    xcb_shm_detach(context_.connection, info.shmseg);
-    shmdt(info.shmaddr);
-
-    xcb_free_pixmap(context_.connection, pix);
+    xcb_free_pixmap(context_.connection, pixmap);
 
     if (!check_cookie(copy_area_cookie, context_.connection, "graphic::draw_buffer xcb_copy_area"))
     {
