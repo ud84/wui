@@ -770,7 +770,7 @@ void window::set_caption(const std::string &caption_)
 {
     caption = caption_;
 
-    if (flag_is_set(window_style_, window_style::title_showed) && parent_.lock() == nullptr)
+    if (flag_is_set(window_style_, window_style::title_showed) && !parent_.lock())
     {
 #ifdef _WIN32
         SetWindowText(context_.hwnd, boost::nowide::widen(caption).c_str());
@@ -791,9 +791,8 @@ void window::set_caption(const std::string &caption_)
             strncpy(class_hint + caption.size() + 1, caption.c_str(), caption.size());
         }
 #endif
+        redraw({ 0, 0, position_.width(), 30 });
     }
-
-    redraw({ 0, 0, position_.width(), 30 }, true);
 }
 
 void window::set_style(window_style style)
@@ -1639,7 +1638,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->graphic_.clear(paint_rect);
             }
-            if (flag_is_set(wnd->window_style_, window_style::title_showed) && wnd->parent_.lock() == nullptr)
+            if (flag_is_set(wnd->window_style_, window_style::title_showed) && !wnd->parent_.lock())
             {
                 auto caption_font = theme_font(wnd->tcn, tv_caption_font, wnd->theme_);
 
