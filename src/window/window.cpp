@@ -186,14 +186,12 @@ void window::bring_to_front(std::shared_ptr<i_control> control)
     auto size = controls.size();
     if (size > 1)
     {
-        for (auto i = 0; i != size; ++i)
+        auto it = std::find(controls.begin(), controls.end(), control);
+        if (it != controls.end())
         {
-            if (controls[i] == control)
-            {
-                std::swap(controls[i], controls[size - 1]);
-                break;
-            }
+            controls.erase(it);
         }
+        controls.emplace_back(control);
     }
 }
 
@@ -202,14 +200,12 @@ void window::move_to_back(std::shared_ptr<i_control> control)
     auto size = controls.size();
     if (size > 1)
     {
-        for (auto i = 0; i != size; ++i)
+        auto it = std::find(controls.begin(), controls.end(), control);
+        if (it != controls.end())
         {
-            if (controls[i] == control)
-            {
-                std::swap(controls[i], controls[0]);
-                break;
-            }
+            controls.erase(it);
         }
+        controls.insert(controls.begin(), control);
     }
 }
 
