@@ -40,12 +40,15 @@ public:
     window(const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     virtual ~window();
 
-    /// IWindow
+    /// i_window impl
     virtual bool init(const std::string &caption, const rect &position, window_style style, std::function<void(void)> close_callback = []() {});
     virtual void destroy();
 
     virtual void add_control(std::shared_ptr<i_control> control, const rect &position);
     virtual void remove_control(std::shared_ptr<i_control> control);
+
+    virtual void bring_to_front(std::shared_ptr<i_control> control);
+    virtual void move_to_back(std::shared_ptr<i_control> control);
 
     virtual void redraw(const rect &position, bool clear = false);
 
@@ -54,7 +57,7 @@ public:
 
     virtual system_context &context();
 
-	/// IControl
+	/// i_control impl
     virtual void draw(graphic &gr, const rect &paint_rect);
 
     virtual void set_position(const rect &position, bool redraw = true);
