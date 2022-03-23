@@ -63,6 +63,8 @@ public:
     /// Splitter interface
     void set_callback(std::function<void(int32_t, int32_t)> callback_);
 
+    void set_margins(int32_t min_, int32_t max_);
+
 public:
     /// Control name in theme
     static constexpr const char *tc = "splitter";
@@ -74,6 +76,7 @@ public:
 private:
     splitter_orientation orientation;
     std::function<void(int32_t, int32_t)> callback;
+    int32_t margin_min, margin_max;
 
     std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;

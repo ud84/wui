@@ -21,6 +21,7 @@ namespace wui
  splitter::splitter(splitter_orientation orientation_, std::function<void(int32_t, int32_t)> callback_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
     : orientation(orientation_),
     callback(callback_),
+    margin_min(-1), margin_max(-1),
     tcn(theme_control_name),
     theme_(theme__),
     position_(),
@@ -108,6 +109,12 @@ void splitter::receive_plain_events(const event &ev)
         case mouse_event_type::move:
         if (active)
         {
+            if ((margin_min != -1 && ev.mouse_event_.x <= margin_min) ||
+                (margin_max != -1 && ev.mouse_event_.x >= margin_max))
+            {
+                return;
+            }
+
             auto pos = position_;
 
             if (orientation == splitter_orientation::vertical)
@@ -254,6 +261,12 @@ bool splitter::enabled() const
 void splitter::set_callback(std::function<void(int32_t, int32_t)> callback_)
 {
     callback = callback_;
+}
+
+void splitter::set_margins(int32_t min_, int32_t max_)
+{
+    margin_min = min_;
+    margin_max = max_;
 }
 
 void splitter::redraw()
