@@ -440,7 +440,7 @@ void window::set_position(const rect &position__, bool redraw)
 
     if (parent_.lock())
     {
-        send_internal(internal_event_type::position_changed, position__.width(), position__.height());
+        send_internal(internal_event_type::size_changed, position__.width(), position__.height());
 
         if (old_position.width() != position_.width())
         {
@@ -799,7 +799,7 @@ void window::normal()
     window_state_ = window_state::normal;
 
     send_internal(internal_event_type::window_normalized, -1, -1);
-    send_internal(internal_event_type::position_changed, normal_position.width(), normal_position.height());
+    send_internal(internal_event_type::size_changed, normal_position.width(), normal_position.height());
 
     update_buttons();
 
