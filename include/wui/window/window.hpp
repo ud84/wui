@@ -238,8 +238,7 @@ private:
 
     void draw_border(graphic &gr);
 
-    void send_size(int32_t width, int32_t height);
-    void send_position(int32_t left, int32_t top);
+    void send_internal(internal_event_type type, int32_t x, int32_t y);
 };
 
 }

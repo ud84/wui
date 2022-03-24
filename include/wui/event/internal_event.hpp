@@ -21,6 +21,10 @@ enum class internal_event_type
     size_changed,
     position_changed,
 
+    window_expanded,
+    window_normalized,
+    window_minimized,
+
     user_emitted
 };
 

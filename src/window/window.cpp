@@ -440,7 +440,7 @@ void window::set_position(const rect &position__, bool redraw)
 
     if (parent_.lock())
     {
-        send_size(position__.width(), position__.height());
+        send_internal(internal_event_type::position_changed, position__.width(), position__.height());
 
         if (old_position.width() != position_.width())
         {
@@ -696,6 +696,8 @@ void window::minimize()
 #endif
 
     window_state_ = window_state::minimized;
+
+    send_internal(internal_event_type::window_minimized, -1, -1);
 }
 
 void window::expand()
@@ -767,6 +769,8 @@ void window::expand()
     }
 #endif
     expand_button->set_image(theme_image(ti_normal, theme_));
+
+    send_internal(internal_event_type::window_expanded, -1, -1);
 }
 
 void window::normal()
@@ -782,7 +786,8 @@ void window::normal()
 
     window_state_ = window_state::normal;
 
-    send_size(normal_position.width(), normal_position.height());
+    send_internal(internal_event_type::window_normalized, -1, -1);
+    send_internal(internal_event_type::position_changed, normal_position.width(), normal_position.height());
 
     update_buttons();
 
@@ -1286,19 +1291,11 @@ void window::draw_border(graphic &gr)
     }
 }
 
-void window::send_size(int32_t width, int32_t height)
+void window::send_internal(internal_event_type type, int32_t x, int32_t y)
 {
     event ev_;
     ev_.type = event_type::internal;
-    ev_.internal_event_ = internal_event{ internal_event_type::size_changed, width, height };
-    send_event_to_plains(ev_);
-}
-
-void window::send_position(int32_t left, int32_t top)
-{
-    event ev_;
-    ev_.type = event_type::internal;
-    ev_.internal_event_ = internal_event{ internal_event_type::position_changed, left, top };
+    ev_.internal_event_ = internal_event{ type, x, y };
     send_event_to_plains(ev_);
 }
 
@@ -1363,7 +1360,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto parent__ = parent_.lock();
     if (parent__)
     {
-        send_size(position_.width(), position_.height());
+        send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
         parent__->redraw(position());
 
@@ -1421,7 +1418,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     UpdateWindow(context_.hwnd);
 
-    send_size(position_.width(), position_.height());
+    send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
     if (!showed_)
     {
@@ -1546,7 +1543,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     xcb_flush(context_.connection);
 
-    send_size(position_.width(), position_.height());
+    wnd->send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
     graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tcn, tv_background, theme_)); // todo: need calc real desktop resolution
 #ifdef __linux__
@@ -1997,7 +1994,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->update_buttons();
 
-            wnd->send_size(width, height);
+            wnd->send_internal(internal_event_type::size_changed, width, height);
 
             if (width != old_position.width() || height != old_position.height())
             {
@@ -2014,7 +2011,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             GetWindowRect(hwnd, &window_rect);
             wnd->position_ = rect{ window_rect.left, window_rect.top, window_rect.right, window_rect.bottom };
 
-            wnd->send_position(window_rect.left, window_rect.top);
+            wnd->send_internal(internal_event_type::position_changed, window_rect.left, window_rect.top);
         }
         break;
         case WM_SYSCOMMAND:
@@ -2565,11 +2562,11 @@ void window::process_events()
 
                     if (ev.width != old_position.width() || ev.height != old_position.height())
                     {
-                        send_size(ev.width, ev.height);
+                        wnd->send_internal(internal_event_type::size_changed, ev.width, ev.height);
                     }
                     else
                     {
-                        send_position(ev.x, ev.y);
+                        wnd->send_internal(internal_event_type::position_changed, ev.x, ev.y);
                     }
                 }
             }
