@@ -187,6 +187,10 @@ void menu::receive_event(const event &ev)
     }
 }
 
+void menu::set_topmost(bool)
+{
+}
+
 bool menu::topmost() const
 {
     return true;

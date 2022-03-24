@@ -40,6 +40,7 @@ public:
     virtual std::weak_ptr<window> parent() const;
     virtual void clear_parent();
 
+    virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
@@ -123,7 +124,7 @@ private:
     std::weak_ptr<window> parent_;
     std::string my_control_sid, my_plain_sid;
 
-    bool showed_, enabled_, focused_, topmost_, mouse_on_control;
+    bool showed_, enabled_, focused_, mouse_on_control;
 
     std::vector<column> columns;
 

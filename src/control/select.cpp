@@ -37,7 +37,7 @@ select::select(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     my_control_sid(), my_plain_sid(),
     list_theme(make_custom_theme()),
     list_(new list(list::tc, list_theme)),
-    showed_(true), enabled_(true), active(false),
+    showed_(true), enabled_(true), active(false), topmost_(false),
     focused_(false),
     focusing_(true),
     left_shift(0)
@@ -340,9 +340,14 @@ void select::clear_parent()
     parent_.reset();
 }
 
+void select::set_topmost(bool yes)
+{
+    topmost_ = yes;
+}
+
 bool select::topmost() const
 {
-    return false;
+    return topmost_;
 }
 
 bool select::focused() const

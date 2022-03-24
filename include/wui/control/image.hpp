@@ -47,6 +47,7 @@ public:
     virtual void set_parent(std::shared_ptr<window> window_);
     virtual void clear_parent();
 
+    virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
@@ -88,7 +89,7 @@ private:
 
     std::weak_ptr<window> parent_;
 
-    bool showed_;
+    bool showed_, topmost_;
 
     std::string file_name;
 	

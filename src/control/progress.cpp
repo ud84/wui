@@ -26,7 +26,7 @@ progress::progress(int32_t from_, int32_t to_, int32_t value_, progress_orientat
     : theme_(theme__),
     position_(),
     parent_(),
-    showed_(true),
+    showed_(true), topmost_(false),
     from(from_),
     to(to_),
     value(value_),
@@ -107,9 +107,14 @@ void progress::clear_parent()
     parent_.reset();
 }
 
+void progress::set_topmost(bool yes)
+{
+    topmost_ = yes;
+}
+
 bool progress::topmost() const
 {
-    return false;
+    return topmost_;
 }
 
 bool progress::focused() const

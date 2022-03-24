@@ -27,7 +27,7 @@ list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> them
     position_(),
     parent_(),
     my_control_sid(), my_plain_sid(),
-    showed_(true), enabled_(true), focused_(false), topmost_(false), mouse_on_control(false),
+    showed_(true), enabled_(true), focused_(false), mouse_on_control(false),
     columns(),
     mode(list_mode::simple),
     item_height(28), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
@@ -460,9 +460,14 @@ void list::clear_parent()
     parent_.reset();
 }
 
+void list::set_topmost(bool yes)
+{
+    mode = yes ? list_mode::simple_topmost : list_mode::simple;
+}
+
 bool list::topmost() const
 {
-    return topmost_;
+    return mode == list_mode::auto_select || mode == list_mode::simple_topmost;
 }
 
 bool list::focused() const
@@ -540,10 +545,6 @@ void list::update_columns(const std::vector<column> &columns_)
 void list::set_mode(list_mode mode_)
 {
     mode = mode_;
-    if (mode == list_mode::auto_select || mode == list_mode::simple_topmost)
-    {
-        topmost_ = true;
-    }
 }
 
 void list::select_item(int32_t n_item)

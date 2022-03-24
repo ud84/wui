@@ -23,7 +23,7 @@ panel::panel(const std::string &theme_control_name, std::shared_ptr<i_theme> the
     theme_(theme__),
     position_(),
     parent_(),
-    showed_(true),
+    showed_(true), topmost_(false),
     draw_callback()
 {
 }
@@ -33,7 +33,7 @@ panel::panel(std::function<void(graphic&)> draw_callback_, const std::string &th
     theme_(theme__),
     position_(),
     parent_(),
-    showed_(true),
+    showed_(true), topmost_(false),
     draw_callback(draw_callback_)
 {
 }
@@ -87,9 +87,14 @@ void panel::clear_parent()
     parent_.reset();
 }
 
+void panel::set_topmost(bool yes)
+{
+    topmost_ = yes;
+}
+
 bool panel::topmost() const
 {
-    return false;
+    return topmost_;
 }
 
 bool panel::focused() const

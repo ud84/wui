@@ -37,7 +37,7 @@ input::input(const std::string &text__, input_view input_view__, const std::stri
     my_control_sid(), my_plain_sid(),
     timer_(std::bind(&input::redraw_cursor, this)),
     menu_(new menu(menu::tc, theme_)),
-    showed_(true), enabled_(true),
+    showed_(true), enabled_(true), topmost_(false),
     focused_(false),
     cursor_visible(false),
     selecting(false),
@@ -620,9 +620,14 @@ void input::clear_parent()
     parent_.reset();
 }
 
+void input::set_topmost(bool yes)
+{
+    topmost_ = yes;
+}
+
 bool input::topmost() const
 {
-    return false;
+    return topmost_;
 }
 
 bool input::focused() const

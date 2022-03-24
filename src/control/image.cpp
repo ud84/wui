@@ -137,7 +137,7 @@ image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent_(),
-    showed_(true),
+    showed_(true), topmost_(false),
     file_name(),
     resource_index(resource_index_),
     img(nullptr)
@@ -150,7 +150,7 @@ image::image(const std::string &file_name_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent_(),
-    showed_(true),
+    showed_(true), topmost_(false),
     file_name(file_name_),
 #ifdef _WIN32
     resource_index(0),
@@ -164,7 +164,7 @@ image::image(const std::vector<uint8_t> &data)
     : theme_(),
     position_(),
     parent_(),
-    showed_(true),
+    showed_(true), topmost_(false),
     file_name(),
 #ifdef _WIN32
     resource_index(0),
@@ -239,9 +239,14 @@ void image::clear_parent()
     parent_.reset();
 }
 
+void image::set_topmost(bool yes)
+{
+    topmost_ = yes;
+}
+
 bool image::topmost() const
 {
-    return false;
+    return topmost_;
 }
 
 bool image::focused() const

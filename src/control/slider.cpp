@@ -29,7 +29,7 @@ slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(in
     position_(),
     parent_(),
     my_control_sid(), my_plain_sid(),
-    showed_(true), enabled_(true), active(false), focused_(false),
+    showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     slider_scrolling(false), mouse_on_control(false),
     slider_position({ 0 }),
     diff_size(0.)
@@ -294,9 +294,14 @@ void slider::clear_parent()
     parent_.reset();
 }
 
+void slider::set_topmost(bool yes)
+{
+    topmost_ = yes;
+}
+
 bool slider::topmost() const
 {
-    return false;
+    return topmost_;
 }
 
 bool slider::focused() const

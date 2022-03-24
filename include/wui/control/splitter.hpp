@@ -44,6 +44,7 @@ public:
     virtual std::weak_ptr<window> parent() const;
     virtual void clear_parent();
 
+    virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
@@ -86,7 +87,7 @@ private:
     std::weak_ptr<window> parent_;
     std::string my_control_sid, my_plain_sid;
 
-    bool showed_, enabled_, active;
+    bool showed_, enabled_, active, topmost_;
 
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);

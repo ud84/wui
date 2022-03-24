@@ -496,6 +496,18 @@ void window::clear_parent()
     parent_.reset();
 }
 
+void window::set_topmost(bool yes)
+{
+    if (yes)
+    {
+        window_style_ = static_cast<window_style>(static_cast<uint32_t>(window_style_) | static_cast<uint32_t>(window_style::topmost));
+    }
+    else
+    {
+        window_style_ = static_cast<window_style>(static_cast<uint32_t>(window_style_) & ~static_cast<uint32_t>(window_style::topmost));
+    }
+}
+
 bool window::topmost() const
 {
     return docked_ || parent_.lock() || flag_is_set(window_style_, window_style::topmost);

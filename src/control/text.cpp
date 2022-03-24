@@ -27,7 +27,7 @@ text::text(const std::string &text__, text_alignment alignment_, const std::stri
     theme_(theme_),
     position_(),
     parent_(),
-    showed_(true),
+    showed_(true), topmost_(true),
     text_(text__),
     alignment(alignment_)
 {
@@ -127,9 +127,14 @@ void text::clear_parent()
     parent_.reset();
 }
 
+void text::set_topmost(bool yes)
+{
+    topmost_ = yes;
+}
+
 bool text::topmost() const
 {
-    return false;
+    return topmost_;
 }
 
 bool text::focused() const

@@ -67,6 +67,7 @@ public:
     virtual std::weak_ptr<window> parent() const;
     virtual void clear_parent();
 
+    virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
     virtual bool focused() const;

@@ -33,7 +33,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     position_(),
     parent_(),
     my_subscriber_id(),
-    showed_(true), enabled_(true), active(false), focused_(false),
+    showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     turned_(false),
     text_rect{ 0 }
@@ -52,7 +52,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     position_(),
     parent_(),
     my_subscriber_id(),
-    showed_(true), enabled_(true), active(false), focused_(false),
+    showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     turned_(false),
     text_rect{ 0 }
@@ -71,7 +71,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     theme_(theme__),
     position_(),
     parent_(),
-    showed_(true), enabled_(true), active(false), focused_(false),
+    showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     turned_(false),
     text_rect{ 0 }
@@ -90,7 +90,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     theme_(theme__),
     position_(),
     parent_(),
-    showed_(true), enabled_(true), active(false), focused_(false),
+    showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     turned_(false),
     text_rect{ 0 }
@@ -108,7 +108,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     theme_(theme__),
     position_(),
     parent_(),
-    showed_(true), enabled_(true), active(false), focused_(false),
+    showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     turned_(false),
     text_rect{ 0 }
@@ -428,9 +428,14 @@ void button::clear_parent()
     parent_.reset();
 }
 
+void button::set_topmost(bool yes)
+{
+    topmost_ = yes;
+}
+
 bool button::topmost() const
 {
-    return false;
+    return topmost_;
 }
 
 bool button::focused() const

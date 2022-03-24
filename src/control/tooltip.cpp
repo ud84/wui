@@ -87,6 +87,10 @@ void tooltip::clear_parent()
     parent_.reset();
 }
 
+void tooltip::set_topmost(bool)
+{
+}
+
 bool tooltip::topmost() const
 {
     return true;

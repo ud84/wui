@@ -42,6 +42,7 @@ public:
     virtual std::weak_ptr<window> parent() const;
     virtual void clear_parent();
 
+    virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
@@ -80,7 +81,7 @@ private:
 
     std::weak_ptr<window> parent_;
 
-    bool showed_;
+    bool showed_, topmost_;
 
     int32_t from, to, value;
 

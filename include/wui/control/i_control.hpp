@@ -31,6 +31,7 @@ public:
     virtual std::weak_ptr<window> parent() const = 0;
     virtual void clear_parent() = 0;
 
+    virtual void set_topmost(bool yes) = 0;
     virtual bool topmost() const = 0;
 
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) = 0;

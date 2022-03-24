@@ -27,7 +27,7 @@ namespace wui
     position_(),
     parent_(),
     my_control_sid(), my_plain_sid(),
-    showed_(true), enabled_(true), active(false)
+    showed_(true), enabled_(true), active(false), topmost_(false)
 {
 }
 
@@ -187,9 +187,14 @@ void splitter::clear_parent()
     parent_.reset();
 }
 
+void splitter::set_topmost(bool yes)
+{
+    topmost_ = yes;
+}
+
 bool splitter::topmost() const
 {
-    return false;
+    return topmost_;
 }
 
 bool splitter::focused() const
