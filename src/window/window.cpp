@@ -411,9 +411,9 @@ void window::receive_plain_events(const event &ev)
             auto new_position = position_;
             new_position.put(left, top);
             set_position(new_position, false);
-            
-            return;
         }
+
+        return;
     }
 
     send_event_to_plains(ev);
@@ -440,7 +440,7 @@ void window::set_position(const rect &position__, bool redraw)
 
     if (parent_.lock())
     {
-        send_internal(internal_event_type::size_changed, position__.width(), position__.height());
+        send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
         if (old_position.width() != position_.width())
         {
