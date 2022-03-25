@@ -500,11 +500,11 @@ void window::set_topmost(bool yes)
 {
     if (yes)
     {
-        window_style_ = static_cast<window_style>(static_cast<uint32_t>(window_style_) | static_cast<uint32_t>(window_style::topmost));
+        set_style(static_cast<window_style>(static_cast<uint32_t>(window_style_) | static_cast<uint32_t>(window_style::topmost)));
     }
     else
     {
-        window_style_ = static_cast<window_style>(static_cast<uint32_t>(window_style_) & ~static_cast<uint32_t>(window_style::topmost));
+        set_style(static_cast<window_style>(static_cast<uint32_t>(window_style_) & ~static_cast<uint32_t>(window_style::topmost)));
     }
 }
 
