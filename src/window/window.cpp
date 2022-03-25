@@ -851,6 +851,10 @@ void window::set_style(window_style style)
     {
         SetWindowPos(context_.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     }
+    else
+    {
+        SetWindowPos(context_.hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    }
 #elif __linux__
     update_window_style();
 
