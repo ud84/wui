@@ -1559,7 +1559,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     xcb_flush(context_.connection);
 
-    wnd->send_internal(internal_event_type::size_changed, position_.width(), position_.height());
+    send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
     graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tcn, tv_background, theme_)); // todo: need calc real desktop resolution
 #ifdef __linux__
@@ -2578,11 +2578,11 @@ void window::process_events()
 
                     if (ev.width != old_position.width() || ev.height != old_position.height())
                     {
-                        wnd->send_internal(internal_event_type::size_changed, ev.width, ev.height);
+                        send_internal(internal_event_type::size_changed, ev.width, ev.height);
                     }
                     else
                     {
-                        wnd->send_internal(internal_event_type::position_changed, ev.x, ev.y);
+                        send_internal(internal_event_type::position_changed, ev.x, ev.y);
                     }
                 }
             }
