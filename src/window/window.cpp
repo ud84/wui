@@ -850,6 +850,19 @@ void window::set_style(window_style style)
     if (topmost())
     {
         SetWindowPos(context_.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        if (window_state_ == window_state::maximized)
+        {
+            MONITORINFO mi = { sizeof(mi) };
+            if (GetMonitorInfo(MonitorFromWindow(context_.hwnd, MONITOR_DEFAULTTOPRIMARY), &mi))
+            {
+                SetWindowPos(context_.hwnd,
+                    HWND_TOP,
+                    mi.rcMonitor.left, mi.rcMonitor.top,
+                    mi.rcMonitor.right - mi.rcMonitor.left,
+                    mi.rcMonitor.bottom - mi.rcMonitor.top,
+                    SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+            }
+        }
     }
     else
     {
@@ -2748,6 +2761,15 @@ void window::update_window_style()
     if (showed_)
     {
         change_style(net_active_window, 0, 0);
+    }
+
+    if (window_state_ == window_state::maximized)
+    {
+        uint32_t values[] = { 0, 0, context_.screen->width_in_pixels, context_.screen->height_in_pixels };
+        xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+
+        xcb_flush(context_.connection);
     }
 }
 
