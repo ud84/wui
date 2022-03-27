@@ -834,6 +834,10 @@ void window::set_caption(const std::string &caption_)
             char *class_hint = (char *)malloc(class_len);
             strncpy(class_hint, caption.c_str(), caption.size());
             strncpy(class_hint + caption.size() + 1, caption.c_str(), caption.size());
+
+            xcb_icccm_set_wm_class(context_.connection, context_.wnd, class_len, class_hint);
+
+            free(class_hint);
         }
 #endif
         redraw({ 0, 0, position_.width(), 30 });
@@ -1565,6 +1569,8 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     strncpy(class_hint + caption.size() + 1, caption.c_str(), caption.size());
 
     xcb_icccm_set_wm_class(context_.connection, context_.wnd, class_len, class_hint);
+
+    free(class_hint);
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd, wm_protocols_event, 4, 32, 1, &wm_delete_msg);
 
