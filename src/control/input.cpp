@@ -87,7 +87,7 @@ void input::draw(graphic &gr, const rect &)
 #ifdef _WIN32
         font_.name = "Courier New";
 #elif __linux__
-        font_.name = "Terminus";
+        font_.name = "Monospace Regular";
 #endif
     }
 
@@ -183,6 +183,14 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     mem_gr.init(position_, 0);
 
     auto font_ = theme_font(tcn, tv_font, theme_);
+    if (input_view_ == input_view::password)
+    {
+#ifdef _WIN32
+        font_.name = "Courier New";
+#elif __linux__
+        font_.name = "Monospace Regular";
+#endif
+    }
 
     int32_t text_width = 0;
     size_t count = 0;
