@@ -714,6 +714,11 @@ void window::minimize()
 
 void window::expand()
 {
+	if (window_state_ == window_state::maximized)
+	{
+	    return;
+	}
+
     window_state_ = window_state::maximized;
     normal_position = position();
 
@@ -799,7 +804,6 @@ void window::normal()
     window_state_ = window_state::normal;
 
     send_internal(internal_event_type::window_normalized, -1, -1);
-    send_internal(internal_event_type::size_changed, normal_position.width(), normal_position.height());
 
     update_buttons();
 
@@ -2769,7 +2773,7 @@ void window::update_window_style()
         change_style(net_active_window, 0, 0);
     }
 
-    if (window_state_ == window_state::maximized)
+    if (!flag_is_set(window_style_, window_style::title_showed) && window_state_ == window_state::maximized)
     {
         uint32_t values[] = { 0, 0, context_.screen->width_in_pixels, context_.screen->height_in_pixels };
         xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
