@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
         cancelButton->update_theme(MakeRedButtonTheme());
     });
 
-    window->init("Hello world!", { -1, -1, 900, 600 },
+    window->init("А", { -1, -1, 900, 600 },
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
             static_cast<uint32_t>(wui::window_style::switch_theme_button) |
             static_cast<uint32_t>(wui::window_style::border_all)),
