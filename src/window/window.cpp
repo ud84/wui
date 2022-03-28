@@ -786,8 +786,6 @@ void window::expand()
     }
 #endif
     expand_button->set_image(theme_image(ti_normal, theme_));
-
-    send_internal(internal_event_type::window_expanded, -1, -1);
 }
 
 void window::normal()
@@ -2033,7 +2031,14 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->update_buttons();
 
-            wnd->send_internal(internal_event_type::size_changed, width, height);
+            if (window_state_ == window_state::maximized)
+            {
+            	wnd->send_internal(internal_event_type::window_expanded, -1, -1);
+            }
+            else
+            {
+                wnd->send_internal(internal_event_type::size_changed, width, height);
+            }
 
             if (width != old_position.width() || height != old_position.height())
             {
@@ -2599,6 +2604,12 @@ void window::process_events()
                         graphic_.clear(rect{ 0, 0, ev.width, ev.height });
                     }
 
+                    if (window_state_ == window_state::maximized)
+                    {
+                    	send_internal(internal_event_type::window_expanded, -1, -1);
+                    	continue;
+                    }
+
                     if (ev.width != old_position.width() || ev.height != old_position.height())
                     {
                         send_internal(internal_event_type::size_changed, ev.width, ev.height);
@@ -2771,15 +2782,6 @@ void window::update_window_style()
     if (showed_)
     {
         change_style(net_active_window, 0, 0);
-    }
-
-    if (!flag_is_set(window_style_, window_style::title_showed) && window_state_ == window_state::maximized)
-    {
-        uint32_t values[] = { 0, 0, context_.screen->width_in_pixels, context_.screen->height_in_pixels };
-        xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
-            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-
-        xcb_flush(context_.connection);
     }
 }
 
