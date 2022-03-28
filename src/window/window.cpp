@@ -795,15 +795,15 @@ void window::normal()
         return;
     }
 
+    window_state_ = window_state::normal;
+
     set_position(normal_position, false);
 
     expand_button->set_image(theme_image(ti_expand, theme_));
 
-    window_state_ = window_state::normal;
-
-    send_internal(internal_event_type::window_normalized, -1, -1);
-
     update_buttons();
+
+    send_internal(internal_event_type::window_normalized, normal_position.width(), normal_position.height()); 
 
     redraw({ 0, 0, normal_position.width(), normal_position.height() }, true);
 }
@@ -977,7 +977,7 @@ void window::send_event_to_plains(const event &ev)
     auto subscribers__ = subscribers_; // This is necessary to be able to remove the subscriber in the callback
     for (auto &s : subscribers__)
     {
-        if (!s.control && flag_is_set(s.event_types, ev.type))
+        if (!s.control && flag_is_set(s.event_types, ev.type) && s.receive_callback)
         {
             s.receive_callback(ev);
         }
@@ -2587,7 +2587,7 @@ void window::process_events()
 
                     if (window_state_ == window_state::maximized)
                     {
-                    	send_internal(internal_event_type::window_expanded, -1, -1);
+                    	send_internal(internal_event_type::window_expanded, ev.width, ev.height);
                     	continue;
                     }
 
