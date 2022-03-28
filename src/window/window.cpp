@@ -2015,18 +2015,11 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             auto old_position = wnd->position_;
 
-            wnd->position_ = rect{ wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height };
+            wnd->position_ = { wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height };
 
             wnd->update_buttons();
 
-            if (wnd->window_state_ != window_state::maximized)
-            {
-            	wnd->send_internal(internal_event_type::size_changed, width, height);
-            }
-            else
-            {
-                wnd->send_internal(internal_event_type::window_expanded, -1, -1);
-            }
+            wnd->send_internal(wnd->window_state_ != window_state::maximized ? internal_event_type::size_changed : internal_event_type::window_expanded, width, height);
 
             if (width != old_position.width() || height != old_position.height())
             {
