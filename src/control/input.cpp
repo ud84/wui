@@ -87,12 +87,12 @@ void input::draw(graphic &gr, const rect &)
 #ifdef _WIN32
         font_.name = "Courier New";
 #elif __linux__
-        font_.name = "Monospace Regular";
+        font_.name = "monospace";
 #endif
     }
 
     /// Create memory dc for text and selection bar
-    auto full_text_width = get_text_width(gr, text_, text_.size(), font_) + 1;
+    auto full_text_width = get_text_width(gr, text_, text_.size(), font_) + 2;
     auto text_height = font_.size;
 
 #ifdef _WIN32
@@ -188,7 +188,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
 #ifdef _WIN32
         font_.name = "Courier New";
 #elif __linux__
-        font_.name = "Monospace Regular";
+        font_.name = "monospace";
 #endif
     }
 
