@@ -2019,13 +2019,13 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->update_buttons();
 
-            if (window_state_ == window_state::maximized)
+            if (wnd->window_state_ != window_state::maximized)
             {
-            	wnd->send_internal(internal_event_type::window_expanded, -1, -1);
+            	wnd->send_internal(internal_event_type::size_changed, width, height);
             }
             else
             {
-                wnd->send_internal(internal_event_type::size_changed, width, height);
+                wnd->send_internal(internal_event_type::window_expanded, -1, -1);
             }
 
             if (width != old_position.width() || height != old_position.height())
