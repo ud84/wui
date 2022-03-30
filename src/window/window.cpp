@@ -1203,11 +1203,11 @@ void window::update_button_images()
 
 void window::update_buttons()
 {
-	auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+	auto border_width = flag_is_set(window_style_, window_style::border_top) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
 
     auto btn_size = 26;
-    auto left = position().width() - btn_size - border_width;
-    auto top = flag_is_set(window_style_, window_style::border_top) ? border_width : 0;
+    auto left = position_.width() - btn_size;
+    auto top = border_width;
 
     if (flag_is_set(window_style_, window_style::close_button))
     {
