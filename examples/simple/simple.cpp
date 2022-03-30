@@ -251,28 +251,28 @@ int main(int argc, char *argv[])
     if (!ok)
     {
         printf("can't load theme\n");
-        return;
+        return -1;
     }
 
     ok = wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
     if (!ok)
     {
         printf("can't load locale\n");
-        return;
+        return -1;
     }
 #elif __linux__
     auto ok = wui::set_default_theme_from_file("dark", "/home/ud/wui/res/dark.json");
     if (!ok)
     {
         printf("can't load theme\n");
-        return;
+        return -1;
     }
 
     ok = wui::set_locale_from_file("en", "/home/ud/wui/res/en_locale.json");
     if (!ok)
     {
         printf("can't load locale\n");
-        return;
+        return -1;
     }
 #endif
 
