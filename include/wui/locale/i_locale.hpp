@@ -31,6 +31,8 @@ public:
     virtual void load_file(const std::string &file_name) = 0;
     virtual void load_locale(const i_locale &locale_) = 0;
 
+    virtual bool is_ok() const = 0;
+
     virtual ~i_locale() {}
 };
 

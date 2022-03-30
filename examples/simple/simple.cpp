@@ -247,11 +247,33 @@ int main(int argc, char *argv[])
     bool runned = true;
 
 #ifdef _WIN32
-    wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
-    wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
+    auto ok = wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
+    if (!ok)
+    {
+        printf("can't load theme\n");
+        return;
+    }
+
+    ok = wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
+    if (!ok)
+    {
+        printf("can't load locale\n");
+        return;
+    }
 #elif __linux__
-    wui::set_default_theme_from_file("dark", "/home/ud/wui/res/dark.json");
-    wui::set_locale_from_file("en", "/home/ud/wui/res/en_locale.json");
+    auto ok = wui::set_default_theme_from_file("dark", "/home/ud/wui/res/dark.json");
+    if (!ok)
+    {
+        printf("can't load theme\n");
+        return;
+    }
+
+    ok = wui::set_locale_from_file("en", "/home/ud/wui/res/en_locale.json");
+    if (!ok)
+    {
+        printf("can't load locale\n");
+        return;
+    }
 #endif
 
     std::shared_ptr<wui::window> window(new wui::window());
@@ -441,7 +463,7 @@ int main(int argc, char *argv[])
         cancelButton->update_theme(MakeRedButtonTheme());
     });
 
-    window->init("А", { -1, -1, 900, 600 },
+    window->init("Welcome to wui", { -1, -1, 900, 600 },
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
             static_cast<uint32_t>(wui::window_style::switch_theme_button) |
             static_cast<uint32_t>(wui::window_style::border_all)),

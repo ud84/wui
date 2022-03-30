@@ -9,6 +9,7 @@
 
 #include <wui/theme/theme_impl.hpp>
 
+#define JSON_NOEXCEPTION
 #include <nlohmann/json.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <sstream>
@@ -21,7 +22,7 @@ namespace wui
 {
 
 theme_impl::theme_impl(const std::string &name_)
-    : name(name_), ints(), strings(), fonts(), imgs(), dummy_string(), dummy_image()
+    : name(name_), ints(), strings(), fonts(), imgs(), dummy_string(), dummy_image(), ok(false)
 {
 }
 
@@ -135,6 +136,14 @@ void theme_impl::load_json(const std::string &json_)
 {
     auto j = nlohmann::json::parse(json_);
 
+    if (j.is_discarded())
+    {
+        ok = false;
+        return;
+    }
+
+    ok = true;
+
     auto controls = j.at("controls");
     for (auto &c : controls)
     {
@@ -245,6 +254,11 @@ void theme_impl::load_theme(const i_theme &theme_)
     ints = static_cast<const theme_impl*>(&theme_)->ints;
     strings = static_cast<const theme_impl*>(&theme_)->strings;
     fonts = static_cast<const theme_impl*>(&theme_)->fonts;
+}
+
+bool theme_impl::is_ok() const
+{
+    return ok;
 }
 
 }

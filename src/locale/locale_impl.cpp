@@ -9,6 +9,7 @@
 
 #include <wui/locale/locale_impl.hpp>
 
+#define JSON_NOEXCEPTION
 #include <nlohmann/json.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <sstream>
@@ -21,7 +22,7 @@ namespace wui
 {
 
 locale_impl::locale_impl(const std::string &name_)
-    : name(name_), strings(), dummy_string()
+    : name(name_), strings(), dummy_string(), ok(false)
 {
 }
 
@@ -75,6 +76,14 @@ void locale_impl::load_json(const std::string &json_)
 {
     auto j = nlohmann::json::parse(json_);
 
+    if (j.is_discarded())
+    {
+        ok = false;
+        return;
+    }
+
+    ok = true;
+
     auto sections = j.at("sections");
     for (auto &s : sections)
     {
@@ -110,6 +119,11 @@ void locale_impl::load_file(const std::string &file_name)
 void locale_impl::load_locale(const i_locale &locale_)
 {
     strings = static_cast<const locale_impl*>(&locale_)->strings;
+}
+
+bool locale_impl::is_ok() const
+{
+    return ok;
 }
 
 }

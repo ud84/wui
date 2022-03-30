@@ -20,26 +20,32 @@ static std::vector<uint8_t> dummy_image;
 /// Interface
 
 #ifdef _WIN32
-void set_locale_from_resource(const std::string &name, int32_t resource_index, const std::string &resource_section)
+bool set_locale_from_resource(const std::string &name, int32_t resource_index, const std::string &resource_section)
 {
     instance.reset();
     instance = std::shared_ptr<i_locale>(new locale_impl(name));
     instance->load_resource(resource_index, resource_section);
+
+    return instance->is_ok();
 }
 #endif
 
-void set_locale_from_json(const std::string &name, const std::string &json)
+bool set_locale_from_json(const std::string &name, const std::string &json)
 {
     instance.reset();
     instance = std::shared_ptr<i_locale>(new locale_impl(name));
     instance->load_json(json);
+
+    return instance->is_ok();
 }
 
-void set_locale_from_file(const std::string &name, const std::string &file_name)
+bool set_locale_from_file(const std::string &name, const std::string &file_name)
 {
     instance.reset();
     instance = std::shared_ptr<i_locale>(new locale_impl(name));
     instance->load_file(file_name);
+
+    return instance->is_ok();
 }
 
 void set_locale_empty(const std::string &name)
