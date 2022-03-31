@@ -690,21 +690,19 @@ void window::minimize()
 #ifdef _WIN32
     ShowWindow(context_.hwnd, SW_MINIMIZE);
 #elif __linux__
-    if (!context_.connection)
+    if (context_.connection)
     {
-        return;
+        xcb_client_message_event_t event = { 0 };
+
+        event.window = context_.wnd;
+        event.response_type = XCB_CLIENT_MESSAGE;
+        event.type = wm_change_state;
+        event.format = 32;
+        event.data.data32[0] = XCB_ICCCM_WM_STATE_ICONIC;
+
+        xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+        xcb_flush(context_.connection);
     }
-
-    xcb_client_message_event_t event = { 0 };
-
-    event.window = context_.wnd;
-    event.response_type = XCB_CLIENT_MESSAGE;
-    event.type = wm_change_state;
-    event.format = 32;
-    event.data.data32[0] = XCB_ICCCM_WM_STATE_ICONIC;
-
-    xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
-    xcb_flush(context_.connection);
 #endif
 
     window_state_ = window_state::minimized;
@@ -795,9 +793,35 @@ void window::normal()
         return;
     }
 
+#ifdef _WIN32
+    SetWindowPos(context_.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+    SetWindowPos(context_.hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+    
+    ShowWindow(context_.hwnd, SW_RESTORE);
+#elif __linux__
+    if (context_.connection)
+    {
+        xcb_client_message_event_t event = { 0 };
+
+        event.window = context_.wnd;
+        event.response_type = XCB_CLIENT_MESSAGE;
+        event.type = wm_change_state;
+        event.format = 32;
+        event.data.data32[0] = XCB_ICCCM_WM_STATE_NORMAL;
+
+        xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+        xcb_flush(context_.connection);
+
+        /// todo bring window to top
+    }
+#endif
+
     window_state_ = window_state::normal;
 
-    set_position(normal_position, false);
+    if (!normal_position.is_null())
+    {
+        set_position(normal_position, false);
+    }
 
     expand_button->set_image(theme_image(ti_expand, theme_));
 
@@ -1364,6 +1388,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto transient_window_ = get_transient_window();
     if (transient_window_)
     {
+        if (transient_window_->window_state_ != window_state::maximized)
+        {
+            transient_window_->normal();
+        }
+
         if (docked_ && transient_window_->position_ > position_)
         {
 			transient_window_->start_docking();
