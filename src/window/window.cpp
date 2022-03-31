@@ -1377,8 +1377,27 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
         {
             auto transient_window_pos = transient_window_->position();
 
-            int32_t left = transient_window_pos.left + ((transient_window_pos.width() - position_.width()) / 2);
-            int32_t top = transient_window_pos.top + ((transient_window_pos.height() - position_.height()) / 2);
+            int32_t left = 0, top = 0;
+
+            if (transient_window_pos.width() > 0 && transient_window_pos.height() > 0)
+            {
+                left = transient_window_pos.left + ((transient_window_pos.width() - position_.width()) / 2);
+                top = transient_window_pos.top + ((transient_window_pos.height() - position_.height()) / 2);
+            }
+            else
+            {
+#ifdef _WIN32
+                RECT work_area;
+                SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
+                auto screen_width = work_area.right - work_area.left,
+                    screen_height = work_area.bottom - work_area.top;
+                left = (screen_width - position_.width()) / 2;
+                top = (screen_height - position_.height()) / 2;
+#elif __linux__
+                left = (context_.screen->width_in_pixels - position_.width()) / 2;
+                top = (context_.screen->height_in_pixels - position_.height()) / 2;
+#endif
+            }
 
             position_.put(left, top);
 
