@@ -113,8 +113,7 @@ window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
     close_callback(),
-    pin_callback(),
-    switch_theme_callback(),
+    control_callback(),
     switch_theme_button(new button(locale(tcn, cl_light_theme), std::bind(&window::switch_theme, this), button_view::image, theme_image(ti_switch_theme), 24, button::tc_tool)),
     pin_button(new button(locale(tcn, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24, button::tc_tool)),
     minimize_button(new button("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24, button::tc_tool)),
@@ -653,10 +652,11 @@ bool window::enabled() const
 
 void window::switch_theme()
 {
-    if (switch_theme_callback)
+    if (control_callback)
     {
         std::string tooltip_text;
-        switch_theme_callback(tooltip_text);
+        bool continue_ = true;
+        control_callback(window_control::theme, tooltip_text, continue_);
         switch_theme_button->set_caption(tooltip_text);
     }
 }
@@ -670,10 +670,11 @@ void window::pin()
         active_control.reset();
     }
 
-    if (pin_callback)
+    if (control_callback)
     {
         std::string tooltip_text;
-        pin_callback(tooltip_text);
+        bool continue_ = true;
+        control_callback(window_control::pin, tooltip_text, continue_);
         pin_button->set_caption(tooltip_text);
     }
 }
@@ -683,6 +684,17 @@ void window::minimize()
     if (window_state_ == window_state::minimized)
     {
         return;
+    }
+
+    if (control_callback)
+    {
+        std::string text = "minimize";
+        bool continue_ = true;
+        control_callback(window_control::state, text, continue_);
+        if (!continue_)
+        {
+            return;
+        }
     }
 
     prev_window_state_ = window_state_;
@@ -716,6 +728,17 @@ void window::expand()
 	{
 	    return;
 	}
+
+    if (control_callback)
+    {
+        std::string text = "expand";
+        bool continue_ = true;
+        control_callback(window_control::state, text, continue_);
+        if (!continue_)
+        {
+            return;
+        }
+    }
 
     window_state_ = window_state::maximized;
     normal_position = position();
@@ -791,6 +814,17 @@ void window::normal()
     if (window_state_ == window_state::normal)
     {
         return;
+    }
+
+    if (control_callback)
+    {
+        std::string text = "normal";
+        bool continue_ = true;
+        control_callback(window_control::state, text, continue_);
+        if (!continue_)
+        {
+            return;
+        }
     }
 
 #ifdef _WIN32
@@ -974,14 +1008,9 @@ void window::emit_event(int32_t x, int32_t y)
     }
 }
 
-void window::set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback_)
+void window::set_control_callback(std::function<void(window_control control, std::string &text, bool &continue_)> callback_)
 {
-    pin_callback = pin_callback_;
-}
-
-void window::set_switch_theme_callback(std::function<void(std::string &tooltip_text)> switch_theme_callback_)
-{
-    switch_theme_callback = switch_theme_callback_;
+    control_callback = callback_;
 }
 
 void window::send_event_to_control(const std::shared_ptr<i_control> &control_, const event &ev)
@@ -1633,6 +1662,17 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
 void window::destroy()
 {
+    if (control_callback)
+    {
+        std::string text = "close";
+        bool continue_= true;
+        control_callback(window_control::close, text, continue_);
+        if (!continue_)
+        {
+            return;
+        }
+    }
+
     for (auto &control : controls)
     {
         control->clear_parent();

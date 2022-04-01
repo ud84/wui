@@ -32,6 +32,14 @@ enum class window_state
     pinned
 };
 
+enum class window_control
+{
+    close,
+    state,
+    pin,
+    theme
+};
+
 class button;
 
 class window : public i_window, public i_control, public std::enable_shared_from_this<window>
@@ -107,8 +115,7 @@ public:
     void set_focused(std::shared_ptr<i_control> control);
 
     /// Callbacks
-    void set_pin_callback(std::function<void(std::string &tooltip_text)> pin_callback);
-    void set_switch_theme_callback(std::function<void(std::string &tooltip_text)> switch_theme_callback);
+    void set_control_callback(std::function<void(window_control control, std::string &text, bool &continue_)> callback);
 
 public:
     /// Control name in theme / locale
@@ -189,8 +196,7 @@ private:
     int16_t x_click, y_click;
 
     std::function<void(void)> close_callback;
-    std::function<void(std::string &tooltip_text)> pin_callback;
-    std::function<void(std::string &tooltip_text)> switch_theme_callback;
+    std::function<void(window_control control, std::string &text, bool &continue_)> control_callback;
 
     std::shared_ptr<button> switch_theme_button, pin_button, minimize_button, expand_button, close_button;
 

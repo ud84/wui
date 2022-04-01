@@ -144,7 +144,12 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         window->add_control(button3, { 0 });
         window->add_control(input, { 0 });
 
-        window->set_pin_callback([this](std::string &tooltip_text) {
+        window->set_control_callback([this](wui::window_control control, std::string &tooltip_text, bool continue_) {
+            if (control != wui::window_control::pin)
+            {
+                return;
+            }
+
             if (plugged)
             {
                 Unplug();
@@ -435,7 +440,12 @@ int main(int argc, char *argv[])
         }
     }, wui::event_type::internal);
 
-    window->set_switch_theme_callback([&window, &pluggedWindow, &dialog, &cancelButton](std::string &tooltip_text) {
+    window->set_control_callback([&window, &pluggedWindow, &dialog, &cancelButton](wui::window_control control, std::string &tooltip_text, bool continue_) {
+        if (control != wui::window_control::theme)
+        {
+            return;
+        }
+
         auto theme_name = wui::get_default_theme()->get_name();
 
         if (theme_name == "dark")
