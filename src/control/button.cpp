@@ -288,7 +288,7 @@ void button::draw(graphic &gr, const rect &)
             color_ = theme_color(tcn, tv_disabled, theme_);
         }
 
-        gr.draw_text(rect{ text_left, text_top }, caption, 
+        gr.draw_text({ text_left, text_top }, caption, 
             color_,
             font_);
     }

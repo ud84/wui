@@ -335,7 +335,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
     SelectObject(mem_dc, old_font);
     DeleteObject(font_);
 
-    return rect {0, 0, text_rect.right, text_rect.bottom};
+    return {0, 0, text_rect.right, text_rect.bottom};
 #elif __linux__
     if (!surface)
     {
@@ -361,7 +361,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
 
     cairo_destroy(cr);
 
-    return rect{ 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
+    return { 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
 #endif
 }
 

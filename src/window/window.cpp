@@ -559,7 +559,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 #elif __linux__
         
         auto ws = get_window_size(context_);
-        redraw(rect{ 0, 0, ws.width(), ws.height() }, true);
+        redraw({ 0, 0, ws.width(), ws.height() }, true);
 
 #endif
     }
@@ -1357,19 +1357,19 @@ void window::draw_border(graphic &gr)
 
     if (flag_is_set(window_style_, window_style::border_left))
     {
-        gr.draw_line(rect{ l, t, l, h }, c, x);
+        gr.draw_line({ l, t, l, h }, c, x);
     }
     if (flag_is_set(window_style_, window_style::border_top))
     {
-        gr.draw_line(rect{ l, t, w, t }, c, x);
+        gr.draw_line({ l, t, w, t }, c, x);
     }
     if (flag_is_set(window_style_, window_style::border_right))
     {
-        gr.draw_line(rect{ w, t, w, h }, c, x);
+        gr.draw_line({ w, t, w, h }, c, x);
     }
     if (flag_is_set(window_style_, window_style::border_bottom))
     {
-        gr.draw_line(rect{ l, h, w, h }, c, x);
+        gr.draw_line({ l, h, w, h }, c, x);
     }
 }
 
@@ -1647,7 +1647,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
-    graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(tcn, tv_background, theme_)); // todo: need calc real desktop resolution
+    graphic_.init({ 0, 0, 1920, 1080 }, theme_color(tcn, tv_background, theme_)); // todo: need calc real desktop resolution
 #ifdef __linux__
     graphic_.start_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
 #endif
@@ -1757,7 +1757,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->context_.dc = GetDC(hwnd);
 
-            wnd->graphic_.init(rect{ 0, 0, 1920, 1080 }, theme_color(wnd->tcn, tv_background, wnd->theme_));
+            wnd->graphic_.init({ 0, 0, 1920, 1080 }, theme_color(wnd->tcn, tv_background, wnd->theme_));
         }
         break;
         case WM_PAINT:
@@ -2661,7 +2661,7 @@ void window::process_events()
 
                 if (ev.width > 0 && ev.height > 0)
                 {
-                    position_ = rect{ ev.x, ev.y, ev.x + ev.width, ev.y + ev.height };
+                    position_ = { ev.x, ev.y, ev.x + ev.width, ev.y + ev.height };
 
                     if (ev.width != old_position.width())
                     {
@@ -2670,7 +2670,7 @@ void window::process_events()
 
                     if (ev.width != old_position.width() || ev.height != old_position.height())
                     {
-                        graphic_.clear(rect{ 0, 0, ev.width, ev.height });
+                        graphic_.clear({ 0, 0, ev.width, ev.height });
                     }
 
                     if (window_state_ == window_state::maximized)

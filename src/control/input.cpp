@@ -106,7 +106,7 @@ void input::draw(graphic &gr, const rect &)
     }
 #endif
     graphic mem_gr(ctx);
-    mem_gr.init(rect{ 0, 0, full_text_width, text_height }, theme_color(tcn, tv_background, theme_));
+    mem_gr.init({ 0, 0, full_text_width, text_height }, theme_color(tcn, tv_background, theme_));
 
     /// Draw the selection bar
     if (select_start_position != select_end_position)
@@ -114,13 +114,13 @@ void input::draw(graphic &gr, const rect &)
         auto start_coordinate = get_text_width(mem_gr, text_, select_start_position, font_);
         auto end_coordinate = get_text_width(mem_gr, text_, select_end_position, font_);
 
-        mem_gr.draw_rect(rect{ start_coordinate, 0, end_coordinate, text_height }, theme_color(tcn, tv_selection, theme_));
+        mem_gr.draw_rect({ start_coordinate, 0, end_coordinate, text_height }, theme_color(tcn, tv_selection, theme_));
     }
 
     /// Draw the text
     if (input_view_ != input_view::password)
     {
-        mem_gr.draw_text(rect{ 0 }, text_, theme_color(tcn, tv_text, theme_), font_);
+        mem_gr.draw_text({ 0 }, text_, theme_color(tcn, tv_text, theme_), font_);
     }
     else
     {
@@ -132,12 +132,12 @@ void input::draw(graphic &gr, const rect &)
                 text__.append("●");
             }
         }
-        mem_gr.draw_text(rect{ 0 }, text__, theme_color(tcn, tv_text, theme_), font_);
+        mem_gr.draw_text({ 0 }, text__, theme_color(tcn, tv_text, theme_), font_);
     }
             
     /// Draw the cursor
     auto cursor_coordinate = get_text_width(mem_gr, text_, cursor_position, font_);
-    mem_gr.draw_line(rect{ cursor_coordinate, 0, cursor_coordinate, text_height },
+    mem_gr.draw_line({ cursor_coordinate, 0, cursor_coordinate, text_height },
         cursor_visible ? theme_color(tcn, tv_cursor, theme_) :
         (select_start_position != select_end_position && cursor_position >= select_start_position && cursor_position <= select_end_position ? theme_color(tcn, tv_selection, theme_) : theme_color(tcn, tv_background, theme_)));
     
@@ -153,7 +153,7 @@ void input::draw(graphic &gr, const rect &)
 
     int32_t input_vertical_indent = position_.height() > text_height ? (position_.height() - text_height) / 2 : 0;
     
-    gr.draw_graphic(rect{ position().left + input_horizontal_indent,
+    gr.draw_graphic({ position().left + input_horizontal_indent,
             position().top + input_vertical_indent,
             position().width() - input_horizontal_indent * 2,
             position().height() - input_vertical_indent * 2 },
