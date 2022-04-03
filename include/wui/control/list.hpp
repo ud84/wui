@@ -195,7 +195,7 @@ private:
     void scroll_up();
     void scroll_down();
 
-    void calc_scrollbar_params(rect *bar_rect = nullptr, rect *top_button_rect = nullptr, rect *bottom_button_rect = nullptr, rect *slider_rect = nullptr);
+    void calc_scrollbar_params(bool drawing_coordinates, rect *bar_rect = nullptr, rect *top_button_rect = nullptr, rect *bottom_button_rect = nullptr, rect *slider_rect = nullptr);
     bool is_click_on_scrollbar(int32_t x);
     void update_selected_item(int32_t y);
     void update_active_item(int32_t y);

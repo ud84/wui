@@ -65,17 +65,41 @@ void list::draw(graphic &gr, const rect &)
         return;
     }
 
-    gr.draw_rect(position(),
+    auto control_pos = position();
+
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+
+    gr.draw_rect(control_pos,
         !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
         theme_color(tcn, tv_background, theme_),
-        theme_dimension(tcn, tv_border_width, theme_),
+        border_width,
         theme_dimension(tcn, tv_round, theme_));
 
-    draw_titles(gr);
+    /// Create memory dc for inner content   
+#ifdef _WIN32
+    system_context ctx = { 0, gr.drawable() };
+#elif __linux__
+    system_context ctx = { 0 };
+    auto parent__ = parent_.lock();
+    if (parent__)
+    {
+        ctx = { parent__->context().display, parent__->context().connection, parent__->context().screen, gr.drawable() };
+    }
+#endif
+    graphic mem_gr(ctx);
+    mem_gr.init({ 0, 0, position_.width() - border_width * 2, position_.height() - border_width * 2 }, theme_color(tcn, tv_background, theme_));
 
-    draw_items(gr);
+    draw_titles(mem_gr);
 
-    draw_scrollbar(gr);
+    draw_items(mem_gr);
+
+    draw_scrollbar(mem_gr);
+
+    gr.draw_graphic({ control_pos.left + border_width,
+            control_pos.top + border_width,
+            control_pos.width() - border_width,
+            control_pos.height() - border_width },
+        mem_gr, 0, 0);
 }
 
 void list::receive_control_events(const event &ev)
@@ -122,7 +146,7 @@ void list::receive_control_events(const event &ev)
                     active_item_ = -1;
 
                     rect bar_rect = { 0 }, top_button_rect = { 0 }, bottom_button_rect = { 0 }, slider_rect = { 0 };
-                    calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+                    calc_scrollbar_params(false, &bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
 
                     if (ev.mouse_event_.y <= top_button_rect.bottom)
                     {
@@ -137,7 +161,7 @@ void list::receive_control_events(const event &ev)
                         while (ev.mouse_event_.y < slider_rect.top)
                         {
                             scroll_up();
-                            calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+                            calc_scrollbar_params(false, &bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
                         }
                     }
                     else if (ev.mouse_event_.y > slider_rect.bottom)
@@ -145,7 +169,7 @@ void list::receive_control_events(const event &ev)
                         while (ev.mouse_event_.y > slider_rect.bottom)
                         {
                             scroll_down();
-                            calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+                            calc_scrollbar_params(false, &bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
                         }
                     }
                     else if (ev.mouse_event_.y >= slider_rect.top && ev.mouse_event_.y <= slider_rect.bottom)
@@ -689,24 +713,13 @@ void list::draw_titles(graphic &gr_)
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
     auto title_color = theme_color(tcn, tv_title, theme_);
     auto title_text_color = theme_color(tcn, tv_title_text, theme_);
-
-    auto control_position = position();
     
-    int32_t top = control_position.top + border_width,
-        left = control_position.left + border_width;
+    int32_t left = 0;
 
     for (auto &c : columns)
     {
-        if (left + c.width - 1 <= control_position.right - border_width)
-        {
-            gr_.draw_rect({ left, top, left + c.width - 1, top + title_height }, title_color);
-            gr_.draw_text({ left + text_indent, top + text_indent, 0, 0 }, c.caption, title_text_color, font);
-        }
-        else
-        {
-            gr_.draw_rect({ left, top, control_position.right - border_width, top + title_height }, title_color);
-            break;
-        }
+        gr_.draw_rect({ left, 0, left + c.width - 1, title_height }, title_color);
+        gr_.draw_text({ left + text_indent, text_indent, 0, 0 }, c.caption, title_text_color, font);
         
         left += c.width + 1;
     }
@@ -730,10 +743,11 @@ void list::draw_items(graphic &gr_)
         start_item = item_count - visible_item_count;
     }
 
-    auto control_position = position();
-    int32_t top_ = control_position.top + theme_dimension(tcn, tv_border_width, theme_),
-        left = control_position.left + theme_dimension(tcn, tv_border_width, theme_),
-        right = control_position.right - theme_dimension(tcn, tv_border_width, theme_);
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+
+    int32_t top_ = border_width,
+        left = border_width,
+        right = position_.width() - border_width;
 
     int32_t scrollbar_width = 0;
     if (has_scrollbar())
@@ -777,7 +791,7 @@ bool list::has_scrollbar()
 void list::draw_scrollbar(graphic &gr)
 {
     rect bar_rect = { 0 }, top_button_rect = { 0 }, bottom_button_rect = { 0 }, slider_rect = { 0 };
-    calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+    calc_scrollbar_params(true, &bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
 
     if (slider_rect.bottom == 0)
     {
@@ -856,7 +870,7 @@ void list::move_slider(int32_t y)
     auto count = static_cast<int32_t>(round(diff_abs / item_on_scroll_height));
 
     rect slider_rect = { 0 };
-    calc_scrollbar_params(nullptr, nullptr, nullptr, &slider_rect);
+    calc_scrollbar_params(false, nullptr, nullptr, nullptr, &slider_rect);
 
     if (diff > 0)
     {
@@ -915,7 +929,7 @@ void list::scroll_down()
     redraw();
 }
 
-void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bottom_button_rect, rect *slider_rect)
+void list::calc_scrollbar_params(bool drawing_coordinates, rect *bar_rect, rect *top_button_rect, rect *bottom_button_rect, rect *slider_rect)
 {
     int32_t scrollbar_width = 0;
     if (scrollbar_state_ == scrollbar_state::tiny)
@@ -938,6 +952,10 @@ void list::calc_scrollbar_params(rect *bar_rect, rect *top_button_rect, rect *bo
         SB_BUTTON_WIDTH = SB_WIDTH, SB_BUTTON_HEIGHT = SB_HEIGHT;
 
     auto control_pos = position();
+    if (drawing_coordinates)
+    {
+        control_pos = { 0, 0, position_.width(), position_.height() };
+    }
 
     double client_height = control_pos.height() - (SB_HEIGHT * 2);
     auto visible_item_count = get_visible_item_count();

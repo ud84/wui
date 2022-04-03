@@ -74,8 +74,10 @@ void input::draw(graphic &gr, const rect &)
         return;
     }
 
+    auto control_pos = position();
+
     /// Draw the frame
-    gr.draw_rect(position(),
+    gr.draw_rect(control_pos,
         !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
         theme_color(tcn, tv_background, theme_),
         theme_dimension(tcn, tv_border_width, theme_),
@@ -153,10 +155,10 @@ void input::draw(graphic &gr, const rect &)
 
     int32_t input_vertical_indent = position_.height() > text_height ? (position_.height() - text_height) / 2 : 0;
     
-    gr.draw_graphic({ position().left + input_horizontal_indent,
-            position().top + input_vertical_indent,
-            position().width() - input_horizontal_indent * 2,
-            position().height() - input_vertical_indent * 2 },
+    gr.draw_graphic({ control_pos.left + input_horizontal_indent,
+            control_pos.top + input_vertical_indent,
+            control_pos.width() - input_horizontal_indent * 2,
+            control_pos.height() - input_vertical_indent * 2 },
         mem_gr, left_shift, 0);
 }
 

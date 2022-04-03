@@ -470,24 +470,22 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
     auto font = theme_font(tcn, tv_font);
 
     auto text_height = gr.measure_text("Qq", font).height();
-    if (text_height <= item_rect.height())
+    
+    gr.draw_text({ item_rect.left + item_rect.height() + item_rect.height() * item->level, item_rect_.top + (item_rect_.height() - text_height) / 2 }, item->text, text_color, font);
+
+    if (!item->hotkey.empty())
     {
-        gr.draw_text({ item_rect.left + item_rect.height() + item_rect.height() * item->level, item_rect_.top + (item_rect_.height() - text_height) / 2 }, item->text, text_color, font);
+        gr.draw_text({ item_rect.right - max_hotkey_width, item_rect_.top + (item_rect_.height() - text_height) / 2 }, item->hotkey, text_color, font);
+    }
 
-        if (!item->hotkey.empty())
-        {
-            gr.draw_text({ item_rect.right - max_hotkey_width, item_rect_.top + (item_rect_.height() - text_height) / 2 }, item->hotkey, text_color, font);
-        }
+    if (!item->children.empty())
+    {
+        auto height = item_rect_.height();
 
-        if (!item->children.empty())
-        {
-            auto height = item_rect_.height();
+        auto left = item_rect_.right - item_rect_.height() + (height - 8) / 2,
+            top = item_rect_.top + (height - 4) / 2;
 
-            auto left = item_rect_.right - item_rect_.height() + (height - 8) / 2,
-                top = item_rect_.top + (height - 4) / 2;
-
-            draw_arrow_down(gr, { left, top }, item->state == menu_item_state::expanded);
-        }
+        draw_arrow_down(gr, { left, top }, item->state == menu_item_state::expanded);
     }
 
     if (item->state == menu_item_state::separator && item_rect_.bottom <= list_->position().bottom - border_width)

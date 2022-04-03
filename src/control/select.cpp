@@ -540,10 +540,7 @@ void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_,
     truncate_line(text, gr, font, item_rect_.width() - item_rect_.height(), 1);
 
     auto text_height = text_size.height();
-    if (text_height <= item_rect.height())
-    {
-        gr.draw_text({ item_rect.left + select_horizontal_indent, item_rect_.top + (item_rect_.height() - text_height) / 2 }, text, text_color, font);
-    }
+    gr.draw_text({ item_rect.left + select_horizontal_indent, item_rect_.top + (item_rect_.height() - text_height) / 2 }, text, text_color, font);
 }
 
 void select::activate_list_item(int32_t n_item)

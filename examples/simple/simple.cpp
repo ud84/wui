@@ -217,14 +217,10 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         auto font = wui::theme_font(wui::list::tc, wui::list::tv_font);
         
         auto textHeight = gr.measure_text("Qq", font).height();
-        if (textHeight <= itemRect.height())
-        {
-            auto textRect = itemRect_;
-
-            textRect.move(20, (itemRect_.height() - textHeight) / 2);
-
-            gr.draw_text(textRect, "Item " + std::to_string(nItem), textColor, font);
-        }
+        auto textRect = itemRect_;
+        
+        textRect.move(20, (itemRect_.height() - textHeight) / 2);
+        gr.draw_text(textRect, "Item " + std::to_string(nItem), textColor, font);
     }
 };
 

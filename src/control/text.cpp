@@ -27,7 +27,7 @@ text::text(const std::string &text__, text_alignment alignment_, const std::stri
     theme_(theme_),
     position_(),
     parent_(),
-    showed_(true), topmost_(true),
+    showed_(true), topmost_(false),
     text_(text__),
     alignment(alignment_)
 {
