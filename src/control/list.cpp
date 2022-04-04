@@ -765,7 +765,7 @@ void list::draw_items(graphic &gr_)
     for (auto i = 0; i != visible_item_count; ++i)
     {
         auto top = (i * item_height) + top_;
-        rect item_rect = { left, title_height + top, right - scrollbar_width, title_height + top + item_height };
+        rect item_rect = { left, title_height + top, right - scrollbar_width, title_height + top + item_height - border_width };
         int32_t item = start_item + i;
 
         item_state state = item_state::normal;
