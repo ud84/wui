@@ -385,6 +385,11 @@ void slider::set_value(int32_t value_)
     redraw();
 }
 
+int32_t slider::get_value() const
+{
+    return value;
+}
+
 void slider::set_callback(std::function<void(int32_t)> change_callback_)
 {
     change_callback = change_callback_;

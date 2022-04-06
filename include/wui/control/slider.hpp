@@ -70,6 +70,7 @@ public:
     /// Slider's interface
     void set_range(int32_t from, int32_t to);
     void set_value(int32_t value);
+    int32_t get_value() const;
 
     void set_callback(std::function<void(int32_t)> change_callback);
 
