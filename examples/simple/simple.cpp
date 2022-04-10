@@ -369,6 +369,12 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<wui::button> okButton(new wui::button("OK", [window, &dialog]()
     {
+        std::shared_ptr<wui::input> input1(new wui::input());
+        dialog->add_control(input1, { 10, 35, 200, 60 });
+
+        std::shared_ptr<wui::input> input2(new wui::input());
+        dialog->add_control(input2, { 10, 70, 200, 95 });
+
         std::shared_ptr<wui::button> dialogButton(new wui::button("Close", [&dialog]() { dialog->destroy(); }));
         dialog->add_control(dialogButton, { 10, 200, 100, 235 });
 

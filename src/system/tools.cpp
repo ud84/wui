@@ -180,10 +180,11 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
         }
     }
 
-    rect parent_pos = { parent.lock()->parent().lock() ? parent.lock()->position().left : 0,
-        parent.lock()->parent().lock() ? parent.lock()->position().top : 0,
-        parent_->position().width(),
-        parent_->position().height() };
+    auto parent_pos = parent_->position();
+    if (!parent_->parent().lock())
+    {
+        parent_pos = { 0, 0, parent_pos.width(), parent_pos.height() };
+    }
 
     auto out_pos = popup_control_position;
 
@@ -194,9 +195,9 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
     out_pos.put(base_position.left + indent, base_position.bottom + indent); // below the control
     if (out_pos.bottom <= parent_pos.bottom)
     {
-        if (out_pos.right >= parent_pos.width())
+        if (out_pos.right >= parent_pos.right)
         {
-            out_pos.put(parent_pos.width() - out_pos.width() - indent, base_position.bottom + indent);
+            out_pos.put(parent_pos.right - out_pos.width() - indent, base_position.bottom + indent);
         }
         if (out_pos.left < 0)
         {
@@ -210,9 +211,9 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
         out_pos.put(base_position.left + indent, base_position.top - out_pos.height() - indent); // above the control
         if (out_pos.top >= parent_pos.top)
         {
-            if (out_pos.right >= parent_pos.width())
+            if (out_pos.right >= parent_pos.right)
             {
-                out_pos.put(parent_pos.width() - out_pos.width(), base_position.top - out_pos.height() - indent);
+                out_pos.put(parent_pos.right - out_pos.width(), base_position.top - out_pos.height() - indent);
             }
             position_finded = true;
         }
@@ -221,7 +222,7 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
     if (!position_finded)
     {
         out_pos.put(base_position.right + indent, base_position.top + indent); // to the right of the control
-        if (out_pos.right <= parent_pos.width())
+        if (out_pos.right <= parent_pos.right)
         {
             position_finded = true;
         }
@@ -241,6 +242,12 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
         out_pos.put(base_position.left + indent, base_position.top + indent); // on the control
     }
 
+    parent_ = parent.lock();
+    parent_pos = parent_->position();
+    if (!parent_->parent().lock())
+    {
+        parent_pos = { 0, 0, parent_pos.width(), parent_pos.height() };
+    }
     out_pos.move(-parent_pos.left, -parent_pos.top);
 
     return out_pos;
