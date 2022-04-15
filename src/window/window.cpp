@@ -41,7 +41,39 @@
 #endif
 
 // Some helpers
-#ifdef __linux__
+#ifdef _WIN32
+
+void CenterHorizontally(wui::rect &pos, wui::system_context &context)
+{
+    RECT work_area;
+    SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
+    auto screen_width = work_area.right - work_area.left;
+    pos.left = (screen_width - pos.right) / 2;
+    pos.right += pos.left;
+}
+
+void CenterVertically(wui::rect &pos, wui::system_context &context)
+{
+    RECT work_area;
+    SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
+    auto screen_width = work_area.right - work_area.left;
+    pos.left = (screen_width - pos.right) / 2;
+    pos.right += pos.left;
+}
+
+#elif __linux__
+
+void CenterHorizontally(wui::rect &pos, wui::system_context &context_)
+{
+    pos.left = (context_.screen->width_in_pixels - pos.right) / 2;
+    pos.right += pos.left;
+}
+
+void CenterVertically(wui::rect &pos, wui::system_context &context)
+{
+    pos.top = (context_.screen->height_in_pixels - pos.bottom) / 2;
+    pos.bottom += pos.top;
+}
 
 void remove_window_decorations(wui::system_context &context)
 {
@@ -420,22 +452,59 @@ void window::receive_plain_events(const event &ev)
 
 void window::set_position(const rect &position__, bool redraw)
 {
+    auto position___ = position__;
+
 #ifdef _WIN32
     if (context_.hwnd)
-    {
-        SetWindowPos(context_.hwnd, NULL, position__.left, position__.top, position__.width(), position__.height(), NULL);
+    {    
+        if (position___.left == -1)
+        {
+            CenterHorizontally(position___, context_);
+        }
+        if (position___.top == -1)
+        {
+            CenterVertically(position___, context_);
+        }
+        SetWindowPos(context_.hwnd, NULL, position___.left, position___.top, position___.width(), position___.height(), NULL);
     }
 #elif __linux__
     if (context_.connection && context_.wnd)
     {
-        uint32_t values[] = { static_cast<uint32_t>(position__.left), static_cast<uint32_t>(position__.top),
-            static_cast<uint32_t>(position__.width()), static_cast<uint32_t>(position__.height()) };
+        if (position___.left == -1)
+        {
+            CenterHorizontally(position___, context_);
+        }
+        if (position___.top == -1)
+        {
+            CenterVertically(position___, context_);
+        }
+
+        uint32_t values[] = { static_cast<uint32_t>(position___.left), static_cast<uint32_t>(position___.top),
+            static_cast<uint32_t>(position___.width()), static_cast<uint32_t>(position___.height()) };
         xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
             XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
     }
 #endif
+    if (parent_.lock())
+    {
+        auto parent_pos = parent_.lock()->position();
+
+        auto left = position___.left;
+        if (left == -1)
+        {
+            left = (parent_pos.width() - position___.width()) / 2;
+        }
+        auto top = position___.top;
+        if (top == -1)
+        {
+            top = (parent_pos.height() - position___.height()) / 2;
+        }
+
+        position___ = { left, top, left + position___.width(), top + position___.height() };
+    }
+
     auto old_position = position_;
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    update_control_position(position_, position___, showed_ && redraw, parent_);
 
     if (parent_.lock())
     {
@@ -1492,19 +1561,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     if (position_.left == -1)
     {
-        RECT work_area;
-        SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
-        auto screen_width = work_area.right - work_area.left;
-        position_.left = (screen_width - position_.right) / 2;
-        position_.right += position_.left;
+        CenterHorizontally(position_, context_);
     }
     if (position_.top == -1)
     {
-        RECT work_area;
-        SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
-        auto screen_height = work_area.bottom - work_area.top;
-        position_.top = (screen_height - position_.bottom) / 2;
-        position_.bottom += position_.top;
+        CenterVertically(position_, context_);
     }
     
     context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST, wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP | (window_state_ == window_state::minimized ? WS_MINIMIZE : 0),
@@ -1549,13 +1610,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     if (position_.left == -1)
     {
-        position_.left = (context_.screen->width_in_pixels - position_.right) / 2;
-        position_.right += position_.left;
+        CenterHorizontally(position_, context_);
     }
     if (position_.top == -1)
     {
-        position_.top = (context_.screen->height_in_pixels - position_.bottom) / 2;
-        position_.bottom += position_.top;
+        CenterVertically(position_, context_);
     }
 
     context_.wnd = xcb_generate_id(context_.connection);
