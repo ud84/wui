@@ -56,9 +56,9 @@ void CenterVertically(wui::rect &pos, wui::system_context &context)
 {
     RECT work_area;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
-    auto screen_width = work_area.right - work_area.left;
-    pos.left = (screen_width - pos.right) / 2;
-    pos.right += pos.left;
+    auto screen_height = work_area.bottom - work_area.top;
+    pos.top = (screen_height - pos.bottom) / 2;
+    pos.bottom += pos.top;
 }
 
 #elif __linux__
