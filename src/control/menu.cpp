@@ -390,10 +390,18 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
     if (x != -1)
     {
         base_pos = { x, base_pos.top, base_pos.right, base_pos.bottom };
+        if (base_pos.right < x)
+        {
+            base_pos.right = x;
+        }
     }
     if (y != -1)
     {
         base_pos = { base_pos.left, y, base_pos.right, base_pos.bottom };
+        if (base_pos.bottom < y)
+        {
+            base_pos.bottom = y;
+        }
     }
 
     auto pos = get_popup_position(parent_, base_pos, position_, indent, false);
