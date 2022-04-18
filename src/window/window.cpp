@@ -450,25 +450,16 @@ void window::receive_plain_events(const event &ev)
     send_event_to_plains(ev);
 }
 
-void window::set_position(const rect &position__, bool redraw)
+void window::set_position(const rect &position__, bool redraw_)
 {
+    auto old_position = position_;
     auto position___ = position__;
-
+    
 #ifdef _WIN32
     if (context_.hwnd)
-    {    
-        if (position___.left == -1)
-        {
-            CenterHorizontally(position___, context_);
-        }
-        if (position___.top == -1)
-        {
-            CenterVertically(position___, context_);
-        }
-        SetWindowPos(context_.hwnd, NULL, position___.left, position___.top, position___.width(), position___.height(), NULL);
-    }
 #elif __linux__
     if (context_.connection && context_.wnd)
+#endif
     {
         if (position___.left == -1)
         {
@@ -479,12 +470,19 @@ void window::set_position(const rect &position__, bool redraw)
             CenterVertically(position___, context_);
         }
 
-        uint32_t values[] = { static_cast<uint32_t>(position___.left), static_cast<uint32_t>(position___.top),
-            static_cast<uint32_t>(position___.width()), static_cast<uint32_t>(position___.height()) };
-        xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
-            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+        position_ = position___;
+        redraw({ 0, 0, position___.width(), position___.height() });        
     }
+
+#ifdef _WIN32
+    SetWindowPos(context_.hwnd, NULL, position___.left, position___.top, position___.width(), position___.height(), NULL);    
+#elif __linux__
+    uint32_t values[] = { static_cast<uint32_t>(position___.left), static_cast<uint32_t>(position___.top),
+        static_cast<uint32_t>(position___.width()), static_cast<uint32_t>(position___.height()) };
+    xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+        XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
 #endif
+
     if (parent_.lock())
     {
         auto parent_pos = parent_.lock()->position();
@@ -501,13 +499,9 @@ void window::set_position(const rect &position__, bool redraw)
         }
 
         position___ = { left, top, left + position___.width(), top + position___.height() };
-    }
 
-    auto old_position = position_;
-    update_control_position(position_, position___, showed_ && redraw, parent_);
-
-    if (parent_.lock())
-    {
+        update_control_position(position_, position___, showed_ && redraw_, parent_);
+    
         send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
         if (old_position.width() != position_.width())
