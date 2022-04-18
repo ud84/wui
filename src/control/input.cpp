@@ -701,6 +701,11 @@ void input::set_text(const std::string &text__)
 {
     text_ = text__;
     redraw();
+
+    if (change_callback)
+    {
+        change_callback(text_);
+    }
 }
 
 std::string input::text() const
@@ -789,6 +794,11 @@ void input::buffer_cut()
     clear_selected_text();
 
     redraw();
+
+    if (change_callback)
+    {
+        change_callback(text_);
+    }
 }
 
 void input::buffer_paste()
