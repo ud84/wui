@@ -853,7 +853,7 @@ int32_t list::get_visible_item_count() const
     {
         return 0;
     }
-    return static_cast<int32_t>(ceil(static_cast<double>(position_.height() - title_height) / item_height));
+    return static_cast<int32_t>(floor(static_cast<double>(position_.height() - title_height) / item_height));
 }
 
 void list::move_slider(int32_t y)
