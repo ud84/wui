@@ -211,7 +211,7 @@ void list::receive_control_events(const event &ev)
 
                         if (item_click_callback)
                         {
-                            item_click_callback(selected_item_);
+                            item_click_callback(selected_item_, ev.mouse_event_.x);
                         }
                     }
                 }
@@ -639,7 +639,7 @@ void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, 
     draw_callback = draw_callback_;
 }
 
-void list::set_item_click_callback(std::function<void(int32_t)> item_click_callback_)
+void list::set_item_click_callback(std::function<void(int32_t, int32_t)> item_click_callback_)
 {
     item_click_callback = item_click_callback_;
 }
