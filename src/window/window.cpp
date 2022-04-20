@@ -69,7 +69,7 @@ void CenterHorizontally(wui::rect &pos, wui::system_context &context_)
     pos.right += pos.left;
 }
 
-void CenterVertically(wui::rect &pos, wui::system_context &context)
+void CenterVertically(wui::rect &pos, wui::system_context &context_)
 {
     pos.top = (context_.screen->height_in_pixels - pos.bottom) / 2;
     pos.bottom += pos.top;
