@@ -211,7 +211,7 @@ void list::receive_control_events(const event &ev)
 
                         if (item_click_callback)
                         {
-                            item_click_callback(selected_item_, ev.mouse_event_.x);
+                            item_click_callback(selected_item_, ev.mouse_event_.x - position().left);
                         }
                     }
                 }
