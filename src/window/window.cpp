@@ -874,11 +874,6 @@ void window::expand()
 
 void window::normal()
 {
-    if (window_state_ == window_state::normal)
-    {
-        return;
-    }
-
     if (control_callback)
     {
         std::string text = "normal";
