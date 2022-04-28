@@ -924,9 +924,9 @@ void window::normal()
 
     update_buttons();
 
-    send_internal(internal_event_type::window_normalized, normal_position.width(), normal_position.height()); 
+    send_internal(internal_event_type::window_normalized, position_.width(), position_.height()); 
 
-    redraw({ 0, 0, normal_position.width(), normal_position.height() }, true);
+    redraw({ 0, 0, position_.width(), position_.height() }, true);
 }
 
 window_state window::state() const
