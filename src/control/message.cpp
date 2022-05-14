@@ -79,7 +79,7 @@ void message::show(const std::string &message_,
     auto text_size = get_text_size();
 
     auto width = text_size.width() + 110;
-    auto height = text_size.height() + 140;
+    auto height = text_size.height() + 130;
 
     window_->add_control(icon, { 20, 50, 68, 98 });
 
