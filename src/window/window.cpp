@@ -202,12 +202,14 @@ void window::remove_control(std::shared_ptr<i_control> control)
         return;
     }
 
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
-    auto exists = std::find(controls.begin(), controls.end(), control);
-    if (exists != controls.end())
     {
-        controls.erase(exists);
+        std::lock_guard<std::recursive_mutex> lock(mutex);
+
+        auto exists = std::find(controls.begin(), controls.end(), control);
+        if (exists != controls.end())
+        {
+            controls.erase(exists);
+        }
     }
     
     auto clear_pos = control->position();
@@ -1769,7 +1771,9 @@ void window::destroy()
     {
         std::lock_guard<std::recursive_mutex> lock(mutex);
 
-        for (auto &control : controls)
+        auto controls_ = controls; /// This is necessary to solve the problem of removing child controls within a control
+
+        for (auto &control : controls_)
         {
             if (control)
             {
