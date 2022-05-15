@@ -423,6 +423,7 @@ void button::clear_parent()
     auto parent__ = parent_.lock();
     if (parent__)
     {
+        parent__->remove_control(tooltip_);
         parent__->unsubscribe(my_subscriber_id);
     }
     parent_.reset();

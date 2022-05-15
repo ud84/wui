@@ -136,7 +136,7 @@ void menu::clear_parent()
     auto parent__ = parent_.lock();
     if (parent__)
     {
-        list_->clear_parent();
+        parent__->remove_control(list_);
         parent__->unsubscribe(my_subscriber_id);
     }
 

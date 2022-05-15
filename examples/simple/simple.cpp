@@ -364,6 +364,23 @@ int main(int argc, char *argv[])
             { 5, "Item 5" }
         });
     window->add_control(someSelect, { 320, 300, 890, 325 });
+    /*std::thread t([someSelect, window]() {
+        bool has = false;
+        while (true)
+        {
+            if (!has)
+            {
+                window->add_control(someSelect, { 320, 300, 890, 325 });
+            }
+            else
+            {
+                window->remove_control(someSelect);
+            }
+            has = !has;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+    });
+    t.detach();*/
 
     std::shared_ptr<wui::window> dialog(new wui::window());
 
