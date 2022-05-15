@@ -479,7 +479,10 @@ void list::clear_parent()
     if (parent__)
     {
         parent__->unsubscribe(my_control_sid);
+        my_control_sid.clear();
+        
         parent__->unsubscribe(my_plain_sid);
+        my_plain_sid.clear();
     }
     parent_.reset();
 }

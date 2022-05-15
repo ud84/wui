@@ -105,7 +105,6 @@ void select::draw(graphic &gr, const rect &)
         font_);
 }
 
-
 void select::draw_arrow_down(graphic &gr, rect pos)
 {
     auto color = theme_color(tcn, !active ? tv_border : tv_focused_border, theme_);
@@ -332,10 +331,10 @@ void select::clear_parent()
         parent__->remove_control(list_);
         
         parent__->unsubscribe(my_control_sid);
-        my_control_sid = -1;
+        my_control_sid.clear();
 
         parent__->unsubscribe(my_plain_sid);
-        my_plain_sid = -1;
+        my_plain_sid.clear();
     }
     parent_.reset();
 }

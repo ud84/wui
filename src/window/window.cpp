@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <set>
+#include <random>
 
 #ifdef _WIN32
 
@@ -289,14 +290,20 @@ void window::redraw(const rect &redraw_position, bool clear)
 
 std::string window::subscribe(std::function<void(const event&)> receive_callback_, event_type event_types_, std::shared_ptr<i_control> control_)
 {
-    auto randchar = []() -> char
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> uid(0, 61);
+
+    auto randchar = [&uid, &gen]() -> char
     {
         const char charset[] =
             "0123456789"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz";
         const size_t max_index = (sizeof(charset) - 1);
-        return charset[rand() % max_index];
+        return charset[uid(gen)];
     };
     
     std::string id(20, 0);
@@ -308,7 +315,8 @@ std::string window::subscribe(std::function<void(const event&)> receive_callback
 
 void window::unsubscribe(const std::string &subscriber_id)
 {
-    auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [subscriber_id](const event_subscriber &es) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [&subscriber_id](const event_subscriber &es) {
         return es.id == subscriber_id;
     });
     if (it != subscribers_.end())
