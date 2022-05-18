@@ -9,7 +9,6 @@
 
 #include <wui/theme/theme_impl.hpp>
 
-#define JSON_NOEXCEPTION
 #include <nlohmann/json.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <sstream>
@@ -134,108 +133,116 @@ void theme_impl::load_resource(int32_t resource_index, const std::string &resour
 
 void theme_impl::load_json(const std::string &json_)
 {
-    auto j = nlohmann::json::parse(json_);
-
-    if (j.is_discarded())
+    try
     {
-        ok = false;
-        return;
-    }
+        auto j = nlohmann::json::parse(json_);
 
-    ok = true;
-
-    auto controls = j.at("controls");
-    for (auto &c : controls)
-    {
-        std::string control = c.at("type").get<std::string>();
-
-        auto obj = c.get<nlohmann::json::object_t>();
-        for (auto& kvp : obj)
+        if (j.is_discarded())
         {
-            if (kvp.first == "type")
-            {
-                continue;
-            }
-
-            if (kvp.second.is_string())
-            {
-                auto str = kvp.second.get<std::string>();
-                if (str[0] == '#')
-                {
-                    try
-                    {
-                        str.erase(0, 1);
-                        str.insert(0, "0x");
-                        int32_t color = std::stol(str, nullptr, 16);
-
-                        ints[control + kvp.first] = make_color(get_red(color), get_green(color), get_blue(color));
-                    }
-                    catch (...)
-                    {
-                        fprintf(stderr, "Error reading color in control: %s, key: %s, value: %s \n", control.c_str(), kvp.first.c_str(), str.c_str());
-                    }
-                }
-                else
-                {
-                    strings[control + kvp.first] = str;
-                }
-            }
-            else if (kvp.second.is_number_integer())
-            {
-                ints[control + kvp.first] = kvp.second.get<int32_t>();
-            }
-            else if (kvp.second.is_object())
-            {
-                auto fnt = kvp.second.get<nlohmann::json::object_t>();
-                fonts[control + kvp.first] = font{ fnt.at("name").get<std::string>(), fnt.at("size").get<int32_t>(), decorations::normal };
-            }
+            ok = false;
+            return;
         }
-    }
 
-    auto images = j.at("images");
-    for (auto &i : images)
-    {
-        std::string image_name;
-        std::vector<uint8_t> image_data;
+        ok = true;
 
-        auto obj = i.get<nlohmann::json::object_t>();
-        for (auto& kvp : obj)
+        auto controls = j.at("controls");
+        for (auto &c : controls)
         {
-            image_name = kvp.first;
+            std::string control = c.at("type").get<std::string>();
 
-            std::string byte_val;
-            auto s = kvp.second.get<std::string>();
-            for (auto &c : s)
+            auto obj = c.get<nlohmann::json::object_t>();
+            for (auto& kvp : obj)
             {
-                if (c == ' ' || c == ',')
+                if (kvp.first == "type")
                 {
                     continue;
                 }
 
-                if (byte_val.size() != 3)
+                if (kvp.second.is_string())
                 {
-                    byte_val += c;
-                }
-                else
-                {
-                    byte_val += c;
-
-                    char *p;
-                    auto n = strtoul(byte_val.c_str(), &p, 16);
-                    if (*p == 0)
+                    auto str = kvp.second.get<std::string>();
+                    if (str[0] == '#')
                     {
-                        image_data.emplace_back(static_cast<uint8_t>(n));
+                        try
+                        {
+                            str.erase(0, 1);
+                            str.insert(0, "0x");
+                            int32_t color = std::stol(str, nullptr, 16);
+
+                            ints[control + kvp.first] = make_color(get_red(color), get_green(color), get_blue(color));
+                        }
+                        catch (...)
+                        {
+                            fprintf(stderr, "Error reading color in control: %s, key: %s, value: %s \n", control.c_str(), kvp.first.c_str(), str.c_str());
+                        }
                     }
                     else
                     {
-                        fprintf(stderr, "Error reading image: %s, value: %s\n", image_name.c_str(), byte_val.c_str());
+                        strings[control + kvp.first] = str;
                     }
-
-                    byte_val.clear();
+                }
+                else if (kvp.second.is_number_integer())
+                {
+                    ints[control + kvp.first] = kvp.second.get<int32_t>();
+                }
+                else if (kvp.second.is_object())
+                {
+                    auto fnt = kvp.second.get<nlohmann::json::object_t>();
+                    fonts[control + kvp.first] = font{ fnt.at("name").get<std::string>(), fnt.at("size").get<int32_t>(), decorations::normal };
                 }
             }
         }
-        set_image(image_name, image_data);
+
+        auto images = j.at("images");
+        for (auto &i : images)
+        {
+            std::string image_name;
+            std::vector<uint8_t> image_data;
+
+            auto obj = i.get<nlohmann::json::object_t>();
+            for (auto& kvp : obj)
+            {
+                image_name = kvp.first;
+
+                std::string byte_val;
+                auto s = kvp.second.get<std::string>();
+                for (auto &c : s)
+                {
+                    if (c == ' ' || c == ',')
+                    {
+                        continue;
+                    }
+
+                    if (byte_val.size() != 3)
+                    {
+                        byte_val += c;
+                    }
+                    else
+                    {
+                        byte_val += c;
+
+                        char *p;
+                        auto n = strtoul(byte_val.c_str(), &p, 16);
+                        if (*p == 0)
+                        {
+                            image_data.emplace_back(static_cast<uint8_t>(n));
+                        }
+                        else
+                        {
+                            fprintf(stderr, "Error reading image: %s, value: %s\n", image_name.c_str(), byte_val.c_str());
+                        }
+
+                        byte_val.clear();
+                    }
+                }
+            }
+            set_image(image_name, image_data);
+        }
+    }
+    catch (nlohmann::detail::exception &e)
+    {
+        fprintf(stderr, "Error reading theme json: %s\n", e.what());
+        ok = false;
     }
 }
 

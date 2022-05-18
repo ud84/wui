@@ -9,7 +9,6 @@
 
 #include <wui/locale/locale_impl.hpp>
 
-#define JSON_NOEXCEPTION
 #include <nlohmann/json.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <sstream>
@@ -74,35 +73,43 @@ void locale_impl::load_resource(int32_t resource_index, const std::string &resou
 
 void locale_impl::load_json(const std::string &json_)
 {
-    auto j = nlohmann::json::parse(json_);
-
-    if (j.is_discarded())
+    try
     {
-        ok = false;
-        return;
-    }
+        auto j = nlohmann::json::parse(json_);
 
-    ok = true;
-
-    auto sections = j.at("sections");
-    for (auto &s : sections)
-    {
-        std::string section = s.at("type").get<std::string>();
-
-        auto obj = s.get<nlohmann::json::object_t>();
-        for (auto& kvp : obj)
+        if (j.is_discarded())
         {
-            if (kvp.first == "type")
-            {
-                continue;
-            }
+            ok = false;
+            return;
+        }
 
-            if (kvp.second.is_string())
+        ok = true;
+
+        auto sections = j.at("sections");
+        for (auto &s : sections)
+        {
+            std::string section = s.at("type").get<std::string>();
+
+            auto obj = s.get<nlohmann::json::object_t>();
+            for (auto& kvp : obj)
             {
-                auto str = kvp.second.get<std::string>();
-                strings[section + kvp.first] = str;
+                if (kvp.first == "type")
+                {
+                    continue;
+                }
+
+                if (kvp.second.is_string())
+                {
+                    auto str = kvp.second.get<std::string>();
+                    strings[section + kvp.first] = str;
+                }
             }
         }
+    }
+    catch (nlohmann::detail::exception &e)
+    {
+        fprintf(stderr, "Error reading locale json: %s\n", e.what());
+        ok = false;
     }
 }
 
