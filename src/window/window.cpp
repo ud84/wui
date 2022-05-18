@@ -504,10 +504,13 @@ void window::set_position(const rect &position__, bool redraw_)
 #ifdef _WIN32
     SetWindowPos(context_.hwnd, NULL, position___.left, position___.top, position___.width(), position___.height(), NULL);    
 #elif __linux__
-    uint32_t values[] = { static_cast<uint32_t>(position___.left), static_cast<uint32_t>(position___.top),
-        static_cast<uint32_t>(position___.width()), static_cast<uint32_t>(position___.height()) };
-    xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
-        XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+    if (context_.connection && context_.wnd)
+    {
+        uint32_t values[] = { static_cast<uint32_t>(position___.left), static_cast<uint32_t>(position___.top),
+            static_cast<uint32_t>(position___.width()), static_cast<uint32_t>(position___.height()) };
+        xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+    }
 #endif
 
     if (parent_.lock())
