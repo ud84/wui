@@ -498,20 +498,17 @@ void window::set_position(const rect &position__, bool redraw_)
         }
 
         position_ = position___;
-        redraw({ 0, 0, position___.width(), position___.height() });        
-    }
 
 #ifdef _WIN32
-    SetWindowPos(context_.hwnd, NULL, position___.left, position___.top, position___.width(), position___.height(), NULL);    
+    SetWindowPos(context_.hwnd, NULL, position___.left, position___.top, position___.width(), position___.height(), NULL);
 #elif __linux__
-    if (context_.connection && context_.wnd)
-    {
         uint32_t values[] = { static_cast<uint32_t>(position___.left), static_cast<uint32_t>(position___.top),
             static_cast<uint32_t>(position___.width()), static_cast<uint32_t>(position___.height()) };
         xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
             XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-    }
 #endif
+        redraw({ 0, 0, position___.width(), position___.height() }, true);
+    }
 
     if (parent_.lock())
     {
@@ -1375,7 +1372,7 @@ void window::update_buttons()
 	auto border_width = flag_is_set(window_style_, window_style::border_top) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
 
     auto btn_size = 26;
-    auto left = position_.width() - btn_size;
+    auto left = position_.width() - btn_size - 1;
     auto top = border_width;
 
     if (flag_is_set(window_style_, window_style::close_button))
