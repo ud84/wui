@@ -2415,11 +2415,6 @@ void window::process_events()
             break;
             case XCB_MOTION_NOTIFY:
             {
-                if (!enabled_)
-                {
-                    continue;
-                }
-
             	auto *ev = (xcb_motion_notify_event_t *)e;
 
             	int16_t x_mouse = ev->event_x;
@@ -2578,11 +2573,6 @@ void window::process_events()
             break;
             case XCB_BUTTON_PRESS:
             {
-                if (!enabled_)
-                {
-                    continue;
-                }
-
                 auto *ev = (xcb_button_press_event_t *)e;
                 if (ev->detail == 1)
                 {
@@ -2657,11 +2647,6 @@ void window::process_events()
             break;
             case XCB_BUTTON_RELEASE:
             {
-                if (!enabled_)
-                {
-                    continue;
-                }
-
                 moving_mode_ = moving_mode::none;
 
                 auto *ev = (xcb_button_press_event_t *)e;
@@ -2682,11 +2667,6 @@ void window::process_events()
             break;
             case XCB_KEY_PRESS:
             {
-                if (!enabled_)
-                {
-                    continue;
-                }
-
                 auto ev_ = *(xcb_key_press_event_t *)e;
 
                 if (ev_.detail == vk_tab)
@@ -2737,11 +2717,6 @@ void window::process_events()
             break;
             case XCB_KEY_RELEASE:
             {
-                if (!enabled_)
-                {
-                    continue;
-                }
-
                 auto ev_ = *(xcb_key_press_event_t *)e;
 
                 event ev;
