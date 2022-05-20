@@ -109,7 +109,10 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         button2(new wui::button("Button 2", [this]() {
             window->emit_event(310, 200);
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
-        button3(new wui::button("Button 3", []() {}, wui::button_view::image, IMG_ACCOUNT, 16)),
+        button3(new wui::button("Button 3", [this]() {
+            dialog->set_transient_for(window, false);
+            dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, []() {});
+        }, wui::button_view::image, IMG_ACCOUNT, 16)),
         input(new wui::input("", wui::input_view::password)),
         messageBox(new wui::message(window, true)),
         dialog(new wui::window()),
