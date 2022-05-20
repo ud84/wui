@@ -1155,7 +1155,7 @@ void window::send_mouse_event(const mouse_event &ev)
     {
         if (active_control == send_to_control)
         {
-            if (send_to_control->focusing() && ev_.type == mouse_event_type::left_up)
+            if (send_to_control->focusing() && ev_.type == mouse_event_type::left_down)
             {
                 set_focused(send_to_control);
             }
