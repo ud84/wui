@@ -142,7 +142,7 @@ window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     focused_index(0),
     parent_(),
     my_control_sid(), my_plain_sid(),
-    transient_window(), docked_(false), prev_disabled_controls(),
+    transient_window(), docked_(false), docked_control(),
     subscribers_(),
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
@@ -211,17 +211,16 @@ void window::remove_control(std::shared_ptr<i_control> control)
         {
             controls.erase(exists);
         }
+
+        if (control == docked_control)
+        {
+            docked_control.reset();
+        }
     }
     
     auto clear_pos = control->position();
     control->clear_parent();
     redraw(clear_pos, true);
-
-    auto prev_exists = std::find(prev_disabled_controls.begin(), prev_disabled_controls.end(), control);
-    if (prev_exists != prev_disabled_controls.end())
-    {
-        prev_disabled_controls.erase(prev_exists);
-    }
 }
 
 void window::bring_to_front(std::shared_ptr<i_control> control)
@@ -728,8 +727,6 @@ void window::enable()
 {
     enabled_ = true;
 
-    end_docking();
-
 #ifdef _WIN32
     EnableWindow(context_.hwnd, TRUE);
     SetWindowPos(context_.hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
@@ -739,8 +736,6 @@ void window::enable()
 void window::disable()
 {
     enabled_ = false;
-
-    start_docking();
 
 #ifdef _WIN32
     EnableWindow(context_.hwnd, FALSE);
@@ -1042,40 +1037,20 @@ void window::set_transient_for(std::shared_ptr<window> window_, bool docked__)
     docked_ = docked__;
 }
 
-void window::start_docking()
+void window::start_docking(std::shared_ptr<i_control> control)
 {
     set_focused(nullptr);
 
-    std::lock_guard<std::recursive_mutex> lock(mutex);
+    enabled_ = false;
 
-    for (auto &control : controls)
-    {
-        if (control->showed())
-        {
-            if (control->enabled())
-            {
-                control->disable();
-            }
-            else
-            {
-                prev_disabled_controls.emplace_back(control);
-            }
-        }
-    }
+    docked_control = control;
 }
 
 void window::end_docking()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
+    enabled_ = true;
 
-    for (auto &control : controls)
-    {
-        if (control->showed() && std::find(prev_disabled_controls.begin(), prev_disabled_controls.end(), control) == prev_disabled_controls.end())
-        {
-            control->enable();
-        }
-    }
-    prev_disabled_controls.clear();
+    docked_control.reset();
 }
 
 void window::emit_event(int32_t x, int32_t y)
@@ -1140,6 +1115,11 @@ void window::send_event_to_plains(const event &ev)
 
 void window::send_mouse_event(const mouse_event &ev)
 {
+    if (!enabled_ && !docked_control)
+    {
+        return;
+    }
+
     if (active_control && !active_control->position().in(ev.x, ev.y))
     {
         mouse_event me{ mouse_event_type::leave };
@@ -1186,20 +1166,33 @@ void window::send_mouse_event(const mouse_event &ev)
 
     std::lock_guard<std::recursive_mutex> lock(mutex);
 
-    auto end = controls.rend();
-    for (auto control = controls.rbegin(); control != end; ++control)
+    if (enabled_)
     {
-        if ((*control)->topmost() && (*control)->showed() && (*control)->position().in(ev.x, ev.y))
+        auto end = controls.rend();
+        for (auto control = controls.rbegin(); control != end; ++control)
         {
-            return send_mouse_event_to_control(*control, ev);
+            if ((*control)->topmost() && (*control)->showed() && (*control)->position().in(ev.x, ev.y))
+            {
+                return send_mouse_event_to_control(*control, ev);
+            }
+        }
+
+        for (auto control = controls.rbegin(); control != end; ++control)
+        {
+            if ((*control)->showed() && (*control)->position().in(ev.x, ev.y))
+            {
+                return send_mouse_event_to_control(*control, ev);
+            }
         }
     }
-
-    for (auto control = controls.rbegin(); control != end; ++control)
+    else
     {
-        if ((*control)->showed() && (*control)->position().in(ev.x, ev.y))
+        for (auto &control : controls)
         {
-            return send_mouse_event_to_control(*control, ev);
+            if (control->position().in(ev.x, ev.y) && control == docked_control)
+            {
+                return send_mouse_event_to_control(control, ev);
+            }
         }
     }
 }
@@ -1537,12 +1530,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
         if (docked_ && transient_window_->position_ > position_)
         {
-			transient_window_->start_docking();
-
-            int32_t left = (transient_window_->position().width() - position_.width()) / 2;
+			int32_t left = (transient_window_->position().width() - position_.width()) / 2;
             int32_t top = (transient_window_->position().height() - position_.height()) / 2;
 
 			transient_window_->add_control(shared_from_this(), { left, top, left + position_.width(), top + position_.height() });
+            transient_window_->start_docking(shared_from_this());
         }
         else
         {

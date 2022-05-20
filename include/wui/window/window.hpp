@@ -98,7 +98,7 @@ public:
     void set_min_size(int32_t width, int32_t height);
 
     void set_transient_for(std::shared_ptr<window> window_, bool docked = true);
-    void start_docking();
+    void start_docking(std::shared_ptr<i_control> control);
     void end_docking();
 
     /// Window state methods
@@ -170,7 +170,7 @@ private:
 
     std::weak_ptr<window> transient_window;
     bool docked_;
-    std::vector<std::shared_ptr<i_control>> prev_disabled_controls;
+    std::shared_ptr<i_control> docked_control;
 
     struct event_subscriber
     {

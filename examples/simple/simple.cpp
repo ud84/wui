@@ -504,6 +504,9 @@ int main(int argc, char *argv[])
         runned = false;
 #endif
     });
+
+    pluggedWindow->messageBox->show("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took\na galley of type and scrambled it to make a type specimen book.",
+        "hello world", wui::message_icon::information, wui::message_button::ok);
 	
 #ifdef _WIN32
     // Main message loop:
