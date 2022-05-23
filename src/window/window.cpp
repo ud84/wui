@@ -1939,29 +1939,38 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             int16_t x_mouse = GET_X_LPARAM(l_param);
             int16_t y_mouse = GET_Y_LPARAM(l_param);
 
+            static bool cursor_size_view = false;
+
             if (flag_is_set(wnd->window_style_, window_style::resizable) && wnd->window_state_ == window_state::normal)
             {
                 if ((x_mouse > window_rect.right - window_rect.left - 5 && y_mouse > window_rect.bottom - window_rect.top - 5) ||
                     (x_mouse < 5 && y_mouse < 5))
                 {
                     set_cursor(wnd->context_, cursor::size_nwse);
+                    cursor_size_view = true;
                 }
                 else if ((x_mouse > window_rect.right - window_rect.left - 5 && y_mouse < 5) ||
                     (x_mouse < 5 && y_mouse > window_rect.bottom - window_rect.top - 5))
                 {
                     set_cursor(wnd->context_, cursor::size_nesw);
+                    cursor_size_view = true;
                 }
                 else if (x_mouse > window_rect.right - window_rect.left - 5 || x_mouse < 5)
                 {
                     set_cursor(wnd->context_, cursor::size_we);
+                    cursor_size_view = true;
                 }
                 else if (y_mouse > window_rect.bottom - window_rect.top - 5 || y_mouse < 5)
                 {
                     set_cursor(wnd->context_, cursor::size_ns);
+                    cursor_size_view = true;
                 }
-                else if (!wnd->active_control)
+                else if (cursor_size_view &&
+                    x_mouse > 5 && x_mouse < window_rect.right - window_rect.left - 5 &&
+                    y_mouse > 5 && y_mouse < window_rect.bottom - window_rect.top - 5)
                 {
                     set_cursor(wnd->context_, cursor::default_);
+                    cursor_size_view = false;
                 }
             }
 
