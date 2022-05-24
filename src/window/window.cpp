@@ -2429,6 +2429,8 @@ void window::process_events()
             	int16_t x_mouse = ev->event_x;
                 int16_t y_mouse = ev->event_y;
 
+                static bool cursor_size_view = false;
+
                 auto ws = get_window_size(context_);
 
                 if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
@@ -2437,23 +2439,30 @@ void window::process_events()
                         (x_mouse < 5 && y_mouse < 5))
                     {
                         set_cursor(context_, cursor::size_nwse);
+                        cursor_size_view = true;
                     }
                     else if ((x_mouse > ws.width() - 5 && y_mouse < 5) ||
                         (x_mouse < 5 && y_mouse > ws.height() - 5))
                     {
                     	set_cursor(context_, cursor::size_nesw);
+                        cursor_size_view = true;
                     }
                     else if (x_mouse > ws.width() - 5 || x_mouse < 5)
                     {
                     	set_cursor(context_, cursor::size_we);
+                        cursor_size_view = true;
                     }
                     else if (y_mouse > ws.height() - 5 || y_mouse < 5)
                     {
                     	set_cursor(context_, cursor::size_ns);
+                        cursor_size_view = true;
                     }
-                    else if (!active_control)
+                    else if (cursor_size_view &&
+                        x_mouse > 5 && x_mouse < ws.width() - 5 &&
+                        y_mouse > 5 && y_mouse < ws.height() - 5)
                     {
                         set_cursor(context_, cursor::default_);
+                        cursor_size_view = false;
                     }
                 }
 
