@@ -1218,7 +1218,7 @@ void window::change_focus()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex);
 
-    if (controls.empty())
+    if (controls.empty() || docked_control)
     {
         return;
     }
