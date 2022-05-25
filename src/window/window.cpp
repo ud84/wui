@@ -1188,7 +1188,7 @@ void window::change_focus()
 
     for (auto &control : controls)
     {
-        if (control->focused())
+        if (control->focused() && control != docked_control)
         {
             event ev;
             ev.type = event_type::internal;
