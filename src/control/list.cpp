@@ -580,7 +580,7 @@ void list::select_item(int32_t n_item)
     
     selected_item_ = n_item;
 
-    if (prev_selected_item_ != selected_item_ && item_change_callback)
+    if (item_change_callback)
     {
         item_change_callback(selected_item_);
     }
