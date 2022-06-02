@@ -188,8 +188,6 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
 
     auto out_pos = popup_control_position;
 
-    out_pos.put(base_position.left + indent, base_position.top + indent); // on the control
-
     bool position_finded = false;
 
     out_pos.put(base_position.left + indent, base_position.bottom + indent); // below the control
@@ -240,10 +238,15 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
     if (!position_finded)
     {
         out_pos.put(base_position.left + indent, base_position.top + indent); // on the control
-        if (out_pos.bottom > parent_pos.bottom)
-        {
-            out_pos.move(0, parent_pos.bottom - out_pos.bottom);
-        }
+    }
+
+    if (out_pos.bottom > parent_pos.bottom && out_pos.top > parent_pos.top)
+    {
+        out_pos.move(0, parent_pos.bottom - out_pos.bottom);
+    }
+    if (out_pos.right > parent_pos.right && out_pos.left > parent_pos.left)
+    {
+        out_pos.move(parent_pos.right - out_pos.right, 0);
     }
 
     parent_ = parent.lock();
