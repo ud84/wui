@@ -395,6 +395,14 @@ int main(int argc, char *argv[])
         std::shared_ptr<wui::input> input2(new wui::input());
         dialog->add_control(input2, { 10, 70, 200, 95 });
 
+        std::shared_ptr<wui::select> select1(new wui::select());
+
+        wui::select_items_t items = { { 1, "123" }, { 2, "456" }, { 3, "789" }, { 4, "101112" }, { 5, "131415" }, { 6, "161718" }, { 7, "192021" }, { 8, "222324" } };
+
+        select1->set_items(items);
+
+        dialog->add_control(select1, { 10, 130, 200, 155 });
+
         std::shared_ptr<wui::button> dialogButton(new wui::button("Close", [&dialog]() { dialog->destroy(); }));
         dialog->add_control(dialogButton, { 10, 200, 100, 235 });
 
