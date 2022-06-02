@@ -83,7 +83,7 @@ public:
     void select_item_id(int64_t id);
     select_item selected_item() const;
 
-    void set_change_callback(std::function<void(int32_t, const std::string&)> change_callback);
+    void set_change_callback(std::function<void(int32_t /* number */, int64_t /* id */)> change_callback);
 
 public:
     /// Control name in theme
@@ -108,7 +108,7 @@ public:
 private:
     std::vector<select_item> items;
 
-    std::function<void(int32_t, const std::string&)> change_callback;
+    std::function<void(int32_t, int64_t)> change_callback;
     
     std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
@@ -143,6 +143,7 @@ private:
 
     void draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &);
     void activate_list_item(int32_t n_item);
+    void change_list_item(int32_t n_item);
 };
 
 }

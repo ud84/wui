@@ -48,6 +48,7 @@ select::select(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     list_->set_draw_callback(std::bind(&select::draw_list_item, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
     list_->set_item_click_callback(std::bind(&select::activate_list_item, this, std::placeholders::_1));
     list_->set_item_activate_callback(std::bind(&select::activate_list_item, this, std::placeholders::_1));
+    list_->set_item_change_callback(std::bind(&select::change_list_item, this, std::placeholders::_1));
 }
 
 select::~select()
@@ -485,7 +486,7 @@ select_item select::selected_item() const
     return result;
 }
 
-void select::set_change_callback(std::function<void(int32_t, const std::string&)> change_callback_)
+void select::set_change_callback(std::function<void(int32_t, int64_t)> change_callback_)
 {
     change_callback = change_callback_;
 }
@@ -546,6 +547,14 @@ void select::activate_list_item(int32_t n_item)
 {
     list_->hide();
     redraw();
+}
+
+void select::change_list_item(int32_t n_item)
+{
+    if (change_callback)
+    {
+        change_callback(n_item, n_item < static_cast<int32_t>(items.size()) ? items[n_item].id : -1);
+    }
 }
 
 }
