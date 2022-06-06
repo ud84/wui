@@ -404,7 +404,7 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
         }
     }
 
-    auto pos = get_popup_position(parent_, base_pos, position_, indent, false);
+    auto pos = get_popup_position(parent_, base_pos, position_, indent);
 
     list_->set_position(pos, true);
     list_->show();

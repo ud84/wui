@@ -223,7 +223,7 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
 {
     update_size();
 
-    auto pos = get_popup_position(parent_, control.position(), position_, indent, true);
+    auto pos = get_popup_position(parent_, control.position(), position_, indent);
     
     set_position(pos, false);
     show();

@@ -45,7 +45,7 @@ void update_control_position(rect &control_position,
 rect get_control_position(const rect &control_position, std::weak_ptr<window> parent);
 
 /// This function calculates the position of the popup item relative to base position
-rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position, const rect &popup_control_position, int32_t indent, bool use_physical_parent);
+rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position, const rect &popup_control_position, int32_t indent);
 
 void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t width, int32_t truncating_count = 10);
 

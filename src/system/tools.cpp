@@ -164,20 +164,12 @@ rect get_control_position(const rect &control_position, std::weak_ptr<window> pa
     return out_pos;
 }
 
-rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position, const rect &popup_control_position, int32_t indent, bool use_physical_parent)
+rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position, const rect &popup_control_position, int32_t indent)
 {
     auto parent_ = parent.lock();
     if (!parent_)
     {
         return { 0 };
-    }
-
-    if (use_physical_parent)
-    {
-        while (parent_->parent().lock())
-        {
-            parent_ = parent_->parent().lock();
-        }
     }
 
     auto parent_pos = parent_->position();
