@@ -82,6 +82,7 @@ public:
     void select_item_number(int32_t index);
     void select_item_id(int64_t id);
     select_item selected_item() const;
+    const select_items_t &items() const;
 
     void set_change_callback(std::function<void(int32_t /* number */, int64_t /* id */)> change_callback);
 
@@ -106,7 +107,7 @@ public:
     static constexpr const char *tv_font = "font";
 
 private:
-    std::vector<select_item> items;
+    std::vector<select_item> items_;
 
     std::function<void(int32_t, int64_t)> change_callback;
     

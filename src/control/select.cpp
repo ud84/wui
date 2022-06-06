@@ -28,7 +28,7 @@ namespace wui
 static const int32_t select_horizontal_indent = 5;
 
 select::select(const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
-    : items(),
+    : items_(),
     change_callback(),
     tcn(theme_control_name),
     theme_(theme__),
@@ -88,12 +88,12 @@ void select::draw(graphic &gr, const rect &)
 
     auto font_ = theme_font(tcn, tv_font, theme_);
 
-    if (static_cast<int32_t>(items.size()) <= list_->selected_item())
+    if (static_cast<int32_t>(items_.size()) <= list_->selected_item())
     {
         return;
     }
 
-    auto text = items[list_->selected_item()].text;
+    auto text = items_[list_->selected_item()].text;
 
     auto text_size = gr.measure_text(text, font_);
 
@@ -124,7 +124,7 @@ void select::draw_arrow_down(graphic &gr, rect pos)
 
 void select::select_up()
 {
-    if (!items.empty() && list_->selected_item() > 0)
+    if (!items_.empty() && list_->selected_item() > 0)
     {
         list_->select_item(list_->selected_item() - 1);
         redraw();
@@ -133,7 +133,7 @@ void select::select_up()
 
 void select::select_down()
 {
-    if (!items.empty() && list_->selected_item() < static_cast<int32_t>(items.size()) - 1)
+    if (!items_.empty() && list_->selected_item() < static_cast<int32_t>(items_.size()) - 1)
     {
         list_->select_item(list_->selected_item() + 1);
         redraw();
@@ -142,7 +142,7 @@ void select::select_down()
 
 void select::show_list()
 {
-    list_->set_position({ position_.left, position_.top, position_.right, position_.top + list_->get_item_height() * static_cast<int32_t>(items.size()) });
+    list_->set_position({ position_.left, position_.top, position_.right, position_.top + list_->get_item_height() * static_cast<int32_t>(items_.size()) });
     auto pos = get_popup_position(parent_, position(), list_->position(), 0);
 
     list_->set_position(pos, true);
@@ -211,16 +211,16 @@ void select::receive_control_events(const event &ev)
                         select_down();
                     break;
                     case vk_home: case vk_page_up:
-                        if (!items.empty())
+                        if (!items_.empty())
                         {
                             list_->select_item(0);
                             redraw();
                         }
                     break;
                     case vk_end: case vk_page_down:
-                        if (!items.empty())
+                        if (!items_.empty())
                         {
-                            list_->select_item(static_cast<int32_t>(items.size() - 1));
+                            list_->select_item(static_cast<int32_t>(items_.size() - 1));
                             redraw();
                         }
                     break;
@@ -409,44 +409,44 @@ bool select::enabled() const
     return enabled_;
 }
 
-void select::set_items(const select_items_t &items_)
+void select::set_items(const select_items_t &items__)
 {
-    items = items_;
-    list_->set_item_count(static_cast<int32_t>(items.size()));
+    items_ = items__;
+    list_->set_item_count(static_cast<int32_t>(items_.size()));
 }
 
 void select::update_item(const select_item &si)
 {
-    auto it = std::find(items.begin(), items.end(), si.id);
-    if (it != items.end())
+    auto it = std::find(items_.begin(), items_.end(), si.id);
+    if (it != items_.end())
     {
         *it = si;
     }
-    list_->set_item_count(static_cast<int32_t>(items.size()));
+    list_->set_item_count(static_cast<int32_t>(items_.size()));
 }
 
 void select::swap_items(int64_t first_item_id, int64_t second_item_id)
 {
-    auto first_it = std::find(items.begin(), items.end(), first_item_id);
-    if (first_it != items.end())
+    auto first_it = std::find(items_.begin(), items_.end(), first_item_id);
+    if (first_it != items_.end())
     {
-        auto second_it = std::find(items.begin(), items.end(), second_item_id);
-        if (second_it != items.end())
+        auto second_it = std::find(items_.begin(), items_.end(), second_item_id);
+        if (second_it != items_.end())
         {
             std::swap(*first_it, *second_it);
         }
     }
-    list_->set_item_count(static_cast<int32_t>(items.size()));
+    list_->set_item_count(static_cast<int32_t>(items_.size()));
 }
 
 void select::delete_item(int64_t id)
 {
-    auto it = std::find(items.begin(), items.end(), id);
-    if (it != items.end())
+    auto it = std::find(items_.begin(), items_.end(), id);
+    if (it != items_.end())
     {
-        items.erase(it);
+        items_.erase(it);
     }
-    list_->set_item_count(static_cast<int32_t>(items.size()));
+    list_->set_item_count(static_cast<int32_t>(items_.size()));
 }
 
 void select::set_item_height(int32_t item_height_)
@@ -462,9 +462,9 @@ void select::select_item_number(int32_t index)
 
 void select::select_item_id(int64_t id)
 {
-    for (int32_t i = 0; i != static_cast<int32_t>(items.size()); ++i)
+    for (int32_t i = 0; i != static_cast<int32_t>(items_.size()); ++i)
     {
-        if (items[i].id == id)
+        if (items_[i].id == id)
         {
             select_item_number(i);
             break;
@@ -477,13 +477,19 @@ select_item select::selected_item() const
     auto item_number = list_->selected_item();
 
     select_item result;
+    result.id = -1;
 
-    if (item_number != -1 && item_number < static_cast<int32_t>(items.size()))
+    if (item_number != -1 && item_number < static_cast<int32_t>(items_.size()))
     {
-        result = items[item_number];
+        result = items_[item_number];
     }
 
     return result;
+}
+
+const select_items_t &select::items() const
+{
+    return items_;
 }
 
 void select::set_change_callback(std::function<void(int32_t, int64_t)> change_callback_)
@@ -505,12 +511,12 @@ void select::redraw()
 
 void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &)
 {
-    if (static_cast<int32_t>(items.size()) <= n_item)
+    if (static_cast<int32_t>(items_.size()) <= n_item)
     {
         return;
     }
 
-    auto item = items[n_item];
+    auto item = items_[n_item];
     
     auto border_width = theme_dimension(tcn, tv_border_width);
 
@@ -533,7 +539,7 @@ void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_,
     auto text_color = theme_color(tcn, tv_text);
     auto font = theme_font(tcn, tv_font);
 
-    auto text = items[n_item].text;
+    auto text = items_[n_item].text;
 
     auto text_size = gr.measure_text(text, font);
 
@@ -553,7 +559,7 @@ void select::change_list_item(int32_t n_item)
 {
     if (change_callback)
     {
-        change_callback(n_item, n_item < static_cast<int32_t>(items.size()) ? items[n_item].id : -1);
+        change_callback(n_item, n_item < static_cast<int32_t>(items_.size()) ? items_[n_item].id : -1);
     }
 }
 
