@@ -658,6 +658,9 @@ void input::update_theme(std::shared_ptr<i_theme> theme__)
         return;
     }
     theme_ = theme__;
+
+    menu_->update_theme(theme_);
+    redraw();
 }
 
 void input::show()
