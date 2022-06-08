@@ -576,6 +576,7 @@ void input::receive_control_events(const event &ev)
                 cursor_visible = false;
 
                 selecting = false;
+                select_start_position = select_end_position = 0;
 
                 timer_.stop();
 
