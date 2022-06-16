@@ -71,7 +71,7 @@ void set_cursor(system_context &context, cursor cursor_)
     switch (cursor_)
     {
         case cursor::default_:
-            cursor_id = "default";
+            cursor_id = "arrow";
         break;
         case cursor::hand:
             cursor_id = "hand";
