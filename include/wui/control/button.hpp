@@ -33,6 +33,7 @@ enum class button_view
     image_right_text,
     image_bottom_text,
     switcher,
+    radio,
     anchor,
     sheet
 };
@@ -117,6 +118,8 @@ public:
     ///Used theme images
     static constexpr const char *ti_switcher_off = "button_switcher_off";
     static constexpr const char *ti_switcher_on = "button_switcher_on";
+    static constexpr const char *ti_radio_off = "button_radio_off";
+    static constexpr const char *ti_radio_on = "button_radio_on";
 
 private:
     button_view button_view_;

@@ -40,10 +40,26 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 {
 }
 
+std::shared_ptr<image> get_button_image(button_view button_view_, std::shared_ptr<i_theme> theme_)
+{
+    switch (button_view_)
+    {
+        case button_view::switcher:
+            return std::shared_ptr<image>(new image(theme_image(button::ti_switcher_on, theme_)));
+        break;
+        case button_view::radio:
+            return std::shared_ptr<image>(new image(theme_image(button::ti_radio_on, theme_)));
+        break;
+        default:
+            return nullptr;
+        break;
+    }
+}
+
 button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
-    image_(button_view_ == button_view::switcher ? new image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off, theme__)) : nullptr),
+    image_(get_button_image(button_view__, theme__)),
     image_size(0),
     tooltip_(new tooltip(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
@@ -202,7 +218,7 @@ void button::draw(graphic &gr, const rect &)
                 text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
             }
         break;
-        case button_view::switcher:
+        case button_view::switcher: case button_view::radio:
             if (image_)
             {
                 if (image_->width() + text_rect.right + 10 > position_.width())
@@ -254,7 +270,7 @@ void button::draw(graphic &gr, const rect &)
         break;
     }
 
-    if (button_view_ != button_view::anchor && button_view_ != button_view::switcher && button_view_ != button_view::sheet)
+    if (button_view_ != button_view::anchor && button_view_ != button_view::switcher && button_view_ != button_view::radio && button_view_ != button_view::sheet)
     {
         auto border_color = !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_);
 
@@ -267,8 +283,8 @@ void button::draw(graphic &gr, const rect &)
     {
         image_->set_position( { image_left,
             image_top,
-            image_left + (button_view_ != button_view::switcher ? image_size : image_->width()),
-            image_top + (button_view_ != button_view::switcher ? image_size : image_->height()) },
+            image_left + (button_view_ != button_view::switcher && button_view_ != button_view::radio ? image_size : image_->width()),
+            image_top + (button_view_ != button_view::switcher  && button_view_ != button_view::radio ? image_size : image_->height()) },
             false );
         image_->draw(gr, { 0 });
     }
@@ -348,7 +364,7 @@ void button::receive_event(const event &ev)
                     active = false;
                     tooltip_->hide();
 
-                    if (button_view_ == button_view::switcher)
+                    if (button_view_ == button_view::switcher || button_view_ == button_view::radio)
                     {
                         turn(!turned_);
                     }
@@ -378,7 +394,7 @@ void button::receive_event(const event &ev)
                 redraw();
             break;
             case internal_event_type::execute_focused:
-                if (button_view_ == button_view::switcher)
+                if (button_view_ == button_view::switcher || button_view_ == button_view::radio)
                 {
                     turn(!turned_);
                 }
@@ -462,6 +478,10 @@ void button::update_theme(std::shared_ptr<i_theme> theme__)
     if (button_view_ == button_view::switcher)
     {
         image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
+    }
+    if (button_view_ == button_view::radio)
+    {
+        image_->change_image(theme_image(turned_ ? ti_radio_on : ti_radio_off));
     }
     else if (image_)
     {
@@ -587,9 +607,16 @@ void button::disable_focusing()
 void button::turn(bool on)
 {
     turned_ = on;
-    if (button_view_ == button_view::switcher)
+    switch (button_view_)
     {
-        image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
+        case button_view::switcher:
+            image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
+        break;
+        case button_view::radio:
+            image_->change_image(theme_image(turned_ ? ti_radio_on : ti_radio_off));
+        break;
+        default:
+        break;
     }
     redraw();
 }
