@@ -82,6 +82,15 @@ tray_icon::~tray_icon()
     if (parent_)
     {
         parent_->unsubscribe(my_subscriber_id);
+
+#ifdef _WIN32
+        NOTIFYICONDATA nid;
+        memset(&nid, 0, sizeof(NOTIFYICONDATA));
+        nid.cbSize = sizeof(NOTIFYICONDATA);
+        nid.hWnd = parent_->context().hwnd;
+        nid.uID = ID;
+        Shell_NotifyIcon(NIM_DELETE, &nid);
+#endif
     }
 }
 
