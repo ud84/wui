@@ -62,6 +62,10 @@ private:
     std::string my_subscriber_id;
 
     void receive_event(const event &ev);
+
+#ifdef _WIN32
+    HICON GetHIcon();
+#endif
 };
 
 }
