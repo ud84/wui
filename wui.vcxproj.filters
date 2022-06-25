@@ -165,6 +165,9 @@
     <ClInclude Include="include\wui\control\panel.hpp">
       <Filter>Header Files\wui\control</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\control\tray_icon.h">
+      <Filter>Header Files\wui\control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -225,6 +228,9 @@
       <Filter>Source Files\control</Filter>
     </ClCompile>
     <ClCompile Include="src\control\panel.cpp">
+      <Filter>Source Files\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\tray_icon.cpp">
       <Filter>Source Files\control</Filter>
     </ClCompile>
   </ItemGroup>
