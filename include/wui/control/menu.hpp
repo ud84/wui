@@ -81,6 +81,7 @@ public:
     virtual void set_topmost(bool);
     virtual bool topmost() const;
 
+    virtual void update_theme_control_name(const std::string &theme_control_name);
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();

@@ -259,6 +259,10 @@ bool image::focusing() const
     return false;
 }
 
+void image::update_theme_control_name(const std::string &)
+{
+}
+
 void image::update_theme(std::shared_ptr<i_theme> theme__)
 {
     if (theme_ && !theme__)

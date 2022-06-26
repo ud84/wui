@@ -10,6 +10,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 namespace wui
 {
@@ -34,6 +35,7 @@ public:
     virtual void set_topmost(bool yes) = 0;
     virtual bool topmost() const = 0;
 
+    virtual void update_theme_control_name(const std::string &theme_control_name) = 0;
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) = 0;
 
     virtual void show() = 0;

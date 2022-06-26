@@ -107,6 +107,12 @@ bool panel::focusing() const
     return false;
 }
 
+void panel::update_theme_control_name(const std::string &theme_control_name)
+{
+    tcn = theme_control_name;
+    update_theme(theme_);
+}
+
 void panel::update_theme(std::shared_ptr<i_theme> theme__)
 {
     if (theme_ && !theme__)
