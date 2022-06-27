@@ -71,7 +71,7 @@ tray_icon::tray_icon(std::weak_ptr<window> parent__, const std::string &icon_fil
         nid.hIcon = (HICON)LoadImage(NULL, boost::nowide::widen(icon_file_name).c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
         wcscpy_s(nid.szTip, boost::nowide::widen(tip).c_str());
         Shell_NotifyIcon(NIM_ADD, &nid);
-#else __linux__
+#elif __linux__
 #endif
     }
 }
@@ -137,7 +137,7 @@ void tray_icon::change_icon(const std::string &icon_file_name_)
 
         Shell_NotifyIcon(NIM_MODIFY, &nid);
     }
-#else __linux__
+#elif __linux__
 #endif
 }
 
@@ -161,7 +161,7 @@ void tray_icon::change_tip(const std::string &tip_)
 
         Shell_NotifyIcon(NIM_MODIFY, &nid);
     }
-#else __linux__
+#elif __linux__
 #endif
 }
 
@@ -194,7 +194,7 @@ void tray_icon::show_message(const std::string &title, const std::string &messag
 
         Shell_NotifyIcon(NIM_MODIFY, &nid);
     }
-#else __linux__
+#elif __linux__
 #endif
 }
 
@@ -224,7 +224,7 @@ void tray_icon::receive_event(const event &ev)
             break;
         }
     }
-#else __linux__
+#elif __linux__
 #endif
 }
 
