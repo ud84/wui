@@ -178,13 +178,7 @@ void list::receive_control_events(const event &ev)
                         prev_scroll_pos = ev.mouse_event_.y;
                     }
                 }
-            break;
-            case mouse_event_type::left_up:
-            {
-                slider_scrolling = false;
-                end_work();
-
-                if (!is_click_on_scrollbar(ev.mouse_event_.x))
+                else
                 {
                     if (ev.mouse_event_.y - position().top <= title_height)
                     {
@@ -215,6 +209,11 @@ void list::receive_control_events(const event &ev)
                         }
                     }
                 }
+            break;
+            case mouse_event_type::left_up:
+            {
+                slider_scrolling = false;
+                end_work();
             }
             break;
             case mouse_event_type::right_up:
