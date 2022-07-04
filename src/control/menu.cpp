@@ -266,6 +266,7 @@ void menu::set_items(const menu_items_t &items_)
 {
     items = items_;
     list_->set_item_count(calc_items_count(items));
+    size_updated = false;
 }
 
 void menu::update_item(const menu_item &mi)
