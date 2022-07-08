@@ -751,10 +751,9 @@ void input::redraw_cursor()
     redraw();
 }
 
-#ifdef _WIN32
 void input::buffer_copy()
 {
-    if (select_start_position == select_end_position || input_view_ == input_view::password)
+    if (!parent_.lock() || select_start_position == select_end_position || input_view_ == input_view::password)
     {
         return;
     }
@@ -772,24 +771,7 @@ void input::buffer_copy()
         end = select_start_position;
     }
 
-    std::string copy_text = text_.substr(start, end - start);
-    auto wide_str = boost::nowide::widen(copy_text);
-
-    if (OpenClipboard(parent_.lock()->context().hwnd))
-    {
-        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, wide_str.size() * sizeof(wchar_t) + 2);
-        if (hGlobal != NULL)
-        {
-            LPVOID lpText = GlobalLock(hGlobal);
-            memcpy(lpText, wide_str.c_str(), wide_str.size() * sizeof(wchar_t));
-
-            EmptyClipboard();
-            GlobalUnlock(hGlobal);
-
-            SetClipboardData(CF_UNICODETEXT, hGlobal);
-        }
-        CloseClipboard();
-    }
+    clipboard_put(text_.substr(start, end - start), parent_.lock()->context());
 }
 
 void input::buffer_cut()
@@ -813,32 +795,15 @@ void input::buffer_cut()
 
 void input::buffer_paste()
 {
-    if (input_view_ == input_view::readonly || !IsClipboardFormatAvailable(CF_UNICODETEXT))
+    if (!parent_.lock() || input_view_ == input_view::readonly || !is_text_in_clipboard(parent_.lock()->context()))
     {
         return;
     }
-
-    if (!OpenClipboard(NULL))
-    {
-        return;
-    }
-
-    std::string paste_string;
-
-    HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
-    if (hglb)
-    {
-        wchar_t *lptstr = (wchar_t *)GlobalLock(hglb);
-        if (lptstr)
-        {
-            paste_string = boost::nowide::narrow(lptstr);
-            GlobalUnlock(hglb);
-        }
-    }
-    CloseClipboard();
 
     clear_selected_text();
 
+    auto paste_string = clipboard_get_text(parent_.lock()->context());
+    
     text_.insert(cursor_position, paste_string);
 
     cursor_position += paste_string.size();
@@ -850,24 +815,5 @@ void input::buffer_paste()
         change_callback(text_);
     }
 }
-
-#elif __linux__
-
-void input::buffer_copy()
-{
-
-}
-
-void input::buffer_cut()
-{
-
-}
-
-void input::buffer_paste()
-{
-
-}
-
-#endif
 
 }

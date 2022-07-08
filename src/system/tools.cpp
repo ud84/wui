@@ -13,6 +13,8 @@
 
 #include <utf8/utf8.h>
 
+#include <boost/nowide/convert.hpp>
+
 #ifdef _WIN32
 
 #include <windows.h>
@@ -283,5 +285,75 @@ void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t wi
         line += "...";
     }
 }
+
+#ifdef _WIN32
+
+void clipboard_put(const std::string &text, system_context &context)
+{
+    auto wide_str = boost::nowide::widen(text);
+
+    if (OpenClipboard(context.hwnd))
+    {
+        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, wide_str.size() * sizeof(wchar_t) + 2);
+        if (hGlobal != NULL)
+        {
+            LPVOID lpText = GlobalLock(hGlobal);
+            memcpy(lpText, wide_str.c_str(), wide_str.size() * sizeof(wchar_t));
+
+            EmptyClipboard();
+            GlobalUnlock(hGlobal);
+
+            SetClipboardData(CF_UNICODETEXT, hGlobal);
+        }
+        CloseClipboard();
+    }
+}
+
+bool is_text_in_clipboard(system_context &context)
+{
+    return IsClipboardFormatAvailable(CF_UNICODETEXT);
+}
+
+std::string clipboard_get_text(system_context &context)
+{
+    if (!OpenClipboard(NULL))
+    {
+        return "";
+    }
+
+    std::string paste_string;
+
+    HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
+    if (hglb)
+    {
+        wchar_t *lptstr = (wchar_t *)GlobalLock(hglb);
+        if (lptstr)
+        {
+            paste_string = boost::nowide::narrow(lptstr);
+            GlobalUnlock(hglb);
+        }
+    }
+    CloseClipboard();
+
+    return paste_string;
+}
+
+#elif __linux__
+
+void clipboard_put(const std::string &text, system_context &context)
+{
+}
+
+bool is_text_in_clipboard(system_context &context)
+{
+    return false;
+}
+
+std::string clipboard_get_text(system_context &context)
+{
+    return "";
+}
+
+#endif
 
 }
