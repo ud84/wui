@@ -84,7 +84,7 @@ menu::menu(const std::string &theme_control_name, std::shared_ptr<i_theme> theme
 {
     update_list_theme();
 
-    list_->set_draw_callback(std::bind(&menu::draw_list_item, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+    list_->set_draw_callback(std::bind(&menu::draw_list_item, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
     list_->set_item_click_callback(std::bind(&menu::activate_list_item, this, std::placeholders::_1));
     list_->set_item_activate_callback(std::bind(&menu::activate_list_item, this, std::placeholders::_1));
     list_->set_mode(list::list_mode::auto_select);
@@ -444,7 +444,7 @@ void menu::draw_arrow_down(graphic &gr, rect pos, bool expanded)
     }
 }
 
-void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &columns)
+void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state)
 {
     auto item = get_item(items, n_item);
     if (!item)

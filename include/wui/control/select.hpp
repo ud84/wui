@@ -143,7 +143,7 @@ private:
 
     void show_list();
 
-    void draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state, const std::vector<list::column> &);
+    void draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state);
     void activate_list_item(int32_t n_item);
     void change_list_item(int32_t n_item);
 };

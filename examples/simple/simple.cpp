@@ -123,7 +123,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         button2->disable_focusing();
         button3->disable_focusing();
 
-        list->set_draw_callback(std::bind(&PluggedWindow::DrawListItem, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+        list->set_draw_callback(std::bind(&PluggedWindow::DrawListItem, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
         list->set_item_right_click_callback([this](int32_t item, int32_t x, int32_t y) { popupMenu->show_on_point(x, y); });
 
@@ -196,7 +196,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         Init();
     }
 
-    void DrawListItem(wui::graphic &gr, int32_t nItem, const wui::rect &itemRect_, wui::list::item_state state, const std::vector<wui::list::column> &columns)
+    void DrawListItem(wui::graphic &gr, int32_t nItem, const wui::rect &itemRect_, wui::list::item_state state)
     {
         auto border_width = wui::theme_dimension(wui::list::tc, wui::list::tv_border_width);
 

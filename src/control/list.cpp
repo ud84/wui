@@ -28,7 +28,7 @@ list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> them
     parent_(),
     my_control_sid(), my_plain_sid(),
     showed_(true), enabled_(true), focused_(false), mouse_on_control(false),
-    columns(),
+    columns_(),
     mode(list_mode::simple),
     item_height(28), item_count(0), selected_item_(0), active_item_(-1), start_item(0),
     worker_action_(worker_action::undefined),
@@ -183,7 +183,7 @@ void list::receive_control_events(const event &ev)
                     if (ev.mouse_event_.y - position().top <= title_height)
                     {
                         int32_t pos = 0, n = 0;
-                        for (auto &c : columns)
+                        for (auto &c : columns_)
                         {
                             if (ev.mouse_event_.x >= pos && ev.mouse_event_.x < pos + c.width)
                             {
@@ -567,11 +567,16 @@ bool list::enabled() const
     return enabled_;
 }
 
-void list::update_columns(const std::vector<column> &columns_)
+void list::update_columns(const std::vector<column> &columns__)
 {
-    columns = columns_;
+    columns_ = columns__;
     title_height = -1;
     redraw();
+}
+
+const std::vector<list::column> &list::columns()
+{
+    return columns_;
 }
 
 void list::set_mode(list_mode mode_)
@@ -619,9 +624,9 @@ int32_t list::selected_item() const
 
 void list::set_column_width(int32_t n_item, int32_t width)
 {
-    if (static_cast<int32_t>(columns.size()) > n_item)
+    if (static_cast<int32_t>(columns_.size()) > n_item)
     {
-        columns[n_item].width = width;
+        columns_[n_item].width = width;
         redraw();
     }
 }
@@ -642,7 +647,7 @@ void list::set_item_count(int32_t count)
     redraw();
 }
 
-void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state, const std::vector<column> &columns)> draw_callback_)
+void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state)> draw_callback_)
 {
     draw_callback = draw_callback_;
 }
@@ -707,7 +712,7 @@ void list::draw_titles(graphic &gr_)
 
     if (title_height == -1)
     {
-        if (columns.empty())
+        if (columns_.empty())
         {
             title_height = 0;
             return;
@@ -724,7 +729,7 @@ void list::draw_titles(graphic &gr_)
     
     int32_t left = 0;
 
-    for (auto &c : columns)
+    for (auto &c : columns_)
     {
         gr_.draw_rect({ left, 0, left + c.width - 1, title_height }, title_color);
         gr_.draw_text({ left + text_indent, text_indent, 0, 0 }, c.caption, title_text_color, font);
@@ -787,7 +792,7 @@ void list::draw_items(graphic &gr_)
             state = item_state::selected;
         }
 
-        draw_callback(gr_, item, item_rect, state, columns);
+        draw_callback(gr_, item, item_rect, state);
     }
 }
 

@@ -154,7 +154,7 @@ private:
     void update_size();
 
     void draw_arrow_down(graphic &gr, rect pos, bool expanded);
-    void draw_list_item(wui::graphic &gr, int32_t n_item, const wui::rect &item_rect_, list::item_state state, const std::vector<list::column> &columns);
+    void draw_list_item(wui::graphic &gr, int32_t n_item, const wui::rect &item_rect_, list::item_state state);
     void activate_list_item(int32_t n_item);
 };
 
