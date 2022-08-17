@@ -307,7 +307,7 @@ void list::receive_control_events(const event &ev)
                 active_item_ = -1;
                 switch (ev.keyboard_event_.key[0])
                 {
-                    case vk_home: case vk_page_up:
+                    case vk_home:
                     {
                         while (selected_item_ != 0)
                         {
@@ -321,7 +321,7 @@ void list::receive_control_events(const event &ev)
                         redraw();
                     }
                     break;
-                    case vk_end: case vk_page_down:
+                    case vk_end:
                     {
                         auto visible_item_count = get_visible_item_count();
 
@@ -372,6 +372,62 @@ void list::receive_control_events(const event &ev)
                             {
                                 redraw();
                             }
+
+                            if (item_change_callback)
+                            {
+                                item_change_callback(selected_item_);
+                            }
+                        }
+                    break;
+                    case vk_page_up:
+                        if (selected_item_ != 0)
+                        {
+                            int32_t diff_scroll = 10;
+
+                            if (selected_item_ > diff_scroll)
+                            {
+                                selected_item_ -= diff_scroll;
+                            }
+                            else
+                            {
+                                diff_scroll -= selected_item_;
+                                selected_item_ = 0;
+                            }
+
+                            for (auto i = 0; i != diff_scroll; ++i)
+                            {
+                                scroll_up();
+                            }
+                            
+                            redraw();
+
+                            if (item_change_callback)
+                            {
+                                item_change_callback(selected_item_);
+                            }
+                        }
+                    break;
+                    case vk_page_down:
+                        if (selected_item_ != item_count)
+                        {
+                            int32_t diff_scroll = 10;
+
+                            if (selected_item_ < item_count - diff_scroll)
+                            {
+                                selected_item_ += diff_scroll;
+                            }
+                            else
+                            {
+                                diff_scroll = item_count - selected_item_;
+                                selected_item_ = static_cast<int32_t>(item_count) - 1;
+                            }
+
+                            for (auto i = 0; i != diff_scroll; ++i)
+                            {
+                                scroll_down();
+                            }
+
+                            redraw();
 
                             if (item_change_callback)
                             {
