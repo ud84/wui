@@ -200,7 +200,7 @@ void image::draw(graphic &gr_, const rect &)
         auto control_pos = position();
 
         gr.DrawImage(
-            img->Clone(),
+            img,
             Gdiplus::Rect(control_pos.left, control_pos.top, control_pos.width(), control_pos.height()),
             0, 0, img->GetWidth(), img->GetHeight(),
             Gdiplus::UnitPixel,
