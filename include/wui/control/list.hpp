@@ -194,7 +194,7 @@ private:
 
     int32_t get_item_top(int32_t n_item) const;
 
-    int32_t get_scroll_interval() const;
+    double get_scroll_interval() const;
 
     void move_slider(int32_t y);
 
