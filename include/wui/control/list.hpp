@@ -159,6 +159,7 @@ private:
     scrollbar_state scrollbar_state_;
 
     bool slider_scrolling;
+    int32_t slider_click_pos;
 
     int32_t title_height;
 
