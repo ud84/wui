@@ -437,7 +437,10 @@ void list::receive_control_events(const event &ev)
                 {
                     focused_ = true;
 
-                    scrollbar_state_ = scrollbar_state::tiny;
+                    if (scrollbar_state_ == scrollbar_state::hide)
+                    {
+                        scrollbar_state_ = scrollbar_state::tiny;
+                    }
 
                     redraw();
                 }
