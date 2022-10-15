@@ -40,12 +40,14 @@ select::select(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     showed_(true), enabled_(true), active(false), topmost_(false),
     focused_(false),
     focusing_(true),
-    left_shift(0)
+    left_shift(0),
+    item_height_(32)
 {
     update_list_theme();
 
     list_->set_mode(list::list_mode::simple_topmost);
     list_->set_draw_callback(std::bind(&select::draw_list_item, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    list_->set_item_height_callback([this](int32_t, int32_t& h) { h = item_height_; });
     list_->set_item_click_callback(std::bind(&select::activate_list_item, this, std::placeholders::_1));
     list_->set_item_activate_callback(std::bind(&select::activate_list_item, this, std::placeholders::_1));
     list_->set_item_change_callback(std::bind(&select::change_list_item, this, std::placeholders::_1));
@@ -142,7 +144,7 @@ void select::select_down()
 
 void select::show_list()
 {
-    list_->set_position({ position_.left, position_.top, position_.right, position_.top + list_->get_item_height() * static_cast<int32_t>(items_.size()) });
+    list_->set_position({ position_.left, position_.top, position_.right, position_.top + item_height_ * static_cast<int32_t>(items_.size()) });
     auto pos = get_popup_position(parent_, position(), list_->position(), 0);
 
     list_->set_position(pos, true);
@@ -455,9 +457,9 @@ void select::delete_item(int64_t id)
     list_->set_item_count(static_cast<int32_t>(items_.size()));
 }
 
-void select::set_item_height(int32_t item_height_)
+void select::set_item_height(int32_t item_height__)
 {
-    list_->set_item_height(item_height_);
+    item_height_ = item_height__;
 }
 
 void select::select_item_number(int32_t index)

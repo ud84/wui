@@ -79,12 +79,14 @@ menu::menu(const std::string &theme_control_name, std::shared_ptr<i_theme> theme
     indent(0), x(-1), y(-1),
     items(),
     max_text_width(0), max_hotkey_width(0),
+    item_height_(32),
     showed_(false),
     size_updated(false)
 {
     update_list_theme();
 
     list_->set_draw_callback(std::bind(&menu::draw_list_item, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    list_->set_item_height_callback([this](int32_t, int32_t& h) { h = item_height_; });
     list_->set_item_click_callback(std::bind(&menu::activate_list_item, this, std::placeholders::_1));
     list_->set_item_activate_callback(std::bind(&menu::activate_list_item, this, std::placeholders::_1));
     list_->set_mode(list::list_mode::auto_select);
@@ -304,9 +306,9 @@ void menu::delete_item(int32_t id)
     list_->set_item_count(calc_items_count(items));
 }
 
-void menu::set_item_height(int32_t item_height_)
+void menu::set_item_height(int32_t item_height__)
 {
-    list_->set_item_height(item_height_);
+    item_height_ = item_height__;
     size_updated = false;
 }
 
@@ -358,21 +360,21 @@ void menu::update_size()
         auto hotkey_width = mem_gr.measure_text(item->hotkey, font_).right;
         if (hotkey_width != 0)
         {
-            hotkey_width += list_->get_item_height();
+            hotkey_width += item_height_;
         }
         if (hotkey_width > max_hotkey_width)
         {
             max_hotkey_width = hotkey_width;
         }
         
-        auto width = (item->level * list_->get_item_height()) + text_width + max_hotkey_width + (list_->get_item_height() * 3);
+        auto width = (item->level * item_height_) + text_width + max_hotkey_width + (item_height_ * 3);
         if (width > max_text_width)
         {
             max_text_width = width;
         }
     }
 
-    int32_t height = list_->get_item_height() * items_count;
+    int32_t height = item_height_ * items_count;
 
     position_ = { 0, 0, max_text_width, height };
 

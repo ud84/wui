@@ -78,9 +78,8 @@ public:
     void select_item(int32_t n_item);
     int32_t selected_item() const;
 
-    void set_column_width(int32_t n_item, int32_t width);
-    void set_item_height(int32_t height);
-    int32_t get_item_height() const;
+    void set_column_width(int32_t n_column, int32_t width);
+    int32_t get_item_height(int32_t n_item) const;
     
     void set_item_count(int32_t count);
 
@@ -92,6 +91,7 @@ public:
     };
 
     void set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state)> draw_callback_);
+    void set_item_height_callback(std::function<void(int32_t, int32_t&)> item_height_callback_);
     void set_item_click_callback(std::function<void(int32_t, int32_t)> item_click_callback_);
     void set_item_change_callback(std::function<void(int32_t)> item_change_callback_);
     void set_item_activate_callback(std::function<void(int32_t)> item_activate_callback_);
@@ -132,7 +132,7 @@ private:
 
     list_mode mode;
 
-    std::atomic<int32_t> item_height, item_count, selected_item_, active_item_, start_item;
+    std::atomic<int32_t> item_count, selected_item_, active_item_, scroll_pos;
 
     enum class worker_action
     {
@@ -159,7 +159,6 @@ private:
     scrollbar_state scrollbar_state_;
 
     bool slider_scrolling;
-    int32_t prev_scroll_pos;
 
     int32_t title_height;
 
@@ -167,6 +166,7 @@ private:
     static const int32_t full_scrollbar_width = 14;
 
     std::function<void(graphic&, int32_t, const rect&, item_state state)> draw_callback;
+    std::function<void(int32_t, int32_t&)> item_height_callback;
     std::function<void(int32_t, int32_t)> item_click_callback;
     std::function<void(int32_t)> item_change_callback;
     std::function<void(int32_t)> item_activate_callback;
@@ -180,6 +180,7 @@ private:
 
     void redraw_item(int32_t item);
 
+    void calc_title_height(graphic &gr_);
     void draw_titles(graphic &gr_);
 
     void draw_items(graphic &gr_);
@@ -190,8 +191,10 @@ private:
     void draw_arrow_up(graphic &gr, rect button_pos);
     void draw_arrow_down(graphic &gr, rect button_pos);
 
-    int32_t get_visible_item_count() const;
-    
+    int32_t get_item_top(int32_t n_item) const;
+
+    int32_t get_scroll_interval() const;
+
     void move_slider(int32_t y);
 
     void scroll_up();

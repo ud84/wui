@@ -129,6 +129,8 @@ private:
     
     int32_t left_shift;
 
+    int32_t item_height_;
+
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);
 

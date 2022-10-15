@@ -144,6 +144,8 @@ private:
 
     int32_t max_text_width, max_hotkey_width;
 
+    int32_t item_height_;
+
     bool showed_;
     bool size_updated;
 
