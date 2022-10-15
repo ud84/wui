@@ -403,7 +403,7 @@ void list::receive_control_events(const event &ev)
                             }
                             else
                             {
-                                selected_item_ = static_cast<int32_t>(item_count);
+                                selected_item_ = static_cast<int32_t>(item_count - 1);
                             }
 
                             auto new_item_bottom = get_item_top(selected_item_) + get_item_height(selected_item_);
@@ -962,7 +962,7 @@ void list::move_slider(int32_t y)
         scroll_pos = 0;
     }
 
-    auto last_item_top = (get_item_top(item_count) + get_item_height(item_count)) - position_.height();
+    auto last_item_top = get_item_top(item_count) - position_.height();
     if (scroll_pos > last_item_top)
     {
         scroll_pos = last_item_top;
