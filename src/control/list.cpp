@@ -785,7 +785,7 @@ void list::draw_titles(graphic &gr_)
 
 void list::draw_items(graphic &gr_)
 {
-    if (!draw_callback)
+    if (!draw_callback || position_.height() == 0)
     {
         return;
     }
@@ -802,6 +802,11 @@ void list::draw_items(graphic &gr_)
     {
         ++last_item;
         item_top = get_item_top(last_item) - scroll_pos;
+    }
+
+    if (last_item < first_item || last_item == first_item)
+    {
+        return;
     }
 
     if (last_item > item_count)
