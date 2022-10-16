@@ -982,6 +982,10 @@ void list::scroll_up()
     }
 
     scroll_pos -= static_cast<int32_t>(get_scroll_interval()) * 3;
+    if (scroll_pos < 0)
+    {
+        scroll_pos = 0;
+    }
 
     redraw();
 }
