@@ -628,22 +628,13 @@ void list::set_mode(list_mode mode_)
 
 void list::select_item(int32_t n_item)
 {
-    int32_t prev_selected_item_ = selected_item_;
-    
     selected_item_ = n_item;
 
-    auto selected_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1);
-    if (selected_item_bottom > position_.height())
+    auto selected_item_top = get_item_top(selected_item_);
+    
+    if (selected_item_top < scroll_pos)
     {
-        scroll_pos = (selected_item_bottom > position_.height()) ? selected_item_bottom - position_.height() : 0;
-    }
-    else
-    {
-        auto selected_item_top = get_item_top(selected_item_);
-        if (selected_item_top < scroll_pos)
-        {
-            scroll_pos -= scroll_pos - selected_item_top;
-        }
+        scroll_pos = selected_item_top;
     }
 
     redraw();
