@@ -791,14 +791,14 @@ void list::draw_items(graphic &gr_)
     }
 
     int32_t first_item = -1, item_bottom = 0;
-    while (scroll_pos >= item_bottom)
+    while (scroll_pos >= item_bottom && first_item < item_count)
     {
         ++first_item;
         item_bottom = get_item_top(first_item) + get_item_height(first_item);
     }
 
     int32_t last_item = -1, item_top = 0;
-    while (position_.height() > item_top)
+    while (position_.height() > item_top && last_item < item_count)
     {
         ++last_item;
         item_top = get_item_top(last_item) - scroll_pos;
