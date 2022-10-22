@@ -1201,7 +1201,7 @@ void list::make_selected_visible()
     auto selected_item_top = get_item_top(selected_item_);
     auto selected_item_bottom = selected_item_top + get_item_height(selected_item_);
 
-    if (selected_item_bottom + scroll_pos <= position_.height() + title_height)
+    if (position_.height() - scroll_pos >= selected_item_top)// && selected_item_bottom <= scroll_pos - position_.height())
     {
         return;
     }
@@ -1211,7 +1211,7 @@ void list::make_selected_visible()
         scroll_pos = selected_item_top;
     }
 
-    if (selected_item_ == item_count - 1)
+    if (selected_item_bottom - scroll_pos < position_.height() - title_height)
     {
         scroll_pos = selected_item_bottom - position_.height() + title_height;
     }
