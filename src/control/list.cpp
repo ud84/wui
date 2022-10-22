@@ -487,27 +487,9 @@ void list::receive_plain_events(const event &ev)
 
 void list::set_position(const rect &position__, bool redraw)
 {
-    if (position__.height() != position_.height())
-    {
-        auto selected_item_top = get_item_top(selected_item_);
-        auto selected_item_bottom = selected_item_top + get_item_height(selected_item_);
-
-        if (selected_item_bottom + scroll_pos <= position__.height() + title_height)
-        {
-            return;
-        }
-
-        if (selected_item_bottom > scroll_pos)
-        {
-            scroll_pos = selected_item_top;
-        }
-
-        if (selected_item_ == item_count - 1)
-        {
-            scroll_pos = selected_item_bottom - position_.height() + title_height;
-        }
-    }
     update_control_position(position_, position__, showed_ && redraw, parent_);
+
+    make_selected_visible();
 }
 
 rect list::position() const
@@ -648,18 +630,7 @@ void list::select_item(int32_t n_item)
 {
     selected_item_ = n_item;
 
-    auto selected_item_top = get_item_top(selected_item_);
-    auto selected_item_bottom = selected_item_top + get_item_height(selected_item_);
-
-    if (selected_item_bottom > scroll_pos)
-    {
-        scroll_pos = selected_item_top;
-    }
-    
-    if (selected_item_ == item_count - 1)
-    {
-        scroll_pos = selected_item_bottom - position_.height() + title_height;
-    }
+    make_selected_visible();
 
     redraw();
 
@@ -1223,6 +1194,27 @@ void list::end_work()
 {
     worker_runned = false;
     if (worker.joinable()) worker.join();
+}
+
+void list::make_selected_visible()
+{
+    auto selected_item_top = get_item_top(selected_item_);
+    auto selected_item_bottom = selected_item_top + get_item_height(selected_item_);
+
+    if (selected_item_bottom + scroll_pos <= position_.height() + title_height)
+    {
+        return;
+    }
+
+    if (selected_item_bottom > scroll_pos)
+    {
+        scroll_pos = selected_item_top;
+    }
+
+    if (selected_item_ == item_count - 1)
+    {
+        scroll_pos = selected_item_bottom - position_.height() + title_height;
+    }
 }
 
 }

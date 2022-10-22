@@ -209,6 +209,8 @@ private:
     void start_work(worker_action action);
     void work();
     void end_work();
+
+    void make_selected_visible();
 };
 
 }
