@@ -320,7 +320,7 @@ void list::receive_control_events(const event &ev)
                     break;
                     case vk_end:
                     {
-                        auto last_item_bottom = get_item_top(item_count) + get_item_height(item_count);
+                        auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) + title_height;
                         if (last_item_bottom > position_.height())
                         {
                             scroll_pos = last_item_bottom - position_.height();
@@ -354,10 +354,10 @@ void list::receive_control_events(const event &ev)
                         {
                             ++selected_item_;
                             
-                            auto selected_item_bottom = get_item_top(selected_item_ + 1 != item_count ? selected_item_ : item_count) + get_item_height(selected_item_ + 1 != item_count ? selected_item_ : item_count);
+                            auto selected_item_bottom = get_item_top(selected_item_) + get_item_height(selected_item_);
                             if (selected_item_bottom > position_.height())
                             {
-                                scroll_pos = selected_item_bottom - position_.height();
+                                scroll_pos = selected_item_bottom - position_.height() + title_height;
                             }
 
                             redraw();
@@ -406,9 +406,7 @@ void list::receive_control_events(const event &ev)
                                 selected_item_ = static_cast<int32_t>(item_count - 1);
                             }
 
-                            auto new_item_bottom = get_item_top(selected_item_ + 1 != item_count ? selected_item_ : item_count) + get_item_height(selected_item_ + 1 != item_count ? selected_item_ : item_count);
-                            
-                            scroll_pos = (new_item_bottom > position_.height()) ? new_item_bottom - position_.height() : 0;
+                            scroll_pos = get_item_top(selected_item_) + get_item_height(selected_item_) - position_.height() + title_height;
                                                         
                             redraw();
 
@@ -489,6 +487,26 @@ void list::receive_plain_events(const event &ev)
 
 void list::set_position(const rect &position__, bool redraw)
 {
+    if (position__.height() != position_.height())
+    {
+        auto selected_item_top = get_item_top(selected_item_);
+        auto selected_item_bottom = selected_item_top + get_item_height(selected_item_);
+
+        if (selected_item_bottom + scroll_pos <= position__.height() + title_height)
+        {
+            return;
+        }
+
+        if (selected_item_bottom > scroll_pos)
+        {
+            scroll_pos = selected_item_top;
+        }
+
+        if (selected_item_ == item_count - 1)
+        {
+            scroll_pos = selected_item_bottom - position_.height() + title_height;
+        }
+    }
     update_control_position(position_, position__, showed_ && redraw, parent_);
 }
 
@@ -631,10 +649,16 @@ void list::select_item(int32_t n_item)
     selected_item_ = n_item;
 
     auto selected_item_top = get_item_top(selected_item_);
-    
-    if (selected_item_top < scroll_pos)
+    auto selected_item_bottom = selected_item_top + get_item_height(selected_item_);
+
+    if (selected_item_bottom > scroll_pos)
     {
         scroll_pos = selected_item_top;
+    }
+    
+    if (selected_item_ == item_count - 1)
+    {
+        scroll_pos = selected_item_bottom - position_.height() + title_height;
     }
 
     redraw();
@@ -939,7 +963,7 @@ int32_t list::get_item_top(int32_t n_item) const
 
 double list::get_scroll_interval() const
 {
-    auto last_item_bottom = get_item_top(item_count) + get_item_height(item_count);
+    auto last_item_bottom = get_item_top(item_count) + get_item_height(item_count) + title_height;
 
     if (last_item_bottom < position_.height())
     {
@@ -961,10 +985,10 @@ void list::move_slider(int32_t y)
         scroll_pos = 0;
     }
 
-    auto last_item_top = (get_item_top(item_count) + get_item_height(item_count)) - position_.height();
-    if (scroll_pos > last_item_top)
+    auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) - position_.height() + title_height;
+    if (scroll_pos > last_item_bottom)
     {
-        scroll_pos = last_item_top;
+        scroll_pos = last_item_bottom;
     }
 
     redraw();
@@ -988,7 +1012,7 @@ void list::scroll_up()
 
 void list::scroll_down()
 {
-    auto last_item_bottom = get_item_top(item_count) + get_item_height(item_count) - scroll_pos;
+    auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) - scroll_pos + title_height;
     if (last_item_bottom > position_.height())
     {
         scroll_pos += static_cast<int32_t>(get_scroll_interval()) * 10;
@@ -1049,10 +1073,8 @@ void list::calc_scrollbar_params(bool drawing_coordinates, rect *bar_rect, rect 
 
     if (slider_rect)
     {
-        auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1);
-
         auto slider_top = control_pos.top + border_width + static_cast<int32_t>(round(((double)scroll_pos) / scroll_interval));
-        auto slider_height = static_cast<int32_t>(round((client_height) / scroll_interval));
+        auto slider_height = static_cast<int32_t>(round((client_height) / scroll_interval)) + title_height;
 
         if (slider_height < SB_SILDER_MIN_WIDTH)
         {

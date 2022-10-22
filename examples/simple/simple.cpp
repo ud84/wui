@@ -131,7 +131,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         
         list->set_item_height_callback([](int32_t i, int32_t& h) { h = 32 + i * 2; });
         list->set_item_count(20);
-        list->select_item(10);
+        list->select_item(19);
 
         popupMenu->set_items({
             { 0, wui::menu_item_state::normal, "Bla bla bla", "", nullptr, {}, [](int32_t i) {} },
