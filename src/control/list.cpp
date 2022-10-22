@@ -977,7 +977,7 @@ void list::scroll_up()
         return;
     }
 
-    scroll_pos -= static_cast<int32_t>(get_scroll_interval()) * 3;
+    scroll_pos -= static_cast<int32_t>(get_scroll_interval()) * 10;
     if (scroll_pos < 0)
     {
         scroll_pos = 0;
@@ -991,7 +991,7 @@ void list::scroll_down()
     auto last_item_bottom = get_item_top(item_count) + get_item_height(item_count) - scroll_pos;
     if (last_item_bottom > position_.height())
     {
-        scroll_pos += static_cast<int32_t>(get_scroll_interval()) * 3;
+        scroll_pos += static_cast<int32_t>(get_scroll_interval()) * 10;
         redraw();
     }
 }
