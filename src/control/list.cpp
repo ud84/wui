@@ -1201,7 +1201,13 @@ void list::make_selected_visible()
     auto selected_item_top = get_item_top(selected_item_);
     auto selected_item_bottom = selected_item_top + get_item_height(selected_item_);
 
-    if (position_.height() - scroll_pos >= selected_item_top)// && selected_item_bottom <= scroll_pos - position_.height())
+    if (selected_item_top < scroll_pos)
+    {
+        scroll_pos = selected_item_top;
+        return;
+    }
+
+    if (position_.height() <= 0 || position_.height() > selected_item_bottom || position_.height() - scroll_pos >= selected_item_top)
     {
         return;
     }
