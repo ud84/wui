@@ -89,14 +89,20 @@ public:
         active,
         selected
     };
+    enum class scroll_state
+    {
+        up_end,
+        down_end
+    };
 
-    void set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state)> draw_callback_);
+    void set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state)> draw_callback_);
     void set_item_height_callback(std::function<void(int32_t, int32_t&)> item_height_callback_);
     void set_item_click_callback(std::function<void(int32_t, int32_t)> item_click_callback_);
     void set_item_change_callback(std::function<void(int32_t)> item_change_callback_);
     void set_item_activate_callback(std::function<void(int32_t)> item_activate_callback_);
     void set_column_click_callback(std::function<void(int32_t)> column_click_callback_);
     void set_item_right_click_callback(std::function<void(int32_t, int32_t , int32_t)> item_right_click_callback_);
+    void set_scroll_callback(std::function<void(scroll_state)> scroll_callback_);
 
 public:
     /// Control name in theme
@@ -160,19 +166,21 @@ private:
 
     bool slider_scrolling;
     int32_t slider_click_pos;
+    int32_t prev_scroll_pos;
 
     int32_t title_height;
 
     static const int32_t tiny_scrollbar_width = 3;
     static const int32_t full_scrollbar_width = 14;
 
-    std::function<void(graphic&, int32_t, const rect&, item_state state)> draw_callback;
+    std::function<void(graphic&, int32_t, const rect&, item_state)> draw_callback;
     std::function<void(int32_t, int32_t&)> item_height_callback;
     std::function<void(int32_t, int32_t)> item_click_callback;
     std::function<void(int32_t)> item_change_callback;
     std::function<void(int32_t)> item_activate_callback;
     std::function<void(int32_t)> column_click_callback;
     std::function<void(int32_t, int32_t, int32_t)> item_right_click_callback;
+    std::function<void(scroll_state)> scroll_callback;
     
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);

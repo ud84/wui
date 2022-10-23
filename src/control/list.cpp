@@ -38,6 +38,7 @@ list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> them
     scrollbar_state_(scrollbar_state::hide),
     slider_scrolling(false),
     slider_click_pos(0),
+    prev_scroll_pos(0),
     title_height(-1),
     draw_callback(),
     item_height_callback(),
@@ -45,7 +46,8 @@ list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> them
     item_click_callback(),
     column_click_callback(),
     item_activate_callback(),
-    item_right_click_callback()
+    item_right_click_callback(),
+    scroll_callback()
 {
 }
 
@@ -313,21 +315,36 @@ void list::receive_control_events(const event &ev)
                 {
                     case vk_home:
                     {
-                        scroll_pos = 0;
-                        selected_item_ = 0;
-                        redraw();
+                        if (selected_item_ != 0)
+                        {
+                            scroll_pos = 0;
+                            selected_item_ = 0;
+                            redraw();
+                            if (scroll_callback)
+                            {
+                                scroll_callback(scroll_state::up_end);
+                            }
+                        }
                     }
                     break;
                     case vk_end:
                     {
-                        auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) + title_height;
-                        if (last_item_bottom > position_.height())
+                        if (selected_item_ != item_count - 1)
                         {
-                            scroll_pos = last_item_bottom - position_.height();
-                        }
+                            auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) + title_height;
+                            if (last_item_bottom > position_.height())
+                            {
+                                scroll_pos = last_item_bottom - position_.height();
+                            }
 
-                        selected_item_ = static_cast<int32_t>(item_count - 1);
-                        redraw();
+                            selected_item_ = static_cast<int32_t>(item_count - 1);
+                            redraw();
+
+                            if (scroll_callback)
+                            {
+                                scroll_callback(scroll_state::down_end);
+                            }
+                        }
                     }
                     break;
                     case vk_up:
@@ -347,6 +364,11 @@ void list::receive_control_events(const event &ev)
                             {
                                 item_change_callback(selected_item_);
                             }
+
+                            if (selected_item_ == 0 && scroll_callback)
+                            {
+                                scroll_callback(scroll_state::up_end);
+                            }
                         }
                     break;
                     case vk_down:
@@ -359,12 +381,17 @@ void list::receive_control_events(const event &ev)
                             {
                                 scroll_pos = selected_item_bottom - position_.height() + title_height;
                             }
-
+                            
                             redraw();
 
                             if (item_change_callback)
                             {
                                 item_change_callback(selected_item_);
+                            }
+
+                            if (selected_item_ == item_count - 1 && scroll_callback)
+                            {
+                                scroll_callback(scroll_state::down_end);
                             }
                         }
                     break;
@@ -390,12 +417,21 @@ void list::receive_control_events(const event &ev)
                             {
                                 item_change_callback(selected_item_);
                             }
+
+                            if (selected_item_ == 0 && scroll_callback)
+                            {
+                                scroll_callback(scroll_state::up_end);
+                            }
                         }
                     break;
                     case vk_page_down:
                         if (selected_item_ != item_count - 1 && item_count != 0)
                         {
-                            const int32_t diff_scroll = 10;
+                            int32_t diff_scroll = 10;
+                            if (diff_scroll > item_count)
+                            {
+                                diff_scroll = item_count;
+                            }
 
                             if (selected_item_ < item_count - diff_scroll)
                             {
@@ -407,12 +443,21 @@ void list::receive_control_events(const event &ev)
                             }
 
                             scroll_pos = get_item_top(selected_item_) + get_item_height(selected_item_) - position_.height() + title_height;
+                            if (scroll_pos < 0)
+                            {
+                                scroll_pos = 0;
+                            }
                                                         
                             redraw();
 
                             if (item_change_callback)
                             {
                                 item_change_callback(selected_item_);
+                            }
+
+                            if (selected_item_ == item_count - 1 && scroll_callback)
+                            {
+                                scroll_callback(scroll_state::down_end);
                             }
                         }
                     break;
@@ -705,6 +750,11 @@ void list::set_item_right_click_callback(std::function<void(int32_t, int32_t, in
     item_right_click_callback = item_right_click_callback_;
 }
 
+void list::set_scroll_callback(std::function<void(scroll_state)> scroll_callback_)
+{
+    scroll_callback = scroll_callback_;
+}
+
 void list::redraw()
 {
     if (showed_)
@@ -962,7 +1012,21 @@ void list::move_slider(int32_t y)
         scroll_pos = last_item_bottom;
     }
 
+    if (scroll_callback && prev_scroll_pos != scroll_pos)
+    {
+        if (scroll_pos == 0)
+        {
+            scroll_callback(scroll_state::up_end);
+        }
+        else if (scroll_pos == last_item_bottom)
+        {
+            scroll_callback(scroll_state::down_end);
+        }
+    }
+
     redraw();
+
+    prev_scroll_pos = scroll_pos;
 }
 
 void list::scroll_up()
@@ -979,16 +1043,28 @@ void list::scroll_up()
     }
 
     redraw();
+
+    if (scroll_pos == 0 && scroll_callback)
+    {
+        scroll_callback(scroll_state::up_end);
+    }
 }
 
 void list::scroll_down()
 {
-    auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) - scroll_pos + title_height;
-    if (last_item_bottom > position_.height())
+    auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) + title_height;
+    if (last_item_bottom - scroll_pos > position_.height())
     {
         scroll_pos += static_cast<int32_t>(get_scroll_interval()) * 10;
         redraw();
     }
+    
+    if (scroll_callback && last_item_bottom - scroll_pos <= position_.height() && prev_scroll_pos != scroll_pos)
+    {
+        scroll_callback(scroll_state::down_end);
+    }
+
+    prev_scroll_pos = scroll_pos;
 }
 
 void list::calc_scrollbar_params(bool drawing_coordinates, rect *bar_rect, rect *top_button_rect, rect *bottom_button_rect, rect *slider_rect)
@@ -1096,7 +1172,7 @@ void list::update_selected_item(int32_t y)
     {
         int32_t old_selected = selected_item_;
 
-        selected_item_ = item;
+        selected_item_ = item < item_count ? item : -1;
 
         redraw_item(old_selected);
         redraw_item(selected_item_);
