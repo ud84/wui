@@ -130,7 +130,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         list->update_columns({ { 30, "##" }, { 100, "Name" }, { 100, "Role" } });
         
         list->set_item_height_callback([](int32_t i, int32_t& h) { h = 32 + i * 2; });
-        list->set_item_count(8);
+        list->set_item_count(20);
         list->select_item(5);
 
         popupMenu->set_items({

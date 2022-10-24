@@ -675,6 +675,7 @@ void list::select_item(int32_t n_item)
 {
     selected_item_ = n_item;
 
+    scroll_pos = 0;
     make_selected_visible();
 
     redraw();
