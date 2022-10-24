@@ -715,6 +715,11 @@ void list::set_item_count(int32_t count)
     redraw();
 }
 
+int32_t list::get_item_count() const
+{
+    return item_count;
+}
+
 void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state)> draw_callback_)
 {
     draw_callback = draw_callback_;

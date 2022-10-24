@@ -82,6 +82,7 @@ public:
     int32_t get_item_height(int32_t n_item) const;
     
     void set_item_count(int32_t count);
+    int32_t get_item_count() const;
 
     enum class item_state
     {
