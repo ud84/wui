@@ -710,6 +710,8 @@ bool input::enabled() const
 void input::set_text(const std::string &text__)
 {
     text_ = text__;
+    cursor_position = 0;
+
     redraw();
 
     if (change_callback)
