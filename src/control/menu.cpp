@@ -446,7 +446,7 @@ void menu::draw_arrow_down(graphic &gr, rect pos, bool expanded)
     }
 }
 
-void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state)
+void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect, list::item_state state)
 {
     auto item = get_item(items, n_item);
     if (!item)
@@ -456,13 +456,6 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
 
     auto border_width = theme_dimension(tcn, tv_border_width);
 
-    auto item_rect = item_rect_;
-
-    if (item_rect.bottom > list_->position().bottom - border_width)
-    {
-        item_rect.bottom = list_->position().bottom - border_width;
-    }
-
     if (state == list::item_state::selected)
     {
         gr.draw_rect({ item_rect.left, item_rect.top + 1, item_rect.right, item_rect.bottom - 1 }, theme_color(tcn, tv_selected_item));
@@ -470,14 +463,14 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
     
     if (item->image_)
     {
-        auto img_size = static_cast<int32_t>(item_rect_.height() * 0.9);
+        auto img_size = static_cast<int32_t>(item_rect.height() * 0.9);
 
-        auto indent = static_cast<int32_t>((item_rect_.height() - img_size) / 2);
+        auto indent = static_cast<int32_t>((item_rect.height() - img_size) / 2);
 
-        rect img_rect = { item_rect_.left + indent,
-            item_rect_.top + indent,
-            item_rect_.left + img_size + indent,
-            item_rect_.top + img_size + indent };
+        rect img_rect = { item_rect.left + indent,
+            item_rect.top + indent,
+            item_rect.left + img_size + indent,
+            item_rect.top + img_size + indent };
 
         item->image_->set_position(img_rect);
         item->image_->draw(gr, { 0 });
@@ -488,26 +481,26 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, l
 
     auto text_height = gr.measure_text("Qq", font).height();
     
-    gr.draw_text({ item_rect.left + item_rect.height() + item_rect.height() * item->level, item_rect_.top + (item_rect_.height() - text_height) / 2 }, item->text, text_color, font);
+    gr.draw_text({ item_rect.left + item_rect.height() + item_rect.height() * item->level, item_rect.top + (item_rect.height() - text_height) / 2 }, item->text, text_color, font);
 
     if (!item->hotkey.empty())
     {
-        gr.draw_text({ item_rect.right - max_hotkey_width, item_rect_.top + (item_rect_.height() - text_height) / 2 }, item->hotkey, text_color, font);
+        gr.draw_text({ item_rect.right - max_hotkey_width, item_rect.top + (item_rect.height() - text_height) / 2 }, item->hotkey, text_color, font);
     }
 
     if (!item->children.empty())
     {
-        auto height = item_rect_.height();
+        auto height = item_rect.height();
 
-        auto left = item_rect_.right - item_rect_.height() + (height - 8) / 2,
-            top = item_rect_.top + (height - 4) / 2;
+        auto left = item_rect.right - item_rect.height() + (height - 8) / 2,
+            top = item_rect.top + (height - 4) / 2;
 
         draw_arrow_down(gr, { left, top }, item->state == menu_item_state::expanded);
     }
 
-    if (item->state == menu_item_state::separator && item_rect_.bottom <= list_->position().bottom - border_width)
+    if (item->state == menu_item_state::separator && item_rect.bottom <= list_->position().bottom - border_width)
     {
-        gr.draw_line({ item_rect_.left, item_rect_.bottom, item_rect_.right, item_rect_.bottom }, text_color);
+        gr.draw_line({ item_rect.left, item_rect.bottom, item_rect.right, item_rect.bottom }, text_color);
     }
 }
 

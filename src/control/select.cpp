@@ -517,7 +517,7 @@ void select::redraw()
     }
 }
 
-void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_, list::item_state state)
+void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect, list::item_state state)
 {
     if (static_cast<int32_t>(items_.size()) <= n_item)
     {
@@ -527,13 +527,6 @@ void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_,
     auto item = items_[n_item];
     
     auto border_width = theme_dimension(tcn, tv_border_width);
-
-    auto item_rect = item_rect_;
-
-    if (item_rect.bottom > list_->position().bottom - border_width)
-    {
-        item_rect.bottom = list_->position().bottom - border_width;
-    }
 
     if (state == wui::list::item_state::active)
     {
@@ -551,10 +544,10 @@ void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect_,
 
     auto text_size = gr.measure_text(text, font);
 
-    truncate_line(text, gr, font, item_rect_.width() - item_rect_.height(), 1);
+    truncate_line(text, gr, font, item_rect.width() - item_rect.height(), 1);
 
     auto text_height = text_size.height();
-    gr.draw_text({ item_rect.left + select_horizontal_indent, item_rect_.top + (item_rect_.height() - text_height) / 2 }, text, text_color, font);
+    gr.draw_text({ item_rect.left + select_horizontal_indent, item_rect.top + (item_rect.height() - text_height) / 2 }, text, text_color, font);
 }
 
 void select::activate_list_item(int32_t n_item)

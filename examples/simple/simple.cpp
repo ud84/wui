@@ -197,16 +197,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         Init();
     }
 
-    void DrawListItem(wui::graphic &gr, int32_t nItem, const wui::rect &itemRect_, wui::list::item_state state)
+    void DrawListItem(wui::graphic &gr, int32_t nItem, const wui::rect &itemRect, wui::list::item_state state)
     {
         auto border_width = wui::theme_dimension(wui::list::tc, wui::list::tv_border_width);
-
-        auto itemRect = itemRect_;
-
-        if (itemRect.bottom > list->position().bottom - border_width)
-        {
-            itemRect.bottom = list->position().bottom - border_width;
-        }
 
         if (state == wui::list::item_state::active)
         {
@@ -221,9 +214,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         auto font = wui::theme_font(wui::list::tc, wui::list::tv_font);
         
         auto textHeight = gr.measure_text("Qq", font).height();
-        auto textRect = itemRect_;
+        auto textRect = itemRect;
         
-        textRect.move(20, (itemRect_.height() - textHeight) / 2);
+        textRect.move(20, (itemRect.height() - textHeight) / 2);
         gr.draw_text(textRect, "Item " + std::to_string(nItem), textColor, font);
     }
 };
