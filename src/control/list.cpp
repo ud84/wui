@@ -990,9 +990,9 @@ int32_t list::get_item_top(int32_t n_item) const
 
 double list::get_scroll_interval() const
 {
-    auto last_item_bottom = get_item_top(item_count) + get_item_height(item_count) + title_height;
+    auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) + title_height;
 
-    if (last_item_bottom < position_.height())
+    if (last_item_bottom <= position_.height())
     {
         return -1.0;
     }
@@ -1127,7 +1127,7 @@ void list::calc_scrollbar_params(bool drawing_coordinates, rect *bar_rect, rect 
     if (slider_rect)
     {
         auto slider_top = control_pos.top + border_width + static_cast<int32_t>(round(((double)scroll_pos) / scroll_interval));
-        auto slider_height = static_cast<int32_t>(round((client_height) / scroll_interval)) + title_height;
+        auto slider_height = static_cast<int32_t>(round((client_height) / scroll_interval));
 
         if (slider_height < SB_SILDER_MIN_WIDTH)
         {
