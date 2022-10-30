@@ -500,6 +500,12 @@ void input::receive_control_events(const event &ev)
                             }
                         }
                     break;
+                    case vk_return:
+                        if (return_callback)
+                        {
+                            return_callback();
+                        }
+                    break;
                 }
             break;
             case keyboard_event_type::up:
@@ -733,6 +739,11 @@ void input::set_input_view(input_view input_view__)
 void input::set_change_callback(std::function<void(const std::string&)> change_callback_)
 {
     change_callback = change_callback_;
+}
+
+void input::set_return_callback(std::function<void()> return_callback_)
+{
+    return_callback = return_callback_;
 }
 
 void input::redraw()

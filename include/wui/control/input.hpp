@@ -72,6 +72,7 @@ public:
     void set_input_view(input_view input_view_);
 
     void set_change_callback(std::function<void(const std::string&)> change_callback);
+    void set_return_callback(std::function<void()> return_callback);
 
 public:
     /// Control name in theme
@@ -96,7 +97,9 @@ public:
 private:
     input_view input_view_;
     std::string text_;
+    
     std::function<void(const std::string&)> change_callback;
+    std::function<void()> return_callback;
 
     std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
