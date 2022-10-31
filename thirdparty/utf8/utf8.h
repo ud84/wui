@@ -316,4 +316,12 @@ namespace internal
             (utf8::internal::mask8(*it))   == bom[2]
            );
     }
+
+    size_t letters_count(const std::string &s)
+    {
+        size_t out = 0;
+        for (auto &p : s)
+            out += ((p & 0xc0) != 0x80);
+        return out;
+    }
 } // namespace utf8

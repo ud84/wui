@@ -132,7 +132,7 @@ void graphic::init(const rect &max_size_, color background_color)
     surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, default_visual_type(context_), max_size.width(), max_size.height());
     if (!surface)
     {
-        fprintf(stderr, "WUI error can't create the cairo surface on graphic::init()");
+        fprintf(stderr, "WUI error can't create the cairo surface on graphic::init()\n");
     }
 #endif
 }
@@ -339,7 +339,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
 #elif __linux__
     if (!surface)
     {
-        fprintf(stderr, "WUI error no cairo on graphic::measure_text()");
+        fprintf(stderr, "WUI error no cairo on graphic::measure_text() (no surface)\n");
         return rect{ 0 };
     }
 
@@ -388,7 +388,7 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
 #elif __linux__
     if (!surface)
     {
-        fprintf(stderr, "WUI error no cairo on graphic::draw_text()");
+        fprintf(stderr, "WUI error no cairo on graphic::draw_text() (no surface)\n");
         return;
     }
 
@@ -630,7 +630,7 @@ void graphic::draw_surface(_cairo_surface *surface_, const rect &position__)
 {
     if (!surface)
     {
-        fprintf(stderr, "WUI error no cairo on graphic::draw_surface()");
+        fprintf(stderr, "WUI error no cairo on graphic::draw_surface() (no surface)\n");
         return;
     }
 
