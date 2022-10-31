@@ -317,7 +317,7 @@ namespace internal
            );
     }
 
-    size_t letters_count(const std::string &s)
+    static size_t letters_count(const std::string &s)
     {
         size_t out = 0;
         for (auto &p : s)
