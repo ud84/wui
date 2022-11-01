@@ -2428,8 +2428,8 @@ void window::process_events()
                     {
                         case moving_mode::move:
                         {
-                            uint32_t x_window = ws.left + x_mouse - x_click;
-                            uint32_t y_window = ws.top + y_mouse - y_click;
+                            uint32_t x_window = ev->root_x - x_click;
+                            uint32_t y_window = ev->root_y - y_click;
 
                             uint32_t values[] = { x_window, y_window };
                             xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, values);
@@ -2438,6 +2438,8 @@ void window::process_events()
                         case moving_mode::size_we_left:
                         {
                             x_mouse = ev->root_x - ws.left;
+
+                            printf("%d\n", x_mouse);
 
                             uint32_t width = ws.width() - x_mouse;
                             uint32_t height = ws.height();
