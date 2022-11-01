@@ -2437,10 +2437,6 @@ void window::process_events()
                         break;
                         case moving_mode::size_we_left:
                         {
-                            x_mouse = ev->root_x - ws.left;
-
-                            printf("%d\n", x_mouse);
-
                             uint32_t width = ws.width() - x_mouse;
                             uint32_t height = ws.height();
                             if (width > min_width && height > min_height)
@@ -2464,8 +2460,6 @@ void window::process_events()
                         break;
                         case moving_mode::size_ns_top:
                         {
-                            y_mouse = ev->root_y - ws.top;
-
                             uint32_t width = ws.width();
                             uint32_t height = ws.height() - y_mouse;
                             if (width > min_width && height > min_height)
@@ -2511,9 +2505,6 @@ void window::process_events()
                         break;
                         case moving_mode::size_nwse_top:
                         {
-                            x_mouse = ev->root_x - ws.left;
-                            y_mouse = ev->root_y - ws.top;
-
                             uint32_t width = ws.width() - x_mouse;
                             uint32_t height = ws.height() - y_mouse;
                             if (width > min_width && height > min_height)
@@ -2526,9 +2517,6 @@ void window::process_events()
                         break;
                         case moving_mode::size_nesw_bottom:
                         {
-                            x_mouse = ev->root_x - ws.left;
-                            y_mouse = ev->root_y - ws.top;
-
                             uint32_t width = ws.width() - x_mouse;
                             uint32_t height = y_mouse;
                             if (width > min_width && height > min_height)
