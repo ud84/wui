@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
         dialog->add_control(dialogButton, { 10, 200, 100, 235 });
 
         dialog->set_transient_for(window);
-        dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
+        dialog->init("Modal dialog", { -1, -1, 350, 350 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
     }));
 
     std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IMG_ACCOUNT, 24, wui::button::tc, MakeRedButtonTheme()));
