@@ -87,7 +87,7 @@ menu::menu(const std::string &theme_control_name, std::shared_ptr<i_theme> theme
 
     list_->set_draw_callback(std::bind(&menu::draw_list_item, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
     list_->set_item_height_callback([this](int32_t, int32_t& h) { h = item_height_; });
-    list_->set_item_click_callback(std::bind(&menu::activate_list_item, this, std::placeholders::_1));
+    list_->set_item_click_callback([this](list::click_button btn, int32_t n_item, int32_t, int32_t) { if (btn == list::click_button::left) activate_list_item(n_item); });
     list_->set_item_activate_callback(std::bind(&menu::activate_list_item, this, std::placeholders::_1));
     list_->set_mode(list::list_mode::auto_select);
 }

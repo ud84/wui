@@ -125,7 +125,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
         list->set_draw_callback(std::bind(&PluggedWindow::DrawListItem, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
-        list->set_item_right_click_callback([this](int32_t item, int32_t x, int32_t y) { popupMenu->show_on_point(x, y); });
+        list->set_item_click_callback([this](wui::list::click_button btn, int32_t item, int32_t x, int32_t y) { if (btn == wui::list::click_button::right) popupMenu->show_on_point(x, y); });
 
         list->update_columns({ { 30, "##" }, { 100, "Name" }, { 100, "Role" } });
         

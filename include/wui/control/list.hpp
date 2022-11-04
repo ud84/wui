@@ -96,13 +96,19 @@ public:
         down_end
     };
 
+    enum class click_button
+    {
+        left,
+        center,
+        right
+    };
+
     void set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state)> draw_callback_);
     void set_item_height_callback(std::function<void(int32_t, int32_t&)> item_height_callback_);
-    void set_item_click_callback(std::function<void(int32_t, int32_t)> item_click_callback_);
+    void set_item_click_callback(std::function<void(click_button, int32_t, int32_t, int32_t)> item_click_callback_);
     void set_item_change_callback(std::function<void(int32_t)> item_change_callback_);
     void set_item_activate_callback(std::function<void(int32_t)> item_activate_callback_);
     void set_column_click_callback(std::function<void(int32_t)> column_click_callback_);
-    void set_item_right_click_callback(std::function<void(int32_t, int32_t , int32_t)> item_right_click_callback_);
     void set_scroll_callback(std::function<void(scroll_state)> scroll_callback_);
 
 public:
@@ -176,11 +182,10 @@ private:
 
     std::function<void(graphic&, int32_t, const rect&, item_state)> draw_callback;
     std::function<void(int32_t, int32_t&)> item_height_callback;
-    std::function<void(int32_t, int32_t)> item_click_callback;
+    std::function<void(click_button, int32_t, int32_t, int32_t)> item_click_callback;
     std::function<void(int32_t)> item_change_callback;
     std::function<void(int32_t)> item_activate_callback;
     std::function<void(int32_t)> column_click_callback;
-    std::function<void(int32_t, int32_t, int32_t)> item_right_click_callback;
     std::function<void(scroll_state)> scroll_callback;
     
     void receive_control_events(const event &ev);

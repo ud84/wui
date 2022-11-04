@@ -46,7 +46,6 @@ list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> them
     item_click_callback(),
     column_click_callback(),
     item_activate_callback(),
-    item_right_click_callback(),
     scroll_callback()
 {
 }
@@ -211,7 +210,7 @@ void list::receive_control_events(const event &ev)
 
                         if (item_click_callback)
                         {
-                            item_click_callback(selected_item_, ev.mouse_event_.x - position().left);
+                            item_click_callback(click_button::left, selected_item_, ev.mouse_event_.x, ev.mouse_event_.y);
                         }
                     }
                 }
@@ -230,9 +229,9 @@ void list::receive_control_events(const event &ev)
 
                 update_selected_item(ev.mouse_event_.y);
 
-                if (item_right_click_callback)
+                if (item_click_callback)
                 {
-                    item_right_click_callback(selected_item_, ev.mouse_event_.x, ev.mouse_event_.y);
+                    item_click_callback(click_button::right, selected_item_, ev.mouse_event_.x, ev.mouse_event_.y);
                 }
             break;
             case mouse_event_type::left_double:
@@ -731,7 +730,7 @@ void list::set_item_height_callback(std::function<void(int32_t, int32_t&)> item_
     item_height_callback = item_height_callback_;
 }
 
-void list::set_item_click_callback(std::function<void(int32_t, int32_t)> item_click_callback_)
+void list::set_item_click_callback(std::function<void(click_button, int32_t, int32_t, int32_t)> item_click_callback_)
 {
     item_click_callback = item_click_callback_;
 }
@@ -749,11 +748,6 @@ void list::set_item_activate_callback(std::function<void(int32_t)> item_activate
 void list::set_column_click_callback(std::function<void(int32_t)> column_click_callback_)
 {
     column_click_callback = column_click_callback_;
-}
-
-void list::set_item_right_click_callback(std::function<void(int32_t, int32_t, int32_t)> item_right_click_callback_)
-{
-    item_right_click_callback = item_right_click_callback_;
 }
 
 void list::set_scroll_callback(std::function<void(scroll_state)> scroll_callback_)
