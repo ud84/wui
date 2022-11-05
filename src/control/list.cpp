@@ -865,25 +865,12 @@ void list::draw_items(graphic &gr_)
         left = border_width,
         right = position_.width() - border_width;
 
-    int32_t scrollbar_width = 0;
-    if (has_scrollbar())
-    {
-        if (scrollbar_state_ == scrollbar_state::tiny)
-        {
-            scrollbar_width = tiny_scrollbar_width;
-        }
-        else if (scrollbar_state_ == scrollbar_state::full)
-        {
-            scrollbar_width = full_scrollbar_width;
-        }
-    }
-
     for (auto item = first_item; item != last_item; ++item)
     {
         auto item_height = get_item_height(item);
         auto top = get_item_top(item) + top_;
 
-        rect item_rect = { left, top, right - scrollbar_width, top + item_height - border_width };
+        rect item_rect = { left, top, right, top + item_height - border_width };
 
         item_state state = item_state::normal;
 
