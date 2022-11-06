@@ -1706,7 +1706,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
-    graphic_.init({ 0, 0, 1920, 1080 }, theme_color(tcn, tv_background, theme_)); // todo: need calc real desktop resolution
+    graphic_.init(get_screen_size(context_), theme_color(tcn, tv_background, theme_)); // todo: need calc real desktop resolution
 #ifdef __linux__
     graphic_.start_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
 #endif
@@ -1821,7 +1821,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->context_.dc = GetDC(hwnd);
 
-            wnd->graphic_.init({ 0, 0, 1920, 1080 }, theme_color(wnd->tcn, tv_background, wnd->theme_));
+            wnd->graphic_.init(get_screen_size(wnd->context_), theme_color(wnd->tcn, tv_background, wnd->theme_));
         }
         break;
         case WM_PAINT:
