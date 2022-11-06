@@ -286,6 +286,23 @@ void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t wi
     }
 }
 
+rect get_screen_size(system_context &context)
+{
+#ifdef _WIN32
+    MONITORINFO mi = { sizeof(mi) };
+    if (GetMonitorInfo(MonitorFromWindow(context.hwnd, MONITOR_DEFAULTTOPRIMARY), &mi))
+    {
+        auto width = mi.rcMonitor.right - mi.rcMonitor.left;
+        auto height = mi.rcMonitor.bottom - mi.rcMonitor.top;
+
+        return { 0, 0, width, height };
+    }
+    return { 0 };
+#elif __linux__
+    return { 0, 0, context.screen->width_in_pixels, context.screen->height_in_pixels };
+#endif
+}
+
 #ifdef _WIN32
 
 void clipboard_put(const std::string &text, system_context &context)
