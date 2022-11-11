@@ -9,7 +9,8 @@
       "active_button": "#3b3d41",
       "caption_font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 18,
+		"decorations": "normal"
       }
     },
     {

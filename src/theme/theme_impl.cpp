@@ -185,10 +185,39 @@ void theme_impl::load_json(const std::string &json_)
                 {
                     ints[control + kvp.first] = kvp.second.get<int32_t>();
                 }
-                else if (kvp.second.is_object())
+                else if (kvp.second.is_object() && kvp.first.find("font") != std::string::npos)
                 {
                     auto fnt = kvp.second.get<nlohmann::json::object_t>();
-                    fonts[control + kvp.first] = font{ fnt.at("name").get<std::string>(), fnt.at("size").get<int32_t>(), decorations::normal };
+                    
+                    int32_t decorations_ = static_cast<int32_t>(decorations::normal);
+                    auto decorations_it = fnt.find("decorations");
+                    if (decorations_it != fnt.end())
+                    {
+                        if (decorations_it->second.get<std::string>().find("bold") != std::string::npos)
+                            decorations_ |= static_cast<int32_t>(decorations::bold);
+                        if (decorations_it->second.get<std::string>().find("italic") != std::string::npos)
+                            decorations_ |= static_cast<int32_t>(decorations::italic);
+                        if (decorations_it->second.get<std::string>().find("underline") != std::string::npos)
+                            decorations_ |= static_cast<int32_t>(decorations::underline);
+                        if (decorations_it->second.get<std::string>().find("strike") != std::string::npos)
+                            decorations_ |= static_cast<int32_t>(decorations::strike_out);
+                    }
+
+                    std::string name = "Segoe UI";
+                    auto name_it = fnt.find("name");
+                    if (name_it != fnt.end())
+                    {
+                        name = name_it->second.get<std::string>();
+                    }
+
+                    int32_t size = 18;
+                    auto size_it = fnt.find("size");
+                    if (size_it != fnt.end())
+                    {
+                        size = size_it->second.get<std::int32_t>();
+                    }
+
+                    fonts[control + kvp.first] = font{ name, size, static_cast<decorations>(decorations_) };
                 }
             }
         }
