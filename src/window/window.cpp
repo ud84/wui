@@ -175,7 +175,12 @@ window::~window()
     {
         parent__->remove_control(shared_from_this());
     }
-#ifdef __linux__
+#ifdef _WIN32
+    if (context_.hwnd)
+    {
+        DestroyWindow(context_.hwnd);
+    }
+#elif __linux__
     send_destroy_event();
     if (thread.joinable()) thread.join();
 #endif
