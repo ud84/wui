@@ -170,20 +170,8 @@ window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> t
 
 window::~window()
 {
-    auto parent__ = parent_.lock();
-    if (parent__)
-    {
-        parent__->remove_control(shared_from_this());
-    }
-#ifdef _WIN32
-    if (context_.hwnd)
-    {
-        DestroyWindow(context_.hwnd);
-    }
-#elif __linux__
-    send_destroy_event();
-    if (thread.joinable()) thread.join();
-#endif
+    control_callback = nullptr;
+    destroy();
 }
 
 void window::add_control(std::shared_ptr<i_control> control, const rect &control_position)
@@ -1150,7 +1138,7 @@ void window::send_mouse_event(const mouse_event &ev)
         auto end = controls.rend();
         for (auto control = controls.rbegin(); control != end; ++control)
         {
-            if ((*control)->topmost() && (*control)->showed() && (*control)->position().in(ev.x, ev.y))
+            if (*control && (*control)->topmost() && (*control)->showed() && (*control)->position().in(ev.x, ev.y))
             {
                 return send_mouse_event_to_control(*control, ev);
             }
@@ -1158,7 +1146,7 @@ void window::send_mouse_event(const mouse_event &ev)
 
         for (auto control = controls.rbegin(); control != end; ++control)
         {
-            if ((*control)->showed() && (*control)->position().in(ev.x, ev.y))
+            if (*control && (*control)->showed() && (*control)->position().in(ev.x, ev.y))
             {
                 return send_mouse_event_to_control(*control, ev);
             }
@@ -1168,7 +1156,7 @@ void window::send_mouse_event(const mouse_event &ev)
     {
         for (auto &control : controls)
         {
-            if (control->position().in(ev.x, ev.y) && control == docked_control)
+            if (control && control->position().in(ev.x, ev.y) && control == docked_control)
             {
                 return send_mouse_event_to_control(control, ev);
             }
@@ -1778,6 +1766,7 @@ void window::destroy()
         DestroyWindow(context_.hwnd);
 #elif __linux__
         send_destroy_event();
+        if (thread.joinable()) thread.join();
 #endif
     }
 }
