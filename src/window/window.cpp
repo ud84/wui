@@ -170,8 +170,20 @@ window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> t
 
 window::~window()
 {
-    control_callback = nullptr;
-    destroy();
+    auto parent__ = parent_.lock();
+    if (parent__)
+    {
+        parent__->remove_control(shared_from_this());
+    }
+#ifdef _WIN32
+    if (context_.hwnd)
+    {
+        DestroyWindow(context_.hwnd);
+    }
+#elif __linux__
+    send_destroy_event();
+    if (thread.joinable()) thread.join();
+#endif
 }
 
 void window::add_control(std::shared_ptr<i_control> control, const rect &control_position)
@@ -1766,7 +1778,6 @@ void window::destroy()
         DestroyWindow(context_.hwnd);
 #elif __linux__
         send_destroy_event();
-        if (thread.joinable()) thread.join();
 #endif
     }
 }
