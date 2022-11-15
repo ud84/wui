@@ -1040,7 +1040,7 @@ void list::scroll_up()
 void list::scroll_down()
 {
     auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) + title_height;
-    if (last_item_bottom - scroll_pos > position_.height())
+    if (last_item_bottom >= scroll_pos && last_item_bottom - scroll_pos > position_.height())
     {
         scroll_pos += static_cast<int32_t>(get_scroll_interval()) * 10;
         redraw();
