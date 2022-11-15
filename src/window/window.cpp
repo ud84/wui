@@ -1864,10 +1864,11 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             wnd->draw_border(wnd->graphic_);
 
-            std::vector<std::shared_ptr<i_control>> topmost_controls;
+            std::vector<size_t> topmost_control_indexes;
 
-            for (auto &control : wnd->controls)
+            for (size_t i = 0; i != wnd->controls.size(); ++i)
             {
+                auto &control = wnd->controls[i];
                 if (control->position().in(paint_rect))
                 {
                     if (!control->topmost())
@@ -1876,14 +1877,16 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     }
                     else
                     {
-                        topmost_controls.emplace_back(control);
+                        topmost_control_indexes.emplace_back(i);
                     }
                 }
             }
-
-            for (auto &control : topmost_controls)
+            for (auto ind : topmost_control_indexes)
             {
-                control->draw(wnd->graphic_, paint_rect);
+                if (ind < wnd->controls.size())
+                {
+                    wnd->controls[ind]->draw(wnd->graphic_, paint_rect);
+                }
             }
 
             wnd->graphic_.flush(paint_rect);
