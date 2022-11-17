@@ -1456,6 +1456,14 @@ void window::send_internal(internal_event_type type, int32_t x, int32_t y)
     send_event_to_plains(ev_);
 }
 
+void window::send_system(system_event_type type, int32_t x, int32_t y)
+{
+    event ev_;
+    ev_.type = event_type::system;
+    ev_.system_event_ = system_event{ type, x, y };
+    send_event_to_plains(ev_);
+}
+
 std::shared_ptr<window> window::get_transient_window()
 {
     auto transient_window_ = transient_window.lock();
@@ -2275,15 +2283,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             }
         break;
         case WM_USER:
-        {
-            window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-
-            event ev;
-            ev.type = event_type::internal;
-            ev.internal_event_ = internal_event{ internal_event_type::user_emitted, static_cast<int32_t>(w_param), static_cast<int32_t>(l_param) };
-
-            wnd->send_event_to_plains(ev);
-        }
+            reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA))->send_internal(internal_event_type::user_emitted, static_cast<int32_t>(w_param), static_cast<int32_t>(l_param));
+        break;
+        case WM_DEVICECHANGE:
+            reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA))->send_system(system_event_type::device_change, static_cast<int32_t>(w_param), static_cast<int32_t>(l_param));
         break;
         case WM_DESTROY:
         {
@@ -2774,11 +2777,7 @@ void window::process_events()
             case XCB_CLIENT_MESSAGE:
                 if ((*(xcb_client_message_event_t*)e).data.data32[0] != wm_delete_msg)
                 {
-                    event ev;
-                    ev.type = event_type::internal;
-                    ev.internal_event_ = internal_event{ internal_event_type::user_emitted, static_cast<int32_t>((*(xcb_client_message_event_t*)e).data.data32[1]), static_cast<int32_t>((*(xcb_client_message_event_t*)e).data.data32[2]) };
-
-                    send_event_to_plains(ev);
+                    send_internal(internal_event_type::user_emitted, static_cast<int32_t>((*(xcb_client_message_event_t*)e).data.data32[1]), static_cast<int32_t>((*(xcb_client_message_event_t*)e).data.data32[2]));
                 }
                 else
                 {

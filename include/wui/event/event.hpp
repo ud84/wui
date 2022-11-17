@@ -12,6 +12,7 @@
 #include <wui/event/mouse_event.hpp>
 #include <wui/event/keyboard_event.hpp>
 #include <wui/event/internal_event.hpp>
+#include <wui/event/system_event.hpp>
 
 namespace wui
 {
@@ -35,6 +36,7 @@ struct event
         mouse_event mouse_event_;
         keyboard_event keyboard_event_;
         internal_event internal_event_;
+        system_event system_event_;
     };
 };
 

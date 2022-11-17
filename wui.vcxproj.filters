@@ -168,6 +168,9 @@
     <ClInclude Include="include\wui\control\tray_icon.h">
       <Filter>Header Files\wui\control</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\event\system_event.hpp">
+      <Filter>Header Files\wui\event</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">

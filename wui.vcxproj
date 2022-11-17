@@ -43,6 +43,7 @@
     <ClInclude Include="include\wui\event\internal_event.hpp" />
     <ClInclude Include="include\wui\event\keyboard_event.hpp" />
     <ClInclude Include="include\wui\event\mouse_event.hpp" />
+    <ClInclude Include="include\wui\event\system_event.hpp" />
     <ClInclude Include="include\wui\graphic\graphic.hpp" />
     <ClInclude Include="include\wui\locale\i_locale.hpp" />
     <ClInclude Include="include\wui\locale\locale.hpp" />
