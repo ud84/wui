@@ -98,7 +98,7 @@ public:
     void set_min_size(int32_t width, int32_t height);
 
     void set_transient_for(std::shared_ptr<window> window_, bool docked = true);
-    void start_docking(std::shared_ptr<i_control> control);
+    void start_docking(std::shared_ptr<window> window_);
     void end_docking();
 
     /// Window state methods
@@ -117,6 +117,9 @@ public:
 
     /// Callbacks
     void set_control_callback(std::function<void(window_control control, std::string &text, bool &continue_)> callback);
+
+    /// Set the control (button) to be pressed when user press enter on the keyboard
+    void set_default_push_control(std::shared_ptr<i_control> control);
 
 public:
     /// Control name in theme / locale
@@ -168,7 +171,7 @@ private:
 
     std::weak_ptr<window> transient_window;
     bool docked_;
-    std::shared_ptr<i_control> docked_control;
+    std::shared_ptr<window> docked_window;
 
     struct event_subscriber
     {
@@ -198,6 +201,8 @@ private:
 
     std::function<void(void)> close_callback;
     std::function<void(window_control control, std::string &text, bool &continue_)> control_callback;
+
+    std::shared_ptr<i_control> default_push_control;
 
     std::shared_ptr<button> switch_theme_button, pin_button, minimize_button, expand_button, close_button;
 

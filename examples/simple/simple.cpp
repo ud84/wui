@@ -400,6 +400,8 @@ int main(int argc, char *argv[])
         std::shared_ptr<wui::button> dialogButton(new wui::button("Close", [&dialog]() { dialog->destroy(); }));
         dialog->add_control(dialogButton, { 10, 200, 100, 235 });
 
+        dialog->set_default_push_control(dialogButton);
+
         dialog->set_transient_for(window);
         dialog->init("Modal dialog", { -1, -1, 350, 350 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
     }));
@@ -496,6 +498,8 @@ int main(int argc, char *argv[])
         dialog->update_theme();
         cancelButton->update_theme(MakeRedButtonTheme());
     });
+
+    window->set_default_push_control(okButton);
 
     window->init("Welcome to wui", { -1, -1, 900, 600 },
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
