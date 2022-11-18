@@ -539,6 +539,10 @@ void input::receive_control_events(const event &ev)
                 {
                     return select_all();
                 }
+                else if (ev.keyboard_event_.key[0] == 0x7f) // ctrl + backspace
+                {
+                    return set_text("");
+                }
 
                 if (input_view_ == input_view::readonly)
                 {
