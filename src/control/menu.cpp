@@ -90,6 +90,7 @@ menu::menu(const std::string &theme_control_name, std::shared_ptr<i_theme> theme
     list_->set_item_click_callback([this](list::click_button btn, int32_t n_item, int32_t, int32_t) { if (btn == list::click_button::left) activate_list_item(n_item); });
     list_->set_item_activate_callback(std::bind(&menu::activate_list_item, this, std::placeholders::_1));
     list_->set_mode(list::list_mode::auto_select);
+    list_->hide();
 }
 
 menu::~menu()
