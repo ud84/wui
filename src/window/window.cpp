@@ -141,7 +141,7 @@ window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     focused_index(0),
     parent_(),
     my_control_sid(), my_plain_sid(),
-    transient_window(), docked_(false), docked_window(),
+    transient_window(), docked_(false), docked_control(),
     subscribers_(),
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
@@ -212,9 +212,9 @@ void window::remove_control(std::shared_ptr<i_control> control)
         controls.erase(exists);
     }
 
-    if (control == docked_window)
+    if (control == docked_control)
     {
-        docked_window.reset();
+        docked_control.reset();
     }
     
     auto clear_pos = control->position();
@@ -1019,20 +1019,22 @@ void window::set_transient_for(std::shared_ptr<window> window_, bool docked__)
     docked_ = docked__;
 }
 
-void window::start_docking(std::shared_ptr<window> window_)
+void window::start_docking(std::shared_ptr<i_control> control)
 {
     set_focused(nullptr);
 
     enabled_ = false;
 
-    docked_window = window_;
+    docked_control = control;
+
+    set_focused(docked_control);
 }
 
 void window::end_docking()
 {
     enabled_ = true;
 
-    docked_window.reset();
+    docked_control.reset();
 }
 
 void window::emit_event(int32_t x, int32_t y)
@@ -1102,7 +1104,7 @@ void window::send_event_to_plains(const event &ev)
 
 void window::send_mouse_event(const mouse_event &ev)
 {
-    if (!enabled_ && !docked_window)
+    if (!enabled_ && !docked_control)
     {
         return;
     }
@@ -1174,7 +1176,7 @@ void window::send_mouse_event(const mouse_event &ev)
     {
         for (auto &control : controls)
         {
-            if (control && control->position().in(ev.x, ev.y) && control == docked_window)
+            if (control && control->position().in(ev.x, ev.y) && control == docked_control)
             {
                 return send_mouse_event_to_control(control, ev);
             }
@@ -1205,7 +1207,7 @@ void window::change_focus()
 
     for (auto &control : controls)
     {
-        if (control->focused() && control != docked_window)
+        if (control->focused() && control != docked_control)
         {
             event ev;
             ev.type = event_type::internal;
@@ -1245,9 +1247,9 @@ void window::execute_focused()
 {
     std::shared_ptr<wui::i_control> control;
 
-    if (docked_window)
+    if (docked_control)
     {
-        control = docked_window;
+        control = docked_control;
     }
     else if (default_push_control)
     {
