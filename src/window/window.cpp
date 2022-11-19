@@ -1270,28 +1270,24 @@ void window::execute_focused()
 
 void window::set_focused(std::shared_ptr<i_control> control)
 {
+    size_t index = 0;
     for (auto &c : controls)
     {
+        if (c == control)
+        {
+            if (c->focused())
+            {
+                return;
+            }
+            focused_index = index;
+        }
+
         if (c->focused())
         {
             event ev;
             ev.type = event_type::internal;
             ev.internal_event_ = internal_event{ internal_event_type::remove_focus };
             send_event_to_control(c, ev);
-
-            focused_index = 0;
-
-            break;
-        }
-    }
-
-    size_t index = 0;
-    for (auto &c : controls)
-    {
-        if (c == control)
-        {
-            focused_index = index;
-            break;
         }
 
         if (c->focusing())
