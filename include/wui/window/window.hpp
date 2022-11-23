@@ -20,6 +20,7 @@
 #include <memory>
 
 #include <thread>
+#include <mutex>
 
 namespace wui
 {
@@ -150,6 +151,7 @@ private:
     system_context context_;
     graphic graphic_;
 
+    mutable std::recursive_mutex controls_mutex;
     std::vector<std::shared_ptr<i_control>> controls;
     std::shared_ptr<i_control> active_control;
 
