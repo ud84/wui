@@ -718,6 +718,31 @@ int32_t list::get_item_count() const
     return item_count;
 }
 
+void list::scroll_to_start()
+{
+    scroll_pos = 0;
+    redraw();
+}
+
+void list::scroll_to_end()
+{
+    int32_t scroll_pos_ = 0;
+
+    for (int32_t i = 0; i != item_count; ++i)
+    {
+        scroll_pos_ += get_item_height(i);
+    }
+
+    if (scroll_pos_ > position_.height() + title_height)
+    {
+        scroll_pos_ -= position_.height() - title_height;
+
+        scroll_pos = scroll_pos_;
+
+        redraw();
+    }
+}
+
 void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state)> draw_callback_)
 {
     draw_callback = draw_callback_;

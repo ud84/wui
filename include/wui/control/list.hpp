@@ -84,6 +84,9 @@ public:
     void set_item_count(int32_t count);
     int32_t get_item_count() const;
 
+    void scroll_to_start();
+    void scroll_to_end();
+
     enum class item_state
     {
         normal,
