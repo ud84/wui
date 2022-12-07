@@ -709,6 +709,11 @@ int32_t list::get_item_height(int32_t n_item) const
 
 void list::set_item_count(int32_t count)
 {
+    if (item_count > count)
+    {
+        scroll_pos = 0;
+    }
+
     item_count = count;
     redraw();
 }
