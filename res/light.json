@@ -2,7 +2,7 @@
   "controls": [
     {
       "type": "window",
-      "background": "#f0f0f0",
+      "background": "#fffffe",
       "border": "#9a9a9a",
       "border_width": 1,
       "text": "#191914",
@@ -42,11 +42,11 @@
     },
     {
       "type": "tool_button",
-      "calm": "#f0f0f0",
+      "calm": "#fffffe",
       "active": "#dcdcdc",
       "border_width": 0,
       "text": "#181818",
-      "disabled": "#f0f0f0",
+      "disabled": "#fffffe",
       "round": 0,
       "focusing": 0,
       "font": {
@@ -56,11 +56,11 @@
     },
     {
       "type": "red_tool_button",
-      "calm": "#f0f0f0",
+      "calm": "#fffffe",
       "active": "#eb0f14",
       "border_width": 0,
       "text": "#181818",
-      "disabled": "#f0f0f0",
+      "disabled": "#fffffe",
       "round": 0,
       "focusing": 0,
       "font": {
@@ -70,7 +70,7 @@
     },
     {
       "type": "input",
-      "background": "#dcdcdc",
+      "background": "#fcfcfc",
       "text": "#191914",
       "selection": "#99c9ef",
       "cursor": "#141414",
@@ -85,7 +85,7 @@
     },
     {
       "type": "select",
-      "background": "#dcdcdc",
+      "background": "#fcfcfc",
       "border": "#28788c",
       "border_width": 1,
       "focused_border": "#140a14",
@@ -105,7 +105,7 @@
     },
     {
       "type": "list",
-      "background": "#dcdcdc",
+      "background": "#fcfcfc",
       "border": "#9a9a9a",
       "focused_border": "#140a14",
       "border_width": 1,
@@ -161,7 +161,7 @@
       "type": "progress",
       "border": "#28788c",
       "border_width": 1,
-      "background": "#dcdcdc",
+      "background": "#fcfcfc",
       "meter": "#8dd28a"
     },
     {
