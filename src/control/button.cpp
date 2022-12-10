@@ -221,11 +221,6 @@ void button::draw(graphic &gr, const rect &)
         case button_view::switcher: case button_view::radio:
             if (image_)
             {
-                if (image_->width() + text_rect.right + 10 > position_.width())
-                {
-                    position_.right = position_.left + text_rect.right + image_->width() + 10;
-                    return redraw();
-                }
                 if (image_->height() + 6 > position_.height())
                 {
                     position_.bottom = position_.top + image_->height() + 6;
@@ -241,6 +236,8 @@ void button::draw(graphic &gr, const rect &)
                 image_top = control_pos.top + ((control_pos.height() - image_->height()) / 2);
                 text_left = image_left + image_->width() + 5;
                 text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
+
+                truncate_line(caption, gr, font_, control_pos.right - text_left - 10, 1);
             }
         break;
         case button_view::image_bottom_text:
