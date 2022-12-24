@@ -175,6 +175,7 @@ private:
     bool docked_;
     std::shared_ptr<i_control> docked_control;
 
+    mutable std::recursive_mutex subscribers_mutex;
     struct event_subscriber
     {
         std::string id;
