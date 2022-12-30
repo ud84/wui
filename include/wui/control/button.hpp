@@ -145,6 +145,8 @@ private:
     bool active, focused_;
     bool focusing_;
 
+    bool pushed;
+
     bool turned_;
 
     rect text_rect;

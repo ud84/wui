@@ -35,6 +35,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
+    pushed(false),
     turned_(false),
     text_rect{ 0 }
 {
@@ -341,6 +342,8 @@ void button::receive_event(const event &ev)
             break;
             case mouse_event_type::leave:
             {
+                pushed = false;
+
                 if (button_view_ == button_view::image && !caption.empty())
                 {
                     tooltip_->hide();
@@ -355,8 +358,11 @@ void button::receive_event(const event &ev)
                 redraw();
             }
             break;
+            case mouse_event_type::left_down:
+                pushed = true;
+            break;
             case mouse_event_type::left_up:
-                if (enabled_)
+                if (pushed && enabled_)
                 {
                     active = false;
                     tooltip_->hide();
@@ -370,6 +376,8 @@ void button::receive_event(const event &ev)
                     {
                         click_callback();
                     }
+
+                    pushed = false;
                 }
             break;
         }
