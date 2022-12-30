@@ -319,12 +319,24 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
 rect graphic::measure_text(const std::string &text, const font &font__)
 {
 #ifdef _WIN32
-    HFONT font_ = CreateFont(font__.size, 0, 0, 0, FW_DONTCARE,
+    LOGFONTW log_font = { font__.size,
+        0,
+        0,
+        0,
+        flag_is_set(font__.decorations_, decorations::bold) ? FW_MEDIUM : FW_DONTCARE,
         flag_is_set(font__.decorations_, decorations::italic),
         flag_is_set(font__.decorations_, decorations::underline),
-        flag_is_set(font__.decorations_, decorations::strike_out), ANSI_CHARSET,
-        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, boost::nowide::widen(font__.name).c_str());
+        flag_is_set(font__.decorations_, decorations::strike_out),
+        ANSI_CHARSET,
+        OUT_TT_PRECIS,
+        CLIP_DEFAULT_PRECIS,
+        CLEARTYPE_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE,
+        0
+    };
+    auto font_name = boost::nowide::widen(font__.name);
+    memcpy(log_font.lfFaceName, font_name.c_str(), font_name.size() * 2);
+    HFONT font_ = CreateFontIndirectW(&log_font);
 
     auto old_font = (HFONT)SelectObject(mem_dc, font_);
 
@@ -368,12 +380,24 @@ rect graphic::measure_text(const std::string &text, const font &font__)
 void graphic::draw_text(const rect &position, const std::string &text, color color_, const font &font__)
 {
 #ifdef _WIN32
-    HFONT font_ = CreateFont(font__.size, 0, 0, 0, flag_is_set(font__.decorations_, decorations::bold) ? FW_BOLD : FW_DONTCARE,
-        flag_is_set(font__.decorations_, decorations::italic), 
+    LOGFONTW log_font = { font__.size,
+        0,
+        0,
+        0,
+        flag_is_set(font__.decorations_, decorations::bold) ? FW_MEDIUM : FW_DONTCARE,
+        flag_is_set(font__.decorations_, decorations::italic),
         flag_is_set(font__.decorations_, decorations::underline),
-        flag_is_set(font__.decorations_, decorations::strike_out), ANSI_CHARSET,
-        OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE, boost::nowide::widen(font__.name).c_str());
+        flag_is_set(font__.decorations_, decorations::strike_out),
+        ANSI_CHARSET,
+        OUT_TT_PRECIS,
+        CLIP_DEFAULT_PRECIS,
+        CLEARTYPE_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE,
+        0
+    };
+    auto font_name = boost::nowide::widen(font__.name);
+    memcpy(log_font.lfFaceName, font_name.c_str(), font_name.size() * 2);
+    HFONT font_ = CreateFontIndirectW(&log_font);
 
     auto old_font = (HFONT)SelectObject(mem_dc, font_);
     
