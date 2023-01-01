@@ -87,6 +87,8 @@ public:
     void scroll_to_start();
     void scroll_to_end();
 
+    int32_t get_item_top(int32_t n_item) const;
+
     enum class item_state
     {
         normal,
@@ -208,8 +210,6 @@ private:
     void draw_scrollbar(graphic &gr_);
     void draw_arrow_up(graphic &gr, rect button_pos);
     void draw_arrow_down(graphic &gr, rect button_pos);
-
-    int32_t get_item_top(int32_t n_item) const;
 
     double get_scroll_interval() const;
 

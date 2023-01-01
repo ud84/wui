@@ -748,6 +748,24 @@ void list::scroll_to_end()
     }
 }
 
+int32_t list::get_item_top(int32_t n_item) const
+{
+    if (n_item < 0)
+    {
+        return 0;
+    }
+
+    int32_t top = 0;
+
+    for (int32_t i = 0; i != n_item; ++i)
+    {
+        auto height = get_item_height(i);
+        top += height != -1 ? height : 0;
+    }
+
+    return top;
+}
+
 void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state)> draw_callback_)
 {
     draw_callback = draw_callback_;
@@ -977,24 +995,6 @@ void list::draw_arrow_down(graphic &gr, rect button_pos)
         }
         w -= 2;
     }
-}
-
-int32_t list::get_item_top(int32_t n_item) const
-{
-    if (n_item < 0)
-    {
-        return 0;
-    }
-
-    int32_t top = 0;
-
-    for (int32_t i = 0; i != n_item; ++i)
-    {
-        auto height = get_item_height(i);
-        top += height != -1 ? height : 0;
-    }
-
-    return top;
 }
 
 double list::get_scroll_interval() const
