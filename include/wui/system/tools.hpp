@@ -41,6 +41,12 @@ void update_control_position(rect &control_position,
     bool redraw,
     std::weak_ptr<window> parent);
 
+/// This function helps to place controls on the window from top to bottom
+void line_up_top_bottom(rect &pos, int32_t height, int32_t space);
+
+/// This function helps to place controls on the window from left to right
+void line_up_left_right(rect &pos, int32_t width, int32_t space);
+
 /// This function returns the absolute position of the control on the physical window. Must be called inside the control's position() method
 rect get_control_position(const rect &control_position, std::weak_ptr<window> parent);
 
