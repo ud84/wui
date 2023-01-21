@@ -31,4 +31,9 @@ struct font
     decorations decorations_;
 };
 
+inline bool operator<(const font &lv, const font &rv)
+{
+    return lv.name < rv.name && lv.size < rv.size;
+}
+
 }

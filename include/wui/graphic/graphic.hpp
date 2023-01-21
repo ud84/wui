@@ -10,9 +10,13 @@
 #pragma once
 
 #include <wui/system/system_context.hpp>
+
 #include <wui/common/color.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/font.hpp>
+
+#include <wui/graphic/primitive_container.hpp>
+
 #include <string>
 #include <cstdint>
 
@@ -70,13 +74,15 @@ public:
 private:
     system_context &context_;
 
+    primitive_container pc;
+
     rect max_size;
 
 #ifdef _WIN32
 
     HDC mem_dc;
     HBITMAP mem_bitmap;
-    HBRUSH background_brush;
+    color background_color;
 
 #elif __linux__
 

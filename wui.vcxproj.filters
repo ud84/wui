@@ -171,6 +171,9 @@
     <ClInclude Include="include\wui\event\system_event.hpp">
       <Filter>Header Files\wui\event</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\graphic\primitive_container.hpp">
+      <Filter>Header Files\wui\graphic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -235,6 +238,9 @@
     </ClCompile>
     <ClCompile Include="src\control\tray_icon.cpp">
       <Filter>Source Files\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\primitive_container.cpp">
+      <Filter>Source Files\graphic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

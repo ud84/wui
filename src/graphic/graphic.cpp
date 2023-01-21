@@ -54,16 +54,17 @@ namespace wui
 
 graphic::graphic(system_context &context__)
     : context_(context__),
+      pc(),
       max_size()
 #ifdef _WIN32
     , mem_dc(0),
-    mem_bitmap(0),
-    background_brush(0)
+      mem_bitmap(0),
+      background_color(0)
 #elif __linux__
     , mem_pixmap(0),
-    gc(0),
-    surface(nullptr),
-    device(nullptr)
+      gc(0),
+      surface(nullptr),
+      device(nullptr)
 #endif
 {
 }
@@ -73,7 +74,7 @@ graphic::~graphic()
     release();
 }
 
-void graphic::init(const rect &max_size_, color background_color)
+void graphic::init(const rect &max_size_, color background_color_)
 {
 #ifdef _WIN32
     if (!context_.dc || mem_dc)
@@ -82,6 +83,7 @@ void graphic::init(const rect &max_size_, color background_color)
     }
 
     max_size = max_size_;
+    background_color = background_color_;
 
     mem_dc = CreateCompatibleDC(context_.dc);
 
@@ -90,10 +92,8 @@ void graphic::init(const rect &max_size_, color background_color)
 
     SetMapMode(mem_dc, MM_TEXT);
 
-    background_brush = CreateSolidBrush(background_color);
-
     RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
-    FillRect(mem_dc, &filling_rect, background_brush);
+    FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
 #elif __linux__
     if (!context_.display || mem_pixmap)
     {
@@ -135,6 +135,8 @@ void graphic::init(const rect &max_size_, color background_color)
         fprintf(stderr, "WUI error can't create the cairo surface on graphic::init()\n");
     }
 #endif
+
+    pc.init();
 }
 
 void graphic::release()
@@ -145,9 +147,6 @@ void graphic::release()
 
     DeleteDC(mem_dc);
     mem_dc = 0;
-
-    DeleteObject(background_brush);
-    background_brush = 0;
 #elif __linux__
     if (surface)
     {
@@ -169,17 +168,16 @@ void graphic::release()
         mem_pixmap = 0;
     }
 #endif
+
+    pc.release();
 }
 
-void graphic::set_background_color(color background_color)
+void graphic::set_background_color(color background_color_)
 {
 #ifdef _WIN32
-    DeleteObject(background_brush);
-    
-    background_brush = CreateSolidBrush(background_color);
-
+    background_color = background_color_;
     RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
-    FillRect(mem_dc, &filling_rect, background_brush);
+    FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
 #elif __linux__
     if (!context_.display || !mem_pixmap)
     {
@@ -219,7 +217,7 @@ void graphic::clear(const rect &position)
     }
 
     RECT filling_rect = { position.left, position.top, position.right, position.bottom };
-    FillRect(mem_dc, &filling_rect, background_brush);
+    FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
 #elif __linux__
     if (!mem_pixmap)
     {
@@ -293,14 +291,12 @@ void graphic::draw_pixel(const rect &position, color color_)
 void graphic::draw_line(const rect &position, color color_, uint32_t width)
 {
 #ifdef _WIN32
-    auto pen = CreatePen(PS_SOLID, width, color_);
-    auto old_pen = (HPEN)SelectObject(mem_dc, pen);
+    auto old_pen = (HPEN)SelectObject(mem_dc, pc.get_pen(PS_SOLID, width, color_));
     
     MoveToEx(mem_dc, position.left, position.top, (LPPOINT)NULL);
     LineTo(mem_dc, position.right, position.bottom);
 
     SelectObject(mem_dc, old_pen);
-    DeleteObject(pen);
 #elif __linux__
     auto gc_ = xcb_generate_id(context_.connection);
 
@@ -319,33 +315,13 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
 rect graphic::measure_text(const std::string &text, const font &font__)
 {
 #ifdef _WIN32
-    LOGFONTW log_font = { font__.size,
-        0,
-        0,
-        0,
-        flag_is_set(font__.decorations_, decorations::bold) ? FW_MEDIUM : FW_DONTCARE,
-        flag_is_set(font__.decorations_, decorations::italic),
-        flag_is_set(font__.decorations_, decorations::underline),
-        flag_is_set(font__.decorations_, decorations::strike_out),
-        ANSI_CHARSET,
-        OUT_TT_PRECIS,
-        CLIP_DEFAULT_PRECIS,
-        CLEARTYPE_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE,
-        0
-    };
-    auto font_name = boost::nowide::widen(font__.name);
-    memcpy(log_font.lfFaceName, font_name.c_str(), font_name.size() * 2);
-    HFONT font_ = CreateFontIndirectW(&log_font);
-
-    auto old_font = (HFONT)SelectObject(mem_dc, font_);
+    auto old_font = (HFONT)SelectObject(mem_dc, pc.get_font(font__));
 
     RECT text_rect = { 0 };
     auto wide_str = boost::nowide::widen(text);
     DrawTextW(mem_dc, wide_str.c_str(), static_cast<int32_t>(wide_str.size()), &text_rect, DT_CALCRECT);
 
     SelectObject(mem_dc, old_font);
-    DeleteObject(font_);
 
     return {0, 0, text_rect.right, text_rect.bottom};
 #elif __linux__
@@ -380,26 +356,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
 void graphic::draw_text(const rect &position, const std::string &text, color color_, const font &font__)
 {
 #ifdef _WIN32
-    LOGFONTW log_font = { font__.size,
-        0,
-        0,
-        0,
-        flag_is_set(font__.decorations_, decorations::bold) ? FW_MEDIUM : FW_DONTCARE,
-        flag_is_set(font__.decorations_, decorations::italic),
-        flag_is_set(font__.decorations_, decorations::underline),
-        flag_is_set(font__.decorations_, decorations::strike_out),
-        ANSI_CHARSET,
-        OUT_TT_PRECIS,
-        CLIP_DEFAULT_PRECIS,
-        CLEARTYPE_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE,
-        0
-    };
-    auto font_name = boost::nowide::widen(font__.name);
-    memcpy(log_font.lfFaceName, font_name.c_str(), font_name.size() * 2);
-    HFONT font_ = CreateFontIndirectW(&log_font);
-
-    auto old_font = (HFONT)SelectObject(mem_dc, font_);
+    auto old_font = (HFONT)SelectObject(mem_dc, pc.get_font(font__));
     
     SetTextColor(mem_dc, color_);
     SetBkMode(mem_dc, TRANSPARENT);
@@ -408,7 +365,6 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
     TextOutW(mem_dc, position.left, position.top, wide_str.c_str(), static_cast<int32_t>(wide_str.size()));
 
     SelectObject(mem_dc, old_font);
-    DeleteObject(font_);
 #elif __linux__
     if (!surface)
     {
@@ -440,12 +396,8 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
 void graphic::draw_rect(const rect &position, color fill_color)
 {
 #ifdef _WIN32
-    auto brush = CreateSolidBrush(fill_color);
-
     RECT position_rect = { position.left, position.top, position.right, position.bottom };
-    FillRect(mem_dc, &position_rect, brush);
-
-    DeleteObject(brush);
+    FillRect(mem_dc, &position_rect, pc.get_brush(fill_color));
 #elif __linux__
     auto gc_ = xcb_generate_id(context_.connection);
 
@@ -476,19 +428,15 @@ void graphic::draw_rect(const rect &position, color fill_color)
 void graphic::draw_rect(const rect &position, color border_color, color fill_color, uint32_t border_width, uint32_t rnd)
 {
 #ifdef _WIN32
-    auto pen = CreatePen(border_width != 0 ? PS_SOLID : PS_NULL, border_width, border_color);
-    auto old_pen = (HPEN)SelectObject(mem_dc, pen);
+    auto old_pen = (HPEN)SelectObject(mem_dc, pc.get_pen(border_width != 0 ? PS_SOLID : PS_NULL, border_width, border_color));
 
-    auto brush = CreateSolidBrush(fill_color);
-    auto old_brush = (HBRUSH)SelectObject(mem_dc, brush);
+    auto old_brush = (HBRUSH)SelectObject(mem_dc, pc.get_brush(fill_color));
 
     RoundRect(mem_dc, position.left, position.top, position.right, position.bottom, rnd, rnd);
 
     SelectObject(mem_dc, old_brush);
-    DeleteObject(brush);
 
     SelectObject(mem_dc, old_pen);
-    DeleteObject(pen);
 #elif __linux__
     draw_rect(position, fill_color);
 
