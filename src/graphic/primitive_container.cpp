@@ -121,7 +121,6 @@ HFONT primitive_container::get_font(font font_)
 
 #elif __linux__
 
-
 void primitive_container::init()
 {
 }
