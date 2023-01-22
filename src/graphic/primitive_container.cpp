@@ -61,14 +61,14 @@ void primitive_container::release()
 
 HPEN primitive_container::get_pen(int32_t style, int32_t width, color color_)
 {
-    auto it = pens.find({ style, width, color_ });
+    auto it = pens.find({ { style, width }, color_ });
     if (it != pens.end())
     {
         return it->second;
     }
-    auto pen = CreatePen(PS_SOLID, width, color_);
+    auto pen = CreatePen(style, width, color_);
 
-    pens[{ style, width, color_ }] = pen;
+    pens[{ { style, width }, color_ }] = pen;
 
     return pen;
 }

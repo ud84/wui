@@ -26,18 +26,6 @@ struct _cairo_surface;
 namespace wui
 {
 
-#ifdef _WIN32
-struct pen_vals
-{
-    int32_t style, width;
-    color color_;
-};
-inline bool operator<(const pen_vals &lv, const pen_vals &rv)
-{
-    return lv.style < rv.style && lv.width < rv.width && lv.color_ < lv.color_;
-}
-#endif
-
 class primitive_container
 {
 public:
@@ -60,7 +48,7 @@ private:
     wui::system_context &context_;
 
 #ifdef _WIN32
-    std::map<pen_vals, HPEN> pens;
+    std::map<std::pair<std::pair<int32_t, int32_t>, color>, HPEN> pens;
     std::map<int32_t, HBRUSH> brushes;
     std::map<font, HFONT> fonts;
 #elif __linux__
