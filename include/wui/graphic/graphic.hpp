@@ -78,16 +78,13 @@ private:
 
     rect max_size;
 
-#ifdef _WIN32
-
-    HDC mem_dc;
-    HBITMAP mem_bitmap;
     color background_color;
 
+#ifdef _WIN32
+    HDC mem_dc;
+    HBITMAP mem_bitmap;
 #elif __linux__
-
     xcb_pixmap_t mem_pixmap;
-    xcb_gcontext_t gc;
 
     _cairo_surface *surface;
     _cairo_device *device;

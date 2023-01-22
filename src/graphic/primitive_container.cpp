@@ -13,8 +13,24 @@
 
 #include <boost/nowide/convert.hpp>
 
+#ifdef __linux__
+#include <xcb/xcb_image.h>
+#include <cairo.h>
+#include <cairo-xcb.h>
+#endif
+
 namespace wui
 {
+
+primitive_container::primitive_container(wui::system_context &context__)
+    : context_(context__)
+{
+}
+
+primitive_container::~primitive_container()
+{
+    release();
+}
 
 #ifdef _WIN32
 
@@ -112,6 +128,59 @@ void primitive_container::init()
 
 void primitive_container::release()
 {
+    for (auto &g : gcs)
+    {
+        xcb_free_gc(context_.connection, g.second);
+    }
+    gcs.clear();
+
+    for (auto &f : fonts)
+    {
+    	cairo_destroy(f.second);
+    }
+    fonts.clear();
+}
+
+xcb_gcontext_t primitive_container::get_gc(color color_)
+{
+    auto it = gcs.find(color_);
+    if (it != gcs.end())
+    {
+        return it->second;
+    }
+
+    auto gc = xcb_generate_id(context_.connection);
+
+    uint32_t mask = XCB_GC_FOREGROUND;
+    uint32_t value[] = { static_cast<uint32_t>(color_) };
+    auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, mask, value);
+
+    gcs[color_] = gc;
+
+    return gc;
+}
+
+_cairo *primitive_container::get_font(font font_, _cairo_surface *surface)
+{
+    auto it = fonts.find(font_);
+    if (it != fonts.end())
+    {
+        return it->second;
+    }
+
+    auto cr = cairo_create(surface);
+    if (!cr)
+    {
+        return nullptr;
+    }
+
+    cairo_select_font_face(cr, font_.name.c_str(), CAIRO_FONT_SLANT_NORMAL,
+        !flag_is_set(font_.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, font_.size);
+
+    fonts[font_] = cr;
+
+    return cr;
 }
 
 #endif

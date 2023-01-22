@@ -12,12 +12,15 @@
 #include <wui/common/color.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/font.hpp>
+#include <wui/system/system_context.hpp>
 
 #include <map>
 
 #ifdef _WIN32
 #include <windows.h>
 #elif __linux__
+struct _cairo;
+struct _cairo_surface;
 #endif
 
 namespace wui
@@ -38,6 +41,9 @@ inline bool operator<(const pen_vals &lv, const pen_vals &rv)
 class primitive_container
 {
 public:
+    primitive_container(wui::system_context &context_);
+    ~primitive_container();
+
     void init();
     void release();
 
@@ -46,14 +52,20 @@ public:
     HBRUSH get_brush(color color_);
     HFONT get_font(font font_);
 #elif __linux__
+    xcb_gcontext_t get_gc(color color_);
+    _cairo *get_font(font font_, _cairo_surface *surface);
 #endif
 
 private:
+    wui::system_context &context_;
+
 #ifdef _WIN32
     std::map<pen_vals, HPEN> pens;
     std::map<int32_t, HBRUSH> brushes;
     std::map<font, HFONT> fonts;
 #elif __linux__
+    std::map<color, xcb_gcontext_t> gcs;
+    std::map<font, _cairo*> fonts;
 #endif
 };
 

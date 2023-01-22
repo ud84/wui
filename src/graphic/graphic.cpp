@@ -39,14 +39,6 @@ xcb_visualtype_t *default_visual_type(wui::system_context &context_)
     return nullptr;
 }
 
-void set_color(cairo_t *cr, wui::color color_)
-{
-    cairo_set_source_rgb(cr,
-        static_cast<double>(wui::get_red(color_)) / 255,
-        static_cast<double>(wui::get_green(color_)) / 255,
-        static_cast<double>(wui::get_blue(color_)) / 255);
-}
-
 #endif
 
 namespace wui
@@ -54,15 +46,14 @@ namespace wui
 
 graphic::graphic(system_context &context__)
     : context_(context__),
-      pc(),
-      max_size()
+      pc(context_),
+      max_size(),
+	  background_color(0)
 #ifdef _WIN32
     , mem_dc(0),
-      mem_bitmap(0),
-      background_color(0)
+      mem_bitmap(0)
 #elif __linux__
     , mem_pixmap(0),
-      gc(0),
       surface(nullptr),
       device(nullptr)
 #endif
@@ -76,14 +67,14 @@ graphic::~graphic()
 
 void graphic::init(const rect &max_size_, color background_color_)
 {
+    max_size = max_size_;
+    background_color = background_color_;
+
 #ifdef _WIN32
     if (!context_.dc || mem_dc)
     {
         return;
     }
-
-    max_size = max_size_;
-    background_color = background_color_;
 
     mem_dc = CreateCompatibleDC(context_.dc);
 
@@ -96,17 +87,6 @@ void graphic::init(const rect &max_size_, color background_color_)
     FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
 #elif __linux__
     if (!context_.display || mem_pixmap)
-    {
-        return;
-    }
-
-    max_size = max_size_;
-
-    gc = xcb_generate_id(context_.connection);
-    uint32_t mask = XCB_GC_FOREGROUND;
-    uint32_t value[] = { static_cast<uint32_t>(background_color) };
-    auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, mask, value);
-    if (!check_cookie(gc_create_cookie, context_.connection, "graphic::init xcb_create_gc"))
     {
         return;
     }
@@ -127,7 +107,7 @@ void graphic::init(const rect &max_size_, color background_color_)
         0,
         static_cast<uint16_t>(max_size.width()),
         static_cast<uint16_t>(max_size.height()) };
-    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, pc.get_gc(background_color), 1, &rct);
 
     surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, default_visual_type(context_), max_size.width(), max_size.height());
     if (!surface)
@@ -154,13 +134,6 @@ void graphic::release()
         surface = nullptr;
     }
 
-    if (gc)
-    {
-        auto free_gc_cookie = xcb_free_gc(context_.connection, gc);
-        check_cookie(free_gc_cookie, context_.connection, "graphic::clear_resources");
-        gc = 0;
-    }
-
     if (mem_pixmap)
     {
         auto free_pixmap_cookie = xcb_free_pixmap(context_.connection, mem_pixmap);
@@ -174,8 +147,9 @@ void graphic::release()
 
 void graphic::set_background_color(color background_color_)
 {
-#ifdef _WIN32
     background_color = background_color_;
+
+#ifdef _WIN32
     RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
     FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
 #elif __linux__
@@ -184,27 +158,11 @@ void graphic::set_background_color(color background_color_)
         return;
     }
 
-    if (gc)
-    {
-        auto free_gc_cookie = xcb_free_gc(context_.connection, gc);
-        check_cookie(free_gc_cookie, context_.connection, "graphic::clear_resources");
-        gc = 0;
-    }
-
-    gc = xcb_generate_id(context_.connection);
-    uint32_t mask = XCB_GC_FOREGROUND;
-    uint32_t value[] = { static_cast<uint32_t>(background_color) };
-    auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, mask, value);
-    if (!check_cookie(gc_create_cookie, context_.connection, "graphic::set_background_color xcb_create_gc"))
-    {
-        return;
-    }
-
     xcb_rectangle_t rct = { 0,
         0,
         static_cast<uint16_t>(max_size.width()),
         static_cast<uint16_t>(max_size.height()) };
-    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, pc.get_gc(background_color), 1, &rct);
 #endif
 }
 
@@ -228,7 +186,7 @@ void graphic::clear(const rect &position)
         static_cast<int16_t>(position.top),
         static_cast<uint16_t>(position.width()),
         static_cast<uint16_t>(position.height()) };
-    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc, 1, &rct);
+    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, pc.get_gc(background_color), 1, &rct);
 #endif
 }
 
@@ -253,7 +211,7 @@ void graphic::flush(const rect &updated_size)
         auto copy_area_cookie = xcb_copy_area(context_.connection,
             mem_pixmap,
             context_.wnd,
-            gc,
+			pc.get_gc(background_color),
             updated_size.left,
             updated_size.top,
             updated_size.left,
@@ -274,17 +232,8 @@ void graphic::draw_pixel(const rect &position, color color_)
 #ifdef _WIN32
     SetPixel(mem_dc, position.left, position.top, color_);
 #elif __linux__
-    auto gc_ = xcb_generate_id(context_.connection);
-
-    uint32_t mask = XCB_GC_FOREGROUND;
-    uint32_t value[] = { static_cast<uint32_t>(color_) };
-    auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
-
     xcb_point_t points[] = { { static_cast<int16_t>(position.left), static_cast<int16_t>(position.top) } };
-
-    xcb_poly_point(context_.connection, XCB_COORD_MODE_ORIGIN, mem_pixmap, gc_, 1, points);
-
-    xcb_free_gc(context_.connection, gc_);
+    xcb_poly_point(context_.connection, XCB_COORD_MODE_ORIGIN, mem_pixmap, pc.get_gc(color_), 1, points);
 #endif
 }
 
@@ -298,17 +247,9 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
 
     SelectObject(mem_dc, old_pen);
 #elif __linux__
-    auto gc_ = xcb_generate_id(context_.connection);
-
-    uint32_t mask = XCB_GC_FOREGROUND;
-    uint32_t value[] = { static_cast<uint32_t>(color_) };
-    auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
-
     xcb_point_t polyline[] = { { static_cast<int16_t>(position.left), static_cast<int16_t>(position.top) },
         { static_cast<int16_t>(position.right), static_cast<int16_t>(position.bottom) } };
-    xcb_poly_line(context_.connection, XCB_COORD_MODE_ORIGIN, mem_pixmap, gc_, 2, polyline);
-
-    xcb_free_gc(context_.connection, gc_);
+    xcb_poly_line(context_.connection, XCB_COORD_MODE_ORIGIN, mem_pixmap, pc.get_gc(color_), 2, polyline);
 #endif
 }
 
@@ -332,22 +273,17 @@ rect graphic::measure_text(const std::string &text, const font &font__)
     }
 
     auto text_ = text; /// workaround to correct measure spaces
-    std::replace(text_.begin(), text_.end(), ' ', 'i');
+    std::replace(text_.begin(), text_.end(), ' ', 't');
 
-    auto cr = cairo_create(surface);
+    auto cr = pc.get_font(font__, surface);
     if (!cr)
     {
         fprintf(stderr, "WUI error: no cairo context on graphic::measure_text\n");
         return rect{ 0 };
     }
+
     cairo_text_extents_t extents;
-
-    cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL,
-        !flag_is_set(font__.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, font__.size);
     cairo_text_extents(cr, text_.c_str(), &extents);
-
-    cairo_destroy(cr);
 
     return { 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
 #endif
@@ -372,24 +308,20 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
         return;
     }
 
-    auto cr = cairo_create(surface);
-
+    auto cr = pc.get_font(font__, surface);
     if (!cr)
     {
         fprintf(stderr, "WUI error: no cairo context on graphic::draw_text\n");
         return;
     }
 
-    set_color(cr, color_);
-
-    cairo_select_font_face(cr, font__.name.c_str(), CAIRO_FONT_SLANT_NORMAL,
-        !flag_is_set(font__.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, font__.size);
+    cairo_set_source_rgb(cr,
+        static_cast<double>(wui::get_red(color_)) / 255,
+        static_cast<double>(wui::get_green(color_)) / 255,
+        static_cast<double>(wui::get_blue(color_)) / 255);
 
     cairo_move_to(cr, position.left, (double)position.top + font__.size * 5 / 6);
     cairo_show_text(cr, text.c_str());
-
-    cairo_destroy(cr);
 #endif
 }
 
@@ -399,12 +331,6 @@ void graphic::draw_rect(const rect &position, color fill_color)
     RECT position_rect = { position.left, position.top, position.right, position.bottom };
     FillRect(mem_dc, &position_rect, pc.get_brush(fill_color));
 #elif __linux__
-    auto gc_ = xcb_generate_id(context_.connection);
-
-    uint32_t mask = XCB_GC_FOREGROUND;
-    uint32_t value[] = { static_cast<uint32_t>(fill_color) };
-    auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
-
     auto pos = position;
     if (pos.left > pos.right)
     {
@@ -419,9 +345,7 @@ void graphic::draw_rect(const rect &position, color fill_color)
         static_cast<int16_t>(pos.top),
         static_cast<uint16_t>(pos.width()),
         static_cast<uint16_t>(pos.height()) };
-    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, gc_, 1, &rct);
-
-    xcb_free_gc(context_.connection, gc_);
+    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, pc.get_gc(fill_color), 1, &rct);
 #endif
 }
 
@@ -442,19 +366,12 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
 
     if (border_width != 0)
     {
-        auto gc_ = xcb_generate_id(context_.connection);
-        uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_LINE_WIDTH;
-        uint32_t value[] = { static_cast<uint32_t>(border_color), border_width };
-        auto gc_create_cookie = xcb_create_gc(context_.connection, gc_, context_.wnd, mask, value);
-
         xcb_rectangle_t rct = { static_cast<int16_t>(position.left),
                 static_cast<int16_t>(position.top),
                 static_cast<uint16_t>(position.width() - 1),
                 static_cast<uint16_t>(position.height() - 1) };
 
-        xcb_poly_rectangle(context_.connection, mem_pixmap, gc_, 1, &rct);
-
-        xcb_free_gc(context_.connection, gc_);
+        xcb_poly_rectangle(context_.connection, mem_pixmap, pc.get_gc(border_color), 1, &rct);
     }
 #endif
 }
@@ -507,14 +424,14 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
 
     image->data = buffer;
 
-    xcb_image_put(context_.connection, pixmap, gc, image, 0, 0, 0);
+    xcb_image_put(context_.connection, pixmap, pc.get_gc(background_color), image, 0, 0, 0);
 
     xcb_image_destroy(image);
 
     auto copy_area_cookie = xcb_copy_area(context_.connection,
         pixmap,
         mem_pixmap,
-        gc,
+		pc.get_gc(background_color),
         left_shift,
         top_shift,
         position.left,
@@ -552,7 +469,7 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
         auto copy_area_cookie = xcb_copy_area(context_.connection,
             graphic_.drawable(),
             mem_pixmap,
-            gc,
+			pc.get_gc(background_color),
             left_shift,
             top_shift,
             position.left,
