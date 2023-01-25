@@ -151,7 +151,7 @@ private:
     system_context context_;
     graphic graphic_;
 
-    mutable std::recursive_mutex controls_mutex;
+    mutable std::recursive_mutex mutex;
     std::vector<std::shared_ptr<i_control>> controls;
     std::shared_ptr<i_control> active_control;
 
@@ -175,7 +175,6 @@ private:
     bool docked_;
     std::shared_ptr<i_control> docked_control;
 
-    mutable std::recursive_mutex subscribers_mutex;
     struct event_subscriber
     {
         std::string id;
