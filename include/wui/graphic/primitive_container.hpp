@@ -50,7 +50,7 @@ private:
 #ifdef _WIN32
     std::map<std::pair<std::pair<int32_t, int32_t>, color>, HPEN> pens;
     std::map<int32_t, HBRUSH> brushes;
-    std::map<font, HFONT> fonts;
+    std::map<std::pair<std::pair<std::string, int32_t>, decorations>, HFONT> fonts;
 #elif __linux__
     std::map<color, xcb_gcontext_t> gcs;
     std::map<font, _cairo*> fonts;

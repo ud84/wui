@@ -89,7 +89,7 @@ HBRUSH primitive_container::get_brush(color color_)
 
 HFONT primitive_container::get_font(font font_)
 {
-    auto it = fonts.find(font_);
+    auto it = fonts.find({ {font_.name, font_.size }, font_.decorations_ });
     if (it != fonts.end())
     {
         return it->second;
@@ -114,7 +114,7 @@ HFONT primitive_container::get_font(font font_)
     memcpy(log_font.lfFaceName, font_name.c_str(), font_name.size() * 2);
     HFONT font__ = CreateFontIndirectW(&log_font);
 
-    fonts[font_] = font__;
+    fonts[{ {font_.name, font_.size }, font_.decorations_ }] = font__;
 
     return font__;
 }
