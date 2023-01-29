@@ -53,7 +53,7 @@ private:
     std::map<std::pair<std::pair<std::string, int32_t>, decorations>, HFONT> fonts;
 #elif __linux__
     std::map<color, xcb_gcontext_t> gcs;
-    std::map<font, _cairo*> fonts;
+    std::map<std::pair<std::pair<std::string, int32_t>, decorations>, _cairo*> fonts;
 #endif
 };
 

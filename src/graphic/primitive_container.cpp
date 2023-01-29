@@ -161,7 +161,7 @@ xcb_gcontext_t primitive_container::get_gc(color color_)
 
 _cairo *primitive_container::get_font(font font_, _cairo_surface *surface)
 {
-    auto it = fonts.find(font_);
+    auto it = fonts.find({ {font_.name, font_.size }, font_.decorations_ });
     if (it != fonts.end())
     {
         return it->second;
@@ -177,7 +177,7 @@ _cairo *primitive_container::get_font(font font_, _cairo_surface *surface)
         !flag_is_set(font_.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, font_.size);
 
-    fonts[font_] = cr;
+    fonts[{ {font_.name, font_.size }, font_.decorations_ }] = cr;
 
     return cr;
 }
