@@ -151,7 +151,6 @@ private:
     system_context context_;
     graphic graphic_;
 
-    mutable std::recursive_mutex mutex;
     std::vector<std::shared_ptr<i_control>> controls;
     std::shared_ptr<i_control> active_control;
 

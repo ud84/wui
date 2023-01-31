@@ -128,7 +128,6 @@ namespace wui
 window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> theme_)
     : context_{ 0 },
     graphic_(context_),
-    mutex(),
     controls(),
     active_control(),
     caption(),
@@ -190,8 +189,6 @@ window::~window()
 
 void window::add_control(std::shared_ptr<i_control> control, const rect &control_position)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     if (std::find(controls.begin(), controls.end(), control) == controls.end())
     {
         control->set_parent(shared_from_this());
@@ -208,8 +205,6 @@ void window::remove_control(std::shared_ptr<i_control> control)
     {
         return;
     }
-
-    std::lock_guard<std::recursive_mutex> lock(mutex);
 
     auto exists = std::find(controls.begin(), controls.end(), control);
     if (exists != controls.end())
@@ -289,8 +284,6 @@ void window::redraw(const rect &redraw_position, bool clear)
 
 std::string window::subscribe(std::function<void(const event&)> receive_callback_, event_type event_types_, std::shared_ptr<i_control> control_)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> uid(0, 61);
@@ -314,8 +307,6 @@ std::string window::subscribe(std::function<void(const event&)> receive_callback
 
 void window::unsubscribe(const std::string &subscriber_id)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [&subscriber_id](const event_subscriber &es) {
         return es.id == subscriber_id;
     });
@@ -360,8 +351,6 @@ void window::draw(graphic &gr, const rect &paint_rect)
     }
 
     draw_border(gr);
-
-    std::lock_guard<std::recursive_mutex> lock(mutex);
 
     std::vector<std::shared_ptr<i_control>> topmost_controls;
     
@@ -417,8 +406,6 @@ void window::receive_control_events(const event &ev)
                 break;
                 case internal_event_type::remove_focus:
                 {
-                    std::lock_guard<std::recursive_mutex> lock(mutex);
-
                     size_t focusing_controls = 0;
                     for (const auto &control : controls)
                     {
@@ -604,8 +591,6 @@ bool window::topmost() const
 
 bool window::focused() const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     for (const auto &control : controls)
     {
         if (control->focused())
@@ -619,8 +604,6 @@ bool window::focused() const
 
 bool window::focusing() const
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     for (const auto &control : controls)
     {
         if (control->focusing())
@@ -664,7 +647,6 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
 #endif
     }
 
-    std::lock_guard<std::recursive_mutex> lock(mutex);
     for (auto &control : controls)
     {
         control->update_theme(theme_);
@@ -687,8 +669,6 @@ void window::show()
     }
     else
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex);
-
         for (auto &control : controls)
         {
             control->show();
@@ -711,8 +691,6 @@ void window::hide()
     }
     else
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex);
-
         for (auto &control : controls)
         {
             control->hide();
@@ -1101,8 +1079,6 @@ void window::set_default_push_control(std::shared_ptr<i_control> control)
 
 void window::send_event_to_control(const std::shared_ptr<i_control> &control_, const event &ev)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [control_, ev](const event_subscriber &es) {
         return flag_is_set(es.event_types, ev.type) && es.control == control_;
     });
@@ -1115,8 +1091,6 @@ void window::send_event_to_control(const std::shared_ptr<i_control> &control_, c
 
 void window::send_event_to_plains(const event &ev)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     auto subscribers__ = subscribers_; // This is necessary to be able to remove the subscriber in the callback
     for (auto &s : subscribers__)
     {
@@ -1178,8 +1152,6 @@ void window::send_mouse_event(const mouse_event &ev)
         }
     };
 
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     if (enabled_)
     {
         auto end = controls.rend();
@@ -1213,8 +1185,6 @@ void window::send_mouse_event(const mouse_event &ev)
 
 bool window::check_control_here(int32_t x, int32_t y)
 {
-    std::lock_guard<std::recursive_mutex> subscribers_lock(mutex);
-
     for (auto &control : controls)
     {
         if (control->showed() &&
@@ -1229,8 +1199,6 @@ bool window::check_control_here(int32_t x, int32_t y)
 
 void window::change_focus()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     if (controls.empty())
     {
         return;
@@ -1303,8 +1271,6 @@ void window::execute_focused()
 
 void window::set_focused(std::shared_ptr<i_control> control)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     size_t index = 0;
     for (auto &c : controls)
     {
@@ -1342,8 +1308,6 @@ void window::set_focused(std::shared_ptr<i_control> control)
 
 void window::set_focused(size_t focused_index_)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     size_t index = 0;
     for (auto &control : controls)
     {
@@ -1366,8 +1330,6 @@ void window::set_focused(size_t focused_index_)
 
 std::shared_ptr<i_control> window::get_focused()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
     for (auto &control : controls)
     {
         if (control->focused())
@@ -1805,10 +1767,7 @@ void window::destroy()
     }
 
     std::vector<std::shared_ptr<i_control>> controls_;
-    {
-        std::lock_guard<std::recursive_mutex> lock(mutex);
-        controls_ = controls; /// This is necessary to solve the problem of removing child controls within a control
-    }
+    controls_ = controls; /// This is necessary to solve the problem of removing child controls within a control
 
     for (auto &control : controls_)
     {
@@ -1826,10 +1785,7 @@ void window::destroy()
 
     active_control.reset();
 
-    {
-        std::lock_guard<std::recursive_mutex> lock(mutex);
-        controls.clear();
-    }
+    controls.clear();
 
     auto parent__ = parent_.lock();
     if (parent__)
@@ -1941,7 +1897,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             std::vector<std::shared_ptr<i_control>> topmost_controls;
 
-            std::lock_guard<std::recursive_mutex> lock(wnd->mutex);
             for (auto &control : wnd->controls)
             {
                 if (control->position().in(paint_rect))
@@ -2430,8 +2385,6 @@ void window::process_events()
                 draw_border(graphic_);
 
                 std::vector<std::shared_ptr<i_control>> topmost_controls;
-
-                std::lock_guard<std::recursive_mutex> lock(mutex);
 
                 for (auto &control : controls)
                 {
