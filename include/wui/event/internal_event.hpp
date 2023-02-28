@@ -14,6 +14,8 @@ namespace wui
 
 enum class internal_event_type
 {
+    window_created,
+
     set_focus,
     remove_focus,
     execute_focused,
