@@ -1742,14 +1742,14 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
-    graphic_.init(get_screen_size(context_), theme_color(tcn, tv_background, theme_)); // todo: need calc real desktop resolution
-#ifdef __linux__
+    graphic_.init(get_screen_size(context_), theme_color(tcn, tv_background, theme_));
     graphic_.start_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
-#endif
 
     runned = true;
     if (thread.joinable()) thread.join();
     thread = std::thread(std::bind(&window::process_events, this));
+
+    send_internal(internal_event_type::window_created, 0, 0);
 #endif
 
     return true;
@@ -2353,8 +2353,6 @@ uint8_t normalize_modifier(int32_t state)
 
 void window::process_events()
 {
-    send_internal(internal_event_type::window_created, 0, 0);
-
     xcb_generic_event_t *e = nullptr;
     while (runned && (e = xcb_wait_for_event(context_.connection)))
     {
