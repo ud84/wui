@@ -309,10 +309,13 @@ rect get_screen_size(system_context &context)
 
         return { 0, 0, width, height };
     }
-    return { 0 };
 #elif __linux__
-    return { 0, 0, context.screen->width_in_pixels, context.screen->height_in_pixels };
+    if (context.screen)
+    {
+        return { 0, 0, context.screen->width_in_pixels, context.screen->height_in_pixels };
+    }
 #endif
+    return { 0 };
 }
 
 #ifdef _WIN32
