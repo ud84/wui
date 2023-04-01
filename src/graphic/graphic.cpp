@@ -379,7 +379,7 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
 void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_shift, int32_t top_shift)
 {
 #ifdef _WIN32
-    HBITMAP source_bitmap = CreateBitmap(position.width(), position.height(), 1, 32, buffer);
+    auto source_bitmap = pc.get_bitmap(position.width(), position.height(), buffer, mem_dc);
     auto source_dc = CreateCompatibleDC(mem_dc);
     SelectObject(source_dc, source_bitmap);
 
@@ -393,7 +393,6 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
         top_shift,
         SRCCOPY);
 
-    DeleteObject(source_bitmap);
     DeleteDC(source_dc);
 #elif __linux__
     auto pixmap = xcb_generate_id(context_.connection);

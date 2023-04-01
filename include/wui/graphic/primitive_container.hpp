@@ -39,6 +39,7 @@ public:
     HPEN get_pen(int32_t style, int32_t width, color color_);
     HBRUSH get_brush(color color_);
     HFONT get_font(font font_);
+    HBITMAP get_bitmap(int32_t width, int32_t height, uint8_t *buffer, HDC hdc);
 #elif __linux__
     xcb_gcontext_t get_gc(color color_);
     _cairo *get_font(font font_, _cairo_surface *surface);
@@ -51,6 +52,7 @@ private:
     std::map<std::pair<std::pair<int32_t, int32_t>, color>, HPEN> pens;
     std::map<int32_t, HBRUSH> brushes;
     std::map<std::pair<std::pair<std::string, int32_t>, decorations>, HFONT> fonts;
+    std::map<std::pair<int32_t, int32_t>, HBITMAP> bitmaps;
 #elif __linux__
     std::map<color, xcb_gcontext_t> gcs;
     std::map<std::pair<std::pair<std::string, int32_t>, decorations>, _cairo*> fonts;

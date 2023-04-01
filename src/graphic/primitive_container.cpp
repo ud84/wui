@@ -57,6 +57,12 @@ void primitive_container::release()
         DeleteObject(f.second);
     }
     fonts.clear();
+
+    for (auto &b : bitmaps)
+    {
+        DeleteObject(b.second);
+    }
+    bitmaps.clear();
 }
 
 HPEN primitive_container::get_pen(int32_t style, int32_t width, color color_)
@@ -117,6 +123,39 @@ HFONT primitive_container::get_font(font font_)
     fonts[{ {font_.name, font_.size }, font_.decorations_ }] = font__;
 
     return font__;
+}
+
+HBITMAP primitive_container::get_bitmap(int32_t width, int32_t height, uint8_t *buffer, HDC hdc)
+{
+    auto it = bitmaps.find({ width, height });
+    if (it != bitmaps.end())
+    {
+        auto bitmap = it->second;
+
+        BITMAPINFO bmpInfo;
+
+        bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFO) - sizeof(RGBQUAD);
+        bmpInfo.bmiHeader.biWidth = width;
+        bmpInfo.bmiHeader.biHeight = 0 - (int)height;
+        bmpInfo.bmiHeader.biPlanes = 1;
+        bmpInfo.bmiHeader.biBitCount = 32;
+        bmpInfo.bmiHeader.biCompression = BI_RGB;
+        bmpInfo.bmiHeader.biSizeImage = 0;
+        bmpInfo.bmiHeader.biXPelsPerMeter = 0;
+        bmpInfo.bmiHeader.biYPelsPerMeter = 0;
+        bmpInfo.bmiHeader.biClrUsed = 0;
+        bmpInfo.bmiHeader.biClrImportant = 0;
+
+        SetDIBits(hdc, bitmap, 0, height, buffer, &bmpInfo, DIB_RGB_COLORS);
+
+        return bitmap;
+    }
+
+    auto bitmap = CreateBitmap(width, height, 1, 32, buffer);
+
+    bitmaps[{ width, height }] = bitmap;
+
+    return bitmap;
 }
 
 #elif __linux__
