@@ -80,7 +80,7 @@ void list::draw(graphic &gr, const rect &)
 
     /// Create memory dc for inner content   
 #ifdef _WIN32
-    system_context ctx = { 0, gr.drawable() };
+    system_context ctx = { 0 };
 #elif __linux__
     system_context ctx = { 0 };
     auto parent__ = parent_.lock();

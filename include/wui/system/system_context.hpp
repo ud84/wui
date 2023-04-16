@@ -25,7 +25,6 @@ class graphic;
 struct system_context
 {
     HWND    hwnd;
-    HDC     dc;
 
     bool valid() const
     {

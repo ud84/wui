@@ -98,7 +98,7 @@ void input::draw(graphic &gr, const rect &)
     auto text_height = font_.size;
 
 #ifdef _WIN32
-    system_context ctx = { 0, gr.drawable() };
+    system_context ctx = { 0 };
 #elif __linux__
     system_context ctx = { 0 };
     auto parent__ = parent_.lock();
@@ -176,7 +176,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     if (parent__)
     {
 #ifdef _WIN32
-        ctx = { parent__->context().hwnd, GetDC(parent__->context().hwnd) };
+        ctx = { parent__->context().hwnd };
 #elif __linux__
         ctx = parent__->context();
 #endif
@@ -205,10 +205,6 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
             text_width = get_text_width(mem_gr, text_, count, font_);
         }
     }
-
-#ifdef _WIN32
-    ReleaseDC(ctx.hwnd, ctx.dc);
-#endif
 
     return count;
 }

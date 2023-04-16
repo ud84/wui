@@ -1857,8 +1857,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
-            wnd->context_.dc = GetDC(hwnd);
-
             wnd->graphic_.init(get_screen_size(wnd->context_), theme_color(wnd->tcn, tv_background, wnd->theme_));
 
             wnd->send_internal(internal_event_type::window_created, 0, 0);
@@ -1869,7 +1867,12 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
             PAINTSTRUCT ps;
-            BeginPaint(hwnd, &ps);
+            auto bpdc = BeginPaint(hwnd, &ps);
+
+            if (bpdc == NULL)
+            {
+                return 0;
+            }
 
             const rect paint_rect{ ps.rcPaint.left,
                 ps.rcPaint.top,
@@ -2330,7 +2333,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             }
 
             wnd->context_.hwnd = 0;
-            wnd->context_.dc = 0;
         }
         break;
         default:

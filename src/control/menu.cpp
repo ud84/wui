@@ -325,7 +325,7 @@ void menu::update_size()
     if (parent__)
     {
 #ifdef _WIN32
-        ctx = { parent__->context().hwnd, GetDC(parent__->context().hwnd) };
+        ctx = { parent__->context().hwnd };
 
         if (!ctx.hwnd)
         {
@@ -378,10 +378,6 @@ void menu::update_size()
     int32_t height = item_height_ * items_count;
 
     position_ = { 0, 0, max_text_width, height };
-
-#ifdef _WIN32
-    ReleaseDC(ctx.hwnd, ctx.dc);
-#endif
 
     size_updated = true;
 }

@@ -71,20 +71,24 @@ void graphic::init(const rect &max_size_, color background_color_)
     background_color = background_color_;
 
 #ifdef _WIN32
-    if (!context_.dc || mem_dc)
+    if (mem_dc)
     {
         return;
     }
+    
+    auto wnd_dc = GetDC(context_.hwnd);
 
-    mem_dc = CreateCompatibleDC(context_.dc);
+    mem_dc = CreateCompatibleDC(wnd_dc);
 
-    HBITMAP mem_bitmap = CreateCompatibleBitmap(context_.dc, max_size.width(), max_size.height());
+    HBITMAP mem_bitmap = CreateCompatibleBitmap(wnd_dc, max_size.width(), max_size.height());
     SelectObject(mem_dc, mem_bitmap);
 
     SetMapMode(mem_dc, MM_TEXT);
 
     RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
     FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
+
+    ReleaseDC(context_.hwnd, wnd_dc);
 #elif __linux__
     if (!context_.display || mem_pixmap)
     {
@@ -169,7 +173,7 @@ void graphic::set_background_color(color background_color_)
 void graphic::clear(const rect &position)
 {
 #ifdef _WIN32
-    if (!context_.dc || !mem_dc)
+    if (!mem_dc)
     {
         return;
     }
@@ -193,9 +197,11 @@ void graphic::clear(const rect &position)
 void graphic::flush(const rect &updated_size)
 {
 #ifdef _WIN32
-    if (context_.dc)
+    auto wnd_dc = GetDC(context_.hwnd);
+
+    if (wnd_dc)
     {
-        BitBlt(context_.dc,
+        BitBlt(wnd_dc,
             updated_size.left,
             updated_size.top,
             updated_size.width(),
@@ -205,6 +211,8 @@ void graphic::flush(const rect &updated_size)
             updated_size.top,
             SRCCOPY);
     }
+
+    ReleaseDC(context_.hwnd, wnd_dc);
 #elif __linux__
     if (context_.wnd)
     {

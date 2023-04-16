@@ -257,7 +257,7 @@ rect message::get_text_size()
     }
 
 #ifdef _WIN32
-    system_context ctx = { transient_window_->context().hwnd, GetDC(transient_window_->context().hwnd) };
+    system_context ctx = { transient_window_->context().hwnd };
 #elif __linux__
     system_context ctx = transient_window_->context();
 #endif

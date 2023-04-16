@@ -187,7 +187,7 @@ void tooltip::update_size()
     if (parent__)
     {
 #ifdef _WIN32
-        ctx = { parent__->context().hwnd, GetDC(parent__->context().hwnd) };
+        ctx = { parent__->context().hwnd };
 
         if (!ctx.hwnd)
         {
@@ -219,10 +219,6 @@ void tooltip::update_size()
     position__.move(old_position.left, old_position.top);
 
     set_position(position__, true);
-
-#ifdef _WIN32
-    ReleaseDC(ctx.hwnd, ctx.dc);
-#endif
 }
 
 void tooltip::show_on_control(i_control &control, int32_t indent)
