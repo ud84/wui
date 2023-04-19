@@ -777,6 +777,8 @@ void window::minimize()
         }
     }
 
+    normal_position = position();
+
     prev_window_state_ = window_state_;
 
 #ifdef _WIN32
@@ -824,19 +826,18 @@ void window::expand()
     normal_position = position();
 
 #ifdef _WIN32
-    if (flag_is_set(window_style_, window_style::title_showed)) // normal window maximization
+    MONITORINFO mi = { sizeof(mi) };
+    if (GetMonitorInfo(MonitorFromWindow(context_.hwnd, MONITOR_DEFAULTTOPRIMARY), &mi))
     {
-        RECT work_area;
-        SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
-
-        SetWindowPos(context_.hwnd, NULL, work_area.left, work_area.top, work_area.right, work_area.bottom, NULL);
-    }
-    else // fullscreen
-    {
-        MONITORINFO mi = { sizeof(mi) };
-        if (GetMonitorInfo(MonitorFromWindow(context_.hwnd, MONITOR_DEFAULTTOPRIMARY), &mi))
+        if (flag_is_set(window_style_, window_style::title_showed) && flag_is_set<DWORD>(mi.dwFlags, MONITORINFOF_PRIMARY)) // normal window maximization
         {
-            SetWindowPos(context_.hwnd, 
+            RECT work_area;
+            SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
+            SetWindowPos(context_.hwnd, NULL, work_area.left, work_area.top, work_area.right, work_area.bottom, NULL);
+        }
+        else // expand to full screen
+        {
+            SetWindowPos(context_.hwnd,
                 HWND_TOP,
                 mi.rcMonitor.left, mi.rcMonitor.top,
                 mi.rcMonitor.right - mi.rcMonitor.left,
@@ -1521,11 +1522,6 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto transient_window_ = get_transient_window();
     if (transient_window_)
     {
-        if (transient_window_->window_state_ != window_state::maximized)
-        {
-            transient_window_->normal();
-        }
-
         if (docked_ && transient_window_->position_ > position_)
         {
 			int32_t left = (transient_window_->position().width() - position_.width()) / 2;
