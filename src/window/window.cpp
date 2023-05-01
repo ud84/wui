@@ -1522,6 +1522,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     auto transient_window_ = get_transient_window();
     if (transient_window_)
     {
+        if (transient_window_->window_state_ == window_state::minimized)
+        {
+            transient_window_->normal();
+        }
+
         if (docked_ && transient_window_->position_ > position_)
         {
 			int32_t left = (transient_window_->position().width() - position_.width()) / 2;

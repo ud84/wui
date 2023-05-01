@@ -324,16 +324,13 @@ void menu::update_size()
     auto parent__ = parent_.lock();
     if (parent__)
     {
+        ctx = parent__->context();
 #ifdef _WIN32
-        ctx = { parent__->context().hwnd };
-
         if (!ctx.hwnd)
         {
             return;
         }
 #elif __linux__
-        ctx = parent__->context();
-
         if (!ctx.display)
         {
             return;

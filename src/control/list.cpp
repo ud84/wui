@@ -79,16 +79,17 @@ void list::draw(graphic &gr, const rect &)
         theme_dimension(tcn, tv_round, theme_));
 
     /// Create memory dc for inner content   
-#ifdef _WIN32
-    system_context ctx = { 0 };
-#elif __linux__
     system_context ctx = { 0 };
     auto parent__ = parent_.lock();
     if (parent__)
     {
+#ifdef _WIN32
+        ctx = parent__->context();
+#elif __linux__
         ctx = { parent__->context().display, parent__->context().connection, parent__->context().screen, gr.drawable() };
-    }
 #endif
+    }
+
     graphic mem_gr(ctx);
     mem_gr.init({ 0, 0, position_.width() - border_width * 2, position_.height() - border_width * 2 }, theme_color(tcn, tv_background, theme_));
 

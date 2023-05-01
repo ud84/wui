@@ -97,16 +97,16 @@ void input::draw(graphic &gr, const rect &)
     auto full_text_width = get_text_width(gr, text_, text_.size(), font_) + 2;
     auto text_height = font_.size;
 
-#ifdef _WIN32
-    system_context ctx = { 0 };
-#elif __linux__
     system_context ctx = { 0 };
     auto parent__ = parent_.lock();
     if (parent__)
     {
+#ifdef _WIN32
+        ctx = parent__->context();
+#elif __linux__
         ctx = { parent__->context().display, parent__->context().connection, parent__->context().screen, gr.drawable() };
-    }
 #endif
+}
     graphic mem_gr(ctx);
     mem_gr.init({ 0, 0, full_text_width, text_height }, theme_color(tcn, tv_background, theme_));
 
@@ -175,11 +175,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
     auto parent__ = parent_.lock();
     if (parent__)
     {
-#ifdef _WIN32
-        ctx = { parent__->context().hwnd };
-#elif __linux__
         ctx = parent__->context();
-#endif
     }
     graphic mem_gr(ctx);
     mem_gr.init(position_, 0);
