@@ -429,10 +429,6 @@ void window::receive_control_events(const event &ev)
                     {
                         focused_index = 0;
                     }
-                    else
-                    {
-                        set_focused(focused_index);
-                    }
                 }
                 break;
                 case internal_event_type::execute_focused:
@@ -1027,13 +1023,7 @@ void window::start_docking(std::shared_ptr<i_control> control)
 
     docked_control = control;
 
-    event ev;
-    ev.type = event_type::internal;
-    ev.internal_event_ = internal_event{ internal_event_type::remove_focus };
-    for (auto &c: controls)
-    {
-        send_event_to_control(c, ev);
-    }
+    send_internal(internal_event_type::set_focus, 0, 0);
 
     set_focused(control);
 }
