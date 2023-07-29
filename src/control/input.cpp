@@ -447,9 +447,9 @@ void input::receive_control_events(const event &ev)
                         }
                     break;
                     case vk_back:
-                        if (input_view_ != input_view::readonly && cursor_position > 0)
+                        if (input_view_ != input_view::readonly)
                         {
-                            if (!clear_selected_text())
+                            if (!clear_selected_text() && cursor_position > 0)
                             {
                                 auto prev_position = cursor_position;
 
