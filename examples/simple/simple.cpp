@@ -111,9 +111,11 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         button3(new wui::button("Button 3", [this]() {
             std::shared_ptr<wui::input> input1(new wui::input());
+            input1->set_text("98753");
             dialog->add_control(input1, { 10, 35, 200, 60 });
 
             std::shared_ptr<wui::input> input2(new wui::input());
+            input2->set_text("99wegdyug");
             dialog->add_control(input2, { 10, 70, 200, 95 });
 
             std::shared_ptr<wui::select> select1(new wui::select());

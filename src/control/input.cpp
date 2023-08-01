@@ -139,9 +139,10 @@ void input::draw(graphic &gr, const rect &)
             
     /// Draw the cursor
     auto cursor_coordinate = get_text_width(mem_gr, text_, cursor_position, font_);
-    mem_gr.draw_line({ cursor_coordinate, 0, cursor_coordinate, text_height },
-        cursor_visible ? theme_color(tcn, tv_cursor, theme_) :
-        (select_start_position != select_end_position && cursor_position >= select_start_position && cursor_position <= select_end_position ? theme_color(tcn, tv_selection, theme_) : theme_color(tcn, tv_background, theme_)));
+    if (cursor_visible)
+    {
+        mem_gr.draw_line({ cursor_coordinate, 0, cursor_coordinate, text_height }, theme_color(tcn, tv_cursor, theme_));
+    }
     
     while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
     {
