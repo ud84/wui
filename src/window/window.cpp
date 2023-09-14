@@ -436,6 +436,7 @@ void window::receive_control_events(const event &ev)
                 break;
             }
         break;
+        default: break;
     }
 }
 
@@ -1587,7 +1588,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     wcex.style = CS_DBLCLKS;
     wcex.lpfnWndProc = window::wnd_proc;
     wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = sizeof(this);
+    wcex.cbWndExtra = sizeof(*this);
     wcex.hInstance = h_inst;
     wcex.hbrBackground = NULL;
     wcex.lpszClassName = L"WUI Window";
@@ -2178,6 +2179,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             wnd->send_mouse_event({ mouse_event_type::right_down, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param) });
         }
+        break;
         case WM_RBUTTONUP:
         {
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));

@@ -34,6 +34,7 @@ list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> them
     scroll_pos(0),
     worker_action_(worker_action::undefined),
     worker(),
+    worker_runned(false),
     progress(0),
     scrollbar_state_(scrollbar_state::hide),
     slider_scrolling(false),
@@ -178,7 +179,7 @@ void list::receive_control_events(const event &ev)
                             calc_scrollbar_params(false, &bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
                         }
                     }
-                    else if (ev.mouse_event_.y >= slider_rect.top && ev.mouse_event_.y <= slider_rect.bottom)
+                    else if (ev.mouse_event_.y > slider_rect.top && ev.mouse_event_.y < slider_rect.bottom)
                     {
                         slider_scrolling = true;
                         slider_click_pos = ev.mouse_event_.y - slider_rect.top + position_.top;
@@ -303,6 +304,7 @@ void list::receive_control_events(const event &ev)
                     update_selected_item(ev.mouse_event_.y);
                 }
             break;
+            default: break;
         }
     }
     else if (ev.type == event_type::keyboard)
@@ -355,7 +357,7 @@ void list::receive_control_events(const event &ev)
                             auto selected_item_top = get_item_top(selected_item_);
                             if (selected_item_top < scroll_pos)
                             {
-                                scroll_pos -= scroll_pos - selected_item_top;
+                                scroll_pos -= (scroll_pos - selected_item_top);
                             }
 
                             redraw();
@@ -469,6 +471,7 @@ void list::receive_control_events(const event &ev)
                     end_work();
                 }
             break;
+            default: break;
         }
     }
     else if (ev.type == event_type::internal)
@@ -476,17 +479,14 @@ void list::receive_control_events(const event &ev)
         switch (ev.internal_event_.type)
         {
             case internal_event_type::set_focus:
-                if (enabled_ && showed_)
+                focused_ = true;
+
+                if (scrollbar_state_ == scrollbar_state::hide)
                 {
-                    focused_ = true;
-
-                    if (scrollbar_state_ == scrollbar_state::hide)
-                    {
-                        scrollbar_state_ = scrollbar_state::tiny;
-                    }
-
-                    redraw();
+                    scrollbar_state_ = scrollbar_state::tiny;
                 }
+
+                redraw();
             break;
             case internal_event_type::remove_focus:
                 focused_ = false;
@@ -1252,7 +1252,7 @@ void list::update_active_item(int32_t y)
 void list::start_work(worker_action action)
 {
     worker_action_ = action;
-    
+
     if (!worker_runned)
     {
         worker_runned = true;
@@ -1294,6 +1294,7 @@ void list::work()
 
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
         break;
+        default: break;
         }
     }
 }

@@ -172,8 +172,7 @@ void menu::receive_event(const event &ev)
         case event_type::mouse:
             if ((ev.mouse_event_.type == mouse_event_type::left_up || ev.mouse_event_.type == mouse_event_type::right_up) &&
                 !list_->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }) &&
-                (!activation_control ||
-                (activation_control && !activation_control->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }))))
+                (activation_control && !activation_control->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y })))
             {
                 list_->hide();
             }
@@ -419,9 +418,9 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
     }
 }
 
-void menu::show_on_point(int32_t x, int32_t y)
+void menu::show_on_point(int32_t x_, int32_t y_)
 {
-    show_on_control(nullptr, 0, x, y);
+    show_on_control(nullptr, 0, x_, y_);
 }
 
 void menu::draw_arrow_down(graphic &gr, rect pos, bool expanded)
@@ -459,12 +458,12 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect, li
     {
         auto img_size = static_cast<int32_t>(item_rect.height() * 0.9);
 
-        auto indent = static_cast<int32_t>((item_rect.height() - img_size) / 2);
+        auto indent_ = static_cast<int32_t>((item_rect.height() - img_size) / 2);
 
-        rect img_rect = { item_rect.left + indent,
-            item_rect.top + indent,
-            item_rect.left + img_size + indent,
-            item_rect.top + img_size + indent };
+        rect img_rect = { item_rect.left + indent_,
+            item_rect.top + indent_,
+            item_rect.left + img_size + indent_,
+            item_rect.top + img_size + indent_ };
 
         item->image_->set_position(img_rect);
         item->image_->draw(gr, { 0 });

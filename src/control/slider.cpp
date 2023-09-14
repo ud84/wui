@@ -58,12 +58,12 @@ void slider::draw(graphic &gr, const rect &)
     auto slider_height = theme_dimension(tcn, tv_slider_height, theme_);
     auto slider_round = theme_dimension(tcn, tv_slider_round, theme_);
 
-    double total = (orientation == slider_orientation::horizontal ? control_pos.width() : control_pos.height()) - slider_width / 2;
+    double total = (orientation == slider_orientation::horizontal ? control_pos.width() : control_pos.height()) - static_cast<double>(slider_width) / 2;
     double slider_pos = (total * static_cast<double>(value)) / static_cast<double>(to - from);
 
-    if (slider_pos < slider_width / 2)
+    if (slider_pos < static_cast<double>(slider_width) / 2)
     {
-        slider_pos = slider_width / 2;
+        slider_pos = static_cast<double>(slider_width) / 2;
     }
 
     auto perform_color = theme_color(tcn, tv_perform, theme_);
@@ -216,12 +216,8 @@ void slider::receive_control_events(const event &ev)
         switch (ev.internal_event_.type)
         {
             case internal_event_type::set_focus:
-                if (enabled_ && showed_)
-                {
-                    focused_ = true;
-
-                    redraw();
-                }
+                focused_ = true;
+                redraw();
             break;
             case internal_event_type::remove_focus:
                 focused_ = false;

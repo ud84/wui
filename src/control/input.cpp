@@ -138,20 +138,20 @@ void input::draw(graphic &gr, const rect &)
     }
             
     /// Draw the cursor
-    auto cursor_coordinate = get_text_width(mem_gr, text_, cursor_position, font_);
     if (cursor_visible)
     {
+        auto cursor_coordinate = get_text_width(mem_gr, text_, cursor_position, font_);
         mem_gr.draw_line({ cursor_coordinate, 0, cursor_coordinate, text_height }, theme_color(tcn, tv_cursor, theme_));
-    }
-    
-    while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
-    {
-        left_shift += 10;
-    }
 
-    while (left_shift > cursor_coordinate)
-    {
-        left_shift -= 10;
+        while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
+        {
+            left_shift += 10;
+        }
+
+        while (left_shift > cursor_coordinate)
+        {
+            left_shift -= 10;
+        }
     }
 
     int32_t input_vertical_indent = position_.height() > text_height ? (position_.height() - text_height) / 2 : 0;
@@ -399,6 +399,7 @@ void input::receive_control_events(const event &ev)
             case mouse_event_type::left_double:
                 select_current_word(ev.mouse_event_.x);
             break;
+            default: break;
         }
     }
     else if (ev.type == event_type::keyboard)
@@ -562,16 +563,13 @@ void input::receive_control_events(const event &ev)
         switch (ev.internal_event_.type)
         {
             case internal_event_type::set_focus:
-                if (enabled_ && showed_)
-                {
-                    focused_ = true;
+                focused_ = true;
 
-                    cursor_position = text_.size();
+                cursor_position = text_.size();
 
-                    redraw();
+                redraw();
 
-                    timer_.start(500);
-                }
+                timer_.start(500);
             break;
             case internal_event_type::remove_focus:
                 focused_ = false;

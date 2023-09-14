@@ -90,14 +90,14 @@ font theme_impl::get_font(const std::string &control, const std::string &value) 
     return font();
 }
 
-void theme_impl::set_image(const std::string &name, const std::vector<uint8_t> &data)
+void theme_impl::set_image(const std::string &name_, const std::vector<uint8_t> &data)
 {
-    imgs[name] = data;
+    imgs[name_] = data;
 }
 
-const std::vector<uint8_t> &theme_impl::get_image(const std::string &name)
+const std::vector<uint8_t> &theme_impl::get_image(const std::string &name_)
 {
-    auto it = imgs.find(name);
+    auto it = imgs.find(name_);
     if (it != imgs.end())
     {
         return it->second;
@@ -203,11 +203,11 @@ void theme_impl::load_json(const std::string &json_)
                             decorations_ |= static_cast<int32_t>(decorations::strike_out);
                     }
 
-                    std::string name = "Segoe UI";
+                    std::string font_name = "Segoe UI";
                     auto name_it = fnt.find("name");
                     if (name_it != fnt.end())
                     {
-                        name = name_it->second.get<std::string>();
+                        font_name = name_it->second.get<std::string>();
                     }
 
                     int32_t size = 18;
@@ -217,7 +217,7 @@ void theme_impl::load_json(const std::string &json_)
                         size = size_it->second.get<std::int32_t>();
                     }
 
-                    fonts[control + kvp.first] = font{ name, size, static_cast<decorations>(decorations_) };
+                    fonts[control + kvp.first] = font{ font_name, size, static_cast<decorations>(decorations_) };
                 }
             }
         }

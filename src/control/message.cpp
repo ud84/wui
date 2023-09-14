@@ -131,7 +131,7 @@ void message::show(const std::string &message_,
             window_->add_control(button1, { left + btn_width + 20, top, left + (btn_width * 2) + 20, top + btn_height });
         }
         break;
-        case message_button::abort_retry_ignore: case message_button::cancel_try_continue:
+        case message_button::abort_retry_ignore: case message_button::cancel_try_continue: case message_button::yes_no_cancel:
         {
             if (width <= (btn_width + 10) * 3)
             {
@@ -144,6 +144,10 @@ void message::show(const std::string &message_,
             if (button_ == message_button::cancel_try_continue)
             {
                 btn0_caption = "cancel", btn1_caption = "try", btn2_caption = "continue";
+            }
+            else if (button_ == message_button::yes_no_cancel)
+            {
+                btn0_caption = "yes", btn1_caption = "no", btn2_caption = "cancel";
             }
 
             button0->set_caption(locale("button", btn0_caption));
@@ -200,7 +204,7 @@ void message::button1_click()
 {
     switch (button_)
     {
-        case message_button::ok_cancel:
+        case message_button::ok_cancel: case message_button::retry_cancel:
             result_ = message_result::cancel;
         break;
         case message_button::abort_retry_ignore:
@@ -209,12 +213,10 @@ void message::button1_click()
         case message_button::yes_no: case message_button::yes_no_cancel:
             result_ = message_result::no;
         break;
-        case message_button::retry_cancel:
-            result_ = message_result::cancel;
-        break;
         case message_button::cancel_try_continue:
             result_ = message_result::try_;
         break;
+        default: break;
     }
     window_->destroy();
 }
@@ -232,6 +234,7 @@ void message::button2_click()
         case message_button::cancel_try_continue:
             result_ = message_result::continue_;
         break;
+        default: break;
     }
     window_->destroy();
 }

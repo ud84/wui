@@ -11,6 +11,7 @@
 
 #include <wui/control/i_control.hpp>
 #include <wui/theme/i_theme.hpp>
+#include <wui/event/event.hpp>
 
 #include <functional>
 
@@ -45,8 +46,6 @@ enum class window_style : uint32_t
 };
 
 struct system_context;
-struct event;
-enum class event_type : uint32_t;
 
 class i_window
 {

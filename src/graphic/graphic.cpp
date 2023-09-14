@@ -80,7 +80,7 @@ void graphic::init(const rect &max_size_, color background_color_)
 
     mem_dc = CreateCompatibleDC(wnd_dc);
 
-    HBITMAP mem_bitmap = CreateCompatibleBitmap(wnd_dc, max_size.width(), max_size.height());
+    mem_bitmap = CreateCompatibleBitmap(wnd_dc, max_size.width(), max_size.height());
     SelectObject(mem_dc, mem_bitmap);
 
     SetMapMode(mem_dc, MM_TEXT);

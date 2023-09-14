@@ -13,7 +13,6 @@
 #include <wui/system/system_context.hpp>
 #include <wui/control/i_control.hpp>
 #include <wui/graphic/graphic.hpp>
-#include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
 
 #include <vector>

@@ -235,7 +235,7 @@ void select::receive_control_events(const event &ev)
         switch (ev.internal_event_.type)
         {
             case internal_event_type::set_focus:
-                if (focusing_ && enabled_ && showed_)
+                if (focusing_)
                 {
                     focused_ = true;
 

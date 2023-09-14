@@ -71,6 +71,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
+    pushed(false),
     turned_(false),
     text_rect{ 0 }
 {
@@ -90,6 +91,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent_(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
+    pushed(false),
     turned_(false),
     text_rect{ 0 }
 {
@@ -109,6 +111,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     parent_(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
+    pushed(false),
     turned_(false),
     text_rect{ 0 }
 {
@@ -125,8 +128,10 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     theme_(theme__),
     position_(),
     parent_(),
+    my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
+    pushed(false),
     turned_(false),
     text_rect{ 0 }
 {
@@ -213,7 +218,7 @@ void button::draw(graphic &gr, const rect &)
                     return redraw();
                 }
 
-                image_left = button_view_ == button_view::image_right_text ? control_pos.left + ((control_pos.width() - text_rect.right - image_size - 5) / 2) : control_pos.left;
+                image_left = control_pos.left + ((control_pos.width() - text_rect.right - image_size - 5) / 2);
                 image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
                 text_left = image_left + image_size + 5;
                 text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
@@ -362,7 +367,7 @@ void button::receive_event(const event &ev)
                 pushed = true;
             break;
             case mouse_event_type::left_up:
-                if (pushed && enabled_)
+                if (pushed)
                 {
                     active = false;
                     tooltip_->hide();
@@ -387,7 +392,7 @@ void button::receive_event(const event &ev)
         switch (ev.internal_event_.type)
         {
             case internal_event_type::set_focus:
-                if (focusing_ && enabled_ && showed_)
+                if (focusing_)
                 {
                     focused_ = true;
 
