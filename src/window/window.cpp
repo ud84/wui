@@ -33,11 +33,12 @@
 
 #include <cstring>
 
-#include <stdlib.h>
 #include <xcb/xcb_ewmh.h>
 #include <xcb/xcb_icccm.h>
 
 #include <X11/Xutil.h>
+
+#include <iostream>
 
 #endif
 
@@ -1633,7 +1634,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     context_.display = XOpenDisplay(NULL);
     if (!context_.display)
     {
-        fprintf(stderr, "window can't open make the connection to X server\n");
+        std::cerr << "window can't open make the connection to X server" << std::endl;
         return false;
     }
 

@@ -11,7 +11,9 @@
 
 #include <nlohmann/json.hpp>
 #include <boost/nowide/fstream.hpp>
+
 #include <sstream>
+#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -173,7 +175,7 @@ void theme_impl::load_json(const std::string &json_)
                         }
                         catch (...)
                         {
-                            fprintf(stderr, "Error reading color in control: %s, key: %s, value: %s \n", control.c_str(), kvp.first.c_str(), str.c_str());
+                            std::cerr << "WUI error :: Error reading color in control: " << control << ", key: " << kvp.first <<  ", value: " << str << std::endl;
                         }
                     }
                     else
@@ -258,7 +260,7 @@ void theme_impl::load_json(const std::string &json_)
                         }
                         else
                         {
-                            fprintf(stderr, "Error reading image: %s, value: %s\n", image_name.c_str(), byte_val.c_str());
+                            std::cerr << "WUI error :: Error reading theme image json: " << image_name << ", value: " << byte_val << std::endl;
                         }
 
                         byte_val.clear();
@@ -270,7 +272,7 @@ void theme_impl::load_json(const std::string &json_)
     }
     catch (nlohmann::detail::exception &e)
     {
-        fprintf(stderr, "Error reading theme json: %s\n", e.what());
+        std::cerr << "WUI error :: Error reading theme json: " << e.what() << std::endl;
         ok = false;
     }
 }
@@ -278,6 +280,12 @@ void theme_impl::load_json(const std::string &json_)
 void theme_impl::load_file(const std::string &file_name)
 {
     boost::nowide::ifstream f(file_name);
+
+    if (!f)
+    {
+        std::cerr << "WUI error :: Unable to open theme file: " << file_name << " errno: " << errno << std::endl;
+        return;
+    }
     
     std::stringstream buffer;
     buffer << f.rdbuf();

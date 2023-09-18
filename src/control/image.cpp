@@ -84,6 +84,9 @@ void free_image(Gdiplus::Image **img)
 
 #elif __linux__
 
+#include <iostream>
+#include <boost/nowide/fstream.hpp>
+
 void load_image_from_data(const std::vector<uint8_t> &data_, cairo_surface_t **img)
 {
     struct png_reader_data
@@ -115,7 +118,17 @@ void load_image_from_data(const std::vector<uint8_t> &data_, cairo_surface_t **i
 
 void load_image_from_file(const std::string &file_name, const std::string &images_path, cairo_surface_t **img)
 {
-    *img = cairo_image_surface_create_from_png(std::string(images_path + "/" + file_name).c_str());
+    auto full_image_path = images_path + "/" + file_name;
+
+    boost::nowide::ifstream f(full_image_path);
+    if (!f)
+    {
+        std::cerr << "WUI error :: Unable to open image file: " << full_image_path << " errno: " << errno << std::endl;
+        return;
+    }
+    f.close();
+
+    *img = cairo_image_surface_create_from_png(full_image_path.c_str());
 }
 
 void free_image(cairo_surface_t **img)

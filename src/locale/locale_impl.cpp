@@ -11,7 +11,9 @@
 
 #include <nlohmann/json.hpp>
 #include <boost/nowide/fstream.hpp>
+
 #include <sstream>
+#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -108,7 +110,7 @@ void locale_impl::load_json(const std::string &json_)
     }
     catch (nlohmann::detail::exception &e)
     {
-        fprintf(stderr, "Error reading locale json: %s\n", e.what());
+        std::cerr << "WUI error :: Error reading locale json: " << e.what() << std::endl;
         ok = false;
     }
 }
@@ -116,6 +118,11 @@ void locale_impl::load_json(const std::string &json_)
 void locale_impl::load_file(const std::string &file_name)
 {
     boost::nowide::ifstream f(file_name);
+    if (!f)
+    {
+        std::cerr << "WUI error :: Unable to open locale file: " << file_name << " errno: " << errno << std::endl;
+        return;
+    }
     
     std::stringstream buffer;
     buffer << f.rdbuf();

@@ -22,9 +22,9 @@
 #elif __linux__
 
 #include <string>
+#include <iostream>
 
 #include <xcb/xcb_cursor.h>
-#include <stdio.h>
 
 #endif
 
@@ -116,7 +116,7 @@ bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const 
     xcb_generic_error_t *error = xcb_request_check(connection, cookie);
     if (error)
     {
-        fprintf(stderr, "WUI error: %s : %d\n", err_message , error->error_code);
+        std::cout << "WUI error: " << err_message << " : " << error->error_code << std::endl;
         return false;
     }
     return true;

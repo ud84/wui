@@ -21,6 +21,7 @@
 #include <cmath>
 
 #include <algorithm>
+#include <iostream>
 
 xcb_visualtype_t *default_visual_type(wui::system_context &context_)
 {
@@ -116,7 +117,7 @@ void graphic::init(const rect &max_size_, color background_color_)
     surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, default_visual_type(context_), max_size.width(), max_size.height());
     if (!surface)
     {
-        fprintf(stderr, "WUI error can't create the cairo surface on graphic::init()\n");
+        std::cerr << "WUI error :: Can't create the cairo surface on graphic::init()" << std::endl;
     }
 #endif
 
@@ -276,7 +277,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
 #elif __linux__
     if (!surface)
     {
-        fprintf(stderr, "WUI error no cairo on graphic::measure_text() (no surface)\n");
+        std::cerr << "WUI error :: No cairo on graphic::measure_text() (no surface)" << std::endl;
         return rect{ 0 };
     }
 
@@ -286,7 +287,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
     auto cr = pc.get_font(font__, surface);
     if (!cr)
     {
-        fprintf(stderr, "WUI error: no cairo context on graphic::measure_text\n");
+        std::cerr << "WUI error :: No cairo context on graphic::measure_text" << std::endl;
         return rect{ 0 };
     }
 
@@ -312,14 +313,14 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
 #elif __linux__
     if (!surface)
     {
-        fprintf(stderr, "WUI error no cairo on graphic::draw_text() (no surface)\n");
+        std::cerr << "WUI error :: No cairo on graphic::draw_text() (no surface)" << std::endl;
         return;
     }
 
     auto cr = pc.get_font(font__, surface);
     if (!cr)
     {
-        fprintf(stderr, "WUI error: no cairo context on graphic::draw_text\n");
+        std::cerr << "WUI error :: No cairo context on graphic::draw_text" << std::endl;
         return;
     }
 
@@ -425,7 +426,7 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
 
     if (!image)
     {
-    	fprintf(stderr, "WUI error: graphic::draw_buffer xcb_image_create_native\n");
+    	std::cerr << "WUI error :: graphic::draw_buffer xcb_image_create_native" << std::endl;
     	return;
     }
 
@@ -450,6 +451,7 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
 
     if (!check_cookie(copy_area_cookie, context_.connection, "graphic::draw_buffer xcb_copy_area"))
     {
+        std::cerr << "WUI error :: graphic::draw_buffer copy_area_cookie is invalid" << std::endl;
         return;
     }
 #endif
@@ -526,7 +528,7 @@ void graphic::draw_surface(_cairo_surface *surface_, const rect &position__)
 {
     if (!surface)
     {
-        fprintf(stderr, "WUI error no cairo on graphic::draw_surface() (no surface)\n");
+        std::cerr << "WUI error :: No cairo on graphic::draw_surface() (no surface)" << std::endl;
         return;
     }
 
