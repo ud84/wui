@@ -293,7 +293,7 @@ rect graphic::measure_text(const std::string &text, const font &font__)
     cairo_text_extents_t extents;
     cairo_text_extents(cr, text_.c_str(), &extents);
 
-    return { 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
+    return { 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height * 1.3)) };
 #endif
 }
 
