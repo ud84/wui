@@ -20,11 +20,13 @@
 #ifdef _WIN32
 #include <Resource.h>
 #include <gdiplus.h>
+#else
+#include <iostream>
 #endif
 
 #ifndef _WIN32
-const std::string IMG_ACCOUNT = "account.png";
-const std::string IMG_SETTINGS = "settings.png";
+const std::string IMG_ACCOUNT = "examples/simple/res/images/dark/account.png";
+const std::string IMG_SETTINGS = "examples/simple/res/images/dark/settings.png";
 #endif
 
 std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
@@ -255,7 +257,7 @@ int main(int argc, char *argv[])
 {
     if (setlocale(LC_ALL, "") == NULL)
     {
-        fprintf(stderr, "warning: could not set default locale\n");
+        std::cerr << "warning: could not set default locale"  << std::endl;
     }
 
 #endif
@@ -276,14 +278,14 @@ int main(int argc, char *argv[])
         return -1;
     }
 #elif __linux__
-    auto ok = wui::set_default_theme_from_file("dark", "/home/ud/wui/res/dark.json");
+    auto ok = wui::set_default_theme_from_file("dark", "res/dark.json");
     if (!ok)
     {
         printf("can't load theme\n");
         return -1;
     }
 
-    ok = wui::set_locale_from_file("en", "/home/ud/wui/res/en_locale.json");
+    ok = wui::set_locale_from_file("en", "res/en_locale.json");
     if (!ok)
     {
         printf("can't load locale\n");
@@ -432,7 +434,7 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
         wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
 #elif __linux__
-        wui::set_default_theme_from_file("dark", "dark.json");
+        wui::set_default_theme_from_file("dark", "res/dark.json");
 #endif
 
         window->update_theme();
@@ -449,7 +451,11 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
         wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
 #elif __linux__
-        wui::set_default_theme_from_file("light", "light.json");
+        auto file = "res/light.json";
+        if (!wui::set_default_theme_from_file("light", file))
+        {
+            std::cerr << "Error reading theme file: " << file << std::endl;
+        }
 #endif
 
         window->update_theme();
@@ -499,7 +505,7 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
             wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
 #elif __linux__
-            wui::set_default_theme_from_file("light", "light.json");
+            wui::set_default_theme_from_file("light", "res/light.json");
 #endif
         }
         else if (theme_name == "light")
@@ -508,7 +514,7 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
             wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
 #elif __linux__
-            wui::set_default_theme_from_file("dark", "dark.json");
+            wui::set_default_theme_from_file("dark", "res/dark.json");
 #endif
         }
 
@@ -520,7 +526,7 @@ int main(int argc, char *argv[])
 
     window->set_default_push_control(okButton);
 
-    window->init("Welcome to wui", { -1, -1, 900, 600 },
+    window->init("Привет всем!", { -1, -1, 900, 600 },
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
             static_cast<uint32_t>(wui::window_style::switch_theme_button) |
             static_cast<uint32_t>(wui::window_style::border_all)),

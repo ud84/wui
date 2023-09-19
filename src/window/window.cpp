@@ -945,6 +945,17 @@ window_state window::state() const
     return window_state_;
 }
 
+void set_wm_name(system_context &context_, const std::string &caption)
+{
+    xcb_icccm_set_wm_name(context_.connection, context_.wnd,
+        XCB_ATOM_STRING, 8,
+        caption.size(), caption.c_str());
+
+    xcb_icccm_set_wm_icon_name(context_.connection, context_.wnd,
+        XCB_ATOM_STRING, 8,
+        caption.size(), caption.c_str());
+}
+
 void window::set_caption(const std::string &caption_)
 {
     caption = caption_;
@@ -956,13 +967,7 @@ void window::set_caption(const std::string &caption_)
 #elif __linux__
         if (context_.connection)
         {
-            xcb_icccm_set_wm_name(context_.connection, context_.wnd,
-                XCB_ATOM_STRING, 8,
-                caption.size(), caption.c_str());
-
-            xcb_icccm_set_wm_icon_name(context_.connection, context_.wnd,
-                XCB_ATOM_STRING, 8,
-                caption.size(), caption.c_str());
+            set_wm_name(context_, caption_);
 
             std::string class_hint = caption + '\0' + caption + '\0';
             xcb_icccm_set_wm_class(context_.connection, context_.wnd, class_hint.size(), class_hint.c_str());
@@ -1724,13 +1729,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
         xcb_icccm_set_wm_transient_for(context_.connection, context_.wnd, transient_window_->context().wnd);
     }
 
-    xcb_icccm_set_wm_name(context_.connection, context_.wnd,
-        XCB_ATOM_STRING, 8,
-        caption.size(), caption.c_str());
-
-    xcb_icccm_set_wm_icon_name(context_.connection, context_.wnd,
-        XCB_ATOM_STRING, 8,
-        caption.size(), caption.c_str());
+    set_wm_name(context_, caption_);
 
     std::string class_hint = caption + '\0' + caption + '\0';
     xcb_icccm_set_wm_class(context_.connection, context_.wnd, class_hint.size(), class_hint.c_str());
