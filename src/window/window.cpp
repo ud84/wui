@@ -945,6 +945,7 @@ window_state window::state() const
     return window_state_;
 }
 
+#ifndef _WIN32
 void set_wm_name(system_context &context_, const std::string &caption)
 {
     xcb_icccm_set_wm_name(context_.connection, context_.wnd,
@@ -955,6 +956,7 @@ void set_wm_name(system_context &context_, const std::string &caption)
         XCB_ATOM_STRING, 8,
         caption.size(), caption.c_str());
 }
+#endif
 
 void window::set_caption(const std::string &caption_)
 {
