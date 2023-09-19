@@ -973,7 +973,7 @@ void window::set_caption(const std::string &caption_)
             xcb_icccm_set_wm_class(context_.connection, context_.wnd, class_hint.size(), class_hint.c_str());
         }
 #endif
-        redraw({ 0, 0, position_.width(), 30 });
+        redraw({ 0, 0, position_.width(), 30 }, true);
     }
 }
 
