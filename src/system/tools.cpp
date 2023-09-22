@@ -318,6 +318,22 @@ rect get_screen_size(system_context &context)
     return { 0 };
 }
 
+bool open_uri(const std::string &uri)
+{
+    std::string cmd =
+#ifdef _WIN32
+        std::string("start ")
+#elif __APPLE__
+        std::string("open ")
+#else
+        std::string("xdg-open ")
+#endif        
+        + uri;
+
+    auto res = system(cmd.c_str());
+    return res == 0;
+}
+
 #ifdef _WIN32
 
 void clipboard_put(const std::string &text, system_context &context)
@@ -379,22 +395,6 @@ void clipboard_put(const std::string &text, system_context &context)
 bool is_text_in_clipboard(system_context &context)
 {
     return false;
-}
-
-bool open_uri(const std::string &uri)
-{
-    std::string cmd =
-#ifdef _WIN32
-    std::string("start ")
-#elif __APPLE__
-    std::string("open ")
-#else
-    std::string("xdg-open ")
-#endif        
-        + uri;
-
-    auto res = system(cmd.c_str());
-    return res == 0;
 }
 
 std::string clipboard_get_text(system_context &context)
