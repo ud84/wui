@@ -15,7 +15,7 @@ The library also has auxiliary tools for work - structures Common (containing su
 To view more information go to the wiki: https://github.com/ud84/WUI/wiki
 And the site: https://libwui.org
 
- In order for me to implement @@macOS support@@ I need a macbook, which I don't have.
- If you want to donate a macbook to me on this wallet: + TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20
+ ![#1589F0](In order for me to implement macOS support I need a macbook, which I don't have.
+ If you want to donate a macbook to me on this wallet:) ![#c5f015](TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20)
 
 ![alt text](https://libwui.org/scrscht/3.png)
