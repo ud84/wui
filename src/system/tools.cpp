@@ -381,6 +381,22 @@ bool is_text_in_clipboard(system_context &context)
     return false;
 }
 
+bool open_uri(const std::string &uri)
+{
+    std::string cmd =
+#ifdef _WIN32
+    std::string("start ")
+#elif __APPLE__
+    std::string("open ")
+#else
+    std::string("xdg-open ")
+#endif        
+        + uri;
+
+    auto res = system(cmd.c_str());
+    return res == 0;
+}
+
 std::string clipboard_get_text(system_context &context)
 {
     return "";
