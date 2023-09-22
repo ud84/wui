@@ -15,8 +15,7 @@ The library also has auxiliary tools for work - structures Common (containing su
 To view more information go to the wiki: https://github.com/ud84/WUI/wiki
 And the site: https://libwui.org
 
-![#c5f015](https://placehold.co/15x15/c5f015/c5f015.png) `#c5f015`
- ![#1589F0](In order for me to implement macOS support I need a macbook, which I don't have.
- If you want to donate a macbook to me on this wallet:) ![#c5f015](TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20)
+![#c5f015](https://placehold.co/15x15/c5f015/c5f015.png) In order for me to implement macOS support I need a macbook, which I don't have.
+ If you want to donate a macbook to me on this wallet: TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20
 
 ![alt text](https://libwui.org/scrscht/3.png)
