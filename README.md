@@ -13,4 +13,4 @@ The library also has auxiliary tools for work - structures Common (containing su
 
 To view more information go to the wiki: https://github.com/ud84/WUI/wiki
 
-![alt text](https://libwui.org/scrscht/1.png)
+![alt text](https://libwui.org/scrscht/3.png)
