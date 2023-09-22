@@ -321,7 +321,7 @@ rect get_screen_size(system_context &context)
 bool open_uri(const std::string &uri)
 {
 #ifdef _WIN32
-    ShellExecute(NULL, L"open", boost::nowide::widen(uri).c_str(), NULL, NULL, SW_SHOW);
+    return reinterpret_cast<int64_t>(ShellExecute(NULL, L"open", boost::nowide::widen(uri).c_str(), NULL, NULL, SW_SHOW)) < 32;
 #else
     std::string cmd =
 #ifdef __APPLE__
