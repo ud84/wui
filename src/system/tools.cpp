@@ -320,18 +320,20 @@ rect get_screen_size(system_context &context)
 
 bool open_uri(const std::string &uri)
 {
-    std::string cmd =
 #ifdef _WIN32
-        std::string("start ")
-#elif __APPLE__
+    ShellExecute(NULL, L"open", boost::nowide::widen(uri).c_str(), NULL, NULL, SW_SHOW);
+#else
+    std::string cmd =
+#ifdef __APPLE__
         std::string("open ")
 #else
         std::string("xdg-open ")
-#endif        
+#endif
         + uri;
 
     auto res = system(cmd.c_str());
     return res == 0;
+#endif        
 }
 
 #ifdef _WIN32
