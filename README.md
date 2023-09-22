@@ -14,7 +14,7 @@ Now it supoort only Windows and Linux*.
 
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) To view more information go to the wiki: https://github.com/ud84/WUI/wiki
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Web the site: https://libwui.org
+![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Web site: https://libwui.org
 
 ![#c5f015](https://placehold.co/15x15/c5f015/c5f015.png) In order for me to implement macOS support I need a macbook, which I don't have.
 If you want to donate a macbook to me on this wallet: TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20
