@@ -1,4 +1,4 @@
-![alt text](https://libwui.org/img/wui_logo.png)
+![alt text](https://libwui.org/img/wui_logo_black.png)
 
 # WUI
 Window User Interface Library
