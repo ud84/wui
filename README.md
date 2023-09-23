@@ -20,4 +20,5 @@ Now it supoort only Windows and Linux*.
 If you want to donate a macbook to me on this wallet: TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20
 
 Example screenshot (Video call application)
-![alt text](https://libwui.org/scrscht/3.png)
+![alt text](https://libwui.org/img/screenshoot-1.png)
+![alt text](https://libwui.org/img/screenshoot-2.png)
