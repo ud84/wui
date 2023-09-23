@@ -1,13 +1,13 @@
 site_name: WUI
 
 nav:
-  - Домашняя: 'index.md'
-  - 'Справка':
+  - Home: 'index.md'
+  - 'User Guide':
     - Common: 'base/common.md'
     - Event: 'base/event.md'
     - Graphic: 'base/graphic.md'
     - Interfaces: 'base/interfaces.md'
     - Theme: 'base/theme.md'
-  - 'О библиотеке':
-    - Лицензия: 'about/licence.md'
-    - Контакты: 'about/contacts.md'
+  - 'About':
+    - Licence: 'about/licence.md'
+    - Contacts: 'about/contacts.md'
