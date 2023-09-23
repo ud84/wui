@@ -13,5 +13,5 @@
 
 ## Donations ❤️
 - [Patreon](https://www.patreon.com/user/membership?u=66230239)
-#- [From Russian Cards](https://libwui.org/donate/)
+- [From Russian Cards](https://libwui.org/donate/)
 - In USDT: TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20
