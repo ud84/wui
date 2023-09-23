@@ -1,4 +1,4 @@
-# ![alt text](https://libwui.org/img/wui_logo_black.png) WUI
+# ![alt text](https://libwui.org/img/wui_logo_black_small.png) WUI
 Window User Interface Library
 
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) WUI is a cross-platform modern C++ library for creating graphical user interfaces.
