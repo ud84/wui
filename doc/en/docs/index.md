@@ -19,5 +19,3 @@ Work on MacOS platform will be completed soon.
 
 All platform-dependent code is collected in two elements - window and graphic (rendering subsystem).
 
-[project license](../about/license.md)
-
