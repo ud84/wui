@@ -1,4 +1,4 @@
-# WUI
+# ![alt text](https://libwui.org/img/wui_logo_black_small.png) WUI
 Window User Interface Library
 
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) WUI is a cross-platform modern C++ library for creating graphical user interfaces.
@@ -20,4 +20,5 @@ Now it supoort only Windows and Linux*.
 If you want to donate a macbook to me on this wallet: TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20
 
 Example screenshot (Video call application)
-![alt text](https://libwui.org/scrscht/3.png)
+![alt text](https://libwui.org/img/screenshoot-1.png)
+![alt text](https://libwui.org/img/screenshoot-2.png)
