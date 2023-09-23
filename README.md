@@ -2,7 +2,7 @@
 Window User Interface Library
 
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) WUI is a cross-platform modern C++ library for creating graphical user interfaces.
-Now it supoort only Windows and Linux*.
+Now it support only Windows and Linux*.
 
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) WUI is an attempt to make as easy to use cross-platform library as possible for creating a modern graphical user interface in C++. The library uses modern C++ (C++11) and has a minimalistic API. The main design principle is to make it as simple as possible, but not simpler. The library does not try to build a complete abstraction over the operating system and deals only with basic UI stuff. It has nothing about network, strings, file handling, multithreading, and other useful but irrelevant UI things, which are also available in the modern C++ standard.
 
