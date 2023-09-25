@@ -21,12 +21,10 @@ WUI основан на двух примитивах - Window и Control.
 
 ## Быстрый старт
 
-## Clone и build
-    git clone https://github.com/ud84/wui
-    cd wui
-    cmake CMakeLists.txt
-    make
+* [Получение и сборка](howto/receive/)
 
-## Проверка
-    examples/simple/simple
+## Контакты:
 
+* Email: [info@libwui.org](mailto:info@libwui.org)
+* GitHub tracker: [https://github.com/ud84/wui/issues](https://github.com/ud84/wui/issues)
+* Telegram: [Official WUI channel](https://t.me/libwui)

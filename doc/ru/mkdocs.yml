@@ -2,6 +2,8 @@ site_name: WUI
 
 nav:
   - Домашняя: 'index.md'
+  - 'Руководства':
+    - Получение и сборка: 'howto/receive.md'
   - 'Справка':
     - Common: 'base/common.md'
     - Event: 'base/event.md'
