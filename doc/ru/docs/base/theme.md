@@ -8,12 +8,12 @@
 по умолчанию используют все контролы приложения. Подсистема позволяет звгрузить тему из json который может 
 храниться на диске или быть ресурсом Windows приложения.
 
-[Json файл](https://github.com/ud84/wui/blob/main/res/dark.json) содержащий визуальные параметры основных контролов.
+Пример [json файла](https://github.com/ud84/wui/blob/main/res/dark.json) содержащий визуальные параметры основных контролов.
 
 Несмотря на то, что в приложении всегда есть тема по умолчанию, вы можете создать свою кастомную тему и указать любому контролу ее для использования. В таком случае, контрол будет отображаться в соответствии с вашей темой.
 
 Ниже представлены основные хелперы для централизованной работы с темой приложения. Данные хелперы по сути представляют
-доступ к синглтону инстанса темы по умолчанию приложения:
+доступ к синглтону инстанса темы по умолчанию приложения.
 
 ### Хелперы
 
@@ -215,3 +215,18 @@
 
 ### const std::vector&lt;uint8_t&gt; &<span style="color:#9a0303">get_image</span>(const <span style="color:#0c8bb6">std::string</span> &name)
 Возвращает массив байтов содержащий изображение темы для значения ``value`` контрола ``control``
+
+### bool <span style="color:#9a0303">load_resource</span>(<span style="color:#0c8bb6">int32_t</span> resource_index, const <span style="color:#0c8bb6">std::string</span> &resource_section); (Windows only)
+Функция загружающая тему из json файла который хранится в ресурсе приложения
+
+### bool <span style="color:#9a0303">load_json</span>(const <span style="color:#0c8bb6">std::string</span> &json)
+Функция загружающая тему из json строки
+
+### bool <span style="color:#9a0303">load_file</span>(const <span style="color:#0c8bb6">std::string</span> &file_name)
+Функция загружающая тему из json файла
+
+### bool <span style="color:#9a0303">load_theme</span>(const i_theme &theme_)
+Функция загружающая тему из другого инстанса темы
+
+### bool <span style="color:#9a0303">is_ok</span>(const i_theme &theme_) const
+Возвращает нормально ли загрузилась тема из json

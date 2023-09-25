@@ -19,3 +19,12 @@ Work on MacOS platform will be completed soon.
 
 All platform-dependent code is collected in two elements - window and graphic (rendering subsystem).
 
+## Quick start
+
+* [Setup](howto/receive/)
+
+## Contacts:
+
+* Email: [info@libwui.org](mailto:info@libwui.org)
+* GitHub tracker: [https://github.com/ud84/wui/issues](https://github.com/ud84/wui/issues)
+* Telegram: [Official WUI channel](https://t.me/libwui)

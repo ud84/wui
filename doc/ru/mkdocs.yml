@@ -3,13 +3,13 @@ site_name: WUI
 nav:
   - Домашняя: 'index.md'
   - 'Руководства':
-    - Получение и сборка: 'howto/receive.md'
+    - Установка: 'howto/setup.md'
   - 'Справка':
-    - Common: 'base/common.md'
-    - Event: 'base/event.md'
-    - Graphic: 'base/graphic.md'
-    - Interfaces: 'base/interfaces.md'
-    - Theme: 'base/theme.md'
+    - Общие типы: 'base/common.md'
+    - События: 'base/event.md'
+    - Графика: 'base/graphic.md'
+    - Базовые интерейсы: 'base/interfaces.md'
+    - Визуальные темы: 'base/theme.md'
   - 'О библиотеке':
     - Лицензия: 'about/licence.md'
     - Контакты: 'about/contacts.md'

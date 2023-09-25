@@ -2,12 +2,14 @@ site_name: WUI
 
 nav:
   - Home: 'index.md'
-  - 'User Guide':
-    - Common: 'base/common.md'
-    - Event: 'base/event.md'
-    - Graphic: 'base/graphic.md'
-    - Interfaces: 'base/interfaces.md'
-    - Theme: 'base/theme.md'
-  - 'About':
-    - Licence: 'about/licence.md'
+  - Manuals:
+    - Installation: 'howto/setup.md'
+  - Help:
+    - Common types: 'base/common.md'
+    - Events: 'base/event.md'
+    - Graphics: 'base/graphic.md'
+    - Basic Interfaces: 'base/interfaces.md'
+    - Visual Themes: 'base/theme.md'
+  - About the Library:
+    - License: 'about/licence.md'
     - Contacts: 'about/contacts.md'
