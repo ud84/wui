@@ -77,6 +77,8 @@
 #### Возвращаемое значение
  - true в случае успеха
 
+Функция загружающая дефолтную тему приложения из json строки
+
 ### set_default_theme_from_file
 #### Входные параметры
  - const std::string &name - имя темы
@@ -131,7 +133,7 @@
 ### theme_color
 #### Входные параметры
  - const std::string &control - имя контрола, например "button"
- - const std::string &value - значение цвета, например "active"
+ - const std::string &value - название цвета, например "active"
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
 #### Возвращаемое значение
  - color - запрошенный цвет
@@ -161,7 +163,7 @@
 ### theme_dimension
 #### Входные параметры
  - const std::string &control - имя контрола, например "button"
- - const std::string &value - значение цвета, например "active"
+ - const std::string &value - название размера, например "border_width"
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
 #### Возвращаемое значение
  - int32_t - запрошенный размер
@@ -170,8 +172,8 @@
 
 ### theme_string
 #### Входные параметры
- - const std::string &control - имя контрола, например "button"
- - const std::string &value - значение цвета, например "active"
+ - const std::string &control - имя контрола
+ - const std::string &value - название строки
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
 #### Возвращаемое значение
  - const std::string & - ссылка на запрошенную строку
@@ -180,8 +182,8 @@
 
 ### theme_font
 #### Входные параметры
- - const std::string &control - имя контрола, например "button"
- - const std::string &value - значение цвета, например "active"
+ - const std::string &control - имя контрола
+ - const std::string &value - название шрифта, например "caption_font"
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
 #### Возвращаемое значение
  - font - запрошенный шрифт
@@ -247,7 +249,7 @@
 ### set_color
 #### Входные параметры
  - const std::string &control - имя контрола, например "button"
- - const std::string &value - значение цвета, например "active"
+ - const std::string &value - название цвета, например "active"
  - color color_ - устанавливаемый цвет
 
 Устанавливает цвет для значения ``value`` контрола ``control``
@@ -271,7 +273,7 @@
 ### get_color
 #### Входные параметры
  - const std::string &control - имя контрола
- - const std::string &value - значение цвета
+ - const std::string &value - название цвета
 #### Возвращаемое значение
  - color - запрошенный цвет
 
@@ -280,7 +282,7 @@
 ### set_dimension
 #### Входные параметры
  - const std::string &control - имя контрола
- - const std::string &value - значение цвета
+ - const std::string &value - название размера
  - int32_t dimension - устанавливаемый размер
 
 Устанавливает размер для значения ``value`` контрола ``control``
@@ -288,7 +290,7 @@
 ### get_dimension
 #### Входные параметры
  - const std::string &control - имя контрола
- - const std::string &value - значение цвета
+ - const std::string &value - название размера
 #### Возвращаемое значение
  - int32_t - запрошенный размер
 
@@ -297,7 +299,7 @@
 ### set_string
 #### Входные параметры
  - const std::string &control - имя контрола
- - const std::string &value - значение цвета
+ - const std::string &value - название строки
  - const std::string &str - устанавливаемая строка
 
 Устанавливает строку для значения ``value`` контрола ``control``
@@ -305,7 +307,7 @@
 ### get_string
 #### Входные параметры
  - const std::string &control - имя контрола
- - const std::string &value - значение цвета
+ - const std::string &value - название строки
 #### Возвращаемое значение
  - const std::string & - ссылка на запрошенную строку
 
@@ -314,7 +316,7 @@
 ### set_font
 #### Входные параметры
  - const std::string &control - имя контрола
- - const std::string &value - значение цвета
+ - const std::string &value - название шрифта
  - const font &font_ - устанавливаемый шрифт
 
 Устанавливает шрифт для значения ``value`` контрола ``control``
@@ -322,7 +324,7 @@
 ### get_font
 #### Входные параметры
  - const std::string &control - имя контрола
- - const std::string &value - значение цвета
+ - const std::string &value - название шрифта
 #### Возвращаемое значение
  - font - запрошенный шрифт
 

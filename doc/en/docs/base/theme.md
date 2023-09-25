@@ -47,8 +47,16 @@ access to the default theme instance singleton of the application.
 
     const std::vector<uint8_t> &theme_image(const std::string &name, std::shared_ptr<i_theme> theme_ = nullptr);
 
-### bool <span style="color:#9a0303">set_default_theme_from_resource</span>(const <span style="color:#0c8bb6">std::string</span> &name, <span style="color:#0c8bb6">int32_t</span> resource_index, const <span style="color:#0c8bb6">std::string</span> &resource_section); (Windows only)
+### set_default_theme_from_resource (Windows only)
+#### Input parameters
+ - const std::string &name - theme name, e.g. "dark"
+ - int32_t resource_index - ID ресурса
+ - const std::string &resource_section - resource section, e.g. "JSONS"
+#### Return value
+ - true if successful
+
 Function that loads the default application theme from a json file stored in the application resource.
+
 Example:
 
     #ifdef _WIN32
@@ -60,11 +68,24 @@ Example:
     }
     #endif
 
-### bool <span style="color:#9a0303">set_default_theme_from_json</span>(const <span style="color:#0c8bb6">std::string</span> &name, const <span style="color:#0c8bb6">std::string</span> &json)
+### set_default_theme_from_json
+#### Input parameters
+ - const std::string &name - theme name
+ - const std::string &json - string containing the theme json
+#### Return value
+ - true if successful
+
 Function loading default application theme from json string
 
-### bool <span style="color:#9a0303">set_default_theme_from_file</span>(const <span style="color:#0c8bb6">std::string</span> &name, const <span style="color:#0c8bb6">std::string</span> &file_name)
+### set_default_theme_from_file
+#### Input parameters
+ - const std::string &name - theme name
+ - const std::string &file_name - путь к json файлу темы
+#### Return value
+ - true if successful
+
 Function loading default application theme from json file
+
 Example:
 
     #ifdef _WIN32
@@ -78,20 +99,45 @@ Example:
     }
     #endif
 
-### void <span style="color:#9a0303">set_default_theme_empty</span>(const <span style="color:#0c8bb6">std::string</name> &name);
+### set_default_theme_empty
+#### Input parameters
+ - const std::string &name - theme name
+
 Sets the current theme to an empty theme, e.g. to customize it later using instance setters.
 
-### std::shared_ptr&lt;i_theme&gt; <span style="color:#9a0303">get_default_theme</span>()
-Returns a pointer to the default instance of the theme
+### get_default_theme
+#### Return value
+ - std::shared_ptr&lt;i_theme&gt; - pointer to the default theme instance
 
-### std::shared_ptr&lt;i_theme&gt; <span style="color:#9a0303">make_custom_theme</span>(const <span style="color:#0c8bb6">std::string</span> &name = "");
+Returns a pointer to the default instance of the topic
+
+### make_custom_theme
+#### Input parameters
+ - const std::string &name - theme name
+#### Return value
+ - std::shared_ptr&lt;i_theme&gt; - pointer to the instance of the created theme
+
 Creates and returns a pointer to an empty custom theme. Intended for use in an individual control or a group of controls.
 
-### std::shared_ptr&lt;i_theme&gt; <span style="color:#9a0303">make_custom_theme</span>(const <span style="color:#0c8bb6">std::string</span> &name, const <span style="color:#0c8bb6">std::string</span> &json);
-Creates and returns a pointer to a custom theme loaded from json. Intended for use in an individual control or a group of controls.
+### make_custom_theme
+#### Input parameters
+ - const std::string &name - theme name
+ - const std::string &json - string containing the theme json
+#### Return value
+ - std::shared_ptr&lt;i_theme&gt; - pointer to the instance of the created theme
 
-### color <span style="color:#9a0303">theme_color</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, std::shared_ptr&lt;i_theme&gt; theme_ = nullptr);
-Returns the color for the ``value`` of the ``control`` control. The ``theme_`` parameter can contain the custom theme instance or be omitted, then the color from the default theme will be taken.
+Creates and returns a pointer to a custom theme loaded from json. Designed to be used in a single control or a group of controls.
+
+### theme_color
+#### Input parameters
+ - const std::string &control - control name, e.g. "button"
+ - const std::string &value - color name, e.g. "active"
+ - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - pointer to the theme instance, if nullptr - the default theme is taken
+#### Return value
+ - color - requested color
+
+Returns the color for the ``value`` of the ``control`` control. The ``theme_`` parameter may contain the custom theme instance or be omitted, in which case the color from the default theme will be taken.
+
 Example:
 
     auto fill_color = enabled_ ? (active || turned_ ? theme_color(tcn, tv_active, theme_) : theme_color(tcn, tv_calm, theme_)) : theme_color(tcn, tv_disabled, theme_);
@@ -110,19 +156,47 @@ A fragment of the theme's json:
       "calm": "#06a5df",
       "active": "#1aafe9",
       "disabled": "#a5a5a0"
-    },
+    }
 
-### int32_t <span style="color:#9a0303">theme_dimension</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, std::shared_ptr&lt;i_theme&gt; theme_ = nullptr)
+### theme_dimension
+#### Input parameters
+ - const std::string &control - control name, e.g. "button"
+ - const std::string &value - dimension name, e.g. "border_width"
+ - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - pointer to the theme instance, if nullptr - the default theme is taken
+#### Return value
+ - int32_t - requested dimension
+
 Returns the size for the ``value`` of the ``control`` control. The ``theme_`` parameter can contain the custom theme instance or be omitted, in which case the size will be taken from the default theme.
 
-### const std::string &<span style="color:#9a0303">theme_string</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, std::shared_ptr&lt;i_theme&gt; theme_ = nullptr)
+### theme_string
+#### Input parameters
+ - const std::string &control - control name
+ - const std::string &value -  string name
+ - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - pointer to the theme instance, if nullptr - the default theme is taken
+#### Return value
+ - const std::string & - link to the requested string
+
 Returns a string for the ``value`` of the ``control`` control. The ``theme_`` parameter can contain the custom theme instance or be omitted, in which case the string from the default theme will be taken.
 
-### font <span style="color:#9a0303">theme_font</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, std::shared_ptr&lt;i_theme&gt; theme_ = nullptr)
-Returns the font for the ``value`` of the ``control`` control. The ``theme_`` parameter can contain the custom theme instance or be omitted, in which case the font from the default theme will be taken.
+### theme_font
+#### Input parameters
+ - const std::string &control - control name
+ - const std::string &value - font name, e.g. "caption_font"
+ - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - pointer to the theme instance, if nullptr - the default theme is taken
+#### Return value
+ - font - requested font
 
-### const std::vector<uint8_t> &<span style="color:#9a0303">theme_image</span>(const <span style="color:#0c8bb6">std::string</span> &name, std::shared_ptr&lt;i_theme&gt; theme_ = nullptr)
+Returns the font for the ``value`` of the ``control`` control. The ``theme_`` parameter can contain the custom theme instance or be omitted, in which case the font from the default theme will b
+
+### theme_image
+#### Input parameters
+ - const std::string &name - image name
+ - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - pointer to the theme instance, if nullptr - the default theme is taken
+#### Return value
+ - const std::vector&lt;uint8_t&gt;& - requested image
+
 Returns a byte array containing the theme image for the ``value`` of the ``control`` control. The theme supports storing images in json as an escaped array. The array can also be loaded into the theme by the instance setter.
+
 Example json:
 
     "images": [
@@ -165,15 +239,22 @@ Example json:
 
 This interface accepts a control to receive visual parameters of its display.
 
-### std::string <span style="color:#9a0303">get_name</span>() const
-Returns the character name of the topic, for example ```"dark"`` or ``"light"``
+### get_name
+#### Return value
+ - const std::string - theme instance name
+Returns the character name of the theme, for example ```"dark"`` or ``"light"``
 
-### void <span style="color:#9a0303">set_color</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, color color_)
+### set_color
+#### Input parameters
+ - const std::string &control - control name, e.g. "button"
+ - const std::string &value - color name, e.g. "active"
+ - color color_ - settable color
+
 Sets the color for the ``value`` of the ``control`` control
 
 Example:
 
-    auto redButtonTheme = wui::make_custom_theme(); // Create a new custom theme
+    auto redButtonTheme = wui::make_custom_theme(); // Creating a new custom theme
     redButtonTheme->load_theme(*wui::get_default_theme()); // Load it from the default so that we don't have to set all the values
 
     redButtonTheme->set_color(wui::button::tc, wui::button::tv_calm, wui::make_color(205, 15, 20)); // Set the fill color of the button in the idle mode
@@ -185,46 +266,110 @@ Where:
     wui::button::tc = "button";
     wui::button::tv_calm = "calm";
 
-Which means this color will be applied to the control named ``"button"`` in the ``"calm"`` state
+Which means this color will be applied to the control named ``"button"`` in the ``"calm"`` state.
 
-### color <span style="color:#9a0303">get_color</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value) const
+### get_color
+#### Input parameters
+ - const std::string &control - control name
+ - const std::string &value - color name
+#### Return value
+ - color - requested color
+
 Returns the color for the ``value`` of the ``control`` control
 
-### void <span style="color:#9a0303">set_dimension</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, <span style="color:#0c8bb6">int32_t</span> dimension)
+### set_dimension
+#### Input parameters
+ - const std::string &control - control name
+ - const std::string &value - dimension name
+ - int32_t dimension - устанавливаемый размер
+
 Sets the size for the ``value`` of the ``control`` control
 
-### int32_t <span style="color:#9a0303">get_dimension</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value)
+### get_dimension
+#### Input parameters
+ - const std::string &control - control name
+ - const std::string &value - dimension name
+#### Return value
+ - int32_t - requested dimension
+
 Returns the size for the ``value`` of the ``control`` control
 
-### void <span style="color:#9a0303">set_string</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, const <span style="color:#0c8bb6">std::string</span> &str)
+### set_string
+#### Input parameters
+ - const std::string &control - control name
+ - const std::string &value - string name
+ - const std::string &str - setted string
+
 Sets the string for the ``value`` of the ``control`` control
 
-### const std::string &<span style="color:#9a0303">get_string</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value)
+### get_string
+#### Input parameters
+ - const std::string &control - control name
+ - const std::string &value - string name
+#### Return value
+ - const std::string & - link to the requested string
+
 Returns a string for the ``value`` of the ``control`` control
 
-### void <span style="color:#9a0303">set_font</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, const <span style="color:#0c8bb6">font</span> &font_)
+### set_font
+#### Input parameters
+ - const std::string &control - control name
+ - const std::string &value - font name
+ - const font &font_ - setted font
+
 Sets the font for the ``value`` of the ``control`` control
 
-### font <span style="color:#9a0303">get_font</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value)
+### get_font
+#### Input parameters
+ - const std::string &control - control name
+ - const std::string &value - font name
+#### Return value
+ - font - requested font
+
 Returns the font for the ``value`` of the ``control`` control
 
-### void <span style="color:#9a0303">set_image</span>(const <span style="color:#0c8bb6">std::string</span> &name, const std::vector&lt;<span style="color:#0c8bb6">uint8_t</span>&gt; &data)
-Sets the image from the byte array for the ``value`` of the ``control`` control
+### set_image
+#### Input parameters
+ - const std::string &name - image name
+ - const std::vector&lt;uint8_t&gt; &data - setted image
 
-### const std::vector&lt;uint8_t&gt; &<span style="color:#9a0303">get_image</span>(const <span style="color:#0c8bb6">std::string</span> &name)
-Returns a byte array containing the subject image for the ``value`` of the ``control`` control
+Sets the image named ``name`` from the ``data`` byte array
 
-### bool <span style="color:#9a0303">load_resource</span>(<span style="color:#0c8bb6">int32_t</span> resource_index, const <span style="color:#0c8bb6">std::string</span> &resource_section); (Windows only)
+### get_image
+#### Input parameters
+ - const std::string &name - image name
+#### Return value
+ - const std::vector&lt;uint8_t&gt; & - requested image
+
+Returns a link to a byte array containing the subject image for the ``value`` of the ``control`` control
+
+### load_resource (Windows only)
+#### Input parameters
+ - int32_t resource_index - recource ID
+ - const std::string &resource_section - resource section, e.g. "JSONS"
+
 Function loading a theme from a json file stored in the application resource
 
-### bool <span style="color:#9a0303">load_json</span>(const <span style="color:#0c8bb6">std::string</span> &json)
+### load_json
+#### Input parameters
+ - const std::string &json - json string
+
 Function loading theme from json string
 
-### bool <span style="color:#9a0303">load_file</span>(const <span style="color:#0c8bb6">std::string</span> &file_name)
+### load_file
+#### Input parameters
+ - const std::string &file_name - json file path
+
 Function loading theme from json file
 
-### bool <span style="color:#9a0303">load_theme</span>(const i_theme &theme_)
-Function loading a topic from another theme instance
+### load_theme
+#### Input parameters
+ - const i_theme &theme_ - link to another theme
 
-### bool <span style="color:#9a0303">is_ok</span>(const i_theme &theme_) const
+Function loading a theme from another theme instance
+
+### is_ok
+#### Return value
+ - true if the json was loaded successfully
+
 Returns whether the theme loaded normally from json
