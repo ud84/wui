@@ -80,7 +80,7 @@ Function loading default application theme from json string
 ### set_default_theme_from_file
 #### Input parameters
  - const std::string &name - theme name
- - const std::string &file_name - путь к json файлу темы
+ - const std::string &file_name - path to the theme json file
 #### Return value
  - true if successful
 
@@ -281,7 +281,7 @@ Returns the color for the ``value`` of the ``control`` control
 #### Input parameters
  - const std::string &control - control name
  - const std::string &value - dimension name
- - int32_t dimension - устанавливаемый размер
+ - int32_t dimension - setted dimension
 
 Sets the size for the ``value`` of the ``control`` control
 
