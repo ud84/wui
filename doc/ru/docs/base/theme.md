@@ -49,8 +49,16 @@
 
     const std::vector<uint8_t> &theme_image(const std::string &name, std::shared_ptr<i_theme> theme_ = nullptr);
 
-### bool <span style="color:#9a0303">set_default_theme_from_resource</span>(const <span style="color:#0c8bb6">std::string</span> &name, <span style="color:#0c8bb6">int32_t</span> resource_index, const <span style="color:#0c8bb6">std::string</span> &resource_section); (Windows only)
+### set_default_theme_from_resource (Windows only)
+#### Входные параметры
+ - const std::string &name - имя темы, например "dark"
+ - int32_t resource_index - ID ресурса
+ - const std::string &resource_section - секция ресурсов, например "JSONS"
+#### Возвращаемое значение
+ - true в случае успеха
+
 Функция загружающая дефолтную тему приложения из json файла который хранится в ресурсе приложения.
+
 Пример:
 
     #ifdef _WIN32
@@ -62,11 +70,22 @@
     }
     #endif
 
-### bool <span style="color:#9a0303">set_default_theme_from_json</span>(const <span style="color:#0c8bb6">std::string</span> &name, const <span style="color:#0c8bb6">std::string</span> &json)
-Функция загружающая дефолтную тему приложения из json строки
+### set_default_theme_from_json
+#### Входные параметры
+ - const std::string &name - имя темы
+ - const std::string &json - строка содержащая json темы
+#### Возвращаемое значение
+ - true в случае успеха
 
-### bool <span style="color:#9a0303">set_default_theme_from_file</span>(const <span style="color:#0c8bb6">std::string</span> &name, const <span style="color:#0c8bb6">std::string</span> &file_name)
+### set_default_theme_from_file
+#### Входные параметры
+ - const std::string &name - имя темы
+ - const std::string &file_name - путь к json файлу темы
+#### Возвращаемое значение
+ - true в случае успеха
+
 Функция загружающая дефолтную тему приложения из json файла
+
 Пример:
 
     #ifdef _WIN32
@@ -80,20 +99,45 @@
     }
     #endif
 
-### void <span style="color:#9a0303">set_default_theme_empty</span>(const <span style="color:#0c8bb6">std::string</name> &name);
+### set_default_theme_empty
+#### Входные параметры
+ - const std::string &name - имя темы
+
 Устанавливает в текущую тему пустую тему, например для последующей настройки ее при помощи сеттеров инстанса.
 
-### std::shared_ptr&lt;i_theme&gt; <span style="color:#9a0303">get_default_theme</span>()
+### get_default_theme
+#### Возвращаемое значение
+ - std::shared_ptr&lt;i_theme&gt; - указатель на инстанс темы по умолчанию
+
 Возвращает указатель на инстанс темы по умолчанию
 
-### std::shared_ptr&lt;i_theme&gt; <span style="color:#9a0303">make_custom_theme</span>(const <span style="color:#0c8bb6">std::string</span> &name = "");
+### make_custom_theme
+#### Входные параметры
+ - const std::string &name - имя темы
+#### Возвращаемое значение
+ - std::shared_ptr&lt;i_theme&gt; - указатель на инстанс созданной темы
+
 Создает и возвращает указатель на пустую кастомную тему. Предназначена для использования в отдельном контроле или группе контролов.
 
-### std::shared_ptr&lt;i_theme&gt; <span style="color:#9a0303">make_custom_theme</span>(const <span style="color:#0c8bb6">std::string</span> &name, const <span style="color:#0c8bb6">std::string</span> &json);
+### make_custom_theme
+#### Входные параметры
+ - const std::string &name - имя темы
+ - const std::string &json - строка содержащая json темы
+#### Возвращаемое значение
+ - std::shared_ptr&lt;i_theme&gt; - указатель на инстанс созданной темы
+
 Создает и возвращает указатель на кастомную тему загруженную из json. Предназначена для использования в отдельном контроле или группе контролов.
 
-### color <span style="color:#9a0303">theme_color</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, std::shared_ptr&lt;i_theme&gt; theme_ = nullptr);
+### theme_color
+#### Входные параметры
+ - const std::string &control - имя контрола, например "button"
+ - const std::string &value - значение цвета, например "active"
+ - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
+#### Возвращаемое значение
+ - color - запрошенный цвет
+
 Возвращает цвет для значения ``value`` контрола ``control``. Параметр ``theme_`` может содержать инстанс кастомной темы или быть опущен, тогда будет взят цвет из темы по умолчанию.
+
 Пример:
 
     auto fill_color = enabled_ ? (active || turned_ ? theme_color(tcn, tv_active, theme_) : theme_color(tcn, tv_calm, theme_)) : theme_color(tcn, tv_disabled, theme_);
@@ -112,19 +156,47 @@
       "calm": "#06a5df",
       "active": "#1aafe9",
       "disabled": "#a5a5a0"
-    },
+    }
 
-### int32_t <span style="color:#9a0303">theme_dimension</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, std::shared_ptr&lt;i_theme&gt; theme_ = nullptr)
+### theme_dimension
+#### Входные параметры
+ - const std::string &control - имя контрола, например "button"
+ - const std::string &value - значение цвета, например "active"
+ - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
+#### Возвращаемое значение
+ - int32_t - запрошенный размер
+
 Возвращает размер для значения ``value`` контрола ``control``. Параметр ``theme_`` может содержать инстанс кастомной темы или быть опущен, тогда будет взят размер из темы по умолчанию.
 
-### const std::string &<span style="color:#9a0303">theme_string</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, std::shared_ptr&lt;i_theme&gt; theme_ = nullptr)
+### theme_string
+#### Входные параметры
+ - const std::string &control - имя контрола, например "button"
+ - const std::string &value - значение цвета, например "active"
+ - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
+#### Возвращаемое значение
+ - const std::string & - ссылка на запрошенную строку
+
 Возвращает строку для значения ``value`` контрола ``control``. Параметр ``theme_`` может содержать инстанс кастомной темы или быть опущен, тогда будет взята строка из темы по умолчанию.
 
-### font <span style="color:#9a0303">theme_font</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, std::shared_ptr&lt;i_theme&gt; theme_ = nullptr)
+### theme_font
+#### Входные параметры
+ - const std::string &control - имя контрола, например "button"
+ - const std::string &value - значение цвета, например "active"
+ - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
+#### Возвращаемое значение
+ - font - запрошенный шрифт
+
 Возвращает шрифт для значения ``value`` контрола ``control``. Параметр ``theme_`` может содержать инстанс кастомной темы или быть опущен, тогда будет взят шрифт из темы по умолчанию.
 
-### const std::vector<uint8_t> &<span style="color:#9a0303">theme_image</span>(const <span style="color:#0c8bb6">std::string</span> &name, std::shared_ptr&lt;i_theme&gt; theme_ = nullptr)
+### theme_image
+#### Входные параметры
+ - const std::string &name - имя изображения
+ - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
+#### Возвращаемое значение
+ - const std::vector&lt;uint8_t&gt;& - запрошенное изображение
+
 Возвращает массив байтов содержащий изображение темы для значения ``value`` контрола ``control``. Тема поддеживает хранение изображений в json в виде экранированного массива. Также массив может быть загружен в тему сеттером инстанса.
+
 Пример json:
 
     "images": [
@@ -167,10 +239,17 @@
 
 Данный интерфейс принимает контрол для того чтобы получать визуальные параметры своего отображения.
 
-### std::string <span style="color:#9a0303">get_name</span>() const
+### get_name
+#### Возвращаемое значение
+ - const std::string - имя инстанса темы
 Возвращает символьное имя темы, например ``"dark"`` или ``"light"``
 
-### void <span style="color:#9a0303">set_color</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, color color_)
+### set_color
+#### Входные параметры
+ - const std::string &control - имя контрола, например "button"
+ - const std::string &value - значение цвета, например "active"
+ - color color_ - устанавливаемый цвет
+
 Устанавливает цвет для значения ``value`` контрола ``control``
 
 Например:
@@ -189,44 +268,108 @@
 
 Что означает данный цвет будет применен к контролу с названием ``"button"`` в состоянии покоя ``"calm"``
 
-### color <span style="color:#9a0303">get_color</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value) const
+### get_color
+#### Входные параметры
+ - const std::string &control - имя контрола
+ - const std::string &value - значение цвета
+#### Возвращаемое значение
+ - color - запрошенный цвет
+
 Возвращает цвет для значения ``value`` контрола ``control``
 
-### void <span style="color:#9a0303">set_dimension</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, <span style="color:#0c8bb6">int32_t</span> dimension)
+### set_dimension
+#### Входные параметры
+ - const std::string &control - имя контрола
+ - const std::string &value - значение цвета
+ - int32_t dimension - устанавливаемый размер
+
 Устанавливает размер для значения ``value`` контрола ``control``
 
-### int32_t <span style="color:#9a0303">get_dimension</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value)
+### get_dimension
+#### Входные параметры
+ - const std::string &control - имя контрола
+ - const std::string &value - значение цвета
+#### Возвращаемое значение
+ - int32_t - запрошенный размер
+
 Возвращает размер для значения ``value`` контрола ``control``
 
-### void <span style="color:#9a0303">set_string</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, const <span style="color:#0c8bb6">std::string</span> &str)
+### set_string
+#### Входные параметры
+ - const std::string &control - имя контрола
+ - const std::string &value - значение цвета
+ - const std::string &str - устанавливаемая строка
+
 Устанавливает строку для значения ``value`` контрола ``control``
 
-### const std::string &<span style="color:#9a0303">get_string</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value)
+### get_string
+#### Входные параметры
+ - const std::string &control - имя контрола
+ - const std::string &value - значение цвета
+#### Возвращаемое значение
+ - const std::string & - ссылка на запрошенную строку
+
 Возвращает строку для значения ``value`` контрола ``control``
 
-### void <span style="color:#9a0303">set_font</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value, const <span style="color:#0c8bb6">font</span> &font_)
+### set_font
+#### Входные параметры
+ - const std::string &control - имя контрола
+ - const std::string &value - значение цвета
+ - const font &font_ - устанавливаемый шрифт
+
 Устанавливает шрифт для значения ``value`` контрола ``control``
 
-### font <span style="color:#9a0303">get_font</span>(const <span style="color:#0c8bb6">std::string</span> &control, const <span style="color:#0c8bb6">std::string</span> &value)
+### get_font
+#### Входные параметры
+ - const std::string &control - имя контрола
+ - const std::string &value - значение цвета
+#### Возвращаемое значение
+ - font - запрошенный шрифт
+
 Возвращает шрифт для значения ``value`` контрола ``control``
 
-### void <span style="color:#9a0303">set_image</span>(const <span style="color:#0c8bb6">std::string</span> &name, const std::vector&lt;<span style="color:#0c8bb6">uint8_t</span>&gt; &data)
-Устанавливает изображение из массива байтов для значения ``value`` контрола ``control``
+### set_image
+#### Входные параметры
+ - const std::string &name - имя изображения
+ - const std::vector&lt;uint8_t&gt; &data - устанавливаемое изображение
 
-### const std::vector&lt;uint8_t&gt; &<span style="color:#9a0303">get_image</span>(const <span style="color:#0c8bb6">std::string</span> &name)
-Возвращает массив байтов содержащий изображение темы для значения ``value`` контрола ``control``
+Устанавливает изображение с именем ``name`` из массива байтов ``data``
 
-### bool <span style="color:#9a0303">load_resource</span>(<span style="color:#0c8bb6">int32_t</span> resource_index, const <span style="color:#0c8bb6">std::string</span> &resource_section); (Windows only)
+### get_image
+#### Входные параметры
+ - const std::string &name - имя изображения
+#### Возвращаемое значение
+ - const std::vector&lt;uint8_t&gt; & - запрошенное изображение
+
+Возвращает ссылку на массив байтов содержащий изображение темы для значения ``value`` контрола ``control``
+
+### load_resource (Windows only)
+#### Входные параметры
+ - int32_t resource_index - ID ресурса
+ - const std::string &resource_section - секция ресурсов, например "JSONS"
+
 Функция загружающая тему из json файла который хранится в ресурсе приложения
 
-### bool <span style="color:#9a0303">load_json</span>(const <span style="color:#0c8bb6">std::string</span> &json)
+### load_json
+#### Входные параметры
+ - const std::string &json - json строка
+
 Функция загружающая тему из json строки
 
-### bool <span style="color:#9a0303">load_file</span>(const <span style="color:#0c8bb6">std::string</span> &file_name)
+### load_file
+#### Входные параметры
+ - const std::string &file_name - путь к json файлу
+
 Функция загружающая тему из json файла
 
-### bool <span style="color:#9a0303">load_theme</span>(const i_theme &theme_)
+### load_theme
+#### Входные параметры
+ - const i_theme &theme_ - ссылка на другую тему
+
 Функция загружающая тему из другого инстанса темы
 
-### bool <span style="color:#9a0303">is_ok</span>(const i_theme &theme_) const
+### is_ok
+#### Возвращаемое значение
+ - true в случае если json загружен успешно
+
 Возвращает нормально ли загрузилась тема из json
