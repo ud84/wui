@@ -15,5 +15,4 @@
 - Write to [info@libwui.org](mailto:info@libwui.org) if you want to join 🤝
 
 ## Donations ❤️
-- From bank card: [https://libwui.org/donate](https://libwui.org/donate)
-- In USDT: TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20
+- Please see: [https://libwui.org/donate](https://libwui.org/donate)

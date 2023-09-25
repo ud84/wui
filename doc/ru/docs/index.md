@@ -17,4 +17,16 @@ WUI основан на двух примитивах - Window и Control.
 
 Работа на платформой MacOS будет завершена в ближайшее время.
 
-Весь платформозависимый код собран в двух элементах -  window (окно) и graphic (подсистема отрисовки)
+Весь платформозависимый код собран в двух элементах - window (окно) и graphic (подсистема отрисовки)
+
+## Быстрый старт
+
+## Clone и build
+    git clone https://github.com/ud84/wui
+    cd wui
+    cmake CMakeLists.txt
+    make
+
+## Проверка
+    examples/simple/simple
+

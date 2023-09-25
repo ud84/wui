@@ -15,5 +15,4 @@
 - Напишите на [info@libwui.org](mailto:info@libwui.org) если хотите присоединиться 🤝
 
 ## Пожертвования ❤️
-- Банковской картой: [https://libwui.org/donate](https://libwui.org/donate)
-- In USDT: TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20
+- Подогреть братишек: [https://libwui.org/donate](https://libwui.org/donate)
