@@ -1,4 +1,4 @@
-# ![alt text](https://libwui.org/img/wui_logo_black_small.png) WUI
+# ![alt text](https://libwui.org/main/img/wui_logo_black_small.png) WUI
 Window User Interface Library
 
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) WUI is a cross-platform modern C++ library for creating graphical user interfaces.
@@ -12,13 +12,13 @@ Now it support only Windows and Linux*.
 
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) The library also has auxiliary tools for work - structures Common (containing such basic types as Rect, Color), Event (Mouse, Keyboard, Internal and system events), Graphic (for physical rendering on the system graphical context) and Theme (a system of constants for convenient support of visual themes).
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) To view more information go to the wiki: https://github.com/ud84/WUI/wiki
+![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) To view more information go to the wiki: https://libwui.org/doc
 
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Web site: https://libwui.org
 
 ![#c5f015](https://placehold.co/15x15/c5f015/c5f015.png) In order for me to implement macOS support I need a macbook, which I don't have.
-If you want to donate a macbook to me on this wallet: TAiA5MuS3nCkAaPWSjfLmGijvTzMychLbY TRC20
+If you want to donate a macbook to me on this place: https://libwui.org/donate
 
 Example screenshot (Video call application)
-![alt text](https://libwui.org/img/screenshoot-1.png)
-![alt text](https://libwui.org/img/screenshoot-2.png)
+![alt text](https://libwui.org/main/img/screenshoot-1.png)
+![alt text](https://libwui.org/main/img/screenshoot-2.png)
