@@ -50,7 +50,7 @@ access to the default theme instance singleton of the application.
 ### set_default_theme_from_resource (Windows only)
 #### Input parameters
  - const std::string &name - theme name, e.g. "dark"
- - int32_t resource_index - ID ресурса
+ - int32_t resource_index - resource ID
  - const std::string &resource_section - resource section, e.g. "JSONS"
 #### Return value
  - true if successful
