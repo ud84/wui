@@ -237,7 +237,7 @@ Example json:
         virtual ~i_theme() {}
     };
 
-This interface accepts a control to receive visual parameters of its display.
+Each control accepts this interface in order to receive the visual parameters of its display
 
 ### get_name
 #### Return value
