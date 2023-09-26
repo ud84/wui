@@ -23,7 +23,8 @@
     },
     {
       "type": "image",
-      "path": "IMAGES_DARK"
+      "resource": "IMAGES_DARK",
+      "path": "."
     },
     {
       "type": "button",

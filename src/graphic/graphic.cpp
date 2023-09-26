@@ -524,17 +524,28 @@ void graphic::end_cairo_device()
     }
 }
 
-void graphic::draw_surface(_cairo_surface *surface_, const rect &position__)
+void graphic::draw_surface(cairo_surface_t &surface_, const rect &position__)
 {
-    if (!surface)
-    {
-        std::cerr << "WUI error :: No cairo on graphic::draw_surface() (no surface)" << std::endl;
-        return;
-    }
-
     auto cr = cairo_create(surface);
 
-    cairo_set_source_surface(cr, surface_, position__.left, position__.top);
+    auto surface_width = cairo_image_surface_get_width(&surface_);
+    auto surface_height = cairo_image_surface_get_height(&surface_);
+
+    double x_scale_factor = 1.0, y_scale_factor = 1.0;
+
+    if (surface_width != 0 && surface_height != 0)
+    {
+        x_scale_factor = static_cast<double>(position__.width()) / surface_width;
+        y_scale_factor = static_cast<double>(position__.height()) / surface_height;
+
+        cairo_scale(cr, x_scale_factor, y_scale_factor);
+    }
+
+    cairo_set_source_surface(cr,
+        &surface_,
+        position__.left / x_scale_factor,
+        position__.top / y_scale_factor);
+
     cairo_paint(cr);
 
     cairo_destroy(cr);

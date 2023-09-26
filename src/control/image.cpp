@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021-2022 Anton Golovkov (udattsk at gmail dot com)
+// Copyright (c) 2021-2023 Anton Golovkov (udattsk at gmail dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -155,7 +155,7 @@ image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
     resource_index(resource_index_),
     img(nullptr)
 {
-    load_image_from_resource(resource_index, boost::nowide::widen(theme_string(tc, tv_path, theme_)), &img);
+    load_image_from_resource(resource_index, boost::nowide::widen(theme_string(tc, tv_resource, theme_)), &img);
 }
 #endif
 
@@ -222,7 +222,7 @@ void image::draw(graphic &gr_, const rect &)
 #elif __linux__
     if (img)
     {
-        gr_.draw_surface(img, position());
+        gr_.draw_surface(*img, position());
     }
 #endif
 }
@@ -337,7 +337,7 @@ void image::change_image(int32_t resource_index_)
     resource_index = resource_index_;
 
     free_image(&img);
-    load_image_from_resource(resource_index, boost::nowide::widen(theme_string(tc, tv_path, theme_)), &img);
+    load_image_from_resource(resource_index, boost::nowide::widen(theme_string(tc, tv_resource, theme_)), &img);
     
     redraw();
 }

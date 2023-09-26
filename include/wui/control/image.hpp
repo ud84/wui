@@ -81,6 +81,7 @@ public:
     static constexpr const char *tc = "image";
 
     /// Used theme values
+    static constexpr const char *tv_resource = "resource";
     static constexpr const char *tv_path = "path";
 
 private:

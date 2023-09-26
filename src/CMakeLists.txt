@@ -13,14 +13,7 @@ pkg_check_modules(CAIRO REQUIRED cairo)
 
 include_directories(.
 	../thirdparty
-#	PUBLIC ${CAIRO_INCLUDE_DIRS})
-	/usr/include/cairo
-	/usr/include/glib-2.0
-	/usr/lib/x86_64-linux-gnu/glib-2.0/include
-	/usr/include/pixman-1
-	/usr/include/uuid
-	/usr/include/freetype2
-	/usr/include/libpng1)
+	PUBLIC ${CAIRO_INCLUDE_DIRS})
 
 add_library(wui STATIC ${SOURCES})
 

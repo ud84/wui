@@ -68,7 +68,7 @@ public:
     void start_cairo_device();
     void end_cairo_device();
 
-    void draw_surface(_cairo_surface *surface, const rect &position);
+    void draw_surface(_cairo_surface &surface, const rect &position);
 #endif
 
 private:

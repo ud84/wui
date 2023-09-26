@@ -1,6 +1,7 @@
 file(GLOB SOURCES 
 	*.cpp)
 
+#include_directories(.)
 include_directories(.)
 
 add_executable(simple ${SOURCES})

@@ -21,7 +21,8 @@
     },
     {
       "type": "image",
-      "path": "IMAGES_LIGHT"
+      "resource": "IMAGES_LIGHT",
+      "path": "."
     },
     {
       "type": "button",
