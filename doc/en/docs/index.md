@@ -21,7 +21,7 @@ All platform-dependent code is collected in two elements - window and graphic (r
 
 ## Quick start
 
-* [Setup](howto/receive/)
+* [Receive, build and setup](howto/setup/)
 
 ## Contacts:
 
