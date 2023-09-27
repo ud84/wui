@@ -25,8 +25,8 @@
 #endif
 
 #ifndef _WIN32
-const std::string IMG_ACCOUNT = "examples/simple/res/images/dark/account.png";
-const std::string IMG_SETTINGS = "examples/simple/res/images/dark/settings.png";
+const std::string IMG_ACCOUNT = "res/images/dark/account.png";
+const std::string IMG_SETTINGS = "res/images/dark/settings.png";
 #endif
 
 std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
