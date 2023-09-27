@@ -1,0 +1,38 @@
+ __      __ ____ ___.___ 
+/  \    /  \    |   \   |
+\   \/\/   /    |   /   |
+ \        /|    |  /|   |
+  \__/\  / |______/ |___|
+       \/
+
+WUI simple example
+~~~~~~~~~~~~~~~~~~
+
+This archive conatins an example of a simple application that uses
+WUI to create a graphical user interface.
+
+Run
+~~~
+
+./simple
+
+Troubleshoot
+~~~~~~~~~~~~
+
+If the program does not start, you need to get the two libraries:
+
+On debian-embedded systems:
+
+sudo apt install libxcb-cursor0
+sudo apt install libxcb-ewmh2
+
+On rpm-like systems:
+
+sudo yum install xcb-util-cursor 
+sudo yum install xcb-util-wm
+
+Info
+~~~~
+
+https://libwui.org
+info@libwui.org
