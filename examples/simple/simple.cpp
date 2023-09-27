@@ -278,14 +278,19 @@ int main(int argc, char *argv[])
         return -1;
     }
 #elif __linux__
-    auto ok = wui::set_default_theme_from_file("dark", "res/dark.json");
+    static constexpr const char * en_locale_json_file = "res/en_locale.json";
+    static constexpr const char * ru_locale_json_file = "res/ru_locale.json";
+    static constexpr const char * light_theme_json_file = "res/light.json";
+    static constexpr const char * dark_theme_json_file = "res/dark.json";
+
+    auto ok = wui::set_default_theme_from_file("dark", dark_theme_json_file);
     if (!ok)
     {
         printf("can't load theme\n");
         return -1;
     }
 
-    ok = wui::set_locale_from_file("en", "res/en_locale.json");
+    ok = wui::set_locale_from_file("en", en_locale_json_file);
     if (!ok)
     {
         printf("can't load locale\n");
@@ -434,7 +439,10 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
         wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
 #elif __linux__
-        wui::set_default_theme_from_file("dark", "res/dark.json");
+        if (!wui::set_default_theme_from_file("dark", dark_theme_json_file))
+        {
+            std::cerr << "Error reading theme file: " << dark_theme_json_file << std::endl;
+        }
 #endif
 
         window->update_theme();
@@ -451,10 +459,9 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
         wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
 #elif __linux__
-        auto file = "res/light.json";
-        if (!wui::set_default_theme_from_file("light", file))
+        if (!wui::set_default_theme_from_file("light", light_theme_json_file))
         {
-            std::cerr << "Error reading theme file: " << file << std::endl;
+            std::cerr << "Error reading theme file: " << light_theme_json_file << std::endl;
         }
 #endif
 
@@ -463,7 +470,7 @@ int main(int argc, char *argv[])
         dialog->update_theme();
         cancelButton->update_theme(MakeRedButtonTheme());
     }));
-    window->add_control(whiteThemeButton, { 460, 350, 580, 375 });
+    window->add_control(whiteThemeButton, { 500, 350, 620, 375 });
 
     window->add_control(okButton, { 240, 450, 350, 480 });
     window->add_control(cancelButton, { 370, 450, 480, 480 });
@@ -504,8 +511,13 @@ int main(int argc, char *argv[])
             tooltip_text = wui::locale("window", "dark_theme");
 #ifdef _WIN32
             wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
-#elif __linux__
-            wui::set_default_theme_from_file("light", "res/light.json");
+#else
+            
+            if (!wui::set_default_theme_from_file("light", light_theme_json_file))
+            {
+                std::cerr << "Error opening theme json: " << light_theme_json_file << std::endl;
+                return;
+            }
 #endif
         }
         else if (theme_name == "light")
@@ -514,7 +526,11 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
             wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
 #elif __linux__
-            wui::set_default_theme_from_file("dark", "res/dark.json");
+            if (!wui::set_default_theme_from_file("dark", dark_theme_json_file))
+            {
+                std::cerr << "Error opening theme json: " << dark_theme_json_file << std::endl;
+                return;
+            }
 #endif
         }
 
