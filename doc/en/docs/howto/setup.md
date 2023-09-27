@@ -7,7 +7,8 @@
     make
 
 ## Checking on Linux
-    examples/simple/simple
+    cd examples/simple
+    ./simple
 
 ## Receive and build on Windows
     git clone https://github.com/ud84/wui
