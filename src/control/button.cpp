@@ -337,7 +337,7 @@ void button::receive_event(const event &ev)
                 {
                     set_cursor(parent__->context(), button_view_ != button_view::anchor ? cursor::default_ : cursor::hand);
                 }
-                redraw(false);
+                redraw();
 
                 if (button_view_ == button_view::image && !caption.empty())
                 {
@@ -360,7 +360,7 @@ void button::receive_event(const event &ev)
                 {
                     set_cursor(parent__->context(), cursor::default_);
                 }
-                redraw(false);
+                redraw();
             }
             break;
             case mouse_event_type::left_down:
@@ -396,12 +396,12 @@ void button::receive_event(const event &ev)
                 {
                     focused_ = true;
 
-                    redraw(false);
+                    redraw();
                 }
             break;
             case internal_event_type::remove_focus:
                 focused_ = false;
-                redraw(false);
+                redraw();
             break;
             case internal_event_type::execute_focused:
                 if (button_view_ == button_view::switcher || button_view_ == button_view::radio)
@@ -512,7 +512,7 @@ void button::show()
     if (!showed_)
     {
         showed_ = true;
-        redraw(false);
+        redraw();
     }
 }
 
@@ -643,14 +643,14 @@ void button::set_callback(std::function<void(void)> click_callback_)
     click_callback = click_callback_;
 }
 
-void button::redraw(bool clear)
+void button::redraw()
 {
     if (showed_)
     {
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position(), clear);
+            parent__->redraw(position(), true);
         }
     }
 }
