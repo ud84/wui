@@ -20,3 +20,4 @@ CMakeCache.txt
 Makefile
 src/libwui.a
 examples/simple/simple
+examples/demo/demo
