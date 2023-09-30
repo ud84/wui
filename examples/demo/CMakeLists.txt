@@ -1,11 +1,12 @@
 file(GLOB SOURCES 
-	*.cpp)
+	*.cpp
+	MainFrame/*.cpp)
 
 include_directories(.)
 
-add_executable(simple ${SOURCES})
+add_executable(demo ${SOURCES})
 
-target_link_libraries(simple
+target_link_libraries(demo
 	wui
 	xcb
 	xcb-cursor

@@ -18,3 +18,4 @@ link_directories(
 
 add_subdirectory (src)
 add_subdirectory (examples/simple)
+add_subdirectory (examples/demo)

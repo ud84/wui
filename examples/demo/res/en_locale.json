@@ -1,0 +1,46 @@
+{
+  "sections": [
+    {
+      "type": "button",
+
+      "ok": "OK",
+      "yes": "Yes",
+      "no": "No",
+      "cancel": "Cancel",
+      "abort": "Abort",
+      "retry": "Retry",
+      "ignore": "Ignore",
+      "try_continue": "Try continue",
+      "complete": "Complete"
+    },
+    {
+      "type": "window",
+
+      "pin": "Pin the window",
+      "unpin": "Unpin the window",
+      "dark_theme": "Apply a dark theme",
+      "light_theme": "Apply a light theme"
+    },
+    {
+      "type": "input",
+
+      "copy": "Copy",
+      "cut": "Cut",
+      "paste": "Paste",
+      "undo": "Undo",
+      "redo": "Redo"
+    },
+    {
+      "type": "main_frame",
+      
+      "caption": "WUI demonstration",
+      "main_sheet": "Main sheet",
+      "window_sheet": "Windows",
+      "button_sheet": "Buttons",
+      "input_sheet": "Inputs",
+      "list_sheet": "Lists",
+      "menu_sheet": "Menus",
+      "panel_sheet": "Panels"
+    }
+  ]
+}
