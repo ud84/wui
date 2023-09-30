@@ -153,7 +153,7 @@ private:
 
     void receive_event(const event &ev);
 
-    void redraw();
+    void redraw(bool clear = true);
 };
 
 }

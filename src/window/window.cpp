@@ -45,7 +45,7 @@
 // Some helpers
 #ifdef _WIN32
 
-void CenterHorizontally(wui::rect &pos, wui::system_context &context)
+void center_hrizontally(wui::rect &pos, wui::system_context &context)
 {
     RECT work_area;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
@@ -54,7 +54,7 @@ void CenterHorizontally(wui::rect &pos, wui::system_context &context)
     pos.right += pos.left;
 }
 
-void CenterVertically(wui::rect &pos, wui::system_context &context)
+void center_vertically(wui::rect &pos, wui::system_context &context)
 {
     RECT work_area;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);
@@ -65,13 +65,13 @@ void CenterVertically(wui::rect &pos, wui::system_context &context)
 
 #elif __linux__
 
-void CenterHorizontally(wui::rect &pos, wui::system_context &context_)
+void center_horizontally(wui::rect &pos, wui::system_context &context_)
 {
     pos.left = (context_.screen->width_in_pixels - pos.right) / 2;
     pos.right += pos.left;
 }
 
-void CenterVertically(wui::rect &pos, wui::system_context &context_)
+void center_vertically(wui::rect &pos, wui::system_context &context_)
 {
     pos.top = (context_.screen->height_in_pixels - pos.bottom) / 2;
     pos.bottom += pos.top;
@@ -253,10 +253,15 @@ void window::move_to_back(std::shared_ptr<i_control> control)
 
 void window::redraw(const rect &redraw_position, bool clear)
 {
+    if (redraw_position.is_null())
+    {
+        return;
+    }
+    
     auto parent__ = parent_.lock();
     if (parent__)
     {
-        parent__->redraw(redraw_position);
+        parent__->redraw(redraw_position, clear);
     }
     else
     {
@@ -475,11 +480,11 @@ void window::set_position(const rect &position__, bool redraw_)
     {
         if (position___.left == -1)
         {
-            CenterHorizontally(position___, context_);
+            center_horizontally(position___, context_);
         }
         if (position___.top == -1)
         {
-            CenterVertically(position___, context_);
+            center_vertically(position___, context_);
         }
 
         position_ = position___;
@@ -1605,11 +1610,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     if (position_.left == -1)
     {
-        CenterHorizontally(position_, context_);
+        center_horizontally(position_, context_);
     }
     if (position_.top == -1)
     {
-        CenterVertically(position_, context_);
+        center_vertically(position_, context_);
     }
     
     context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST, wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP | (window_state_ == window_state::minimized ? WS_MINIMIZE : 0),
@@ -1654,11 +1659,11 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
 
     if (position_.left == -1)
     {
-        CenterHorizontally(position_, context_);
+        center_horizontally(position_, context_);
     }
     if (position_.top == -1)
     {
-        CenterVertically(position_, context_);
+        center_vertically(position_, context_);
     }
 
     context_.wnd = xcb_generate_id(context_.connection);

@@ -128,7 +128,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
             dialog->add_control(select1, { 10, 130, 200, 155 });
 
-            dialog->set_transient_for(window);
+            dialog->set_transient_for(window, false);
             
             dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, []() {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
