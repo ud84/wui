@@ -3,6 +3,17 @@
 #include <wui/window/window.hpp>
 #include <wui/control/button.hpp>
 
+enum class Sheet
+{
+    Main,
+    Window,
+    Button,
+    Input,
+    List,
+    Menu,
+    Panel
+};
+
 class MainFrame
 {
 public:
@@ -21,6 +32,11 @@ private:
 
     bool runned;
 
+    Sheet sheet;
+
+    void ReceiveEvents(const wui::event &ev);
+
+    void UpdateSheets();
     void ShowMain();
     void ShowWindow();
     void ShowButton();
