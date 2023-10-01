@@ -158,6 +158,8 @@ void button::draw(graphic &gr, const rect &)
     if (button_view_ != button_view::image && !caption.empty() && text_rect.width() == 0)
     {
         text_rect = gr.measure_text(caption, font_);
+        auto max_height_rect = gr.measure_text("W`,", font_);
+        text_rect.bottom = max_height_rect.bottom;
     }
 
     int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
