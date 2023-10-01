@@ -22,9 +22,18 @@
       }
     },
     {
+      "type": "h1_text",
+      "color": "#f5f5f0",
+      "font": {
+        "name": "Segoe UI",
+        "size": 32,
+        "decorations": "bold"
+      }
+    },
+    {
       "type": "image",
       "resource": "IMAGES_DARK",
-      "path": "."
+      "path": "res/images/dark"
     },
     {
       "type": "button",

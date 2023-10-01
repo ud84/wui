@@ -34,13 +34,20 @@
       "type": "main_frame",
 
       "caption": "Демонстрация контролов WUI",
-      "main_sheet": "Главная",
-      "window_sheet": "Окна",
-      "button_sheet": "Кнопки",
-      "input_sheet": "Поля ввода",
-      "list_sheet": "Списки",
-      "menu_sheet": "Меню",
-      "panel_sheet": "Панели"
+      "main_sheet_": "Главная",
+      "window_sheet_": "Окна",
+      "button_sheet_": "Кнопки",
+      "input_sheet_": "Поля ввода",
+      "list_sheet_": "Списки",
+      "menu_sheet_": "Меню",
+      "panel_sheet_": "Панели",
+      "account_btn": "Управление аккаунтом",
+      "main_menu": "Главное меню"
+    },
+    {
+      "type": "main_sheet",
+
+      "main_title": "Добро пожаловать в WUI"
     }
   ]
 }

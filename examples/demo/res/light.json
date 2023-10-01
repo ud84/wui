@@ -20,9 +20,18 @@
       }
     },
     {
+      "type": "h1_text",
+      "color": "#191914",
+      "font": {
+        "name": "Segoe UI",
+        "size": 32,
+        "decorations": "bold"
+      }
+    },
+    {
       "type": "image",
       "resource": "IMAGES_LIGHT",
-      "path": "."
+      "path": "res/images/light"
     },
     {
       "type": "button",

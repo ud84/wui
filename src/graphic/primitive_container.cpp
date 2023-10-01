@@ -212,8 +212,8 @@ _cairo *primitive_container::get_font(font font_, _cairo_surface *surface)
         return nullptr;
     }
 
-    cairo_select_font_face(cr, font_.name.c_str(), CAIRO_FONT_SLANT_NORMAL,
-        !flag_is_set(font_.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face(cr, font_.name.c_str(), !flag_is_set(font_.decorations_, decorations::italic) ? CAIRO_FONT_SLANT_NORMAL : CAIRO_FONT_SLANT_ITALIC,
+        !flag_is_set(font_.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, font_.size);
 
     fonts[{ {font_.name, font_.size }, font_.decorations_ }] = cr;

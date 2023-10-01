@@ -1,6 +1,7 @@
 file(GLOB SOURCES 
 	*.cpp
-	MainFrame/*.cpp)
+	MainFrame/*.cpp
+	MainSheet/*.cpp)
 
 include_directories(.)
 

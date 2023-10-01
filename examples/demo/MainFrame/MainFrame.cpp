@@ -1,4 +1,10 @@
-// MainFrame.cpp : Defines the main frame impl
+//
+// Copyright (c) 2023 Anton Golovkov (udattsk at gmail dot com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/ud84/wui
 //
 
 #include <wui/theme/theme.hpp>
@@ -13,11 +19,39 @@
 #endif
 
 MainFrame::MainFrame()
-    : window(),
-    mainSheet(), windowSheet(), buttonSheet(), inputSheet(), listSheet(), menuSheet(), panelSheet(),
+    : window(new wui::window()),
+    
+    mainSheet    (new wui::button(wui::locale("main_frame", "main_sheet_"),   [this](){ sheet = Sheet::Main;   UpdateSheets(); }, wui::button_view::sheet)),
+    windowSheet  (new wui::button(wui::locale("main_frame", "window_sheet_"), [this](){ sheet = Sheet::Window; UpdateSheets(); }, wui::button_view::sheet)),
+    buttonSheet  (new wui::button(wui::locale("main_frame", "button_sheet_"), [this](){ sheet = Sheet::Button; UpdateSheets(); }, wui::button_view::sheet)),
+    inputSheet   (new wui::button(wui::locale("main_frame", "input_sheet_"),  [this](){ sheet = Sheet::Input;  UpdateSheets(); }, wui::button_view::sheet)),
+    listSheet    (new wui::button(wui::locale("main_frame", "list_sheet_"),   [this](){ sheet = Sheet::List;   UpdateSheets(); }, wui::button_view::sheet)),
+    menuSheet    (new wui::button(wui::locale("main_frame", "menu_sheet_"),   [this](){ sheet = Sheet::Menu;   UpdateSheets(); }, wui::button_view::sheet)),
+    panelSheet   (new wui::button(wui::locale("main_frame", "panel_sheet_"),  [this](){ sheet = Sheet::Panel;  UpdateSheets(); }, wui::button_view::sheet)),
+    
+    accountButton(new wui::button(wui::locale("main_frame", "account_btn"),   []() {}, wui::button_view::image, IMG_ACCOUNT, 32, wui::button::tc_tool)),
+    menuButton   (new wui::button(wui::locale("main_frame", "main_menu"),     []() {}, wui::button_view::image, IMG_MENU,    32, wui::button::tc_tool)),
+    
     runned(false),
-    sheet(Sheet::Main)
+    sheet(Sheet::Main),
+    mainSheetImpl()
 {
+    window->subscribe(std::bind(&MainFrame::ReceiveEvents,
+        this,
+        std::placeholders::_1),
+        static_cast<wui::event_type>(static_cast<int32_t>(wui::event_type::internal) |
+            static_cast<int32_t>(wui::event_type::system) |
+            static_cast<int32_t>(wui::event_type::keyboard)));
+
+    window->add_control(mainSheet,     { 0 });
+    window->add_control(windowSheet,   { 0 });
+    window->add_control(buttonSheet,   { 0 });
+    window->add_control(inputSheet,    { 0 });
+    window->add_control(listSheet,     { 0 });
+    window->add_control(menuSheet,     { 0 });
+    window->add_control(panelSheet,    { 0 });
+    window->add_control(accountButton, { 0 });
+    window->add_control(menuButton,    { 0 });
 }
 
 void MainFrame::Run()
@@ -28,34 +62,7 @@ void MainFrame::Run()
     }
     runned = true;
 
-    window = std::shared_ptr<wui::window>(new wui::window());
-
-    window->subscribe(std::bind(&MainFrame::ReceiveEvents,
-        this,
-        std::placeholders::_1),
-        static_cast<wui::event_type>(static_cast<int32_t>(wui::event_type::internal) |
-            static_cast<int32_t>(wui::event_type::system) |
-            static_cast<int32_t>(wui::event_type::keyboard)));
-
-    mainSheet   = std::shared_ptr<wui::button>(new wui::button(wui::locale("main_frame", "main_sheet"),   std::bind(&MainFrame::ShowMain, this),   wui::button_view::sheet));
-    windowSheet = std::shared_ptr<wui::button>(new wui::button(wui::locale("main_frame", "window_sheet"), std::bind(&MainFrame::ShowWindow, this), wui::button_view::sheet));
-    buttonSheet = std::shared_ptr<wui::button>(new wui::button(wui::locale("main_frame", "button_sheet"), std::bind(&MainFrame::ShowButton, this), wui::button_view::sheet));
-    inputSheet  = std::shared_ptr<wui::button>(new wui::button(wui::locale("main_frame", "input_sheet"),  std::bind(&MainFrame::ShowInput, this),  wui::button_view::sheet));
-    listSheet   = std::shared_ptr<wui::button>(new wui::button(wui::locale("main_frame", "list_sheet"),   std::bind(&MainFrame::ShowList, this),   wui::button_view::sheet));
-    menuSheet   = std::shared_ptr<wui::button>(new wui::button(wui::locale("main_frame", "menu_sheet"),   std::bind(&MainFrame::ShowMenu, this),   wui::button_view::sheet));
-    panelSheet  = std::shared_ptr<wui::button>(new wui::button(wui::locale("main_frame", "panel_sheet"),  std::bind(&MainFrame::ShowPanel, this),  wui::button_view::sheet));
-
-    window->add_control(mainSheet,   { 0 });
-    window->add_control(windowSheet, { 0 });
-    window->add_control(buttonSheet, { 0 });
-    window->add_control(inputSheet,  { 0 });
-    window->add_control(listSheet,   { 0 });
-    window->add_control(menuSheet,   { 0 });
-    window->add_control(panelSheet,  { 0 });
-
     UpdateSheets();
-
-    ShowMain();
 
     window->set_control_callback([&](wui::window_control control, std::string &tooltip_text, bool continue_) {
         if (control != wui::window_control::theme)
@@ -98,15 +105,6 @@ void MainFrame::Run()
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
         static_cast<uint32_t>(wui::window_style::switch_theme_button) |
         static_cast<uint32_t>(wui::window_style::border_all)), [this]() {
-            mainSheet.reset();
-            windowSheet.reset();
-            buttonSheet.reset();
-            inputSheet.reset();
-            listSheet.reset();
-            menuSheet.reset();
-            panelSheet.reset();
-            //window.reset(); // todo!
-
 #ifdef _WIN32
             PostQuitMessage(IDCANCEL);
 #else
@@ -145,90 +143,63 @@ void MainFrame::ReceiveEvents(const wui::event &ev)
 
 void MainFrame::UpdateSheets()
 {
-    const auto SHEET_WIDTH = (window->position().width() - 20 - 10 * 7) / 7;
+    const auto width = window->position().width(), height = window->position().height();
+    const auto sheet_width = (width - 140) / 7;
 
-    mainSheet  ->set_position({ 10, 30, SHEET_WIDTH, 55 });
-    windowSheet->set_position({ 10 * 2 + SHEET_WIDTH, 30, 10 * 2 + SHEET_WIDTH * 2, 55 });
-    buttonSheet->set_position({ 10 * 3 + SHEET_WIDTH * 2, 30, 10 * 3 + SHEET_WIDTH * 3, 55 });
-    inputSheet ->set_position({ 10 * 4 + SHEET_WIDTH * 3, 30, 10 * 4 + SHEET_WIDTH * 4, 55 });
-    listSheet  ->set_position({ 10 * 5 + SHEET_WIDTH * 4, 30, 10 * 5 + SHEET_WIDTH * 5, 55 });
-    menuSheet  ->set_position({ 10 * 6 + SHEET_WIDTH * 5, 30, 10 * 6 + SHEET_WIDTH * 6, 55 });
-    panelSheet ->set_position({ 10 * 7 + SHEET_WIDTH * 6, 30, 10 * 7 + SHEET_WIDTH * 7, 55 });
+    const int32_t sheets_top = 35, sheets_height = 30;
 
-    mainSheet->turn(false);
+    mainSheet  ->set_position({ 10,                       sheets_top, sheet_width,              sheets_top + sheets_height });
+    windowSheet->set_position({ 10 * 2 + sheet_width,     sheets_top, 10 * 2 + sheet_width * 2, sheets_top + sheets_height });
+    buttonSheet->set_position({ 10 * 3 + sheet_width * 2, sheets_top, 10 * 3 + sheet_width * 3, sheets_top + sheets_height });
+    inputSheet ->set_position({ 10 * 4 + sheet_width * 3, sheets_top, 10 * 4 + sheet_width * 4, sheets_top + sheets_height });
+    listSheet  ->set_position({ 10 * 5 + sheet_width * 4, sheets_top, 10 * 5 + sheet_width * 5, sheets_top + sheets_height });
+    menuSheet  ->set_position({ 10 * 6 + sheet_width * 5, sheets_top, 10 * 6 + sheet_width * 6, sheets_top + sheets_height });
+    panelSheet ->set_position({ 10 * 7 + sheet_width * 6, sheets_top, 10 * 7 + sheet_width * 7, sheets_top + sheets_height });
+
+    const int32_t button_size = 36;
+
+    accountButton->set_position({ width - button_size * 2 - 4, 30, width - button_size - 4, 30 + button_size });
+    menuButton   ->set_position({ width - button_size - 2, 30, width - 2, 30 + button_size });
+
+    mainSheet  ->turn(false);
     windowSheet->turn(false);
     buttonSheet->turn(false);
-    inputSheet->turn(false);
-    listSheet->turn(false);
-    menuSheet->turn(false);
-    panelSheet->turn(false);
+    inputSheet ->turn(false);
+    listSheet  ->turn(false);
+    menuSheet  ->turn(false);
+    panelSheet ->turn(false);
 
     switch (sheet)
     {
         case Sheet::Main:
             mainSheet->turn(true);
+            mainSheetImpl.Run(window);
         break;
         case Sheet::Window:
             windowSheet->turn(true);
+            mainSheetImpl.End();
         break;
         case Sheet::Button:
             buttonSheet->turn(true);
+            mainSheetImpl.End();
         break;
         case Sheet::Input:
             inputSheet->turn(true);
+            mainSheetImpl.End();
         break;
         case Sheet::List:
             listSheet->turn(true);
+            mainSheetImpl.End();
         break;
         case Sheet::Menu:
             menuSheet->turn(true);
+            mainSheetImpl.End();
         break;
         case Sheet::Panel:
             panelSheet->turn(true);
+            mainSheetImpl.End();
         break;
     }
-}
-
-void MainFrame::ShowMain()
-{
-    sheet = Sheet::Main;
-    UpdateSheets();
-}
-
-void MainFrame::ShowWindow()
-{
-    sheet = Sheet::Window;
-    UpdateSheets();
-}
-
-void MainFrame::ShowButton()
-{
-    sheet = Sheet::Button;
-    UpdateSheets();
-}
-
-void MainFrame::ShowInput()
-{
-    sheet = Sheet::Input;
-    UpdateSheets();
-}
-
-void MainFrame::ShowList()
-{
-    sheet = Sheet::List;
-    UpdateSheets();
-}
-
-void MainFrame::ShowMenu()
-{
-    sheet = Sheet::Menu;
-    UpdateSheets();
-}
-
-void MainFrame::ShowPanel()
-{
-    sheet = Sheet::Panel;
-    UpdateSheets();
 }
 
 bool MainFrame::Runned() const

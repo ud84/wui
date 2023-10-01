@@ -34,13 +34,20 @@
       "type": "main_frame",
       
       "caption": "WUI demonstration",
-      "main_sheet": "Main sheet",
-      "window_sheet": "Windows",
-      "button_sheet": "Buttons",
-      "input_sheet": "Inputs",
-      "list_sheet": "Lists",
-      "menu_sheet": "Menus",
-      "panel_sheet": "Panels"
+      "main_sheet_": "Main sheet",
+      "window_sheet_": "Windows",
+      "button_sheet_": "Buttons",
+      "input_sheet_": "Inputs",
+      "list_sheet_": "Lists",
+      "menu_sheet_": "Menus",
+      "panel_sheet_": "Panels",
+      "account_btn": "Account manage",
+      "main_menu": "Main menu"
+    },
+    {
+      "type": "main_sheet",
+
+      "main_title": "Welcome to WUI"
     }
   ]
 }
