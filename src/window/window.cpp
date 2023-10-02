@@ -45,7 +45,7 @@
 // Some helpers
 #ifdef _WIN32
 
-void center_hrizontally(wui::rect &pos, wui::system_context &context)
+void center_horizontally(wui::rect &pos, wui::system_context &context)
 {
     RECT work_area;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &work_area, 0);

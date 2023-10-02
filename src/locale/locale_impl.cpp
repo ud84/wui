@@ -11,9 +11,10 @@
 #include <wui/system/tools.hpp>
 
 #include <nlohmann/json.hpp>
-#include <boost/nowide/fstream.hpp>
+#include <boost/nowide/convert.hpp>
 
 #include <sstream>
+#include <fstream>
 #include <iostream>
 
 #ifdef _WIN32
@@ -118,7 +119,7 @@ void locale_impl::load_json(const std::string &json_)
 
 void locale_impl::load_file(const std::string &file_name)
 {
-    boost::nowide::ifstream f(wui::real_path(file_name));
+    std::ifstream f(wui::real_path(file_name));
     if (!f)
     {
         std::cerr << "WUI error :: Unable to open locale file: " << wui::real_path(file_name) << " errno: " << errno << std::endl;
