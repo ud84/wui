@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\MainFrame">
+      <UniqueIdentifier>{e93e6622-909c-4523-b7a7-e537155222ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MainSheet">
+      <UniqueIdentifier>{ddc4ea99-beaa-450f-9bf1-ac0dd1cc472a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MainSheet">
+      <UniqueIdentifier>{66574b58-cec1-48cf-956d-1a3c2eb48452}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MainFrame">
+      <UniqueIdentifier>{ec0dc937-6c77-4db7-8adb-3c46e2690b9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\res">
+      <UniqueIdentifier>{182ce765-9562-4d9d-9350-de48f253aa05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\res\images">
+      <UniqueIdentifier>{f5e491e4-4de0-4d57-bffb-afbcc9ba8b3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\res\images\dark">
+      <UniqueIdentifier>{e855ff17-7775-43a4-a9b4-1ebf83de35ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\res\images\light">
+      <UniqueIdentifier>{f9518afe-6541-448e-9e0f-86a0c525bf65}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\dark.json">
+      <Filter>Resource Files\res</Filter>
+    </None>
+    <None Include="res\en_locale.json">
+      <Filter>Resource Files\res</Filter>
+    </None>
+    <None Include="res\light.json">
+      <Filter>Resource Files\res</Filter>
+    </None>
+    <None Include="res\ru_locale.json">
+      <Filter>Resource Files\res</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\images\dark\account.png">
+      <Filter>Resource Files\res\images\dark</Filter>
+    </Image>
+    <Image Include="res\images\dark\logo.png">
+      <Filter>Resource Files\res\images\dark</Filter>
+    </Image>
+    <Image Include="res\images\dark\menu.png">
+      <Filter>Resource Files\res\images\dark</Filter>
+    </Image>
+    <Image Include="res\images\light\account.png">
+      <Filter>Resource Files\res\images\light</Filter>
+    </Image>
+    <Image Include="res\images\light\logo.png">
+      <Filter>Resource Files\res\images\light</Filter>
+    </Image>
+    <Image Include="res\images\light\menu.png">
+      <Filter>Resource Files\res\images\light</Filter>
+    </Image>
+    <Image Include="res\demo.ico">
+      <Filter>Resource Files\res</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="demo.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MainFrame\MainFrame.h">
+      <Filter>Header Files\MainFrame</Filter>
+    </ClInclude>
+    <ClInclude Include="MainSheet\MainSheet.h">
+      <Filter>Header Files\MainSheet</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainSheet\MainSheet.cpp">
+      <Filter>Source Files\MainSheet</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrame\MainFrame.cpp">
+      <Filter>Source Files\MainFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

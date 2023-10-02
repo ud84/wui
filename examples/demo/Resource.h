@@ -13,7 +13,7 @@
 #define IMG_LOGO				109
 
 #define IMG_ACCOUNT     		110
-#define IMG_MENU    		111
+#define IMG_MENU    		    111
 
 #define TXT_DARK_THEME          200
 #define TXT_LIGHT_THEME         201

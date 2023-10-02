@@ -21,3 +21,4 @@ Makefile
 src/libwui.a
 examples/simple/simple
 examples/demo/demo
+/examples/demo/x64/Debug
