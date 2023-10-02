@@ -68,6 +68,9 @@ std::string clipboard_get_text(system_context &context);
 /// URI opening helper
 bool open_uri(const std::string &uri);
 
+/// Relative to absolute path converter
+std::string real_path(const std::string &relative_path);
+
 /// Service on Linux
 #ifdef __linux__
 bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message);

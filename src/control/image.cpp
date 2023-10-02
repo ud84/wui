@@ -118,7 +118,7 @@ void load_image_from_data(const std::vector<uint8_t> &data_, cairo_surface_t **i
 
 void load_image_from_file(const std::string &file_name, const std::string &images_path, cairo_surface_t **img)
 {
-    auto full_image_path = images_path + "/" + file_name;
+    auto full_image_path = wui::real_path(images_path + "/" + file_name);
 
     boost::nowide::ifstream f(full_image_path);
     if (!f)
