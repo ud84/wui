@@ -2,9 +2,14 @@
 
 WUI is an attempt to make an easy to use and as fast as possible cross-platform library for creating a modern C++ graphical user interface. The library uses C++11 and has a minimalistic API.
 
-WUI is based on two primitives - Window and Control.
+Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
 
-A window can contain controls, also a window itself is a control. A [control](base/interfaces.md#control) is any visual element for user interaction - a button, an input field, a list, etc. [window](base/interfaces.md#window) - provides the physical work of drawing on the graphical context of the system, accepting input events, and controlling the input focus. Control knows how to handle events coming from Window, stores its states, and draws itself on the graphical context provided by the containing window.
+[Control](base/interfaces.md#control) is any visual element for user interaction - button, input field, list, menu, etc.
+Control knows how to handle events coming from Window, stores its states, and draws itself on the graphical context provided by the window containing it.
+
+[Window](base/interfaces.md#window) - receives system events and provides their distribution to subscribers. The window also commands its controllers to redraw and provides them with their own graphic. In addition, the window controls the input focus, can do modality and send an event to the subscribed user or to the system.
+
+[Graphic](base/graphic.md) is the third base entity that provides an interface to the system's drawing methods. Currently, drawing is implemented on Windows GDI/GDI+ and Linux xcb/cairo. Of course, there is no obstacle to implement drawing on vulcan/bare metal/etc.
 
 The library also has auxiliary tools for operation - structures [common](base/common.md) (contains such basic types as ``rect``, ``color``, ``font``), [event](base/event.md) (``mouse``, ``keyboard``, ``internal`` and ``system events``), [graphic](base/graphic.md) (for physical drawing on the system graphic context) [theme](base/theme.md) (a system of constants for convenient support of visual themes) and ``locale`` (a subsystem for convenient storage of textual content).
 
