@@ -17,5 +17,6 @@ link_directories(
 	src)
 
 add_subdirectory (src)
+add_subdirectory (examples/hello_world)
 add_subdirectory (examples/simple)
 add_subdirectory (examples/demo)

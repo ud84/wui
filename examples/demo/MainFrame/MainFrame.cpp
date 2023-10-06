@@ -64,7 +64,7 @@ void MainFrame::Run()
 
     UpdateSheets();
 
-    window->set_control_callback([&](wui::window_control control, std::string &tooltip_text, bool continue_) {
+    window->set_control_callback([&](wui::window_control control, std::string &tooltip_text, bool &continue_) {
         if (control != wui::window_control::theme)
         {
             return;

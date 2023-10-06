@@ -1,0 +1,45 @@
+{
+  "sections": [
+    {
+      "type": "button",
+
+      "ok": "OK",
+      "yes": "Yes",
+      "no": "No",
+      "cancel": "Cancel",
+      "abort": "Abort",
+      "retry": "Retry",
+      "ignore": "Ignore",
+      "try_continue": "Try continue",
+      "complete": "Complete"
+    },
+    {
+      "type": "window",
+
+      "pin": "Pin the window",
+      "unpin": "Unpin the window",
+      "dark_theme": "Apply a dark theme",
+      "light_theme": "Apply a light theme"
+    },
+    {
+      "type": "input",
+
+      "copy": "Copy",
+      "cut": "Cut",
+      "paste": "Paste",
+      "undo": "Undo",
+      "redo": "Redo"
+    },
+    {
+      "type": "main_frame",
+      
+      "caption": "Hello world WUI",
+      "whats_your_name_text": "What is your name?",
+      "ok_button": "We'll be acquainted!",
+      "ok_message_caption": "Nice to meet you!",
+      "hello_text": "Hello: ",
+      "cross_message_caption": "Close confirmation",
+      "confirm_close_text": "Close the application?\n\n"
+    }
+  ]
+}
