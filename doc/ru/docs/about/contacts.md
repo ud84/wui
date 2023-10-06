@@ -1,7 +1,7 @@
 # Контакты и поддержка
 
 ## Официальные контакты
-- Web site: [https://libwui.org](https://libwui.org)
+- Web site: [https://libwui.org](https://libwui.org/main_ru)
 - Telegram: [Official WUI channel](https://t.me/libwui)
 - Email: [info@libwui.org](mailto:info@libwui.org)
 
@@ -15,4 +15,4 @@
 - Напишите на [info@libwui.org](mailto:info@libwui.org) если хотите присоединиться 🤝
 
 ## Пожертвования ❤️
-- Если вам понравился наш проект, будем признательны за любую посильную помощь: [https://libwui.org/donate_ru](https://libwui.org/donate)
+- Если вам понравился наш проект, будем признательны за любую посильную помощь: [https://libwui.org/donate_ru](https://libwui.org/donate_ru)
