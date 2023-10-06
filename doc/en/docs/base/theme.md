@@ -1,4 +1,4 @@
-# Visual Themes
+## Visual Themes
 
 The Theme subsystem provides a convenient way to centrally store visual settings.
 The subsystem is designed to display application controls in a single view and easily centralize the ability to change the current theme on the fly.
