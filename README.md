@@ -1,10 +1,7 @@
 # ![alt text](https://libwui.org/main/img/wui_logo_black_small.png) WUI
 Window User Interface Library
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) WUI is a cross-platform modern C++ library for creating graphical user interfaces.
-Now it support only Windows and Linux*.
-
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) WUI is an attempt to make as easy to use cross-platform library as possible for creating a modern graphical user interface in C++. The library uses  C++11 and has a minimalistic API.
+![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) WUI is an attempt to make as easy to use cross-platform library as possible for creating a modern graphical user interface in C++. The library uses  C++11 and has a minimalistic API. Now it support only Windows and Linux*.
 
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
 
