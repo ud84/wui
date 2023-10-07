@@ -23,6 +23,8 @@
 
 #else // _WIN32
 
+static constexpr const char * config_ini_file       = "hello_world.ini";
+
 static constexpr const char * en_locale_json_file   = "res/en_locale.json";
 static constexpr const char * ru_locale_json_file   = "res/ru_locale.json";
 static constexpr const char * light_theme_json_file = "res/light.json";

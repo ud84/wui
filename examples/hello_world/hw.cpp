@@ -7,6 +7,7 @@
 // Official repository: https://github.com/ud84/wui
 //
 
+#include <wui/config/config.hpp>
 #include <wui/theme/theme.hpp>
 #include <wui/locale/locale.hpp>
 
@@ -43,31 +44,45 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef _WIN32
-    auto ok = wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
+    auto ok = wui::config::use_registry("Software\\wui\\hello_world");
     if (!ok)
     {
-        std::cerr << "can't load theme" << std::endl;
+        std::cerr << "can't open registry config" << std::endl;
+        return -1;
+    }
+
+    ok = wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
+    if (!ok)
+    {
+        std::cerr << "can't load theme from resource" << std::endl;
         return -1;
     }
 
     ok = wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
     if (!ok)
     {
-        std::cerr << "can't load locale" << std::endl;
+        std::cerr << "can't load locale from resource" << std::endl;
         return -1;
     }
 #elif __linux__
-    auto ok = wui::set_default_theme_from_file("dark", dark_theme_json_file);
+    auto ok = wui::config::use_ini_file(config_ini_file);
     if (!ok)
     {
-        std::cerr << "can't load theme" << std::endl;
+        std::cerr << "can't open config: " << config_ini_file << std::endl;
+        return -1;
+    }
+
+    ok = wui::set_default_theme_from_file("dark", dark_theme_json_file);
+    if (!ok)
+    {
+        std::cerr << "can't load theme: " << dark_theme_json_file << std::endl;
         return -1;
     }
 
     ok = wui::set_locale_from_file("en", en_locale_json_file);
     if (!ok)
     {
-        std::cerr << "can't load locale" << std::endl;
+        std::cerr << "can't load locale: " << en_locale_json_file << std::endl;
         return -1;
     }
 #endif

@@ -7,6 +7,7 @@
 // Official repository: https://github.com/ud84/wui
 //
 
+#include <wui/config/config.hpp>
 #include <wui/theme/theme.hpp>
 #include <wui/locale/locale.hpp>
 #include <wui/system/tools.hpp>
@@ -24,8 +25,9 @@ MainFrame::MainFrame()
     
     logoImage(new wui::image(IMG_LOGO)),
     whatsYourNameText(new wui::text(wui::locale("main_frame", "whats_your_name_text"), wui::text_alignment::center, "h1_text")),
-    userNameInput(new wui::input()),
-    okButton(new wui::button(wui::locale("main_frame", "ok_button"), [this](){ 
+    userNameInput(new wui::input(wui::config::get_string("User", "Name", ""))),
+    okButton(new wui::button(wui::locale("main_frame", "ok_button"), [this](){
+        wui::config::set_string("User", "Name", userNameInput->text());
         messageBox->show(wui::locale("main_frame", "hello_text") + userNameInput->text(),
         wui::locale("main_frame", "ok_message_caption"), wui::message_icon::information, wui::message_button::ok, [this](wui::message_result) {
             runned = false; window->destroy(); }); })),
@@ -132,12 +134,14 @@ void MainFrame::ReceiveEvents(const wui::event &ev)
             case wui::internal_event_type::window_created:
         
             break;
-            case wui::internal_event_type::size_changed:
+            case wui::internal_event_type::size_changed:        
                 if (window->state() == wui::window_state::normal &&
                     ev.internal_event_.x > 0 && ev.internal_event_.y > 0)
                 {
-                    UpdateControlsPosition();
+                    wui::config::set_int("MainFrame", "Width", ev.internal_event_.x);
+                    wui::config::set_int("MainFrame", "Height", ev.internal_event_.y);
                 }
+                UpdateControlsPosition();
             break;
             case wui::internal_event_type::window_expanded:
             case wui::internal_event_type::window_normalized:
