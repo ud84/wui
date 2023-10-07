@@ -28,7 +28,7 @@ MainFrame::MainFrame()
     okButton(new wui::button(wui::locale("main_frame", "ok_button"), [this](){ 
         messageBox->show(wui::locale("main_frame", "hello_text") + userNameInput->text(),
         wui::locale("main_frame", "ok_message_caption"), wui::message_icon::information, wui::message_button::ok, [this](wui::message_result) {
-            window->destroy(); }); })),
+            runned = false; window->destroy(); }); })),
     messageBox(new wui::message(window)),
 
     runned(false)
