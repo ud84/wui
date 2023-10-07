@@ -15,6 +15,11 @@
 
 #include <memory>
 
+#ifdef _WIN32
+#include <WinDef.h>
+#include <WinReg.h>
+#endif
+
 namespace wui
 {
 
@@ -23,7 +28,7 @@ namespace config
 
 bool use_ini_file(const std::string &file_name);
 #ifdef _WIN32
-bool use_registry(const std::string &app_key = BASE_APP_KEY, HKEY root = HKEY_CURRENT_USER);
+bool use_registry(const std::string &app_key, HKEY root = HKEY_CURRENT_USER);
 #endif
 
 int32_t get_int(const std::string &section, const std::string &entry, int32_t default_);

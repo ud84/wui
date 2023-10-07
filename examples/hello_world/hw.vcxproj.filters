@@ -2,40 +2,34 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <UniqueIdentifier> {F31E814A-6FDF-4C7D-BE4B-E0E7D8E9FE5E}</UniqueIdentifier>
+          <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+      <UniqueIdentifier>{ABD2937A-C2FB-44C1-AA36-F704CC90E467}</UniqueIdentifier>
+          <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+      <UniqueIdentifier>{B5CF2B3F-E811-4AAC-9393-33B8F6F48D3C}</UniqueIdentifier>
+          <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Header Files\MainFrame">
-      <UniqueIdentifier>{e93e6622-909c-4523-b7a7-e537155222ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\MainSheet">
-      <UniqueIdentifier>{ddc4ea99-beaa-450f-9bf1-ac0dd1cc472a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\MainSheet">
-      <UniqueIdentifier>{66574b58-cec1-48cf-956d-1a3c2eb48452}</UniqueIdentifier>
+      <UniqueIdentifier>{1E76DDAF-FCBB-46D2-B9FE-85EC617327BB}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\MainFrame">
-      <UniqueIdentifier>{ec0dc937-6c77-4db7-8adb-3c46e2690b9f}</UniqueIdentifier>
+      <UniqueIdentifier>{1F8E685D-5FD4-46CA-BCDE-DD304EC1C67D}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\res">
-      <UniqueIdentifier>{182ce765-9562-4d9d-9350-de48f253aa05}</UniqueIdentifier>
+      <UniqueIdentifier>{FC992BD5-583B-4ACF-AD03-4BEB50034477}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\res\images">
-      <UniqueIdentifier>{f5e491e4-4de0-4d57-bffb-afbcc9ba8b3b}</UniqueIdentifier>
+      <UniqueIdentifier>{E27993FA-C62C-4654-BDA5-DFB75DBF6A3A}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\res\images\dark">
-      <UniqueIdentifier>{e855ff17-7775-43a4-a9b4-1ebf83de35ed}</UniqueIdentifier>
+      <UniqueIdentifier>{E27993FA-C62C-4654-BDA5-DFB75DBF6A3A}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\res\images\light">
-      <UniqueIdentifier>{f9518afe-6541-448e-9e0f-86a0c525bf65}</UniqueIdentifier>
+      <UniqueIdentifier>{68844393-D69B-43ED-A0F7-5FB9071C090F}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -76,27 +70,24 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="demo.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="MainFrame\MainFrame.h">
       <Filter>Header Files\MainFrame</Filter>
     </ClInclude>
-    <ClInclude Include="MainSheet\MainSheet.h">
-      <Filter>Header Files\MainSheet</Filter>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MainSheet\MainSheet.cpp">
-      <Filter>Source Files\MainSheet</Filter>
-    </ClCompile>
     <ClCompile Include="MainFrame\MainFrame.cpp">
       <Filter>Source Files\MainFrame</Filter>
     </ClCompile>
-    <ClCompile Include="demo.cpp">
+    <ClCompile Include="hw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="hw.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

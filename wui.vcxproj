@@ -24,6 +24,10 @@
     <ClInclude Include="include\wui\common\flag_helpers.hpp" />
     <ClInclude Include="include\wui\common\font.hpp" />
     <ClInclude Include="include\wui\common\rect.hpp" />
+    <ClInclude Include="include\wui\config\config.hpp" />
+    <ClInclude Include="include\wui\config\config_impl_ini.hpp" />
+    <ClInclude Include="include\wui\config\config_impl_reg.hpp" />
+    <ClInclude Include="include\wui\config\i_config.hpp" />
     <ClInclude Include="include\wui\control\button.hpp" />
     <ClInclude Include="include\wui\control\input.hpp" />
     <ClInclude Include="include\wui\control\i_control.hpp" />
@@ -59,6 +63,9 @@
     <ClInclude Include="include\wui\window\window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\config\config.cpp" />
+    <ClCompile Include="src\config\config_impl_ini.cpp" />
+    <ClCompile Include="src\config\config_impl_reg.cpp" />
     <ClCompile Include="src\control\button.cpp" />
     <ClCompile Include="src\control\image.cpp" />
     <ClCompile Include="src\control\input.cpp" />

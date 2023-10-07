@@ -58,6 +58,12 @@
     <Filter Include="Source Files\locale">
       <UniqueIdentifier>{d88d4d94-bac6-4afe-b53d-1a5f9af02471}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\wui\config">
+      <UniqueIdentifier>{12d2c0f5-201e-40f3-b720-75660a00307b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\config">
+      <UniqueIdentifier>{1125e8ba-76a9-45d9-ae98-99ccfd2839eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\wui\common\color.hpp">
@@ -174,6 +180,18 @@
     <ClInclude Include="include\wui\graphic\primitive_container.hpp">
       <Filter>Header Files\wui\graphic</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\config\config.hpp">
+      <Filter>Header Files\wui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\config\config_impl_ini.hpp">
+      <Filter>Header Files\wui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\config\config_impl_reg.hpp">
+      <Filter>Header Files\wui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\config\i_config.hpp">
+      <Filter>Header Files\wui\config</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -241,6 +259,15 @@
     </ClCompile>
     <ClCompile Include="src\graphic\primitive_container.cpp">
       <Filter>Source Files\graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config\config.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config\config_impl_ini.cpp">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config\config_impl_reg.cpp">
+      <Filter>Source Files\config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

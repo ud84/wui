@@ -17,9 +17,9 @@
 
 #ifdef _WIN32
 #include <gdiplus.h>
-#else
-#include <iostream>
 #endif
+
+#include <iostream>
 
 #ifdef _WIN32
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
