@@ -113,7 +113,10 @@ void MainFrame::Run()
         }
     });
 
-    window->init(wui::locale("main_frame", "caption"), { -1, -1, WND_WIDTH, WND_HEIGHT },
+    auto width = wui::config::get_int("MainFrame", "Width", WND_WIDTH);
+    auto height = wui::config::get_int("MainFrame", "Height", WND_HEIGHT);
+
+    window->init(wui::locale("main_frame", "caption"), { -1, -1, width, height },
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
         static_cast<uint32_t>(wui::window_style::switch_theme_button) |
         static_cast<uint32_t>(wui::window_style::border_all)), [this]() {
