@@ -203,7 +203,7 @@ bool config_impl_ini::load_values()
             {
                 v.comment = trim_copy(line.substr(comment_pos + 1, std::string::npos));
             }
-		}
+        }
         else if (comment_pos != std::string::npos)
         {
             auto &v = values[{section, ""}];
