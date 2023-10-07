@@ -22,3 +22,4 @@ src/libwui.a
 examples/simple/simple
 examples/demo/demo
 /examples/demo/x64/Debug
+examples/hello_world/hello_world
