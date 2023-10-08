@@ -12,8 +12,7 @@
 #include <wui/config/config_impl_reg.hpp>
 #include <wui/system/tools.hpp>
 
-
-#include <windows.h>
+#include <boost/nowide/convert.hpp>
 
 namespace wui
 {
@@ -21,14 +20,19 @@ namespace wui
 namespace config
 {
 
-config_impl_reg::config_impl_ini(const std::string &file_name)
+config_impl_reg::config_impl_reg(const std::string &base_application_key_, HKEY root_)
+	: base_application_key(base_application_key_), root(root_),
+	ok(false)
 {
+}
 
+config_impl_reg::~config_impl_reg()
+{
 }
 
 int32_t config_impl_reg::get_int(const std::string &section, const std::string &entry, int32_t default_)
 {
-
+	return default_;
 }
 
 void config_impl_reg::set_int(const std::string &section, const std::string &entry, int32_t value)
@@ -38,7 +42,7 @@ void config_impl_reg::set_int(const std::string &section, const std::string &ent
 
 int64_t config_impl_reg::get_int64(const std::string &section, const std::string &entry, int64_t default_)
 {
-
+	return default_;
 }
 
 void config_impl_reg::set_int64(const std::string &section, const std::string &entry, int64_t value)
@@ -48,7 +52,7 @@ void config_impl_reg::set_int64(const std::string &section, const std::string &e
 
 std::string config_impl_reg::get_string(const std::string &section, const std::string &entry, const std::string &default_)
 {
-
+	return default_;
 }
 
 void config_impl_reg::set_string(const std::string &section, const std::string &entry, const std::string value)

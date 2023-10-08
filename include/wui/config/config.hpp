@@ -16,8 +16,7 @@
 #include <memory>
 
 #ifdef _WIN32
-#include <WinDef.h>
-#include <WinReg.h>
+#include <windows.h>
 #endif
 
 namespace wui

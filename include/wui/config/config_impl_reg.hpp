@@ -15,6 +15,8 @@
 
 #include <map>
 
+#include <windows.h>
+
 namespace wui
 {
 
@@ -24,7 +26,8 @@ namespace config
 class config_impl_reg : public i_config
 {
 public:
-    config_impl_reg(const std::string &configFile = BASE_APP_KEY, HKEY root = HKEY_CURRENT_USER);
+    config_impl_reg(const std::string &base_application_key, HKEY root = HKEY_CURRENT_USER);
+	virtual ~config_impl_reg();
 
     int32_t get_int(const std::string &section, const std::string &entry, int32_t default_);
     void set_int(const std::string &section, const std::string &entry, int32_t value);
@@ -42,7 +45,8 @@ public:
     virtual bool is_ok() const;
 
 private:
-
+	std::string base_application_key;
+	HKEY root;
     bool ok;
 };
 

@@ -25,3 +25,4 @@ examples/demo/demo
 examples/hello_world/hello_world
 /examples/demo/x64/Release
 /examples/hello_world/x64/Release
+/examples/hello_world/x64/Debug
