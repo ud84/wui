@@ -8,7 +8,7 @@
       "text": "#191914",
       "caption_font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -16,7 +16,7 @@
       "color": "#191914",
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -47,7 +47,7 @@
       "focusing": 1,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -61,7 +61,7 @@
       "focusing": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -75,7 +75,7 @@
       "focusing": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -90,7 +90,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 20
       }
     },
     {
@@ -110,7 +110,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -129,7 +129,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -146,7 +146,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -159,7 +159,7 @@
       "text_indent": 3,
       "font": {
         "name": "Segoe UI",
-        "size": 12
+        "size": 16
       }
     },
     {

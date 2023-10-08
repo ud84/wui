@@ -44,14 +44,9 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef _WIN32
-    auto ok = wui::config::use_registry("Software\\wui\\hello_world");
-    if (!ok)
-    {
-        std::cerr << "can't open registry config" << std::endl;
-        return -1;
-    }
-
-    ok = wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
+    wui::config::use_registry("Software\\wui\\hello_world");
+    
+    bool ok = wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
     if (!ok)
     {
         std::cerr << "can't load theme from resource" << std::endl;

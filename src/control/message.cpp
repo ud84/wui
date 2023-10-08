@@ -85,7 +85,7 @@ void message::show(const std::string &message_,
 
     window_->add_control(text_, { 90, 40, 90 + text_size.width(), 50 + text_size.height() });
 
-    auto btn_width = 100;
+    auto btn_width = 80;
     auto btn_height = 25;
     auto top = height - btn_height - 20;
 

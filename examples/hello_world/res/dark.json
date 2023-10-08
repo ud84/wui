@@ -9,7 +9,7 @@
       "active_button": "#3b3d41",
       "caption_font": {
         "name": "Segoe UI",
-        "size": 14,
+        "size": 18,
         "decorations": "normal"
       }
     },
@@ -18,7 +18,7 @@
       "color": "#f5f5f0",
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -49,7 +49,7 @@
       "focusing": 1,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -63,7 +63,7 @@
       "focusing": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -77,7 +77,7 @@
       "focusing": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -112,7 +112,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -131,7 +131,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -148,7 +148,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 14
+        "size": 18
       }
     },
     {
@@ -161,7 +161,7 @@
       "text_indent": 3,
       "font": {
         "name": "Segoe UI",
-        "size": 12
+        "size": 16
       }
     },
     {

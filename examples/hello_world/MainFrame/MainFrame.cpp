@@ -105,8 +105,14 @@ void MainFrame::Run()
                     messageBox->show(wui::locale("main_frame", "confirm_close_text"),
                         wui::locale("main_frame", "cross_message_caption"), wui::message_icon::information, wui::message_button::yes_no,
                         [this, &continue_](wui::message_result r) {
-                            continue_ = (r == wui::message_result::yes);
-                            runned = !continue_;
+							if (r == wui::message_result::yes)
+							{
+#ifdef _WIN32
+								PostQuitMessage(IDCANCEL);
+#else
+								runned = false;
+#endif
+							}
                         });
                 }
             break;

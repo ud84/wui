@@ -24,7 +24,7 @@ namespace config
 
 config_impl_reg::config_impl_reg(const std::string &base_application_key_, HKEY root_)
 	: base_application_key(base_application_key_), root(root_),
-	ok(false)
+	ok(true)
 {
 }
 
