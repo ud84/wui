@@ -13,6 +13,7 @@ Now it support only Windows and Linux*.
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Window - receives system events and provides their distribution to subscribers. The window also commands its controllers to redraw and provides them with their own graphic. In addition, the window controls the input focus, can do modality and send an event to the subscribed user or to the system.
 
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Graphic is the third base entity that provides an interface to the system's drawing methods. Currently, drawing is implemented on Windows GDI/GDI+ and Linux xcb/cairo. Of course, there is no obstacle to implement drawing on vulcan/bare metal/etc.
+
 ![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) The library also has auxiliary tools for work - structures common (containing such basic types as rect, color), event (mouse, keyboard, internal and system events), graphic (for physical rendering on the system graphical context) and Theme (a system of constants for convenient support of visual themes).
 
 ![alt text](https://libwui.org/doc/img/system.png)
