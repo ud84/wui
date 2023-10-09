@@ -192,6 +192,9 @@
     <ClInclude Include="include\wui\config\i_config.hpp">
       <Filter>Header Files\wui\config</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\system\string_tools.hpp">
+      <Filter>Header Files\wui\system</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">

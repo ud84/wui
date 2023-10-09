@@ -53,6 +53,7 @@
     <ClInclude Include="include\wui\locale\i_locale.hpp" />
     <ClInclude Include="include\wui\locale\locale.hpp" />
     <ClInclude Include="include\wui\locale\locale_impl.hpp" />
+    <ClInclude Include="include\wui\system\string_tools.hpp" />
     <ClInclude Include="include\wui\system\system_context.hpp" />
     <ClInclude Include="include\wui\system\timer.hpp" />
     <ClInclude Include="include\wui\system\tools.hpp" />
