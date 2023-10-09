@@ -125,7 +125,8 @@ bool config_impl_ini::load_values()
             std::string value = trim_copy(line.substr(eq_pos + 1, comment_pos - eq_pos - 1));
 
             auto &v = values[{section, entry}];
-            v.type = value_type::only_comment;
+			v.type = value_type::string;
+			v.str_val = value;
 
             if (is_number(value))
             {
@@ -145,11 +146,6 @@ bool config_impl_ini::load_values()
                 {
                     std::cerr << "WUI Error [config_impl_ini::load_values] :: std::out_of_range::what(): " << ex.what() << std::endl;
                 }
-            }
-            else
-            {
-                v.type = value_type::string;
-                v.str_val = value;
             }
 
             if (comment_pos != std::string::npos)
