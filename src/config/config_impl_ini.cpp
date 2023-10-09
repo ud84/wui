@@ -9,6 +9,7 @@
 
 #include <wui/config/config_impl_ini.hpp>
 #include <wui/system/tools.hpp>
+#include <wui/system/string_tools.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -16,50 +17,6 @@
 #include <algorithm> 
 #include <cctype>
 #include <locale>
-
-// trim from start (in place)
-static inline void ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }));
-}
-
-// trim from end (in place)
-static inline void rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
-}
-
-// trim from both ends (in place)
-static inline void trim(std::string &s) {
-    rtrim(s);
-    ltrim(s);
-}
-
-// trim from start (copying)
-static inline std::string ltrim_copy(std::string s) {
-    ltrim(s);
-    return s;
-}
-
-// trim from end (copying)
-static inline std::string rtrim_copy(std::string s) {
-    rtrim(s);
-    return s;
-}
-
-// trim from both ends (copying)
-static inline std::string trim_copy(std::string s) {
-    trim(s);
-    return s;
-}
-
-static inline bool is_number(const std::string& s)
-{
-    return !s.empty() && std::find_if(s.begin(), 
-        s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
-}
 
 namespace wui
 {
@@ -92,7 +49,7 @@ int64_t config_impl_ini::get_int64(const std::string &section, const std::string
     {
         return s->second.int_val;
     }
-    return -1;
+    return default_;
 }
 
 void config_impl_ini::set_int64(const std::string &section, const std::string &entry, int64_t value)
@@ -111,7 +68,7 @@ std::string config_impl_ini::get_string(const std::string &section, const std::s
     {
         return s->second.str_val;
     }
-    return "";
+    return default_;
 }
 
 void config_impl_ini::set_string(const std::string &section, const std::string &entry, const std::string value)
