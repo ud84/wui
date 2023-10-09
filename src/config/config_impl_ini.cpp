@@ -14,10 +14,6 @@
 #include <fstream>
 #include <iostream>
 
-#include <algorithm> 
-#include <cctype>
-#include <locale>
-
 namespace wui
 {
 
