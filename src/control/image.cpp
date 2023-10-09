@@ -14,6 +14,7 @@
 #include <wui/theme/theme.hpp>
 
 #include <wui/system/tools.hpp>
+#include <wui/system/path_tools.hpp>
 
 #include <boost/nowide/convert.hpp>
 
