@@ -37,7 +37,8 @@ enum class window_control
     close,
     state,
     pin,
-    theme
+    theme,
+	lang
 };
 
 class button;
@@ -102,6 +103,7 @@ public:
     void end_docking();
 
     /// Window state methods
+	void switch_lang();
     void switch_theme();
     void pin();
     void minimize();
@@ -139,12 +141,14 @@ public:
     static constexpr const char *ti_minimize = "window_minimize";
     static constexpr const char *ti_pin = "window_pin";
     static constexpr const char *ti_switch_theme = "window_switch_theme";
+	static constexpr const char *ti_switch_lang = "window_switch_lang";
 
     /// Used locale values (from section window)
     static constexpr const char *cl_pin = "pin";
     static constexpr const char *cl_unpin = "unpin";
     static constexpr const char *cl_dark_theme = "dark_theme";
     static constexpr const char *cl_light_theme = "light_theme";
+	static constexpr const char *cl_switch_lang = "switch_lang";
 
 private:
     system_context context_;
@@ -204,7 +208,7 @@ private:
 
     std::shared_ptr<i_control> default_push_control;
 
-    std::shared_ptr<button> switch_theme_button, pin_button, minimize_button, expand_button, close_button;
+    std::shared_ptr<button> switch_lang_button, switch_theme_button, pin_button, minimize_button, expand_button, close_button;
 
 #ifdef _WIN32
 

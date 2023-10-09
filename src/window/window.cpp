@@ -149,6 +149,7 @@ window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     close_callback(),
     control_callback(),
     default_push_control(),
+	switch_lang_button(new button(locale(tcn, cl_switch_lang), std::bind(&window::switch_lang, this), button_view::image, theme_image(ti_switch_lang), 24, button::tc_tool)),
     switch_theme_button(new button(locale(tcn, cl_light_theme), std::bind(&window::switch_theme, this), button_view::image, theme_image(ti_switch_theme), 24, button::tc_tool)),
     pin_button(new button(locale(tcn, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24, button::tc_tool)),
     minimize_button(new button("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24, button::tc_tool)),
@@ -163,6 +164,7 @@ window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     thread()
 #endif
 {
+	switch_lang_button->disable_focusing();
     switch_theme_button->disable_focusing();
     pin_button->disable_focusing();
     minimize_button->disable_focusing();
@@ -731,6 +733,17 @@ void window::disable()
 bool window::enabled() const
 {
     return enabled_;
+}
+
+void window::switch_lang()
+{
+	if (control_callback)
+	{
+		std::string tooltip_text;
+		bool continue_ = true;
+		control_callback(window_control::lang, tooltip_text, continue_);
+		switch_lang_button->set_caption(tooltip_text);
+	}
 }
 
 void window::switch_theme()
@@ -1356,6 +1369,7 @@ std::shared_ptr<i_control> window::get_focused()
 
 void window::update_button_images()
 {
+	switch_lang_button->set_image(theme_image(ti_switch_lang, theme_));
     switch_theme_button->set_image(theme_image(ti_switch_theme, theme_));
     pin_button->set_image(theme_image(ti_pin, theme_));
     minimize_button->set_image(theme_image(ti_minimize, theme_));
@@ -1439,6 +1453,18 @@ void window::update_buttons()
     {
         switch_theme_button->hide();
     }
+
+	if (flag_is_set(window_style_, window_style::switch_lang_button))
+	{
+		switch_lang_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
+		switch_lang_button->show();
+
+		left -= btn_size;
+	}
+	else
+	{
+		switch_lang_button->hide();
+	}
 }
 
 void window::draw_border(graphic &gr)
@@ -1522,6 +1548,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     window_style_ = style;
     close_callback = close_callback_;
 
+	add_control(switch_lang_button, { 0 });
     add_control(switch_theme_button, { 0 });
     add_control(pin_button, { 0 });
     add_control(minimize_button, { 0 });

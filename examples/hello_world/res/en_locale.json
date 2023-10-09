@@ -19,7 +19,8 @@
       "pin": "Pin the window",
       "unpin": "Unpin the window",
       "dark_theme": "Apply a dark theme",
-      "light_theme": "Apply a light theme"
+      "light_theme": "Apply a light theme",
+      "switch_lang": "Switch the language"
     },
     {
       "type": "input",

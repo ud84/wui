@@ -9,6 +9,7 @@
 
 #include <wui/config/config_impl_ini.hpp>
 #include <wui/system/tools.hpp>
+#include <wui/system/path_tools.hpp>
 #include <wui/system/string_tools.hpp>
 
 #include <fstream>
@@ -21,7 +22,7 @@ namespace config
 {
 
 config_impl_ini::config_impl_ini(const std::string &file_name_)
-    : file_name(file_name_),
+    : file_name(wui::real_path(file_name_)),
     values(),
     ok(false)
 {

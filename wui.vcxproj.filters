@@ -195,6 +195,9 @@
     <ClInclude Include="include\wui\system\string_tools.hpp">
       <Filter>Header Files\wui\system</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\system\path_tools.hpp">
+      <Filter>Header Files\wui\system</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -271,6 +274,9 @@
     </ClCompile>
     <ClCompile Include="src\config\config_impl_reg.cpp">
       <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\path_tools.cpp">
+      <Filter>Source Files\system</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

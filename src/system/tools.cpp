@@ -21,8 +21,6 @@
 
 #elif __linux__
 
-#include <string>
-
 #include <pwd.h>
 
 #include <stdlib.h>
@@ -321,31 +319,6 @@ rect get_screen_size(system_context &context)
     }
 #endif
     return { 0 };
-}
-
-std::string real_path(const std::string &relative_path)
-{
-#ifdef _WIN32
-    return relative_path;
-#else
-    auto index = relative_path.find("~/");
-    if (index != std::string::npos)
-    {
-        const char *homedir = getenv("HOME");
-        if (homedir != NULL)
-        {
-            homedir = getpwuid(getuid())->pw_dir;
-
-            std::string new_path = relative_path;
-
-            new_path.replace(index, 1, homedir);
-
-            return new_path;
-        }
-    }
-
-    return relative_path;
-#endif
 }
 
 bool open_uri(const std::string &uri)

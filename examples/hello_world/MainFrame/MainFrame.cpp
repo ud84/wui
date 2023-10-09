@@ -98,6 +98,13 @@ void MainFrame::Run()
                 window->update_theme();
             }
             break;
+			case wui::window_control::lang:
+			{
+				auto theme_name = wui::get_default_theme()->get_name();
+
+				tooltip_text = wui::locale("window", "switch_lang");
+			}
+			break;
             case wui::window_control::close:
                 if (runned)
                 {
@@ -125,6 +132,7 @@ void MainFrame::Run()
     window->init(wui::locale("main_frame", "caption"), { -1, -1, width, height },
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
         static_cast<uint32_t>(wui::window_style::switch_theme_button) |
+		static_cast<uint32_t>(wui::window_style::switch_lang_button) |
         static_cast<uint32_t>(wui::window_style::border_all)), [this]() {
 #ifdef _WIN32
             PostQuitMessage(IDCANCEL);

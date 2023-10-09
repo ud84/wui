@@ -30,6 +30,7 @@ enum class window_style : uint32_t
     minimize_button = (1 << 4),
     pin_button = (1 << 5),
     switch_theme_button = (1 << 6),
+	switch_lang_button = (1 << 7),
 
     title_showed = (1 << 10),
     topmost = (1 << 11),

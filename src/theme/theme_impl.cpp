@@ -9,6 +9,7 @@
 
 #include <wui/theme/theme_impl.hpp>
 #include <wui/system/tools.hpp>
+#include <wui/system/path_tools.hpp>
 
 #include <nlohmann/json.hpp>
 #include <boost/nowide/convert.hpp>

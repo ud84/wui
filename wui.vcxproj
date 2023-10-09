@@ -53,6 +53,7 @@
     <ClInclude Include="include\wui\locale\i_locale.hpp" />
     <ClInclude Include="include\wui\locale\locale.hpp" />
     <ClInclude Include="include\wui\locale\locale_impl.hpp" />
+    <ClInclude Include="include\wui\system\path_tools.hpp" />
     <ClInclude Include="include\wui\system\string_tools.hpp" />
     <ClInclude Include="include\wui\system\system_context.hpp" />
     <ClInclude Include="include\wui\system\timer.hpp" />
@@ -85,6 +86,7 @@
     <ClCompile Include="src\graphic\primitive_container.cpp" />
     <ClCompile Include="src\locale\locale.cpp" />
     <ClCompile Include="src\locale\locale_impl.cpp" />
+    <ClCompile Include="src\system\path_tools.cpp" />
     <ClCompile Include="src\system\tools.cpp" />
     <ClCompile Include="src\theme\theme.cpp" />
     <ClCompile Include="src\theme\theme_impl.cpp" />
