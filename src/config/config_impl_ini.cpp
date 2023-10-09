@@ -60,7 +60,7 @@ void config_impl_ini::set_int64(const std::string &section, const std::string &e
 std::string config_impl_ini::get_string(const std::string &section, const std::string &entry, const std::string &default_)
 {
     auto s = values.find({ section, entry });
-    if (s != values.end() && s->second.type == value_type::string)
+    if (s != values.end())
     {
         return s->second.str_val;
     }
@@ -130,11 +130,11 @@ bool config_impl_ini::load_values()
             if (is_number(value))
             {
                 v.type = value_type::int64;
-
-                std::size_t pos{};
+				v.str_val = value;
 
                 try
                 {
+					std::size_t pos{};
                     v.int_val = std::stoll(value, &pos);
                 }
                 catch (std::invalid_argument const& ex)
