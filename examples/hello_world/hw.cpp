@@ -45,21 +45,37 @@ int main(int argc, char *argv[])
 
 #ifdef _WIN32
     wui::config::use_registry("Software\\wui\\hello_world");
-    
-    bool ok = wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
-    if (!ok)
-    {
-        std::cerr << "can't load theme from resource" << std::endl;
-        return -1;
-    }
 
-    ok = wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
-    if (!ok)
-    {
-        std::cerr << "can't load locale from resource" << std::endl;
-        return -1;
-    }
-#elif __linux__
+	int32_t defaultLocale = en_locale_index;
+	switch (GetUserDefaultUILanguage()) /// See the: https://www.autoitscript.com/autoit3/docs/appendix/OSLangCodes.htm
+	{
+		case 1049: defaultLocale = ru_locale_index; break;
+		case 1087: defaultLocale = kk_locale_index; break;
+	}
+	auto localeIndex = wui::config::get_int("User", "Locale", defaultLocale);
+	std::string localeName = "en";
+	int32_t localeResource = TXT_LOCALE_EN;
+	switch (localeIndex)
+	{
+		case en_locale_index: localeName = "en"; localeResource = TXT_LOCALE_EN; break;
+		case ru_locale_index: localeName = "ru"; localeResource = TXT_LOCALE_RU; break;
+	}
+	bool ok = wui::set_locale_from_resource(localeName, localeResource, "JSONS");
+	if (!ok)
+	{
+		std::cerr << "can't load locale from resource" << std::endl;
+		return -1;
+	}
+
+	bool darkTheme = wui::config::get_int("User", "Theme", light_theme_index) == 0;
+	ok = wui::set_default_theme_from_resource(darkTheme ? "dark" : "light", darkTheme ? TXT_DARK_THEME : TXT_LIGHT_THEME, "JSONS");
+	if (!ok)
+	{
+		std::cerr << "can't load theme from resource" << std::endl;
+		return -1;
+	}
+
+#else
     auto ok = wui::config::use_ini_file(config_ini_file);
     if (!ok)
     {
@@ -67,19 +83,27 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    ok = wui::set_default_theme_from_file("dark", dark_theme_json_file);
-    if (!ok)
-    {
-        std::cerr << "can't load theme: " << dark_theme_json_file << std::endl;
-        return -1;
-    }
+	auto localeIndex = wui::config::get_int("User", "Locale", 2);
+	std::string localeName = "en", localeFile = en_locale_json_file;
+	switch (localeIndex)
+	{
+		case 1: localeName = "en"; localeFile = en_locale_json_file; break;
+		case 2: localeName = "ru"; localeFile = ru_locale_json_file; break;
+	}
+	auto ok = wui::set_locale_from_file(localeName, localeFile);
+	if (!ok)
+	{
+		std::cerr << "No locale file: " << localeFile << " was found or contains an invalid json" << std::endl;
+		return -1;
+	}
 
-    ok = wui::set_locale_from_file("en", en_locale_json_file);
-    if (!ok)
-    {
-        std::cerr << "can't load locale: " << en_locale_json_file << std::endl;
-        return -1;
-    }
+	bool darkTheme = wui::config::get_int("User", "Theme", 1) == 0;
+	ok = wui::set_default_theme_from_file(darkTheme ? "dark" : "light", darkTheme ? dark_theme_json_file : light_theme_json_file);
+	if (!ok)
+	{
+		std::cerr << "No theme file: " << (darkTheme ? dark_theme_json_file : light_theme_json_file) << " was found or contains an invalid json" << std::endl;
+		return -1;
+	}
 #endif
 
     MainFrame mainFrame;

@@ -34,7 +34,13 @@
     {
       "type": "main_frame",
 
-      "caption": "Hello world from WUI"
+      "caption": "Привет из WUI",
+      "whats_your_name_text": "Как ваше имя?",
+      "ok_button": "Приятно познакомиться!",
+      "ok_message_caption": "Хорошего дня!",
+      "hello_text": "Привет, ",
+      "cross_message_caption": "Подтверждение закрытия",
+      "confirm_close_text": "Закрыть приложение?\n\n"
     }
   ]
 }

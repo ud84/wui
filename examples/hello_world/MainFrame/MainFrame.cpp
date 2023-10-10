@@ -71,6 +71,8 @@ void MainFrame::Run()
 
                 if (theme_name == "dark")
                 {
+					wui::config::set_int("User", "Theme", light_theme_index);
+
                     tooltip_text = wui::locale("window", "dark_theme");
 #ifdef _WIN32
                     wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
@@ -84,6 +86,8 @@ void MainFrame::Run()
                 }
                 else if (theme_name == "light")
                 {
+					wui::config::set_int("User", "Theme", dark_theme_index);
+
                     tooltip_text = wui::locale("window", "light_theme");
 #ifdef _WIN32
                     wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
@@ -100,9 +104,38 @@ void MainFrame::Run()
             break;
 			case wui::window_control::lang:
 			{
-				auto theme_name = wui::get_default_theme()->get_name();
+				auto locale_name = wui::get_locale()->get_name();
+
+				if (locale_name == "en")
+				{
+					wui::config::set_int("User", "Locale", ru_locale_index);
+#ifdef _WIN32
+					wui::set_locale_from_resource("ru", TXT_LOCALE_RU, "JSONS");
+#else
+					if (!wui::set_locale_from_file("ru", ru_locale_json_file))
+					{
+						std::cerr << "Error opening locale json: " << ru_locale_json_file << std::endl;
+					}
+#endif
+				}
+				else if (locale_name == "ru")
+				{
+					wui::config::set_int("User", "Locale", en_locale_index);
+#ifdef _WIN32
+					wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
+#elif
+					if (!wui::set_locale_from_file("en", en_locale_json_file))
+					{
+						std::cerr << "Error opening locale json: " << en_locale_json_file << std::endl;
+					}
+#endif
+				}
 
 				tooltip_text = wui::locale("window", "switch_lang");
+
+				window->set_caption(wui::locale("main_frame", "caption"));
+				whatsYourNameText->set_text(wui::locale("main_frame", "whats_your_name_text"));
+				okButton->set_caption(wui::locale("main_frame", "ok_button"));
 			}
 			break;
             case wui::window_control::close:
@@ -188,9 +221,9 @@ void MainFrame::UpdateControlsPosition()
 
     logoImage->set_position(pos);
 
-    okButton->set_position({center - 80,
+    okButton->set_position({center - 90,
         height - element_height - space,
-        center + 80,
+        center + 90,
         height - space
     });
 }

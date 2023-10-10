@@ -7,6 +7,12 @@
 // Official repository: https://github.com/ud84/wui
 //
 
+static constexpr const int en_locale_index = 1;
+static constexpr const int ru_locale_index = 2;
+static constexpr const int kk_locale_index = 3;
+static constexpr const int dark_theme_index = 0;
+static constexpr const int light_theme_index = 1;
+
 #ifdef _WIN32
 
 #define IDI_MAIN_ICON           107
