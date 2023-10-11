@@ -123,7 +123,7 @@ void MainFrame::Run()
 					wui::config::set_int("User", "Locale", en_locale_index);
 #ifdef _WIN32
 					wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
-#elif
+#else
 					if (!wui::set_locale_from_file("en", en_locale_json_file))
 					{
 						std::cerr << "Error opening locale json: " << en_locale_json_file << std::endl;
