@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 		case 1: localeName = "en"; localeFile = en_locale_json_file; break;
 		case 2: localeName = "ru"; localeFile = ru_locale_json_file; break;
 	}
-	auto ok = wui::set_locale_from_file(localeName, localeFile);
+	ok = wui::set_locale_from_file(localeName, localeFile);
 	if (!ok)
 	{
 		std::cerr << "No locale file: " << localeFile << " was found or contains an invalid json" << std::endl;
