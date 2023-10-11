@@ -15,6 +15,8 @@
 
 #include <wui/system/tools.hpp>
 
+#include <wui/system/clipboard_tools.hpp>
+
 #include <wui/locale/locale.hpp>
 
 #include <boost/nowide/convert.hpp>

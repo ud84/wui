@@ -198,6 +198,15 @@
     <ClInclude Include="include\wui\system\path_tools.hpp">
       <Filter>Header Files\wui\system</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\system\wm_tools.hpp">
+      <Filter>Header Files\wui\system</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\system\uri_tools.hpp">
+      <Filter>Header Files\wui\system</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\system\clipboard_tools.hpp">
+      <Filter>Header Files\wui\system</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -276,6 +285,15 @@
       <Filter>Source Files\config</Filter>
     </ClCompile>
     <ClCompile Include="src\system\path_tools.cpp">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\wm_tools.cpp">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\uri_tools.cpp">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\clipboard_tools.cpp">
       <Filter>Source Files\system</Filter>
     </ClCompile>
   </ItemGroup>

@@ -56,18 +56,6 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
 /// This function truncates the string
 void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t width, int32_t truncating_count = 10);
 
-/// Determine screen dimensions
-rect get_screen_size(system_context &context);
-
-/// Clipboard's functions
-void clipboard_put(const std::string &text, system_context &context);
-
-bool is_text_in_clipboard(system_context &context);
-std::string clipboard_get_text(system_context &context);
-
-/// URI opening helper
-bool open_uri(const std::string &uri);
-
 /// Service on Linux
 #ifdef __linux__
 bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message);

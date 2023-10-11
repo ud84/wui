@@ -19,6 +19,8 @@
 #include <wui/common/flag_helpers.hpp>
 
 #include <wui/system/tools.hpp>
+#include <wui/system/wm_tools.hpp>
+
 #include <boost/nowide/convert.hpp>
 
 #include <algorithm>
