@@ -14,6 +14,7 @@
 #include <wui/common/about.hpp>
 #include <wui/locale/locale.hpp>
 #include <wui/system/tools.hpp>
+#include <wui/system/uri_tools.hpp>
 
 MainSheet::MainSheet()
     : parentWindow_(),
