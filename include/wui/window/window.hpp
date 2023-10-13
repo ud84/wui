@@ -19,7 +19,6 @@
 #include <memory>
 
 #include <thread>
-#include <mutex>
 
 namespace wui
 {
