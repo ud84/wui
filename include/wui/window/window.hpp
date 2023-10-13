@@ -99,8 +99,6 @@ public:
     void set_min_size(int32_t width, int32_t height);
 
     void set_transient_for(std::shared_ptr<window> window_, bool docked = true);
-    void start_docking(std::shared_ptr<i_control> control);
-    void end_docking();
 
     /// Window state methods
 	void switch_lang();
@@ -248,6 +246,8 @@ private:
     void set_focused(size_t index);
     std::shared_ptr<i_control> get_focused();
 
+    void start_docking(std::shared_ptr<i_control> control);
+    void end_docking();
 	std::shared_ptr<window> get_transient_window();
 
     void update_button_images();
