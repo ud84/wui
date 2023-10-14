@@ -19,8 +19,9 @@ namespace wui
 class locale_impl : public i_locale
 {
 public:
-    locale_impl(const std::string &name);
+    locale_impl(locale_type type, const std::string &name);
 
+    virtual locale_type get_type() const;
     virtual std::string get_name() const;
 
     virtual void set(const std::string &section, const std::string &value, const std::string &str);
@@ -36,6 +37,7 @@ public:
     virtual bool is_ok() const;
 
 private:
+    locale_type type;
     std::string name;
 
     std::map<std::string, std::string> strings;

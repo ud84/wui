@@ -9,6 +9,9 @@
 
 #include <wui/locale/locale.hpp>
 #include <wui/locale/locale_impl.hpp>
+#include <wui/locale/locale_selector.hpp>
+
+#include <iostream>
 
 namespace wui
 {
@@ -20,38 +23,60 @@ static std::vector<uint8_t> dummy_image;
 /// Interface
 
 #ifdef _WIN32
-bool set_locale_from_resource(const std::string &name, int32_t resource_index, const std::string &resource_section)
+bool set_locale_from_resource(locale_type type, const std::string &name, int32_t resource_index, const std::string &resource_section)
 {
     instance.reset();
-    instance = std::shared_ptr<i_locale>(new locale_impl(name));
+    instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
     instance->load_resource(resource_index, resource_section);
 
     return instance->is_ok();
 }
 #endif
 
-bool set_locale_from_json(const std::string &name, const std::string &json)
+bool set_locale_from_json(locale_type type, const std::string &name, const std::string &json)
 {
     instance.reset();
-    instance = std::shared_ptr<i_locale>(new locale_impl(name));
+    instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
     instance->load_json(json);
 
     return instance->is_ok();
 }
 
-bool set_locale_from_file(const std::string &name, const std::string &file_name)
+bool set_locale_from_file(locale_type type, const std::string &name, const std::string &file_name)
 {
     instance.reset();
-    instance = std::shared_ptr<i_locale>(new locale_impl(name));
+    instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
     instance->load_file(file_name);
 
     return instance->is_ok();
 }
 
-void set_locale_empty(const std::string &name)
+void set_locale_empty(locale_type type, const std::string &name)
 {
     instance.reset();
-    instance = std::shared_ptr<i_locale>(new locale_impl(name));
+    instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
+}
+
+bool set_locale_from_type(locale_type type)
+{
+    auto locale_params = wui::get_app_locale(type);
+
+#ifdef _WIN32
+    bool ok = wui::set_locale_from_resource(locale_params.type, locale_params.name, locale_params.resource_id, "JSONS");
+    if (!ok)
+    {
+        std::cerr << "can't load locale from resource" << std::endl;
+        return false;
+    }
+#else
+    bool ok = wui::set_locale_from_file(locale_params.type, locale_params.name, locale_params.file_name);
+    if (!ok)
+    {
+        std::cerr << "No locale file: " << locale_params.file_name << " was found or contains an invalid json" << std::endl;
+        return false;
+    }
+#endif
+    return true;
 }
 
 std::shared_ptr<i_locale> get_locale()

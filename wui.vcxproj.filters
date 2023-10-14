@@ -207,6 +207,12 @@
     <ClInclude Include="include\wui\system\clipboard_tools.hpp">
       <Filter>Header Files\wui\system</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\locale\locale_selector.hpp">
+      <Filter>Header Files\wui\locale</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\locale\locale_type.hpp">
+      <Filter>Header Files\wui\locale</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -295,6 +301,12 @@
     </ClCompile>
     <ClCompile Include="src\system\clipboard_tools.cpp">
       <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\locale\locale_selector.cpp">
+      <Filter>Source Files\locale</Filter>
+    </ClCompile>
+    <ClCompile Include="src\locale\locale_type.cpp">
+      <Filter>Source Files\locale</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

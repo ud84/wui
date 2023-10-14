@@ -25,9 +25,14 @@
 namespace wui
 {
 
-locale_impl::locale_impl(const std::string &name_)
-    : name(name_), strings(), dummy_string(), ok(false)
+locale_impl::locale_impl(locale_type type_, const std::string &name_)
+    : type(type_), name(name_), strings(), dummy_string(), ok(false)
 {
+}
+
+locale_type locale_impl::get_type() const
+{
+    return type;
 }
 
 std::string locale_impl::get_name() const

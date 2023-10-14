@@ -10,6 +10,7 @@
 #include <wui/config/config.hpp>
 #include <wui/theme/theme.hpp>
 #include <wui/locale/locale.hpp>
+#include <wui/locale/locale_selector.hpp>
 #include <wui/system/tools.hpp>
 
 #include <MainFrame/MainFrame.h>
@@ -104,32 +105,9 @@ void MainFrame::Run()
             break;
 			case wui::window_control::lang:
 			{
-				auto locale_name = wui::get_locale()->get_name();
-
-				if (locale_name == "en")
-				{
-					wui::config::set_int("User", "Locale", ru_locale_index);
-#ifdef _WIN32
-					wui::set_locale_from_resource("ru", TXT_LOCALE_RU, "JSONS");
-#else
-					if (!wui::set_locale_from_file("ru", ru_locale_json_file))
-					{
-						std::cerr << "Error opening locale json: " << ru_locale_json_file << std::endl;
-					}
-#endif
-				}
-				else if (locale_name == "ru")
-				{
-					wui::config::set_int("User", "Locale", en_locale_index);
-#ifdef _WIN32
-					wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
-#else
-					if (!wui::set_locale_from_file("en", en_locale_json_file))
-					{
-						std::cerr << "Error opening locale json: " << en_locale_json_file << std::endl;
-					}
-#endif
-				}
+                auto nextLocale = wui::get_next_app_locale();
+                wui::set_locale_from_type(nextLocale);
+                wui::config::set_int("User", "Locale", static_cast<int32_t>(nextLocale));
 
 				tooltip_text = wui::locale("window", "switch_lang");
 

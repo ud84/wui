@@ -52,7 +52,9 @@
     <ClInclude Include="include\wui\graphic\primitive_container.hpp" />
     <ClInclude Include="include\wui\locale\i_locale.hpp" />
     <ClInclude Include="include\wui\locale\locale.hpp" />
+    <ClInclude Include="include\wui\locale\locale_selector.hpp" />
     <ClInclude Include="include\wui\locale\locale_impl.hpp" />
+    <ClInclude Include="include\wui\locale\locale_type.hpp" />
     <ClInclude Include="include\wui\system\clipboard_tools.hpp" />
     <ClInclude Include="include\wui\system\path_tools.hpp" />
     <ClInclude Include="include\wui\system\string_tools.hpp" />
@@ -89,6 +91,8 @@
     <ClCompile Include="src\graphic\primitive_container.cpp" />
     <ClCompile Include="src\locale\locale.cpp" />
     <ClCompile Include="src\locale\locale_impl.cpp" />
+    <ClCompile Include="src\locale\locale_selector.cpp" />
+    <ClCompile Include="src\locale\locale_type.cpp" />
     <ClCompile Include="src\system\clipboard_tools.cpp" />
     <ClCompile Include="src\system\path_tools.cpp" />
     <ClCompile Include="src\system\tools.cpp" />

@@ -7,9 +7,6 @@
 // Official repository: https://github.com/ud84/wui
 //
 
-static constexpr const int en_locale_index = 1;
-static constexpr const int ru_locale_index = 2;
-static constexpr const int kk_locale_index = 3;
 static constexpr const int dark_theme_index = 0;
 static constexpr const int light_theme_index = 1;
 
@@ -31,8 +28,6 @@ static constexpr const int light_theme_index = 1;
 
 static constexpr const char * config_ini_file       = "hello_world.ini";
 
-static constexpr const char * en_locale_json_file   = "res/en_locale.json";
-static constexpr const char * ru_locale_json_file   = "res/ru_locale.json";
 static constexpr const char * light_theme_json_file = "res/light.json";
 static constexpr const char * dark_theme_json_file  = "res/dark.json";
 

@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <wui/locale/locale_type.hpp>
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -19,6 +21,7 @@ namespace wui
 class i_locale
 {
 public:
+    virtual locale_type get_type() const = 0;
     virtual std::string get_name() const = 0;
 
     virtual void set(const std::string &section, const std::string &value, const std::string &str) = 0;
