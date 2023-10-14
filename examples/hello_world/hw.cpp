@@ -61,8 +61,9 @@ int main(int argc, char *argv[])
         { wui::locale_type::rus, "Русский", "res/ru_locale.json", TXT_LOCALE_RU },
     });
 
-    auto current_locale = wui::config::get_int("User", "Locale", static_cast<int32_t>(wui::get_default_system_locale()));
-    wui::set_locale_from_type(static_cast<wui::locale_type>(current_locale));
+    auto current_locale = static_cast<wui::locale_type>(wui::config::get_int("User", "Locale", static_cast<int32_t>(wui::get_default_system_locale())));
+    wui::set_current_app_locale(current_locale);
+    wui::set_locale_from_type(current_locale);
 
 	bool darkTheme = wui::config::get_int("User", "Theme", 0) == 0;
 

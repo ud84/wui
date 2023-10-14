@@ -44,14 +44,13 @@ locale_params get_app_locale(locale_type t)
     return {};
 }
 
-locale_type get_current_app_locale()
+void set_current_app_locale(locale_type t)
 {
-    if (instance.empty())
+    auto it = std::find(instance.begin(), instance.end(), t);
+    if (it != instance.end())
     {
-        return locale_type::eng;
+        locale_pos = it - instance.begin();
     }
-
-    return instance[locale_pos].type;
 }
 
 locale_type get_next_app_locale()

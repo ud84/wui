@@ -40,16 +40,24 @@ struct locale_params
 
 using locales_t = std::vector<locale_params>;
 
+/// A function that memorizes the locales supported by the application.
+/// The names, file paths or resource icons of each available locale are set here
 void set_app_locales(const locales_t &);
+
+/// If there is no locale_type to be selected this locale will be used
 void set_default_locale(locale_type);
 
+/// Return the locale params of locale type
 locale_params get_app_locale(locale_type);
 
-locale_type get_current_app_locale();
+/// Revolving locale search
+void set_current_app_locale(locale_type);
 locale_type get_next_app_locale();
 
+/// Calls the system function to return system's locale
 locale_type get_default_system_locale();
 
+/// Return all setted locales in vector
 const locales_t &get_app_locales();
 
 }
