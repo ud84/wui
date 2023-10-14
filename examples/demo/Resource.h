@@ -9,7 +9,7 @@
 
 #ifdef _WIN32
 
-#define IDI_SIMPLE			    107
+#define IDI_DEMO			    107
 #define IMG_LOGO				109
 
 #define IMG_ACCOUNT     		110

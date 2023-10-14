@@ -57,6 +57,6 @@ void InputSheet::End()
 
 void InputSheet::UpdateSize(int32_t width, int32_t height)
 {
-    inputText->set_position({ 10, 100, width - 10, height - 140 });
-    input0->set_position({ 10, height - 100, width - 10, height - 70 });
+    inputText->set_position({ 10, 100, width - 10, height - 240 });
+    input0->set_position({ 10, height - 200, width - 10, height - 170 });
 }

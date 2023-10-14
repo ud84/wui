@@ -23,7 +23,7 @@ ButtonSheet::ButtonSheet()
     simpleButton1(new wui::button(wui::locale("button_sheet", "simple1"), [this]() { buttonsText->set_text("Second button pushed"); }, wui::button_view::text)),
     imageButton(new wui::button("", [this]() { buttonsText->set_text("Image button pushed"); }, wui::button_view::image, IMG_LOGO, 32)),
     imageRightTextButton(new wui::button(wui::locale("button_sheet", "right_text"), [this]() { buttonsText->set_text("Image with right text button pushed"); }, wui::button_view::image_right_text, IMG_LOGO, 32)),
-    imageBottomTextButton(new wui::button(wui::locale("button_sheet", "bottom_text"), [this]() { buttonsText->set_text("Image with bottom text button pushed"); }, wui::button_view::image_bottom_text, IMG_LOGO, 32)),
+    imageBottomTextButton(new wui::button(wui::locale("button_sheet", "bottom_text"), [this]() { buttonsText->set_text("Image with bottom text button pushed"); }, wui::button_view::image_bottom_text, IMG_LOGO, 32, "rounded__green_button")),
     switcherButton(new wui::button(wui::locale("button_sheet", "switcher_text"), [this]() { buttonsText->set_text("Switcher button pushed"); }, wui::button_view::switcher)),
     radioButton0(new wui::button(wui::locale("button_sheet", "radio0_text"), [this]() { buttonsText->set_text("Radio first pushed"); radioButton1->turn(!radioButton0->turned()); }, wui::button_view::radio)),
     radioButton1(new wui::button(wui::locale("button_sheet", "radio1_text"), [this]() { buttonsText->set_text("Radio second pushed"); radioButton0->turn(!radioButton1->turned()); }, wui::button_view::radio)),

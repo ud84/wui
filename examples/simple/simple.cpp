@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    ok = wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
+    ok = wui::set_locale_from_resource(wui::locale_type::eng, "en", TXT_LOCALE_EN, "JSONS");
     if (!ok)
     {
         printf("can't load locale\n");
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    ok = wui::set_locale_from_file("en", en_locale_json_file);
+    ok = wui::set_locale_from_file(wui::locale_type::eng, "en", en_locale_json_file);
     if (!ok)
     {
         printf("can't load locale\n");
