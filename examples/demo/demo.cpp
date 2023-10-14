@@ -7,8 +7,13 @@
 // Official repository: https://github.com/ud84/wui
 //
 
+#include <wui/config/config.hpp>
+
 #include <wui/theme/theme.hpp>
+#include <wui/theme/theme_selector.hpp>
+
 #include <wui/locale/locale.hpp>
+#include <wui/locale/locale_selector.hpp>
 
 #include <MainFrame/MainFrame.h>
 
@@ -39,52 +44,49 @@ int main(int argc, char *argv[])
     {
         std::cerr << "warning: could not set default locale"  << std::endl;
     }
-
 #endif
 
 #ifdef _WIN32
-    auto ok = wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
+    auto ok = wui::config::use_registry("Software\\wui\\demo");
+#else
+    auto ok = wui::config::use_ini_file(config_ini_file);
     if (!ok)
     {
-        printf("can't load theme\n");
-        return -1;
-    }
-
-    ok = wui::set_locale_from_resource("en", TXT_LOCALE_EN, "JSONS");
-    if (!ok)
-    {
-        printf("can't load locale\n");
-        return -1;
-    }
-#elif __linux__
-    auto ok = wui::set_default_theme_from_file("dark", dark_theme_json_file);
-    if (!ok)
-    {
-        printf("can't load theme\n");
-        return -1;
-    }
-
-    ok = wui::set_locale_from_file("en", en_locale_json_file);
-    if (!ok)
-    {
-        printf("can't load locale\n");
+        std::cerr << "can't open config: " << config_ini_file << std::endl;
         return -1;
     }
 #endif
+
+    wui::set_app_locales({
+        { wui::locale_type::eng, "English", "res/en_locale.json", TXT_LOCALE_EN },
+        { wui::locale_type::rus, "Русский", "res/ru_locale.json", TXT_LOCALE_RU },
+        });
+
+    auto current_locale = static_cast<wui::locale_type>(wui::config::get_int("User", "Locale",
+        static_cast<int32_t>(wui::get_default_system_locale())));
+    wui::set_current_app_locale(current_locale);
+    wui::set_locale_from_type(current_locale);
+
+    wui::set_app_themes({
+        { "dark", "res/dark.json", TXT_DARK_THEME },
+        { "light", "res/light.json", TXT_LIGHT_THEME }
+        });
+
+    auto current_theme = wui::config::get_string("User", "Theme", "dark");
+    wui::set_current_app_theme(current_theme);
+    wui::set_default_theme_from_name(current_theme);
 
     MainFrame mainFrame;
     mainFrame.Run();
 
 #ifdef _WIN32
-    // Main message loop:
+    // Main message loop
     MSG msg;
     while (GetMessage(&msg, nullptr, 0, 0))
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-
-    //Gdiplus::GdiplusShutdown(gdiplusToken);
     return (int) msg.wParam;
 #elif __linux__
     // Wait for main window

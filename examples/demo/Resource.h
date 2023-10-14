@@ -23,11 +23,6 @@
 
 #else // _WIN32
 
-static constexpr const char * en_locale_json_file   = "res/en_locale.json";
-static constexpr const char * ru_locale_json_file   = "res/ru_locale.json";
-static constexpr const char * light_theme_json_file = "res/light.json";
-static constexpr const char * dark_theme_json_file  = "res/dark.json";
-
 static constexpr const char* IMG_LOGO               = "logo.png";
 static constexpr const char* IMG_ACCOUNT            = "account.png";
 static constexpr const char* IMG_MENU               = "menu.png";

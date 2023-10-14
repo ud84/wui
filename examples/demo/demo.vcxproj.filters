@@ -37,6 +37,12 @@
     <Filter Include="Resource Files\res\images\light">
       <UniqueIdentifier>{f9518afe-6541-448e-9e0f-86a0c525bf65}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ButtonSheet">
+      <UniqueIdentifier>{133a035e-b650-4418-a121-9a1c5bae6afc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ButtonSheet">
+      <UniqueIdentifier>{8c14141a-86ac-4c0e-b011-b92201ad7ca0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\dark.json">
@@ -87,6 +93,12 @@
     <ClInclude Include="MainSheet\MainSheet.h">
       <Filter>Header Files\MainSheet</Filter>
     </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ButtonSheet\ButtonSheet.h">
+      <Filter>Header Files\ButtonSheet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainSheet\MainSheet.cpp">
@@ -97,6 +109,9 @@
     </ClCompile>
     <ClCompile Include="demo.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ButtonSheet\ButtonSheet.cpp">
+      <Filter>Source Files\ButtonSheet</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

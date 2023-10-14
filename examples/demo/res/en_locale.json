@@ -49,6 +49,21 @@
       "type": "main_sheet",
 
       "main_title": "Welcome to WUI"
+    },
+    {
+      "type": "button_sheet",
+
+      "simple0": "A first simple button",
+      "simple1": "A second simple button",
+      "right_text": "Image with right text",
+      "bottom_text": "Image with bottom text",
+      "switcher_text": "Switcher button",
+      "radio0_text": "Radio first",
+      "radio1_text": "Radio second",
+      "anchor_text": "Don't do this",
+      "sheet0_text": "First sheet",
+      "sheet1_text": "Second sheet"
     }
+
   ]
 }

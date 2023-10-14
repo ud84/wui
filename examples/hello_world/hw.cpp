@@ -63,7 +63,8 @@ int main(int argc, char *argv[])
         { wui::locale_type::rus, "Русский", "res/ru_locale.json", TXT_LOCALE_RU },
     });
 
-    auto current_locale = static_cast<wui::locale_type>(wui::config::get_int("User", "Locale", static_cast<int32_t>(wui::get_default_system_locale())));
+    auto current_locale = static_cast<wui::locale_type>(wui::config::get_int("User", "Locale", 
+        static_cast<int32_t>(wui::get_default_system_locale())));
     wui::set_current_app_locale(current_locale);
     wui::set_locale_from_type(current_locale);
 
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
     mainFrame.Run();
 
 #ifdef _WIN32
-    // Main message loop:
+    // Main message loop
     MSG msg;
     while (GetMessage(&msg, nullptr, 0, 0))
     {

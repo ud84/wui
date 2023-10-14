@@ -7,8 +7,13 @@
 // Official repository: https://github.com/ud84/wui
 //
 
+#include <wui/config/config.hpp>
+
 #include <wui/theme/theme.hpp>
+#include <wui/theme/theme_selector.hpp>
+
 #include <wui/locale/locale.hpp>
+#include <wui/locale/locale_selector.hpp>
 
 #include <MainFrame/MainFrame.h>
 
@@ -27,14 +32,16 @@ MainFrame::MainFrame()
     inputSheet   (new wui::button(wui::locale("main_frame", "input_sheet_"),  [this](){ sheet = Sheet::Input;  UpdateSheets(); }, wui::button_view::sheet)),
     listSheet    (new wui::button(wui::locale("main_frame", "list_sheet_"),   [this](){ sheet = Sheet::List;   UpdateSheets(); }, wui::button_view::sheet)),
     menuSheet    (new wui::button(wui::locale("main_frame", "menu_sheet_"),   [this](){ sheet = Sheet::Menu;   UpdateSheets(); }, wui::button_view::sheet)),
-    panelSheet   (new wui::button(wui::locale("main_frame", "panel_sheet_"),  [this](){ sheet = Sheet::Panel;  UpdateSheets(); }, wui::button_view::sheet)),
+    panelSheet   (new wui::button(wui::locale("main_frame", "panel_sheet_"),  [this](){ sheet = Sheet::Others;  UpdateSheets(); }, wui::button_view::sheet)),
     
     accountButton(new wui::button(wui::locale("main_frame", "account_btn"),   []() {}, wui::button_view::image, IMG_ACCOUNT, 32, wui::button::tc_tool)),
     menuButton   (new wui::button(wui::locale("main_frame", "main_menu"),     []() {}, wui::button_view::image, IMG_MENU,    32, wui::button::tc_tool)),
     
     runned(false),
     sheet(Sheet::Main),
-    mainSheetImpl()
+
+    mainSheetImpl(),
+    buttonSheetImpl()
 {
     window->subscribe(std::bind(&MainFrame::ReceiveEvents,
         this,
@@ -65,37 +72,21 @@ void MainFrame::Run()
     UpdateSheets();
 
     window->set_control_callback([&](wui::window_control control, std::string &tooltip_text, bool &continue_) {
-        if (control != wui::window_control::theme)
+        switch (control)
         {
-            return;
-        }
-
-        auto theme_name = wui::get_default_theme()->get_name();
-
-        if (theme_name == "dark")
-        {
-            tooltip_text = wui::locale("window", "dark_theme");
-#ifdef _WIN32
-            wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
-#else
-            
-            if (!wui::set_default_theme_from_file("light", light_theme_json_file))
+            case wui::window_control::theme:
             {
-                std::cerr << "Error opening theme json: " << light_theme_json_file << std::endl;
+                auto nextTheme = wui::get_next_app_theme();
+                wui::set_default_theme_from_name(nextTheme);
+                wui::config::set_string("User", "Theme", nextTheme);
+
+                window->update_theme();
             }
-#endif
-        }
-        else if (theme_name == "light")
-        {
-            tooltip_text = wui::locale("window", "light_theme");
-#ifdef _WIN32
-            wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
-#elif __linux__
-            if (!wui::set_default_theme_from_file("dark", dark_theme_json_file))
+            break;
+            case wui::window_control::lang:
             {
-                std::cerr << "Error opening theme json: " << dark_theme_json_file << std::endl;
             }
-#endif
+            break;
         }
 
         window->update_theme();
@@ -173,31 +164,47 @@ void MainFrame::UpdateSheets()
     {
         case Sheet::Main:
             mainSheet->turn(true);
+
+            buttonSheetImpl.End();
+
             mainSheetImpl.Run(window);
         break;
         case Sheet::Window:
             windowSheet->turn(true);
+            
             mainSheetImpl.End();
+            buttonSheetImpl.End();
         break;
         case Sheet::Button:
             buttonSheet->turn(true);
+            
             mainSheetImpl.End();
+
+            buttonSheetImpl.Run(window);
         break;
         case Sheet::Input:
             inputSheet->turn(true);
+
             mainSheetImpl.End();
+            buttonSheetImpl.End();
         break;
         case Sheet::List:
             listSheet->turn(true);
+
             mainSheetImpl.End();
+            buttonSheetImpl.End();
         break;
         case Sheet::Menu:
             menuSheet->turn(true);
+
             mainSheetImpl.End();
+            buttonSheetImpl.End();
         break;
-        case Sheet::Panel:
+        case Sheet::Others:
             panelSheet->turn(true);
+
             mainSheetImpl.End();
+            buttonSheetImpl.End();
         break;
     }
 }

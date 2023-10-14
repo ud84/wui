@@ -13,6 +13,7 @@
 #include <wui/control/button.hpp>
 
 #include <MainSheet/MainSheet.h>
+#include <ButtonSheet/ButtonSheet.h>
 
 enum class Sheet
 {
@@ -22,7 +23,7 @@ enum class Sheet
     Input,
     List,
     Menu,
-    Panel
+    Others
 };
 
 class MainFrame
@@ -47,6 +48,7 @@ private:
     Sheet sheet;
 
     MainSheet mainSheetImpl;
+    ButtonSheet buttonSheetImpl;
 
     void ReceiveEvents(const wui::event &ev);
 

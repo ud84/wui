@@ -8,7 +8,7 @@
       "text": "#191914",
       "caption_font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 20
       }
     },
     {
@@ -16,7 +16,7 @@
       "color": "#191914",
       "font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 20
       }
     },
     {
@@ -30,7 +30,7 @@
     {
       "type": "image",
       "resource": "IMAGES_LIGHT",
-      "path": "."
+      "path": "res/images/light"
     },
     {
       "type": "button",
@@ -46,7 +46,7 @@
       "focusing": 1,
       "font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 20
       }
     },
     {
@@ -60,7 +60,7 @@
       "focusing": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 20
       }
     },
     {
@@ -74,7 +74,7 @@
       "focusing": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 20
       }
     },
     {
@@ -89,7 +89,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 20
       }
     },
     {
@@ -109,7 +109,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 20
       }
     },
     {
@@ -128,7 +128,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 20
       }
     },
     {
@@ -145,7 +145,7 @@
       "round": 0,
       "font": {
         "name": "Segoe UI",
-        "size": 18
+        "size": 20
       }
     },
     {
@@ -158,7 +158,7 @@
       "text_indent": 3,
       "font": {
         "name": "Segoe UI",
-        "size": 16
+        "size": 18
       }
     },
     {

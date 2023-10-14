@@ -154,10 +154,13 @@
     <ResourceCompile Include="demo.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ButtonSheet\ButtonSheet.h" />
     <ClInclude Include="MainFrame\MainFrame.h" />
     <ClInclude Include="MainSheet\MainSheet.h" />
+    <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ButtonSheet\ButtonSheet.cpp" />
     <ClCompile Include="demo.cpp" />
     <ClCompile Include="MainFrame\MainFrame.cpp" />
     <ClCompile Include="MainSheet\MainSheet.cpp" />
