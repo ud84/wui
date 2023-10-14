@@ -13,7 +13,6 @@
 #include <wui/system/string_tools.hpp>
 
 #include <fstream>
-#include <iostream>
 
 namespace wui
 {
@@ -24,7 +23,7 @@ namespace config
 config_impl_ini::config_impl_ini(const std::string &file_name_)
     : file_name(wui::real_path(file_name_)),
     values(),
-    ok(false)
+    ok(false), err_msg()
 {
     ok = load_values();
 }
@@ -98,12 +97,18 @@ bool config_impl_ini::is_ok() const
     return ok;
 }
 
+std::string config_impl_ini::get_error() const
+{
+    return err_msg;
+}
+
 bool config_impl_ini::load_values()
 {
     std::ifstream f(file_name, std::ios::in);
 	if (!f)
 	{
-		std::cerr << "WUI Error [config_impl_ini::load_values] :: Error opening config file: " << file_name << std::endl;
+        err_msg = "WUI Error [config_impl_ini::load_values] :: Error opening config file: " + file_name;
+        ok = false;
 		return false;
 	}
 
@@ -141,11 +146,15 @@ bool config_impl_ini::load_values()
                 }
                 catch (std::invalid_argument const& ex)
                 {
-                    std::cerr << "WUI Error [config_impl_ini::load_values] :: std::invalid_argument::what(): " << ex.what() << std::endl;
+                    err_msg = "WUI Error [config_impl_ini::load_values] :: std::invalid_argument::what(): " + std::string(ex.what());
+                    ok = false;
+                    return false;
                 }
                 catch (std::out_of_range const& ex)
                 {
-                    std::cerr << "WUI Error [config_impl_ini::load_values] :: std::out_of_range::what(): " << ex.what() << std::endl;
+                    err_msg = "WUI Error [config_impl_ini::load_values] :: std::out_of_range::what(): " + std::string(ex.what());
+                    ok = false;
+                    return false;
                 }
             }
 
@@ -164,6 +173,7 @@ bool config_impl_ini::load_values()
 
     f.close();
 
+    ok = true;
     return true;
 }
 
@@ -172,7 +182,8 @@ bool config_impl_ini::save_values()
     std::ofstream f(file_name, std::ios::out | std::ios::trunc);
 	if (!f)
 	{
-		std::cerr << "WUI Error [config_impl_ini::save_values] :: Error write to config file: " << file_name << std::endl;
+        err_msg = "WUI Error [config_impl_ini::save_values] :: Error write to config file: " + file_name;
+        ok = false;
 		return false;
 	}
 

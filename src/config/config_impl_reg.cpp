@@ -183,6 +183,11 @@ bool config_impl_reg::is_ok() const
     return ok;
 }
 
+std::string config_impl_reg::get_error() const
+{
+    return "";
+}
+
 }
 
 }

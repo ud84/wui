@@ -38,6 +38,15 @@ bool use_registry(const std::string &app_key, HKEY root)
 }
 #endif
 
+std::string get_error()
+{
+    if (instance)
+    {
+        return instance->get_error();
+    }
+    return "";
+}
+
 int32_t get_int(const std::string &section, const std::string &entry, int32_t default_)
 {
     if (instance)

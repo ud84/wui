@@ -33,6 +33,7 @@ public:
     virtual void delete_key(const std::string &section) = 0;
 
     virtual bool is_ok() const = 0;
+    virtual std::string get_error() const = 0;
 
     virtual ~i_config() {}
 };

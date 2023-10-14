@@ -43,6 +43,7 @@ public:
     void delete_key(const std::string &section);
 
     virtual bool is_ok() const;
+    virtual std::string get_error() const;
 
 private:
 	std::string base_application_key;
