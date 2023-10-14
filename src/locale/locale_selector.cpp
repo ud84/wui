@@ -10,7 +10,6 @@
 #include <wui/locale/locale_selector.hpp>
 
 #include <algorithm>
-#include <map>
 
 #ifdef _WIN32
 #include <windows.h>

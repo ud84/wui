@@ -8,9 +8,13 @@
 //
 
 #include <wui/config/config.hpp>
+
 #include <wui/theme/theme.hpp>
+#include <wui/theme/theme_selector.hpp>
+
 #include <wui/locale/locale.hpp>
 #include <wui/locale/locale_selector.hpp>
+
 #include <wui/system/tools.hpp>
 
 #include <MainFrame/MainFrame.h>
@@ -68,38 +72,10 @@ void MainFrame::Run()
         {
             case wui::window_control::theme:
             {
-                auto theme_name = wui::get_default_theme()->get_name();
+                auto nextTheme = wui::get_next_app_theme();
+                wui::set_default_theme_from_name(nextTheme);
+                wui::config::set_string("User", "Theme", nextTheme);
 
-                if (theme_name == "dark")
-                {
-					wui::config::set_int("User", "Theme", light_theme_index);
-
-                    tooltip_text = wui::locale("window", "dark_theme");
-#ifdef _WIN32
-                    wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
-#else
-            
-                    if (!wui::set_default_theme_from_file("light", light_theme_json_file))
-                    {
-                        std::cerr << "Error opening theme json: " << light_theme_json_file << std::endl;
-                    }
-#endif
-                }
-                else if (theme_name == "light")
-                {
-					wui::config::set_int("User", "Theme", dark_theme_index);
-
-                    tooltip_text = wui::locale("window", "light_theme");
-#ifdef _WIN32
-                    wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
-#elif __linux__
-                    if (!wui::set_default_theme_from_file("dark", dark_theme_json_file))
-                    {
-                        std::cerr << "Error opening theme json: " << dark_theme_json_file << std::endl;
-                    }
-#endif
-                }
-            
                 window->update_theme();
             }
             break;

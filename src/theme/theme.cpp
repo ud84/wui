@@ -9,6 +9,9 @@
 
 #include <wui/theme/theme.hpp>
 #include <wui/theme/theme_impl.hpp>
+#include <wui/theme/theme_selector.hpp>
+
+#include <iostream>
 
 namespace wui
 {
@@ -52,6 +55,29 @@ void set_default_theme_empty(const std::string &name)
 {
     instance.reset();
     instance = std::shared_ptr<i_theme>(new theme_impl(name));
+}
+
+bool set_default_theme_from_name(const std::string &name)
+{
+    auto theme_params = wui::get_app_theme(name);
+
+#ifdef _WIN32
+    bool ok = wui::set_default_theme_from_resource(name, theme_params.resource_id, "JSONS");
+    if (!ok)
+    {
+        std::cerr << "can't load theme from resource" << std::endl;
+        return false;
+    }
+#else
+    bool ok = wui::set_default_theme_from_file(name, theme_params.file_name);
+    if (!ok)
+    {
+        std::cerr << "No theme file: " << theme_params.file_name << " was found or contains an invalid json" << std::endl;
+        return false;
+    }
+#endif
+
+    return true;
 }
 
 std::shared_ptr<i_theme> get_default_theme()

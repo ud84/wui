@@ -8,7 +8,9 @@
 //
 
 #include <wui/config/config.hpp>
+
 #include <wui/theme/theme.hpp>
+#include <wui/theme/theme_selector.hpp>
 
 #include <wui/locale/locale.hpp>
 #include <wui/locale/locale_selector.hpp>
@@ -65,23 +67,14 @@ int main(int argc, char *argv[])
     wui::set_current_app_locale(current_locale);
     wui::set_locale_from_type(current_locale);
 
-	bool darkTheme = wui::config::get_int("User", "Theme", 0) == 0;
+    wui::set_app_themes({
+        { "dark", "res/dark.json", TXT_DARK_THEME },
+        { "light", "res/light.json", TXT_LIGHT_THEME }
+    });
 
-#ifdef _WIN32
-	ok = wui::set_default_theme_from_resource(darkTheme ? "dark" : "light", darkTheme ? TXT_DARK_THEME : TXT_LIGHT_THEME, "JSONS");
-	if (!ok)
-	{
-		std::cerr << "can't load theme from resource" << std::endl;
-		return -1;
-	}
-#else
-	ok = wui::set_default_theme_from_file(darkTheme ? "dark" : "light", darkTheme ? dark_theme_json_file : light_theme_json_file);
-	if (!ok)
-	{
-		std::cerr << "No theme file: " << (darkTheme ? dark_theme_json_file : light_theme_json_file) << " was found or contains an invalid json" << std::endl;
-		return -1;
-	}
-#endif
+    auto current_theme = wui::config::get_string("User", "Theme", "dark");
+    wui::set_current_app_theme(current_theme);
+    wui::set_default_theme_from_name(current_theme);
 
     MainFrame mainFrame;
     mainFrame.Run();

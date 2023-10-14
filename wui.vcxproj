@@ -66,6 +66,7 @@
     <ClInclude Include="include\wui\theme\i_theme.hpp" />
     <ClInclude Include="include\wui\theme\theme.hpp" />
     <ClInclude Include="include\wui\theme\theme_impl.hpp" />
+    <ClInclude Include="include\wui\theme\theme_selector.hpp" />
     <ClInclude Include="include\wui\window\i_window.hpp" />
     <ClInclude Include="include\wui\window\window.hpp" />
   </ItemGroup>
@@ -100,6 +101,7 @@
     <ClCompile Include="src\system\wm_tools.cpp" />
     <ClCompile Include="src\theme\theme.cpp" />
     <ClCompile Include="src\theme\theme_impl.cpp" />
+    <ClCompile Include="src\theme\theme_selector.cpp" />
     <ClCompile Include="src\window\window.cpp" />
   </ItemGroup>
   <ItemGroup>

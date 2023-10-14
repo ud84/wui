@@ -31,11 +31,6 @@ struct locale_params
     {
         return type == lt;
     }
-
-    std::string str()
-    {
-        return wui::str(type) + ", " + name + ", " + file_name + ", " + std::to_string(resource_id);
-    }
 };
 
 using locales_t = std::vector<locale_params>;

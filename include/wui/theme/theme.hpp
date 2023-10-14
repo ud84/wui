@@ -24,6 +24,10 @@ bool set_default_theme_from_json(const std::string &name, const std::string &jso
 bool set_default_theme_from_file(const std::string &name, const std::string &file_name);
 void set_default_theme_empty(const std::string &name);
 
+/// Load theme from regsitry on Windows or from file on other systems
+/// Parameters are setted by set_app_themes() in theme_selector.hpp
+bool set_default_theme_from_name(const std::string &name);
+
 /// Return the pointer to current default theme instance
 std::shared_ptr<i_theme> get_default_theme();
 

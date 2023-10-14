@@ -213,6 +213,9 @@
     <ClInclude Include="include\wui\locale\locale_type.hpp">
       <Filter>Header Files\wui\locale</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\theme\theme_selector.hpp">
+      <Filter>Header Files\wui\theme</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -307,6 +310,9 @@
     </ClCompile>
     <ClCompile Include="src\locale\locale_type.cpp">
       <Filter>Source Files\locale</Filter>
+    </ClCompile>
+    <ClCompile Include="src\theme\theme_selector.cpp">
+      <Filter>Source Files\theme</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

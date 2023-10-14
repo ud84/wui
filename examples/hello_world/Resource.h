@@ -7,9 +7,6 @@
 // Official repository: https://github.com/ud84/wui
 //
 
-static constexpr const int dark_theme_index = 0;
-static constexpr const int light_theme_index = 1;
-
 #ifdef _WIN32
 
 #define IDI_MAIN_ICON           107
@@ -27,9 +24,6 @@ static constexpr const int light_theme_index = 1;
 #else // _WIN32
 
 static constexpr const char * config_ini_file       = "hello_world.ini";
-
-static constexpr const char * light_theme_json_file = "res/light.json";
-static constexpr const char * dark_theme_json_file  = "res/dark.json";
 
 static constexpr const char* IMG_LOGO               = "logo.png";
 static constexpr const char* IMG_ACCOUNT            = "account.png";
