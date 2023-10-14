@@ -32,7 +32,7 @@ MainFrame::MainFrame()
     inputSheet   (new wui::button(wui::locale("main_frame", "input_sheet_"),  [this](){ sheet = Sheet::Input;  UpdateSheets(); }, wui::button_view::sheet)),
     listSheet    (new wui::button(wui::locale("main_frame", "list_sheet_"),   [this](){ sheet = Sheet::List;   UpdateSheets(); }, wui::button_view::sheet)),
     menuSheet    (new wui::button(wui::locale("main_frame", "menu_sheet_"),   [this](){ sheet = Sheet::Menu;   UpdateSheets(); }, wui::button_view::sheet)),
-    panelSheet   (new wui::button(wui::locale("main_frame", "panel_sheet_"),  [this](){ sheet = Sheet::Others;  UpdateSheets(); }, wui::button_view::sheet)),
+    panelSheet   (new wui::button(wui::locale("main_frame", "other_sheet_"),  [this](){ sheet = Sheet::Others; UpdateSheets(); }, wui::button_view::sheet)),
     
     accountButton(new wui::button(wui::locale("main_frame", "account_btn"),   []() {}, wui::button_view::image, IMG_ACCOUNT, 32, wui::button::tc_tool)),
     menuButton   (new wui::button(wui::locale("main_frame", "main_menu"),     []() {}, wui::button_view::image, IMG_MENU,    32, wui::button::tc_tool)),
@@ -166,6 +166,7 @@ void MainFrame::UpdateSheets()
             mainSheet->turn(true);
 
             buttonSheetImpl.End();
+            inputSheetImpl.End();
 
             mainSheetImpl.Run(window);
         break;
@@ -174,11 +175,13 @@ void MainFrame::UpdateSheets()
             
             mainSheetImpl.End();
             buttonSheetImpl.End();
+            inputSheetImpl.End();
         break;
         case Sheet::Button:
             buttonSheet->turn(true);
             
             mainSheetImpl.End();
+            inputSheetImpl.End();
 
             buttonSheetImpl.Run(window);
         break;
@@ -187,24 +190,29 @@ void MainFrame::UpdateSheets()
 
             mainSheetImpl.End();
             buttonSheetImpl.End();
+
+            inputSheetImpl.Run(window);
         break;
         case Sheet::List:
             listSheet->turn(true);
 
             mainSheetImpl.End();
             buttonSheetImpl.End();
+            inputSheetImpl.End();
         break;
         case Sheet::Menu:
             menuSheet->turn(true);
 
             mainSheetImpl.End();
             buttonSheetImpl.End();
+            inputSheetImpl.End();
         break;
         case Sheet::Others:
             panelSheet->turn(true);
 
             mainSheetImpl.End();
             buttonSheetImpl.End();
+            inputSheetImpl.End();
         break;
     }
 }

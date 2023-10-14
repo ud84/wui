@@ -43,6 +43,12 @@
     <Filter Include="Source Files\ButtonSheet">
       <UniqueIdentifier>{8c14141a-86ac-4c0e-b011-b92201ad7ca0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\InputSheet">
+      <UniqueIdentifier>{ea3e5d7f-f92f-4c82-9d7d-943a643c2808}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\InputSheet">
+      <UniqueIdentifier>{03fd192b-a4b0-4d1c-b842-5dab8a3c0cfe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\dark.json">
@@ -99,6 +105,9 @@
     <ClInclude Include="ButtonSheet\ButtonSheet.h">
       <Filter>Header Files\ButtonSheet</Filter>
     </ClInclude>
+    <ClInclude Include="InputSheet\InputSheet.h">
+      <Filter>Header Files\InputSheet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainSheet\MainSheet.cpp">
@@ -112,6 +121,9 @@
     </ClCompile>
     <ClCompile Include="ButtonSheet\ButtonSheet.cpp">
       <Filter>Source Files\ButtonSheet</Filter>
+    </ClCompile>
+    <ClCompile Include="InputSheet\InputSheet.cpp">
+      <Filter>Source Files\InputSheet</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

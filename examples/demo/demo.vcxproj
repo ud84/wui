@@ -155,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ButtonSheet\ButtonSheet.h" />
+    <ClInclude Include="InputSheet\InputSheet.h" />
     <ClInclude Include="MainFrame\MainFrame.h" />
     <ClInclude Include="MainSheet\MainSheet.h" />
     <ClInclude Include="Resource.h" />
@@ -162,6 +163,7 @@
   <ItemGroup>
     <ClCompile Include="ButtonSheet\ButtonSheet.cpp" />
     <ClCompile Include="demo.cpp" />
+    <ClCompile Include="InputSheet\InputSheet.cpp" />
     <ClCompile Include="MainFrame\MainFrame.cpp" />
     <ClCompile Include="MainSheet\MainSheet.cpp" />
   </ItemGroup>

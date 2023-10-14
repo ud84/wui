@@ -14,6 +14,7 @@
 
 #include <MainSheet/MainSheet.h>
 #include <ButtonSheet/ButtonSheet.h>
+#include <InputSheet/InputSheet.h>
 
 enum class Sheet
 {
@@ -49,6 +50,7 @@ private:
 
     MainSheet mainSheetImpl;
     ButtonSheet buttonSheetImpl;
+    InputSheet inputSheetImpl;
 
     void ReceiveEvents(const wui::event &ev);
 

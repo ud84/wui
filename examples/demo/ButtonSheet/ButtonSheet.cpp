@@ -45,25 +45,25 @@ void ButtonSheet::Run(std::weak_ptr<wui::window> parentWindow__)
         auto parentPos = parentWindow->position();
         auto width = parentPos.width(), height = parentPos.height();
 
-        parentWindow->add_control(buttonsText, { 10, 100, 800, 150 });
+        parentWindow->add_control(buttonsText, { 10, 80, 800, 140 });
 
-        parentWindow->add_control(simpleButton0, { 10, 200, 200, 230 });
-        parentWindow->add_control(simpleButton1, { 220, 200, 420, 230 });
+        parentWindow->add_control(simpleButton0, { 10, 150, 200, 180 });
+        parentWindow->add_control(simpleButton1, { 220, 150, 420, 180 });
 
-        parentWindow->add_control(imageButton, { 10, 250, 10 + 48, 250 + 48 });
-        parentWindow->add_control(imageRightTextButton, { 70, 250, 300, 250 + 48 });
+        parentWindow->add_control(imageButton, { 10, 200, 10 + 48, 200 + 48 });
+        parentWindow->add_control(imageRightTextButton, { 70, 200, 300, 200 + 48 });
 
-        parentWindow->add_control(imageBottomTextButton, { 10, 320, 200, 320 + 80 });
+        parentWindow->add_control(imageBottomTextButton, { 10, 260, 200, 260 + 80 });
 
-        parentWindow->add_control(switcherButton, { 10, 420, 200, 420 + 30 });
+        parentWindow->add_control(switcherButton, { 10, 360, 200, 360 + 30 });
 
-        parentWindow->add_control(radioButton0, { 10, 460, 150, 460 + 30 });
-        parentWindow->add_control(radioButton1, { 160, 460, 310, 460 + 30 });
+        parentWindow->add_control(radioButton0, { 10, 400, 150, 400 + 30 });
+        parentWindow->add_control(radioButton1, { 160, 400, 310, 400 + 30 });
 
-        parentWindow->add_control(anchorButton, { 10, 510, 100, 510 + 30 });
+        parentWindow->add_control(anchorButton, { 10, 450, 100, 450 + 30 });
 
-        parentWindow->add_control(sheetButton0, { 10, 550, 100, 550 + 30 });
-        parentWindow->add_control(sheetButton1, { 110, 550, 210, 550 + 30 });
+        parentWindow->add_control(sheetButton0, { 10, 500, 100, 500 + 30 });
+        parentWindow->add_control(sheetButton1, { 110, 500, 210, 500 + 30 });
     }
     
     sheetButton0->update_theme();
