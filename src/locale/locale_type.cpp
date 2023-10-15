@@ -209,7 +209,8 @@ const std::string &str(locale_type type)
         return n->second;
     }
 
-    return "";
+    static const std::string empty = "";
+    return empty;
 }
 
 }

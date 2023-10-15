@@ -48,7 +48,7 @@ graphic::graphic(system_context &context__)
     : context_(context__),
       pc(context_),
       max_size(),
-	  background_color(0)
+      background_color(0)
 #ifdef _WIN32
     , mem_dc(0),
       mem_bitmap(0),
@@ -80,7 +80,7 @@ bool graphic::init(const rect &max_size_, color background_color_)
     }
 
     err.reset();
-    
+
     auto wnd_dc = GetDC(context_.hwnd);
 
     mem_dc = CreateCompatibleDC(wnd_dc);
@@ -245,7 +245,7 @@ void graphic::flush(const rect &updated_size)
         auto copy_area_cookie = xcb_copy_area(context_.connection,
             mem_pixmap,
             context_.wnd,
-			pc.get_gc(background_color),
+            pc.get_gc(background_color),
             updated_size.left,
             updated_size.top,
             updated_size.left,
@@ -275,7 +275,7 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
 {
 #ifdef _WIN32
     auto old_pen = (HPEN)SelectObject(mem_dc, pc.get_pen(PS_SOLID, width, color_));
-    
+
     MoveToEx(mem_dc, position.left, position.top, (LPPOINT)NULL);
     LineTo(mem_dc, position.right, position.bottom);
 
@@ -440,9 +440,9 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
     auto pixmap = xcb_generate_id(context_.connection);
     auto pixmap_cookie = xcb_create_pixmap(context_.connection,
         context_.screen->root_depth,
-		pixmap,
-		context_.wnd,
-		position.width(), position.height());
+        pixmap,
+        context_.wnd,
+        position.width(), position.height());
 
     if (!check_cookie(pixmap_cookie, context_.connection, err, "graphic::draw_buffer() xcb_create_pixmap"))
     {
@@ -451,11 +451,11 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
 
     auto image = xcb_image_create_native(context_.connection,
            position.width(), position.height(),
-    	   XCB_IMAGE_FORMAT_Z_PIXMAP,
-    	   context_.screen->root_depth,
-    	   nullptr,
-    	   position.width() * position.height() * 4,
-		   nullptr);
+           XCB_IMAGE_FORMAT_Z_PIXMAP,
+           context_.screen->root_depth,
+           nullptr,
+           position.width() * position.height() * 4,
+           nullptr);
 
     if (!image)
     {
@@ -463,7 +463,7 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
         err.component = "graphic::draw_buffer()";
         err.message = "xcb_image_create_native error";
 
-    	return;
+        return;
     }
 
     image->data = buffer;
@@ -475,7 +475,7 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
     auto copy_area_cookie = xcb_copy_area(context_.connection,
         pixmap,
         mem_pixmap,
-		pc.get_gc(background_color),
+        pc.get_gc(background_color),
         left_shift,
         top_shift,
         position.left,
@@ -513,7 +513,7 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
         auto copy_area_cookie = xcb_copy_area(context_.connection,
             graphic_.drawable(),
             mem_pixmap,
-			pc.get_gc(background_color),
+            pc.get_gc(background_color),
             left_shift,
             top_shift,
             position.left,
@@ -521,7 +521,7 @@ void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left
             position.right,
             position.bottom);
 
-        if (!check_cookie(copy_area_cookie, context_.connection, "graphic::draw_graphic xcb_copy_area"))
+        if (!check_cookie(copy_area_cookie, context_.connection, err, "graphic::draw_graphic() xcb_copy_area"))
         {
             return;
         }

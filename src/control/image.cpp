@@ -123,7 +123,7 @@ void load_image_from_file(const std::string &file_name, const std::string &image
     boost::nowide::ifstream f(full_image_path);
     if (!f)
     {
-        err.type = error_type::file_not_found;
+        err.type = wui::error_type::file_not_found;
         err.component = "image::load_image_from_file()";
         err.message = "unable to open image file: " + full_image_path + " errno: " + std::to_string(errno);
         return;
