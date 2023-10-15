@@ -11,8 +11,6 @@
 #include <wui/locale/locale_impl.hpp>
 #include <wui/locale/locale_selector.hpp>
 
-#include <iostream>
-
 namespace wui
 {
 
@@ -57,26 +55,18 @@ void set_locale_empty(locale_type type, const std::string &name)
     instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
 }
 
-bool set_locale_from_type(locale_type type)
+bool set_locale_from_type(locale_type type, error &err)
 {
     auto locale_params = wui::get_app_locale(type);
 
 #ifdef _WIN32
     bool ok = wui::set_locale_from_resource(locale_params.type, locale_params.name, locale_params.resource_id, "JSONS");
-    if (!ok)
-    {
-        std::cerr << "can't load locale from resource" << std::endl;
-        return false;
-    }
 #else
     bool ok = wui::set_locale_from_file(locale_params.type, locale_params.name, locale_params.file_name);
-    if (!ok)
-    {
-        std::cerr << "No locale file: " << locale_params.file_name << " was found or contains an invalid json" << std::endl;
-        return false;
-    }
 #endif
-    return true;
+
+    err = instance->get_error();
+    return ok;
 }
 
 error get_locale_error()

@@ -85,7 +85,6 @@ void free_image(Gdiplus::Image **img)
 
 #elif __linux__
 
-#include <iostream>
 #include <boost/nowide/fstream.hpp>
 
 void load_image_from_data(const std::vector<uint8_t> &data_, cairo_surface_t **img)

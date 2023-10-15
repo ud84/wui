@@ -53,10 +53,12 @@ int main(int argc, char *argv[])
     auto ok = wui::config::use_ini_file(config_ini_file);
     if (!ok)
     {
-        std::cerr << "can't open config: " << config_ini_file << std::endl;
+        std::cerr << wui::config::get_error().str() << std::endl;
         return -1;
     }
 #endif
+
+    wui::error err;
 
     wui::set_app_locales({
         { wui::locale_type::eng, "English", "res/en_locale.json", TXT_LOCALE_EN },
@@ -66,7 +68,13 @@ int main(int argc, char *argv[])
     auto current_locale = static_cast<wui::locale_type>(wui::config::get_int("User", "Locale", 
         static_cast<int32_t>(wui::get_default_system_locale())));
     wui::set_current_app_locale(current_locale);
-    wui::set_locale_from_type(current_locale);
+
+    wui::set_locale_from_type(current_locale, err);
+    if (!err.is_ok())
+    {
+        std::cerr << err.str() << std::endl;
+        return -1;
+    }
 
     wui::set_app_themes({
         { "dark", "res/dark.json", TXT_DARK_THEME },
@@ -75,7 +83,13 @@ int main(int argc, char *argv[])
 
     auto current_theme = wui::config::get_string("User", "Theme", "dark");
     wui::set_current_app_theme(current_theme);
-    wui::set_default_theme_from_name(current_theme);
+
+    wui::set_default_theme_from_name(current_theme, err);
+    if (!err.is_ok())
+    {
+        std::cerr << err.str() << std::endl;
+        return -1;
+    }
 
     MainFrame mainFrame;
     mainFrame.Run();

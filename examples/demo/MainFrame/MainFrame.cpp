@@ -19,9 +19,7 @@
 
 #include <Resource.h>
 
-#ifndef _WIN32
 #include <iostream>
-#endif
 
 MainFrame::MainFrame()
     : window(new wui::window()),
@@ -77,7 +75,14 @@ void MainFrame::Run()
             case wui::window_control::theme:
             {
                 auto nextTheme = wui::get_next_app_theme();
-                wui::set_default_theme_from_name(nextTheme);
+                wui::error err;
+                wui::set_default_theme_from_name(nextTheme, err);
+                if (!err.is_ok())
+                {
+                    std::cerr << err.str() << std::endl;
+                    return;
+                }
+
                 wui::config::set_string("User", "Theme", nextTheme);
 
                 window->update_theme();

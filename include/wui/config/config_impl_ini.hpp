@@ -37,7 +37,6 @@ public:
 
     void delete_key(const std::string &section);
 
-    virtual bool is_ok() const;
     virtual error get_error() const;
 
 private:

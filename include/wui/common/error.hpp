@@ -47,6 +47,11 @@ struct error
     {
         type = error_type::ok; component.clear(); message.clear();
     }
+
+    std::string str()
+    {
+        return "WUI error :: type: " + wui::str(type) + ", component: " + component + ", message: " + message;
+    }
 };
 
 }

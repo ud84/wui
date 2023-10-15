@@ -177,11 +177,6 @@ void config_impl_reg::delete_key(const std::string &section)
 	key.Close();
 }
 
-bool config_impl_reg::is_ok() const
-{
-    return true;
-}
-
 error config_impl_reg::get_error() const
 {
     return {};

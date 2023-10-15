@@ -26,7 +26,7 @@ void set_default_theme_empty(const std::string &name);
 
 /// Load theme from regsitry on Windows or from file on other systems
 /// Parameters are setted by set_app_themes() in theme_selector.hpp
-bool set_default_theme_from_name(const std::string &name);
+bool set_default_theme_from_name(const std::string &name, error &err);
 
 /// Return details of the error that occurred
 error get_theme_error();

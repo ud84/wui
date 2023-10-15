@@ -27,8 +27,6 @@
 
 #include <xcb/xcb_cursor.h>
 
-#include <iostream>
-
 #endif
 
 namespace wui

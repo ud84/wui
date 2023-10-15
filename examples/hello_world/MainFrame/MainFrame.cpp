@@ -21,9 +21,7 @@
 
 #include <Resource.h>
 
-#ifndef _WIN32
 #include <iostream>
-#endif
 
 MainFrame::MainFrame()
     : window(new wui::window()),
@@ -72,8 +70,16 @@ void MainFrame::Run()
         {
             case wui::window_control::theme:
             {
+                wui::error err;
+
                 auto nextTheme = wui::get_next_app_theme();
-                wui::set_default_theme_from_name(nextTheme);
+                wui::set_default_theme_from_name(nextTheme, err);
+                if (!err.is_ok())
+                {
+                    std::cerr << err.str() << std::endl;
+                    return;
+                }
+
                 wui::config::set_string("User", "Theme", nextTheme);
 
                 window->update_theme();
@@ -81,8 +87,16 @@ void MainFrame::Run()
             break;
 			case wui::window_control::lang:
 			{
+                wui::error err;
+
                 auto nextLocale = wui::get_next_app_locale();
-                wui::set_locale_from_type(nextLocale);
+                wui::set_locale_from_type(nextLocale, err);
+                if (!err.is_ok())
+                {
+                    std::cerr << err.str() << std::endl;
+                    return;
+                }
+
                 wui::config::set_int("User", "Locale", static_cast<int32_t>(nextLocale));
 
 				tooltip_text = wui::locale("window", "switch_lang");

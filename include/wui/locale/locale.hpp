@@ -26,7 +26,7 @@ void set_locale_empty(locale_type type, const std::string &name);
 
 /// Load locale from regsitry on Windows or from file on other systems
 /// Parameters are setted by set_app_locales() in locale_selector.hpp
-bool set_locale_from_type(locale_type type);
+bool set_locale_from_type(locale_type type, error &err);
 
 error get_locale_error();
 
