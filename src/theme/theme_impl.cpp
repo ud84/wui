@@ -16,7 +16,6 @@
 
 #include <sstream>
 #include <fstream>
-#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -26,7 +25,7 @@ namespace wui
 {
 
 theme_impl::theme_impl(const std::string &name_)
-    : name(name_), ints(), strings(), fonts(), imgs(), dummy_string(), dummy_image(), ok(false)
+    : name(name_), ints(), strings(), fonts(), imgs(), dummy_string(), dummy_image(), err{}
 {
 }
 
@@ -138,17 +137,20 @@ void theme_impl::load_resource(int32_t resource_index, const std::string &resour
 
 void theme_impl::load_json(const std::string &json_)
 {
+    err.reset();
+
     try
     {
         auto j = nlohmann::json::parse(json_);
 
         if (j.is_discarded())
         {
-            ok = false;
+            err.type = error_type::invalid_json;
+            err.component = "theme_impl::load_json()";
+            err.message = "json parse discarded";
+
             return;
         }
-
-        ok = true;
 
         auto controls = j.at("controls");
         for (auto &c : controls)
@@ -178,7 +180,9 @@ void theme_impl::load_json(const std::string &json_)
                         }
                         catch (...)
                         {
-                            std::cerr << "WUI error :: Error reading color in control: " << control << ", key: " << kvp.first <<  ", value: " << str << std::endl;
+                            err.type = error_type::invalid_value;
+                            err.component = "theme_impl::load_json()";
+                            err.message = "Error reading color in control: " + control + ", key: " + kvp.first + ", value: " + str;
                         }
                     }
                     else
@@ -263,7 +267,9 @@ void theme_impl::load_json(const std::string &json_)
                         }
                         else
                         {
-                            std::cerr << "WUI error :: Error reading theme image json: " << image_name << ", value: " << byte_val << std::endl;
+                            err.type = error_type::invalid_value;
+                            err.component = "theme_impl::load_json()";
+                            err.message = "Error reading theme image json: " + image_name + ", value: " + byte_val;
                         }
 
                         byte_val.clear();
@@ -275,18 +281,24 @@ void theme_impl::load_json(const std::string &json_)
     }
     catch (nlohmann::detail::exception &e)
     {
-        std::cerr << "WUI error :: Error reading theme json: " << e.what() << std::endl;
-        ok = false;
+        err.type = error_type::invalid_json;
+        err.component = "theme_impl::load_json()";
+        err.message = "Error reading theme json: " + std::string(e.what());
     }
 }
 
 void theme_impl::load_file(const std::string &file_name)
 {
+    err.reset();
+
     std::ifstream f(wui::real_path(file_name));
 
     if (!f)
     {
-        std::cerr << "WUI error :: Unable to open theme file: " << wui::real_path(file_name) << " errno: " << errno << std::endl;
+        err.type = error_type::file_not_found;
+        err.component = "theme_impl::load_file()";
+        err.message = "Unable to open locale file: " + wui::real_path(file_name) + " errno: " + std::to_string(errno);
+
         return;
     }
     
@@ -303,9 +315,9 @@ void theme_impl::load_theme(const i_theme &theme_)
     fonts = static_cast<const theme_impl*>(&theme_)->fonts;
 }
 
-bool theme_impl::is_ok() const
+error theme_impl::get_error() const
 {
-    return ok;
+    return err;
 }
 
 }

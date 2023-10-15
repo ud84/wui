@@ -34,7 +34,7 @@ public:
     virtual void load_file(const std::string &file_name);
     virtual void load_locale(const i_locale &locale_);
 
-    virtual bool is_ok() const;
+    virtual error get_error() const;
 
 private:
     locale_type type;
@@ -44,7 +44,7 @@ private:
 
     std::string dummy_string;
 
-    bool ok;
+    error err;
 };
 
 }

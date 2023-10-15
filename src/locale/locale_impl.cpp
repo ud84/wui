@@ -16,7 +16,6 @@
 
 #include <sstream>
 #include <fstream>
-#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -26,7 +25,7 @@ namespace wui
 {
 
 locale_impl::locale_impl(locale_type type_, const std::string &name_)
-    : type(type_), name(name_), strings(), dummy_string(), ok(false)
+    : type(type_), name(name_), strings(), dummy_string(), err{}
 {
 }
 
@@ -83,17 +82,20 @@ void locale_impl::load_resource(int32_t resource_index, const std::string &resou
 
 void locale_impl::load_json(const std::string &json_)
 {
+    err.reset();
+
     try
     {
         auto j = nlohmann::json::parse(json_);
 
         if (j.is_discarded())
         {
-            ok = false;
+            err.type = error_type::invalid_json;
+            err.component = "locale_impl::load_json()";
+            err.message = "json parse discarded";
+
             return;
         }
-
-        ok = true;
 
         auto sections = j.at("sections");
         for (auto &s : sections)
@@ -118,17 +120,23 @@ void locale_impl::load_json(const std::string &json_)
     }
     catch (nlohmann::detail::exception &e)
     {
-        std::cerr << "WUI error :: Error reading locale json: " << e.what() << std::endl;
-        ok = false;
+        err.type = error_type::invalid_json;
+        err.component = "locale_impl::load_json()";
+        err.message = "Error reading locale json: " + std::string(e.what());
     }
 }
 
 void locale_impl::load_file(const std::string &file_name)
 {
+    err.reset();
+
     std::ifstream f(wui::real_path(file_name));
     if (!f)
     {
-        std::cerr << "WUI error :: Unable to open locale file: " << wui::real_path(file_name) << " errno: " << errno << std::endl;
+        err.type = error_type::file_not_found;
+        err.component = "locale_impl::load_file()";
+        err.message = "Unable to open locale file: " + wui::real_path(file_name) + " errno: " + std::to_string(errno);
+
         return;
     }
     
@@ -143,9 +151,9 @@ void locale_impl::load_locale(const i_locale &locale_)
     strings = static_cast<const locale_impl*>(&locale_)->strings;
 }
 
-bool locale_impl::is_ok() const
+error locale_impl::get_error() const
 {
-    return ok;
+    return err;
 }
 
 }

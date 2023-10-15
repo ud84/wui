@@ -25,7 +25,6 @@ namespace wui
 namespace config
 {
 
-
 bool use_ini_file(const std::string &file_name);
 #ifdef _WIN32
 bool use_registry(const std::string &app_key, HKEY root = HKEY_CURRENT_USER);

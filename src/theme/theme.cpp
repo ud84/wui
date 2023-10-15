@@ -29,7 +29,7 @@ bool set_default_theme_from_resource(const std::string &name, int32_t resource_i
     instance = std::shared_ptr<i_theme>(new theme_impl(name));
     instance->load_resource(resource_index, resource_section);
 
-    return instance->is_ok();
+    return instance->get_error().is_ok();
 }
 #endif
 
@@ -39,7 +39,7 @@ bool set_default_theme_from_json(const std::string &name, const std::string &jso
     instance = std::shared_ptr<i_theme>(new theme_impl(name));
     instance->load_json(json);
 
-    return instance->is_ok();
+    return instance->get_error().is_ok();
 }
 
 bool set_default_theme_from_file(const std::string &name, const std::string &file_name)
@@ -48,7 +48,7 @@ bool set_default_theme_from_file(const std::string &name, const std::string &fil
     instance = std::shared_ptr<i_theme>(new theme_impl(name));
     instance->load_file(file_name);
 
-    return instance->is_ok();
+    return instance->get_error().is_ok();
 }
 
 void set_default_theme_empty(const std::string &name)
@@ -78,6 +78,15 @@ bool set_default_theme_from_name(const std::string &name)
 #endif
 
     return true;
+}
+
+error get_theme_error()
+{
+    if (instance)
+    {
+        instance->get_error();
+    }
+    return {};
 }
 
 std::shared_ptr<i_theme> get_default_theme()

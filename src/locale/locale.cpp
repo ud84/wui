@@ -29,7 +29,7 @@ bool set_locale_from_resource(locale_type type, const std::string &name, int32_t
     instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
     instance->load_resource(resource_index, resource_section);
 
-    return instance->is_ok();
+    return instance->get_error().is_ok();
 }
 #endif
 
@@ -39,7 +39,7 @@ bool set_locale_from_json(locale_type type, const std::string &name, const std::
     instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
     instance->load_json(json);
 
-    return instance->is_ok();
+    return instance->get_error().is_ok();
 }
 
 bool set_locale_from_file(locale_type type, const std::string &name, const std::string &file_name)
@@ -48,7 +48,7 @@ bool set_locale_from_file(locale_type type, const std::string &name, const std::
     instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
     instance->load_file(file_name);
 
-    return instance->is_ok();
+    return instance->get_error().is_ok();
 }
 
 void set_locale_empty(locale_type type, const std::string &name)
@@ -77,6 +77,15 @@ bool set_locale_from_type(locale_type type)
     }
 #endif
     return true;
+}
+
+error get_locale_error()
+{
+    if (instance)
+    {
+        instance->get_error();
+    }
+    return {};
 }
 
 std::shared_ptr<i_locale> get_locale()

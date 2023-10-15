@@ -54,6 +54,8 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
+    virtual error get_error() const;
+
 public:
     /// Control name in theme
     static constexpr const char *tc = "panel";

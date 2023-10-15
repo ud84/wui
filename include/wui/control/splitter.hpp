@@ -61,6 +61,8 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
+    virtual error get_error() const;
+
 public:
     /// Splitter interface
     void set_callback(std::function<void(int32_t, int32_t)> callback_);

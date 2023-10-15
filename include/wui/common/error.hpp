@@ -16,10 +16,11 @@ namespace wui
 
 enum class error_type
 {
-    ok,
+    ok = 0,
 
     file_not_found,
-    invalid_json
+    invalid_json,
+    invalid_value
 };
 
 std::string str(error_type);
@@ -37,6 +38,11 @@ struct error
     inline bool is_ok() const
     {
         return type == error_type::ok;
+    }
+
+    inline void reset()
+    {
+        type = error_type::ok; component.clear(); message.clear();
     }
 };
 

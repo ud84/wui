@@ -57,6 +57,8 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
+    virtual error get_error() const;
+
 public:
     /// List's interface
     struct column

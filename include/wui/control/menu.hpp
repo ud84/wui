@@ -95,6 +95,8 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
+    virtual error get_error() const;
+
 public:
     /// Menu's interface
     void set_items(const menu_items_t &mi);

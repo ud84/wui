@@ -99,6 +99,8 @@ error config_impl_ini::get_error() const
 
 bool config_impl_ini::load_values()
 {
+    err.reset();
+
     std::ifstream f(file_name, std::ios::in);
 	if (!f)
 	{
@@ -179,12 +181,15 @@ bool config_impl_ini::load_values()
 
 bool config_impl_ini::save_values()
 {
+    err.reset();
+
     std::ofstream f(file_name, std::ios::out | std::ios::trunc);
 	if (!f)
 	{
         err.type = error_type::file_not_found;
         err.component = "config_impl_ini::save_values()";
         err.message = "Error write to config file: " + file_name;
+
 		return false;
 	}
 

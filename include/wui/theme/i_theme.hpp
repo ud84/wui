@@ -11,6 +11,7 @@
 
 #include <wui/common/color.hpp>
 #include <wui/common/font.hpp>
+#include <wui/common/error.hpp>
 
 #include <cstdint>
 #include <string>
@@ -46,7 +47,7 @@ public:
     virtual void load_file(const std::string &file_name) = 0;
     virtual void load_theme(const i_theme &theme_) = 0;
 
-    virtual bool is_ok() const = 0;
+    virtual error get_error() const = 0;
 
     virtual ~i_theme() {}
 };

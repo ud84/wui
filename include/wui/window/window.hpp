@@ -92,6 +92,8 @@ public:
     virtual void disable();
     virtual bool enabled() const;
 
+    virtual error get_error() const;
+
     /// Window style methods
     void set_caption(const std::string &caption);
     void set_style(window_style style);

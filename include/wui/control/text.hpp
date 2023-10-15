@@ -61,6 +61,8 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
+    virtual error get_error() const;
+
 public:
     /// Text's interface
     void set_text(const std::string &text);

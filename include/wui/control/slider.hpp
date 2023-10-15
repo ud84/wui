@@ -67,6 +67,8 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
+    virtual error get_error() const;
+
 public:
     /// Slider's interface
     void set_range(int32_t from, int32_t to);

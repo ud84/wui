@@ -12,6 +12,7 @@
 #include <wui/control/i_control.hpp>
 #include <wui/theme/i_theme.hpp>
 #include <wui/event/event.hpp>
+#include <wui/common/error.hpp>
 
 #include <functional>
 
@@ -66,6 +67,8 @@ public:
     virtual void unsubscribe(const std::string &subscriber_id) = 0;
 
     virtual system_context &context() = 0;
+
+    virtual error get_error() const = 0;
 
 protected:
     ~i_window() {}

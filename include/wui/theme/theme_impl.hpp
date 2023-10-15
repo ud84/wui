@@ -45,7 +45,7 @@ public:
     virtual void load_file(const std::string &file_name);
     virtual void load_theme(const i_theme &theme_);
 
-    virtual bool is_ok() const;
+    virtual error get_error() const;
 
 private:
     std::string name;
@@ -58,7 +58,7 @@ private:
     std::string dummy_string;
     std::vector<uint8_t> dummy_image;
 
-    bool ok;
+    error err;
 };
 
 }

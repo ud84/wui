@@ -78,6 +78,8 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
+    virtual error get_error() const;
+
 public:
     /// Button's interface
     void set_caption(const std::string &caption);

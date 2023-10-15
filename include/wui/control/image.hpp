@@ -64,6 +64,8 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
+    virtual error get_error() const;
+
 public:
     /// Image's interface
 #ifdef _WIN32

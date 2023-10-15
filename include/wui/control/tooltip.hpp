@@ -53,6 +53,8 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
+    virtual error get_error() const;
+
 public:
     /// Tooltip's interface
     void show_on_control(i_control &control, int32_t indent);

@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <wui/common/error.hpp>
+
 #include <memory>
 #include <string>
 
@@ -48,6 +50,8 @@ public:
 
     virtual bool focused() const = 0;  /// Returns true if the control is focused
     virtual bool focusing() const = 0; /// Returns true if the control receives focus
+
+    virtual error get_error() const = 0;
 
     friend class window;
 

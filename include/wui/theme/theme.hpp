@@ -28,6 +28,9 @@ void set_default_theme_empty(const std::string &name);
 /// Parameters are setted by set_app_themes() in theme_selector.hpp
 bool set_default_theme_from_name(const std::string &name);
 
+/// Return details of the error that occurred
+error get_theme_error();
+
 /// Return the pointer to current default theme instance
 std::shared_ptr<i_theme> get_default_theme();
 
