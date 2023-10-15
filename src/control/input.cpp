@@ -654,6 +654,11 @@ bool input::focusing() const
     return enabled_ && showed_;
 }
 
+error input::get_error() const
+{
+    return {};
+}
+
 void input::update_theme_control_name(const std::string &theme_control_name)
 {
     tcn = theme_control_name;

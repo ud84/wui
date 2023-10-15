@@ -209,6 +209,11 @@ bool menu::focusing() const
     return false;
 }
 
+error menu::get_error() const
+{
+    return {};
+}
+
 void menu::update_theme_control_name(const std::string &theme_control_name)
 {
     tcn = theme_control_name;

@@ -107,6 +107,11 @@ bool panel::focusing() const
     return false;
 }
 
+error panel::get_error() const
+{
+    return {};
+}
+
 void panel::update_theme_control_name(const std::string &theme_control_name)
 {
     tcn = theme_control_name;

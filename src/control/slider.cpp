@@ -310,6 +310,11 @@ bool slider::focusing() const
     return enabled_ && showed_;
 }
 
+error slider::get_error() const
+{
+    return {};
+}
+
 void slider::update_theme_control_name(const std::string &theme_control_name)
 {
     tcn = theme_control_name;

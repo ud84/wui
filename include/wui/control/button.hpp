@@ -153,6 +153,8 @@ private:
 
     rect text_rect;
 
+    error err;
+
     void receive_event(const event &ev);
 
     void redraw();

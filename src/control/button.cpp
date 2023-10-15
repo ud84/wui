@@ -37,7 +37,8 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     pushed(false),
     turned_(false),
-    text_rect{ 0 }
+    text_rect{ 0 },
+    err{}
 {
 }
 
@@ -73,7 +74,8 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     pushed(false),
     turned_(false),
-    text_rect{ 0 }
+    text_rect{ 0 },
+    err{}
 {
 }
 
@@ -93,7 +95,8 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     pushed(false),
     turned_(false),
-    text_rect{ 0 }
+    text_rect{ 0 },
+    err{}
 {
 }
 #endif
@@ -113,7 +116,8 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     pushed(false),
     turned_(false),
-    text_rect{ 0 }
+    text_rect{ 0 },
+    err{}
 {
 }
 
@@ -133,7 +137,8 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     pushed(false),
     turned_(false),
-    text_rect{ 0 }
+    text_rect{ 0 },
+    err{}
 {
 }
 
@@ -475,6 +480,11 @@ bool button::focused() const
 bool button::focusing() const
 {
     return enabled_ && showed_ && focusing_;
+}
+
+error button::get_error() const
+{
+    return err;
 }
 
 void button::update_theme_control_name(const std::string &theme_control_name)

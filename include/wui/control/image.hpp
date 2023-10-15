@@ -104,6 +104,8 @@ private:
     cairo_surface_t *img;
 #endif
 
+    error err;
+
     void redraw();
 };
 

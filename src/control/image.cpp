@@ -69,7 +69,7 @@ void load_image_from_resource(WORD image_id, const std::wstring &resource_sectio
     load_image_from_data(std::vector<uint8_t>(static_cast<const uint8_t*>(resource_data), static_cast<const uint8_t*>(resource_data) + image_size), img);
 }
 
-void load_image_from_file(const std::string &file_name, const std::string &images_path, Gdiplus::Image **img)
+void load_image_from_file(const std::string &file_name, const std::string &images_path, Gdiplus::Image **img, wui::error &err)
 {
     *img = Gdiplus::Image::FromFile(std::wstring(boost::nowide::widen(images_path) + L"\\" + boost::nowide::widen(file_name)).c_str());
 }
@@ -117,14 +117,16 @@ void load_image_from_data(const std::vector<uint8_t> &data_, cairo_surface_t **i
     *img = cairo_image_surface_create_from_png_stream(+read_png_data, &reader_data);
 }
 
-void load_image_from_file(const std::string &file_name, const std::string &images_path, cairo_surface_t **img)
+void load_image_from_file(const std::string &file_name, const std::string &images_path, cairo_surface_t **img, wui::error &err)
 {
     auto full_image_path = wui::real_path(images_path + "/" + file_name);
 
     boost::nowide::ifstream f(full_image_path);
     if (!f)
     {
-        std::cerr << "WUI error :: Unable to open image file: " << full_image_path << " errno: " << errno << std::endl;
+        err.type = error_type::file_not_found;
+        err.component = "image::load_image_from_file()";
+        err.message = "unable to open image file: " + full_image_path + " errno: " + std::to_string(errno);
         return;
     }
     f.close();
@@ -154,7 +156,8 @@ image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
     showed_(true), topmost_(false),
     file_name(),
     resource_index(resource_index_),
-    img(nullptr)
+    img(nullptr),
+    err{}
 {
     load_image_from_resource(resource_index, boost::nowide::widen(theme_string(tc, tv_resource, theme_)), &img);
 }
@@ -169,9 +172,10 @@ image::image(const std::string &file_name_, std::shared_ptr<i_theme> theme__)
 #ifdef _WIN32
     resource_index(0),
 #endif
-    img(nullptr)
+    img(nullptr),
+    err{}
 {
-    load_image_from_file(file_name_, theme_string(tc, tv_path, theme_), &img);
+    load_image_from_file(file_name_, theme_string(tc, tv_path, theme_), &img, err);
 }
 
 image::image(const std::vector<uint8_t> &data)
@@ -273,6 +277,11 @@ bool image::focusing() const
     return false;
 }
 
+error image::get_error() const
+{
+    return err;
+}
+
 void image::update_theme_control_name(const std::string &)
 {
 }
@@ -349,7 +358,7 @@ void image::change_image(const std::string &file_name_)
     file_name = file_name_;
 
     free_image(&img);
-    load_image_from_file(file_name, theme_string(tc, tv_path, theme_), &img);
+    load_image_from_file(file_name, theme_string(tc, tv_path, theme_), &img, err);
 
     redraw();
 }

@@ -591,6 +591,11 @@ bool list::focusing() const
     return enabled_ && showed_;
 }
 
+error list::get_error() const
+{
+    return {};
+}
+
 void list::update_theme_control_name(const std::string &theme_control_name)
 {
     tcn = theme_control_name;

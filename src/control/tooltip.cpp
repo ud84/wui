@@ -106,6 +106,11 @@ bool tooltip::focusing() const
     return false;
 }
 
+error tooltip::get_error() const
+{
+    return {};
+}
+
 void tooltip::update_theme_control_name(const std::string &theme_control_name)
 {
     tcn = theme_control_name;

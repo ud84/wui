@@ -127,6 +127,11 @@ bool progress::focusing() const
     return false;
 }
 
+error progress::get_error() const
+{
+    return {};
+}
+
 void progress::update_theme_control_name(const std::string &theme_control_name)
 {
     tcn = theme_control_name;

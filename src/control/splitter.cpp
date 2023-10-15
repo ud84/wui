@@ -207,6 +207,11 @@ bool splitter::focusing() const
     return false;
 }
 
+error splitter::get_error() const
+{
+    return {};
+}
+
 void splitter::update_theme_control_name(const std::string &theme_control_name)
 {
     tcn = theme_control_name;
