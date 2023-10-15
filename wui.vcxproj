@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="include\wui\common\bit_helpers.hpp" />
     <ClInclude Include="include\wui\common\color.hpp" />
+    <ClInclude Include="include\wui\common\error.hpp" />
     <ClInclude Include="include\wui\common\flag_helpers.hpp" />
     <ClInclude Include="include\wui\common\font.hpp" />
     <ClInclude Include="include\wui\common\rect.hpp" />
@@ -71,6 +72,7 @@
     <ClInclude Include="include\wui\window\window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\common\error.cpp" />
     <ClCompile Include="src\config\config.cpp" />
     <ClCompile Include="src\config\config_impl_ini.cpp" />
     <ClCompile Include="src\config\config_impl_reg.cpp" />

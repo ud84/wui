@@ -23,9 +23,9 @@ namespace config
 config_impl_ini::config_impl_ini(const std::string &file_name_)
     : file_name(wui::real_path(file_name_)),
     values(),
-    ok(false), err_msg()
+    err{}
 {
-    ok = load_values();
+    load_values();
 }
 
 int32_t config_impl_ini::get_int(const std::string &section, const std::string &entry, int32_t default_)
@@ -92,14 +92,9 @@ void config_impl_ini::delete_key(const std::string &section)
     // todo
 }
 
-bool config_impl_ini::is_ok() const
+error config_impl_ini::get_error() const
 {
-    return ok;
-}
-
-std::string config_impl_ini::get_error() const
-{
-    return err_msg;
+    return err;
 }
 
 bool config_impl_ini::load_values()
@@ -107,9 +102,11 @@ bool config_impl_ini::load_values()
     std::ifstream f(file_name, std::ios::in);
 	if (!f)
 	{
-        err_msg = "WUI Error [config_impl_ini::load_values] :: Error opening config file: " + file_name;
-        ok = false;
-		return false;
+        err.type = error_type::file_not_found;
+        err.component = "config_impl_ini::load_values()";
+        err.message = "Error opening config file: " + file_name;
+        
+        return false;
 	}
 
     std::string section;
@@ -146,14 +143,18 @@ bool config_impl_ini::load_values()
                 }
                 catch (std::invalid_argument const& ex)
                 {
-                    err_msg = "WUI Error [config_impl_ini::load_values] :: std::invalid_argument::what(): " + std::string(ex.what());
-                    ok = false;
+                    err.type = error_type::invalid_json;
+                    err.component = "config_impl_ini::load_values()";
+                    err.message = "std::invalid_argument::what(): " + std::string(ex.what());
+
                     return false;
                 }
                 catch (std::out_of_range const& ex)
                 {
-                    err_msg = "WUI Error [config_impl_ini::load_values] :: std::out_of_range::what(): " + std::string(ex.what());
-                    ok = false;
+                    err.type = error_type::invalid_json;
+                    err.component = "config_impl_ini::load_values()";
+                    err.message = "std::out_of_range::what(): " + std::string(ex.what());
+
                     return false;
                 }
             }
@@ -173,7 +174,6 @@ bool config_impl_ini::load_values()
 
     f.close();
 
-    ok = true;
     return true;
 }
 
@@ -182,8 +182,9 @@ bool config_impl_ini::save_values()
     std::ofstream f(file_name, std::ios::out | std::ios::trunc);
 	if (!f)
 	{
-        err_msg = "WUI Error [config_impl_ini::save_values] :: Error write to config file: " + file_name;
-        ok = false;
+        err.type = error_type::file_not_found;
+        err.component = "config_impl_ini::save_values()";
+        err.message = "Error write to config file: " + file_name;
 		return false;
 	}
 

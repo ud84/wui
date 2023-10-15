@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <string>
+#include <wui/common/error.hpp>
 
 #include <memory>
 
@@ -25,12 +25,13 @@ namespace wui
 namespace config
 {
 
+
 bool use_ini_file(const std::string &file_name);
 #ifdef _WIN32
 bool use_registry(const std::string &app_key, HKEY root = HKEY_CURRENT_USER);
 #endif
 
-std::string get_error();
+error get_error();
 
 int32_t get_int(const std::string &section, const std::string &entry, int32_t default_);
 void set_int(const std::string &section, const std::string &entry, int32_t value);

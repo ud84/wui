@@ -38,7 +38,7 @@ public:
     void delete_key(const std::string &section);
 
     virtual bool is_ok() const;
-    virtual std::string get_error() const;
+    virtual error get_error() const;
 
 private:
     enum class value_type
@@ -64,8 +64,7 @@ private:
 
     std::map<std::pair<std::string, std::string>, value> values;
 
-    bool ok;
-    std::string err_msg;
+    error err;
 
     bool load_values();
     bool save_values();

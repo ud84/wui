@@ -64,6 +64,9 @@
     <Filter Include="Source Files\config">
       <UniqueIdentifier>{1125e8ba-76a9-45d9-ae98-99ccfd2839eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{a1a556c0-d320-4909-b18a-b9da82e629ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\wui\common\color.hpp">
@@ -216,6 +219,9 @@
     <ClInclude Include="include\wui\theme\theme_selector.hpp">
       <Filter>Header Files\wui\theme</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\common\error.hpp">
+      <Filter>Header Files\wui\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -313,6 +319,9 @@
     </ClCompile>
     <ClCompile Include="src\theme\theme_selector.cpp">
       <Filter>Source Files\theme</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\error.cpp">
+      <Filter>Source Files\common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

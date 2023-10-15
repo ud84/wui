@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <wui/common/error.hpp>
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -31,9 +33,8 @@ public:
     virtual void delete_value(const std::string &section, const std::string &entry) = 0;
 
     virtual void delete_key(const std::string &section) = 0;
-
-    virtual bool is_ok() const = 0;
-    virtual std::string get_error() const = 0;
+       
+    virtual error get_error() const = 0;
 
     virtual ~i_config() {}
 };

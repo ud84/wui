@@ -13,8 +13,6 @@
 
 #include <wui/config/i_config.hpp>
 
-#include <map>
-
 #include <windows.h>
 
 namespace wui
@@ -43,12 +41,11 @@ public:
     void delete_key(const std::string &section);
 
     virtual bool is_ok() const;
-    virtual std::string get_error() const;
+    virtual error get_error() const;
 
 private:
 	std::string base_application_key;
 	HKEY root;
-    bool ok;
 };
 
 }

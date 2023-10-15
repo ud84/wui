@@ -23,8 +23,7 @@ namespace config
 {
 
 config_impl_reg::config_impl_reg(const std::string &base_application_key_, HKEY root_)
-	: base_application_key(base_application_key_), root(root_),
-	ok(true)
+	: base_application_key(base_application_key_), root(root_)
 {
 }
 
@@ -180,12 +179,12 @@ void config_impl_reg::delete_key(const std::string &section)
 
 bool config_impl_reg::is_ok() const
 {
-    return ok;
+    return true;
 }
 
-std::string config_impl_reg::get_error() const
+error config_impl_reg::get_error() const
 {
-    return "";
+    return {};
 }
 
 }

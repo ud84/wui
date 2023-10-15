@@ -26,7 +26,7 @@ bool use_ini_file(const std::string &file_name)
     instance.reset();
     instance = std::shared_ptr<i_config>(new config_impl_ini(file_name));
 
-    return instance->is_ok();
+    return instance->get_error().is_ok();
 }
 #ifdef _WIN32
 bool use_registry(const std::string &app_key, HKEY root)
@@ -34,17 +34,17 @@ bool use_registry(const std::string &app_key, HKEY root)
     instance.reset();
     instance = std::shared_ptr<i_config>(new config_impl_reg(app_key, root));
 
-    return instance->is_ok();
+    return instance->get_error().is_ok();
 }
 #endif
 
-std::string get_error()
+error get_error()
 {
     if (instance)
     {
         return instance->get_error();
     }
-    return "";
+    return {};
 }
 
 int32_t get_int(const std::string &section, const std::string &entry, int32_t default_)
