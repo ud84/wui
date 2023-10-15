@@ -15,7 +15,7 @@ namespace wui
 {
 
 static themes_t instance;
-static std::string default_theme = "";
+static std::string default_theme = "dark";
 static size_t theme_pos = 0;
 
 void set_app_themes(const themes_t &tt)
@@ -31,6 +31,13 @@ void set_default_theme(const std::string &name)
 theme_params get_app_theme(const std::string &name)
 {
     auto l = std::find(instance.begin(), instance.end(), name);
+    if (l != instance.end())
+    {
+        return *l;
+    }
+    
+    /// We don't find the theme by name, try to return default theme
+    l = std::find(instance.begin(), instance.end(), default_theme);
     if (l != instance.end())
     {
         return *l;

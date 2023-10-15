@@ -40,6 +40,14 @@ locale_params get_app_locale(locale_type t)
     {
         return *l;
     }
+
+    /// We don't find the locale by type, try to return default locale
+    l = std::find(instance.begin(), instance.end(), default_locale);
+    if (l != instance.end())
+    {
+        return *l;
+    }
+
     return {};
 }
 
