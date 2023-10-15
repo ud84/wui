@@ -297,7 +297,7 @@ void theme_impl::load_file(const std::string &file_name)
     {
         err.type = error_type::file_not_found;
         err.component = "theme_impl::load_file()";
-        err.message = "Unable to open locale file: " + wui::real_path(file_name) + " errno: " + std::to_string(errno);
+        err.message = "Unable to open theme file: " + wui::real_path(file_name) + " errno: " + std::to_string(errno);
 
         return;
     }

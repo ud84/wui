@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
 
     auto current_locale = static_cast<wui::locale_type>(wui::config::get_int("User", "Locale", 
         static_cast<int32_t>(wui::get_default_system_locale())));
+
     wui::set_current_app_locale(current_locale);
 
     wui::set_locale_from_type(current_locale, err);
@@ -77,11 +78,12 @@ int main(int argc, char *argv[])
     }
 
     wui::set_app_themes({
-        { "dark", "res/dark.json", TXT_DARK_THEME },
+        { "dark",  "res/dark.json",  TXT_DARK_THEME },
         { "light", "res/light.json", TXT_LIGHT_THEME }
     });
 
     auto current_theme = wui::config::get_string("User", "Theme", "dark");
+    wui::set_default_theme("dark");
     wui::set_current_app_theme(current_theme);
 
     wui::set_default_theme_from_name(current_theme, err);
