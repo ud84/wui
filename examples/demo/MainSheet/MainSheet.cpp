@@ -16,12 +16,19 @@
 #include <wui/system/tools.hpp>
 #include <wui/system/uri_tools.hpp>
 
+#include <iostream>
+
 MainSheet::MainSheet()
     : parentWindow_(),
     logoImage(new wui::image(IMG_LOGO)),
     welcomeText(new wui::text(wui::locale("main_sheet", "main_title"), wui::text_alignment::left, "h1_text")),
     mainSiteAnchor(new wui::button(wui::about::web, [](){ wui::open_uri(wui::about::web); }, wui::button_view::anchor))
 {
+    auto e = logoImage->get_error();
+    if (!e.is_ok())
+    {
+        std::cerr << e.str() << std::endl;
+    }
 }
 
 void MainSheet::Run(std::weak_ptr<wui::window> parentWindow__)

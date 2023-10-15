@@ -16,6 +16,8 @@
 #include <wui/system/tools.hpp>
 #include <wui/system/uri_tools.hpp>
 
+#include <iostream>
+
 ButtonSheet::ButtonSheet()
     : parentWindow_(),
     buttonsText(new wui::text("", wui::text_alignment::left, "h1_text")),
@@ -33,6 +35,12 @@ ButtonSheet::ButtonSheet()
 {
     radioButton0->turn(true);
     sheetButton0->turn(true);
+
+    auto e = imageButton->get_error();
+    if (!e.is_ok())
+    {
+        std::cerr << e.str() << std::endl;
+    }
 }
 
 void ButtonSheet::Run(std::weak_ptr<wui::window> parentWindow__)

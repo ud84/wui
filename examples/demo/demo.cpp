@@ -49,10 +49,10 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
     auto ok = wui::config::use_registry("Software\\wui\\demo");
 #else
-    auto ok = wui::config::use_ini_file(config_ini_file);
+    auto ok = wui::config::use_ini_file("demo.ini");
     if (!ok)
     {
-        std::cerr << "can't open config: " << config_ini_file << std::endl;
+        std::cerr << wui::config::get_error().str() << std::endl;
         return -1;
     }
 #endif
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
     wui::set_app_locales({
         { wui::locale_type::eng, "English", "res/en_locale.json", TXT_LOCALE_EN },
-        { wui::locale_type::rus, "Ðóññêèé", "res/ru_locale.json", TXT_LOCALE_RU },
+        { wui::locale_type::rus, "Ð ÑƒÑÑÐºÐ¸Ð¹", "res/ru_locale.json", TXT_LOCALE_RU },
         });
 
     auto current_locale = static_cast<wui::locale_type>(wui::config::get_int("User", "Locale",

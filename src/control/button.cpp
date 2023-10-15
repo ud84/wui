@@ -77,6 +77,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     text_rect{ 0 },
     err{}
 {
+    if (image_) update_err("button::constructor[image from theme standart buttons]", image_->get_error());
 }
 
 #ifdef _WIN32
@@ -98,6 +99,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     text_rect{ 0 },
     err{}
 {
+    update_err("button::constructor[image from resource]", image_->get_error());
 }
 #endif
 
@@ -119,6 +121,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     text_rect{ 0 },
     err{}
 {
+    update_err("button::constructor[image from file]", image_->get_error());
 }
 
 button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::vector<uint8_t> &image_data, int32_t image_size_, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
@@ -140,6 +143,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     text_rect{ 0 },
     err{}
 {
+    update_err("button::constructor[image from data]", image_->get_error());
 }
 
 button::~button()
@@ -506,10 +510,12 @@ void button::update_theme(std::shared_ptr<i_theme> theme__)
     if (button_view_ == button_view::switcher)
     {
         image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
+        update_err("button::update_theme[switcher]", image_->get_error());
     }
     if (button_view_ == button_view::radio)
     {
         image_->change_image(theme_image(turned_ ? ti_radio_on : ti_radio_off));
+        update_err("button::update_theme[radio]", image_->get_error());
     }
     else if (image_)
     {
@@ -588,6 +594,8 @@ void button::set_image(int32_t resource_index)
     {
         image_ = std::shared_ptr<image>(new image(resource_index));
     }
+
+    update_err("button::set_image[from resource]", image_->get_error());
     redraw();
 }
 #endif
@@ -602,6 +610,8 @@ void button::set_image(const std::string &file_name)
     {
         image_ = std::shared_ptr<image>(new image(file_name));
     }
+    
+    update_err("button::set_image[from file]", image_->get_error());
     redraw();
 }
 
@@ -615,6 +625,8 @@ void button::set_image(const std::vector<uint8_t> &image_data)
     {
         image_ = std::shared_ptr<image>(new image(image_data));
     }
+
+    update_err("button::set_image[from data]", image_->get_error());
     redraw();
 }
 
@@ -635,9 +647,11 @@ void button::turn(bool on)
     {
         case button_view::switcher:
             image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
+            update_err("button::turn", image_->get_error());
         break;
         case button_view::radio:
             image_->change_image(theme_image(turned_ ? ti_radio_on : ti_radio_off));
+            update_err("button::turn", image_->get_error());
         break;
         default:
         break;
@@ -665,6 +679,12 @@ void button::redraw()
             parent__->redraw(position(), true);
         }
     }
+}
+
+void button::update_err(const std::string &place, const error &input_err)
+{
+    err = input_err;
+    err.component = place + "::" + input_err.component;
 }
 
 }

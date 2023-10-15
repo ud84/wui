@@ -1,5 +1,7 @@
 file(GLOB SOURCES 
 	*.cpp
+	ButtonSheet/*.cpp
+	InputSheet/*.cpp
 	MainFrame/*.cpp
 	MainSheet/*.cpp)
 

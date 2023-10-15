@@ -158,6 +158,8 @@ private:
     void receive_event(const event &ev);
 
     void redraw();
+
+    void update_err(const std::string &place, const error &input_err);
 };
 
 }

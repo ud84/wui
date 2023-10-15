@@ -23,6 +23,8 @@
 
 #else // _WIN32
 
+static int TXT_LOCALE_EN = 0, TXT_LOCALE_RU = 0, TXT_DARK_THEME = 0, TXT_LIGHT_THEME = 0;
+
 static constexpr const char* IMG_LOGO               = "logo.png";
 static constexpr const char* IMG_ACCOUNT            = "account.png";
 static constexpr const char* IMG_MENU               = "menu.png";
