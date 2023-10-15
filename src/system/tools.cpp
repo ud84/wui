@@ -114,12 +114,15 @@ void set_cursor(system_context &context, cursor cursor_)
     }
 }
 
-bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message)
+bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, error &err, const std::string &component)
 {
     xcb_generic_error_t *error = xcb_request_check(connection, cookie);
     if (error)
     {
-        std::cout << "WUI error: " << err_message << " : " << error->error_code << std::endl;
+        err.type = error_type::system_error;
+        err.component = component;
+        err.message = "error code: " + std::to_string(error->error_code);
+
         return false;
     }
     return true;

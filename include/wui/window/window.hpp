@@ -202,6 +202,8 @@ private:
 
     int16_t x_click, y_click;
 
+    error err;
+
     std::function<void(void)> close_callback;
     std::function<void(window_control control, std::string &text, bool &continue_)> control_callback;
 

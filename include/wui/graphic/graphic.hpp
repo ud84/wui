@@ -14,6 +14,7 @@
 #include <wui/common/color.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/font.hpp>
+#include <wui/common/error.hpp>
 
 #include <wui/graphic/primitive_container.hpp>
 
@@ -34,7 +35,7 @@ public:
     graphic(system_context &context);
     ~graphic();
 
-    void init(const rect &max_size, color background_color);
+    bool init(const rect &max_size, color background_color);
     void release();
 
     void set_background_color(color background_color);
@@ -71,6 +72,8 @@ public:
     void draw_surface(_cairo_surface &surface, const rect &position);
 #endif
 
+    error get_error() const;
+
 private:
     system_context &context_;
 
@@ -90,6 +93,7 @@ private:
     _cairo_device *device;
 #endif
 
+    error err;
 };
 
 }

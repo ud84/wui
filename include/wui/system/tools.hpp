@@ -14,6 +14,7 @@
 
 #include <wui/common/rect.hpp>
 #include <wui/common/font.hpp>
+#include <wui/common/error.hpp>
 #include <wui/system/system_context.hpp>
 
 namespace wui
@@ -58,7 +59,7 @@ void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t wi
 
 /// Service on Linux
 #ifdef __linux__
-bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, const char *err_message);
+bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, error &err, const std::string &component);
 #endif
 
 }

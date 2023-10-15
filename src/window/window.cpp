@@ -40,8 +40,6 @@
 
 #include <X11/Xutil.h>
 
-#include <iostream>
-
 #endif
 
 // Some helpers
@@ -148,6 +146,7 @@ window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> t
     subscribers_(),
     moving_mode_(moving_mode::none),
     x_click(0), y_click(0),
+    err{},
     close_callback(),
     control_callback(),
     default_push_control(),
@@ -735,6 +734,11 @@ void window::disable()
 bool window::enabled() const
 {
     return enabled_;
+}
+
+error window::get_error() const
+{
+    return err;
 }
 
 void window::switch_lang()
@@ -1540,6 +1544,8 @@ std::shared_ptr<window> window::get_transient_window()
 
 bool window::init(const std::string &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_)
 {
+    err.reset();
+
     caption = caption_;
 
     if (!position__.is_null())
@@ -1675,7 +1681,10 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
     context_.display = XOpenDisplay(NULL);
     if (!context_.display)
     {
-        std::cerr << "window can't open make the connection to X server" << std::endl;
+        err.type = error_type::system_error;
+        err.component = "window::init()";
+        err.message = "window can't open make the connection to X server";
+        
         return false;
     }
 
@@ -1716,7 +1725,7 @@ bool window::init(const std::string &caption_, const rect &position__, window_st
                       context_.screen->root_visual,
                       mask, values);
 
-    if (!check_cookie(window_cookie, context_.connection, "WUI error, can't create a new window\n"))
+    if (!check_cookie(window_cookie, context_.connection, err, "window::init() xcb_create_window"))
     {
         return false;
     }

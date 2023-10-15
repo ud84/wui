@@ -20,7 +20,10 @@ enum class error_type
 
     file_not_found,
     invalid_json,
-    invalid_value
+    invalid_value,
+    system_error,
+    no_handle,
+    already_runned
 };
 
 std::string str(error_type);

@@ -21,7 +21,6 @@
 #include <cmath>
 
 #include <algorithm>
-#include <iostream>
 
 xcb_visualtype_t *default_visual_type(wui::system_context &context_)
 {
@@ -52,12 +51,13 @@ graphic::graphic(system_context &context__)
 	  background_color(0)
 #ifdef _WIN32
     , mem_dc(0),
-      mem_bitmap(0)
+      mem_bitmap(0),
 #elif __linux__
     , mem_pixmap(0),
       surface(nullptr),
-      device(nullptr)
+      device(nullptr),
 #endif
+    err{}
 {
 }
 
@@ -66,7 +66,7 @@ graphic::~graphic()
     release();
 }
 
-void graphic::init(const rect &max_size_, color background_color_)
+bool graphic::init(const rect &max_size_, color background_color_)
 {
     max_size = max_size_;
     background_color = background_color_;
@@ -74,14 +74,29 @@ void graphic::init(const rect &max_size_, color background_color_)
 #ifdef _WIN32
     if (mem_dc)
     {
-        return;
+        err.type = error_type::already_runned;
+        err.component = "graphic::init()";
+        return false;
     }
+
+    err.reset();
     
     auto wnd_dc = GetDC(context_.hwnd);
 
     mem_dc = CreateCompatibleDC(wnd_dc);
 
     mem_bitmap = CreateCompatibleBitmap(wnd_dc, max_size.width(), max_size.height());
+    if (!mem_bitmap)
+    {
+        err.type = error_type::no_handle;
+        err.component = "graphic::init()";
+        err.message = "CreateCompatibleBitmap returns null";
+
+        ReleaseDC(context_.hwnd, wnd_dc);
+
+        return false;
+    }
+
     SelectObject(mem_dc, mem_bitmap);
 
     SetMapMode(mem_dc, MM_TEXT);
@@ -93,8 +108,12 @@ void graphic::init(const rect &max_size_, color background_color_)
 #elif __linux__
     if (!context_.display || mem_pixmap)
     {
-        return;
+        err.type = error_type::already_runned;
+        err.component = "graphic::init()";
+        return false;
     }
+
+    err.reset();
 
     mem_pixmap = xcb_generate_id(context_.connection);
     auto pixmap_create_cookie = xcb_create_pixmap(context_.connection,
@@ -103,9 +122,9 @@ void graphic::init(const rect &max_size_, color background_color_)
         context_.wnd,
         max_size.width(),
         max_size.height());
-    if (!check_cookie(pixmap_create_cookie, context_.connection, "graphic::init xcb_create_pixmap"))
+    if (!check_cookie(pixmap_create_cookie, context_.connection, err, "graphic::init() xcb_create_pixmap"))
     {
-        return;
+        return false;
     }
 
     xcb_rectangle_t rct = { 0,
@@ -117,11 +136,17 @@ void graphic::init(const rect &max_size_, color background_color_)
     surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, default_visual_type(context_), max_size.width(), max_size.height());
     if (!surface)
     {
-        std::cerr << "WUI error :: Can't create the cairo surface on graphic::init()" << std::endl;
+        err.type = error_type::no_handle;
+        err.component = "graphic::init() cairo_xcb_surface_create";
+        err.message = "Can't create the cairo surface";
+
+        return false;
     }
 #endif
 
     pc.init();
+
+    return true;
 }
 
 void graphic::release()
@@ -142,7 +167,7 @@ void graphic::release()
     if (mem_pixmap)
     {
         auto free_pixmap_cookie = xcb_free_pixmap(context_.connection, mem_pixmap);
-        check_cookie(free_pixmap_cookie, context_.connection, "graphic::clear_resources");
+        check_cookie(free_pixmap_cookie, context_.connection, err, "graphic::release()");
         mem_pixmap = 0;
     }
 #endif
@@ -228,7 +253,7 @@ void graphic::flush(const rect &updated_size)
             updated_size.width(),
             updated_size.height());
 
-        if (!check_cookie(copy_area_cookie, context_.connection, "graphic::end_drawing xcb_copy_area"))
+        if (!check_cookie(copy_area_cookie, context_.connection, err, "graphic::end_drawing xcb_copy_area"))
         {
             return;
         }
@@ -277,7 +302,9 @@ rect graphic::measure_text(const std::string &text, const font &font__)
 #elif __linux__
     if (!surface)
     {
-        std::cerr << "WUI error :: No cairo on graphic::measure_text() (no surface)" << std::endl;
+        err.type = error_type::no_handle;
+        err.component = "graphic::measure_text()";
+        err.message = "No cairo surface";
         return rect{ 0 };
     }
 
@@ -287,7 +314,9 @@ rect graphic::measure_text(const std::string &text, const font &font__)
     auto cr = pc.get_font(font__, surface);
     if (!cr)
     {
-        std::cerr << "WUI error :: No cairo context on graphic::measure_text" << std::endl;
+        err.type = error_type::no_handle;
+        err.component = "graphic::measure_text()";
+        err.message = "No cairo context";
         return rect{ 0 };
     }
 
@@ -313,14 +342,18 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
 #elif __linux__
     if (!surface)
     {
-        std::cerr << "WUI error :: No cairo on graphic::draw_text() (no surface)" << std::endl;
+        err.type = error_type::no_handle;
+        err.component = "graphic::draw_text()";
+        err.message = "No cairo surface";
         return;
     }
 
     auto cr = pc.get_font(font__, surface);
     if (!cr)
     {
-        std::cerr << "WUI error :: No cairo context on graphic::draw_text" << std::endl;
+        err.type = error_type::no_handle;
+        err.component = "graphic::draw_text()";
+        err.message = "No cairo context";
         return;
     }
 
@@ -411,7 +444,7 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
 		context_.wnd,
 		position.width(), position.height());
 
-    if (!check_cookie(pixmap_cookie, context_.connection, "graphic::draw_buffer xcb_create_pixmap"))
+    if (!check_cookie(pixmap_cookie, context_.connection, err, "graphic::draw_buffer() xcb_create_pixmap"))
     {
         return;
     }
@@ -426,7 +459,10 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
 
     if (!image)
     {
-    	std::cerr << "WUI error :: graphic::draw_buffer xcb_image_create_native" << std::endl;
+        err.type = error_type::no_handle;
+        err.component = "graphic::draw_buffer()";
+        err.message = "xcb_image_create_native error";
+
     	return;
     }
 
@@ -449,9 +485,8 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
 
     xcb_free_pixmap(context_.connection, pixmap);
 
-    if (!check_cookie(copy_area_cookie, context_.connection, "graphic::draw_buffer xcb_copy_area"))
+    if (!check_cookie(copy_area_cookie, context_.connection, err, "graphic::draw_buffer() xcb_copy_area"))
     {
-        std::cerr << "WUI error :: graphic::draw_buffer copy_area_cookie is invalid" << std::endl;
         return;
     }
 #endif
@@ -552,5 +587,10 @@ void graphic::draw_surface(cairo_surface_t &surface_, const rect &position__)
 }
 
 #endif
+
+error graphic::get_error() const
+{
+    return err;
+}
 
 }
