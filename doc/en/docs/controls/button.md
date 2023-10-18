@@ -34,7 +34,7 @@
         void set_callback(std::function<void(void)> click_callback);
     };
 
-The button can be of the following types:
+## button types
     
     text
     image

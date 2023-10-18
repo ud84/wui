@@ -34,7 +34,7 @@
         void set_callback(std::function<void(void)> click_callback);
     };
 
-Кнопка может быть следующих видов:
+## Виды кнопок
     
     text
     image
