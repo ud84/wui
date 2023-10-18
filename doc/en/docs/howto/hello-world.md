@@ -1,10 +1,10 @@
-## Стартовое приложение
+## Hello world application
 
-В качестве основы для любого проекта использующего WUI предлагается минимальное приложение, которое, впрочем сразу сделано под возможность его расширения до крупного проекта. 
+As a basis for any project using WUI a minimal application is offered, which, however, is immediately made for the possibility of its expansion to a large project.
 
-Данное приложение находится в examples/hello_world и включает полное наличие необходимых ресурсных файлов. На Windows приложение собирается в монолитный exe, на Linux/Mac хранит ресурсы в папке ”res/” рядом с исполняемым файлом. Для реальных приложений лучше указать пути “~/.app_name/res” или, если приложение ставится из под root, что-то вроде “/opt/app_name/res” .
+This application is located in examples/hello_world and includes the full availability of the necessary resource files. On Windows the application is assembled into a monolithic exe, on Linux/Mac it stores resources in the "res/" folder next to the executable. For real applications it is better to specify the path "~/.app_name/res" or, if the application is installed from root, something like "/opt/app_name/res"
 
-Показано использование theme, locale и config, в приложении, имеющем две цветовые схемы (темная и светлая), два языка и хранящем свою конфигурацию в реестре на Windows и в ini файле на Linux.
+Shows the use of theme, locale, and config, in an application that has two color schemes (dark and light), two languages, and stores its configuration in the registry on Windows and in an ini file on Linux.
 
 ## main.cpp
 
@@ -88,11 +88,11 @@
     #endif
     }
 
-Демонстрационное приложение показывает логотип, выводит надпись и предоставляет поле ввода. При нажатии на кнопку, происходит вывод окна сообщения и приложение закрывается. Также показано отслеживание закрытия окна пользователем с выводом сообщения подтверждения.
+The demo application shows the logo, displays a caption and provides an input field. When the button is clicked, a message box is displayed and the application is closed. It also shows tracking of the user closing the window and displaying a confirmation message.
 
 <img src="../../img/hw0.png">
 
-На следующем скриншоте, тема изменена на светлую, язык на английский и нажата кнопка “Приятно познакомиться”
+In the following screenshot, the theme is changed to light, the language to Russian and the "Nice to meet you" button is pressed
 
 <img src="../../img/hw1.png">
 
@@ -294,10 +294,10 @@
         return runned;
     }
 
-Окно и контролы создаются в конструкторе MainFrame. Там же осуществляется подписка приложения на события и добавляются на окно контролы. Коллбеки контролов для краткости отрабатываются при помощи лямбд. 
+The window and controls are created in the MainFrame constructor. The application subscribes to events and adds controls to the window. Controls' callbacks are handled with the help of lambdas for the sake of brevity. 
 
-Метод Run() запускает окно и содержит лямбду, обрабатывающую коллбеки от контролов окна (кнопки смена языка и темы).
-ReceiveEvents() получает события от окна и используется для реагирования на ресайз окна вызывая UpdateControlsPosition(). который и пересчитывает новые координаты контролов.
+The Run() method starts the window and contains a lambda that handles callbacks from window controls (language and theme buttons).
+ReceiveEvents() receives events from the window and is used to respond to window resizing by calling UpdateControlsPosition(). which recalculates the new coordinates of the controls.
 
 ## Resource.h
 
