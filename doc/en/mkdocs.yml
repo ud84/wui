@@ -4,12 +4,26 @@ nav:
   - Home: 'index.md'
   - Manuals:
     - Installation: 'howto/setup.md'
-  - Help:
+    - Hello world: 'howto/hello-world.md'
+
+  - Handbook:
     - Common types: 'base/common.md'
     - Events: 'base/event.md'
     - Graphics: 'base/graphic.md'
     - Basic Interfaces: 'base/interfaces.md'
+    
     - Visual Themes: 'base/theme.md'
+    - Locales: 'base/locales.md'
+    - Config: 'base/config.md'
+    
+    - Main application loop: 'base/main-loop.md'
+    - Resources: 'base/resources.md'
+    - Multi-threading: 'base/multi-threading.md'
+    - Unicode: 'base/unicode.md'
+    - Error handling: 'controls/error-handling.md'
+    - Transient / Modal: 'base/transient.md'
+    - Dependencies: 'base/dependencies.md'
+
   - About the Library:
     - License: 'about/licence.md'
     - Contacts: 'about/contacts.md'

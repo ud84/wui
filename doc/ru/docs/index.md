@@ -68,7 +68,7 @@ Control знает, как обрабатывать события, поступ
 * [Локали](base/locale.md)
 * [Конфиг](base/config.md)
 
-* [Многопоточнось](base/multithreading.md)
+* [Многопоточнось](base/multi-threading.md)
 * [Unicode](base/unicode.md)
 * [Обработка ошибок](controls/error-handling.md)
 

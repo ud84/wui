@@ -2,14 +2,43 @@ site_name: WUI
 
 nav:
   - Домашняя: 'index.md'
-  - 'Руководства':
+  - Руководства:
     - Установка: 'howto/setup.md'
-  - 'Справка':
+    - Hello world: 'howto/hello-world.md'
+  - Справочник:
     - Общие типы: 'base/common.md'
+    - Базовые интерейсы: 'base/interfaces.md'
     - События: 'base/event.md'
     - Графика: 'base/graphic.md'
-    - Базовые интерейсы: 'base/interfaces.md'
+    
     - Визуальные темы: 'base/theme.md'
-  - 'О библиотеке':
+    - Локали: 'base/locales.md'
+    - Конфиг: 'base/config.md'
+    
+    - Главный цикл приложения: 'base/main-loop.md'
+    - Ресурсы: 'base/resources.md'
+    - Многопоточнось: 'base/multi-threading.md'
+    - Unicode: 'base/unicode.md'
+    - Обработка ошибок: 'controls/error-handling.md'
+    - Транзиентность / Модальность: 'base/transient.md'
+    - Зависимости: 'base/dependencies.md'
+  - Контролы:
+    - Все: 'controls/all.md'
+    
+    - Кнопка: 'controls/button.md'
+    - Изображение: 'controls/image.md'
+    - Поле ввода: 'controls/input.md'
+    - Список: 'controls/list.md'
+    - Меню: 'controls/menu.md'
+    - Сообщение: 'controls/message.md'
+    - Панель: 'controls/panel.md'
+    - Прогресс: 'controls/progress.md'
+    - Селектор: 'controls/select.md'
+    - Регулятор: 'controls/slider.md'
+    - Разделитель: 'controls/splitter.md'
+    - Подсказка: 'controls/tooltip.md'
+    - Трей: 'controls/tray.md'
+
+  - О библиотеке:
     - Лицензия: 'about/licence.md'
     - Контакты: 'about/contacts.md'

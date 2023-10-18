@@ -68,7 +68,7 @@ When it is necessary to draw a part of the window, we search for controls fallin
 * [Locales](base/locale.md)
 * [Config](base/config.md)
 
-* [Multithreading](base/multithreading.md)
+* [Multithreading](base/multi-threading.md)
 * [Unicode](base/unicode.md)
 * [Error Handling](controls/error-handling.md)
 
