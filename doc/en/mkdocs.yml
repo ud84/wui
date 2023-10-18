@@ -20,9 +20,26 @@ nav:
     - Resources: 'base/resources.md'
     - Multi-threading: 'base/multi-threading.md'
     - Unicode: 'base/unicode.md'
-    - Error handling: 'controls/error-handling.md'
+    - Error handling: 'base/error-handling.md'
     - Transient / Modal: 'base/transient.md'
     - Dependencies: 'base/dependencies.md'
+
+  - Controls:
+    - All: 'controls/all.md'
+    
+    - Button: 'controls/button.md'
+    - Image: 'controls/image.md'
+    - Text input: 'controls/input.md'
+    - List: 'controls/list.md'
+    - Menu: 'controls/menu.md'
+    - Message: 'controls/message.md'
+    - Panel: 'controls/panel.md'
+    - Progress: 'controls/progress.md'
+    - Select: 'controls/select.md'
+    - Slider: 'controls/slider.md'
+    - Splitter: 'controls/splitter.md'
+    - Tooltip: 'controls/tooltip.md'
+    - Tray: 'controls/tray.md'
 
   - About the Library:
     - License: 'about/licence.md'

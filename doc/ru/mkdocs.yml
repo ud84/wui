@@ -19,7 +19,7 @@ nav:
     - Ресурсы: 'base/resources.md'
     - Многопоточнось: 'base/multi-threading.md'
     - Unicode: 'base/unicode.md'
-    - Обработка ошибок: 'controls/error-handling.md'
+    - Обработка ошибок: 'base/error-handling.md'
     - Транзиентность / Модальность: 'base/transient.md'
     - Зависимости: 'base/dependencies.md'
   - Контролы:
