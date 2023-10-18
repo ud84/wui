@@ -70,7 +70,7 @@ Control знает, как обрабатывать события, поступ
 
 * [Многопоточнось](base/multi-threading.md)
 * [Unicode](base/unicode.md)
-* [Обработка ошибок](controls/error-handling.md)
+* [Обработка ошибок](base/error-handling.md)
 
 * [Контролы](controls/all.md)
 

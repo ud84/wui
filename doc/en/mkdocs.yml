@@ -13,7 +13,7 @@ nav:
     - Basic Interfaces: 'base/interfaces.md'
     
     - Visual Themes: 'base/theme.md'
-    - Locales: 'base/locales.md'
+    - Locales: 'base/locale.md'
     - Config: 'base/config.md'
     
     - Main application loop: 'base/main-loop.md'

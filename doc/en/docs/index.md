@@ -70,7 +70,7 @@ When it is necessary to draw a part of the window, we search for controls fallin
 
 * [Multithreading](base/multi-threading.md)
 * [Unicode](base/unicode.md)
-* [Error Handling](controls/error-handling.md)
+* [Error Handling](base/error-handling.md)
 
 * [Controls](controls/all.md)
 
