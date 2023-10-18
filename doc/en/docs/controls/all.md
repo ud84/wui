@@ -1,0 +1,15 @@
+## Available stadart controls
+
+* [Button](button.md)
+* [Image](image.md)
+* [Text input](input.md)
+* [List](list.md)
+* [Menu](menu.md)
+* [Message](message.md)
+* [Panel](panel.md)
+* [Progress](progress.md)
+* [Select](select.md)
+* [Slider](slider.md)
+* [Splitter](splitter.md)
+* [Tooltip](tooltip.md)
+* [Tray](tray.md)
