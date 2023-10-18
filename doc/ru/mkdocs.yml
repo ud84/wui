@@ -12,7 +12,7 @@ nav:
     - Графика: 'base/graphic.md'
     
     - Визуальные темы: 'base/theme.md'
-    - Локали: 'base/locales.md'
+    - Локали: 'base/locale.md'
     - Конфиг: 'base/config.md'
     
     - Главный цикл приложения: 'base/main-loop.md'
