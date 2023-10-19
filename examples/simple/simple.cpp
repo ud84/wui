@@ -1,8 +1,11 @@
 // wui.cpp : Defines the entry point for the application.
 //
 
+#include <wui/framework/framework.hpp>
 #include <wui/theme/theme.hpp>
+#include <wui/theme/theme_selector.hpp>
 #include <wui/locale/locale.hpp>
+#include <wui/locale/locale_selector.hpp>
 #include <wui/window/window.hpp>
 #include <wui/control/button.hpp>
 #include <wui/control/input.hpp>
@@ -19,15 +22,12 @@
 
 #ifdef _WIN32
 #include <Resource.h>
-#include <gdiplus.h>
 #else
-#include <iostream>
-#endif
-
-#ifndef _WIN32
 const std::string IMG_ACCOUNT = "res/images/dark/account.png";
 const std::string IMG_SETTINGS = "res/images/dark/settings.png";
 #endif
+
+#include <iostream>
 
 std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
 {
@@ -241,62 +241,45 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 };
 
 #ifdef _WIN32
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-    _In_opt_ HINSTANCE hPrevInstance,
+int APIENTRY wWinMain(_In_ HINSTANCE,
+    _In_opt_ HINSTANCE,
     _In_ LPWSTR    lpCmdLine,
     _In_ int       nCmdShow)
-{
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
-
-    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 #elif __linux__
 int main(int argc, char *argv[])
+#endif
 {
-    if (setlocale(LC_ALL, "") == NULL)
-    {
-        std::cerr << "warning: could not set default locale"  << std::endl;
-    }
+    wui::framework::init();
+    wui::error err;
 
-#endif
-    bool runned = true;
+    wui::set_app_locales({
+        { wui::locale_type::eng, "English", "res/en_locale.json", TXT_LOCALE_EN },
+        { wui::locale_type::rus, "Русский", "res/ru_locale.json", TXT_LOCALE_RU },
+        });
 
-#ifdef _WIN32
-    auto ok = wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
-    if (!ok)
+    auto current_locale = wui::get_default_system_locale();
+    wui::set_current_app_locale(current_locale);
+
+    wui::set_locale_from_type(current_locale, err);
+    if (!err.is_ok())
     {
-        printf("can't load theme\n");
+        std::cerr << err.str() << std::endl;
         return -1;
     }
 
-    ok = wui::set_locale_from_resource(wui::locale_type::eng, "en", TXT_LOCALE_EN, "JSONS");
-    if (!ok)
-    {
-        printf("can't load locale\n");
-        return -1;
-    }
-#elif __linux__
-    static constexpr const char * en_locale_json_file = "res/en_locale.json";
-    static constexpr const char * ru_locale_json_file = "res/ru_locale.json";
-    static constexpr const char * light_theme_json_file = "res/light.json";
-    static constexpr const char * dark_theme_json_file = "res/dark.json";
+    wui::set_app_themes({
+        { "dark", "res/dark.json", TXT_DARK_THEME },
+        { "light", "res/light.json", TXT_LIGHT_THEME }
+        });
 
-    auto ok = wui::set_default_theme_from_file("dark", dark_theme_json_file);
-    if (!ok)
+    auto current_theme = "dark";
+    wui::set_current_app_theme(current_theme);
+    wui::set_default_theme_from_name(current_theme, err);
+    if (!err.is_ok())
     {
-        printf("can't load theme\n");
+        std::cerr << err.str() << std::endl;
         return -1;
     }
-
-    ok = wui::set_locale_from_file(wui::locale_type::eng, "en", en_locale_json_file);
-    if (!ok)
-    {
-        printf("can't load locale\n");
-        return -1;
-    }
-#endif
 
     std::shared_ptr<wui::window> window(new wui::window());
 
@@ -434,16 +417,17 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IMG_ACCOUNT, 24, wui::button::tc, MakeRedButtonTheme()));
 
-    std::shared_ptr<wui::button> darkThemeButton(new wui::button("Set the dark theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
-    {
-#ifdef _WIN32
-        wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
-#elif __linux__
-        if (!wui::set_default_theme_from_file("dark", dark_theme_json_file))
+    std::shared_ptr<wui::button> darkThemeButton(new wui::button("Set the dark theme",
+        [&window, &pluggedWindow, &dialog, &cancelButton]() {
+        auto current_theme = "dark";
+        wui::set_current_app_theme(current_theme);
+        wui::error err;
+        wui::set_default_theme_from_name(current_theme, err);
+        if (!err.is_ok())
         {
-            std::cerr << "Error reading theme file: " << dark_theme_json_file << std::endl;
+            std::cerr << err.str() << std::endl;
+            return;
         }
-#endif
 
         window->update_theme();
         pluggedWindow->window->update_theme();
@@ -454,16 +438,17 @@ int main(int argc, char *argv[])
 
     darkThemeButton->turn(true);
 	
-    std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the white theme", [&window, &pluggedWindow, &dialog, &cancelButton]()
-    {
-#ifdef _WIN32
-        wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
-#elif __linux__
-        if (!wui::set_default_theme_from_file("light", light_theme_json_file))
+    std::shared_ptr<wui::button> whiteThemeButton(new wui::button("Set the light theme", 
+        [&window, &pluggedWindow, &dialog, &cancelButton]() {
+        auto current_theme = "light";
+        wui::set_current_app_theme(current_theme);
+        wui::error err;
+        wui::set_default_theme_from_name(current_theme, err);
+        if (!err.is_ok())
         {
-            std::cerr << "Error reading theme file: " << light_theme_json_file << std::endl;
+            std::cerr << err.str() << std::endl;
+            return;
         }
-#endif
 
         window->update_theme();
         pluggedWindow->window->update_theme();
@@ -499,45 +484,26 @@ int main(int argc, char *argv[])
     }, wui::event_type::internal);
 
     window->set_control_callback([&window, &pluggedWindow, &dialog, &cancelButton](wui::window_control control, std::string &tooltip_text, bool continue_) {
-        if (control != wui::window_control::theme)
+        if (control == wui::window_control::theme)
         {
-            return;
-        }
+            auto theme_name = wui::get_default_theme()->get_name();
 
-        auto theme_name = wui::get_default_theme()->get_name();
+            tooltip_text = wui::locale("window", theme_name == "dark" ? "dark_theme" : "light_theme");
 
-        if (theme_name == "dark")
-        {
-            tooltip_text = wui::locale("window", "dark_theme");
-#ifdef _WIN32
-            wui::set_default_theme_from_resource("light", TXT_LIGHT_THEME, "JSONS");
-#else
-            
-            if (!wui::set_default_theme_from_file("light", light_theme_json_file))
+            auto current_theme = theme_name == "dark" ? "light" : "dark";
+            wui::set_current_app_theme(current_theme);
+            wui::error err;
+            wui::set_default_theme_from_name(current_theme, err);
+            if (!err.is_ok())
             {
-                std::cerr << "Error opening theme json: " << light_theme_json_file << std::endl;
-                return;
+                std::cerr << err.str() << std::endl;
             }
-#endif
-        }
-        else if (theme_name == "light")
-        {
-            tooltip_text = wui::locale("window", "light_theme");
-#ifdef _WIN32
-            wui::set_default_theme_from_resource("dark", TXT_DARK_THEME, "JSONS");
-#elif __linux__
-            if (!wui::set_default_theme_from_file("dark", dark_theme_json_file))
-            {
-                std::cerr << "Error opening theme json: " << dark_theme_json_file << std::endl;
-                return;
-            }
-#endif
-        }
 
-        window->update_theme();
-        pluggedWindow->window->update_theme();
-        dialog->update_theme();
-        cancelButton->update_theme(MakeRedButtonTheme());
+            window->update_theme();
+            pluggedWindow->window->update_theme();
+            dialog->update_theme();
+            cancelButton->update_theme(MakeRedButtonTheme());
+        }
     });
 
     window->set_default_push_control(okButton);
@@ -547,31 +513,11 @@ int main(int argc, char *argv[])
             static_cast<uint32_t>(wui::window_style::switch_theme_button) |
             static_cast<uint32_t>(wui::window_style::border_all)),
         //wui::window_style::frame,
-        [&runned]() {
-#ifdef _WIN32
-        PostQuitMessage(IDCANCEL);
-#elif __linux__
-        runned = false;
-#endif
-    });
+        []() {
+            wui::framework::stop();
+        });
 
-#ifdef _WIN32
-    // Main message loop:
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+    wui::framework::run();
 
-    //Gdiplus::GdiplusShutdown(gdiplusToken);
-    return (int) msg.wParam;
-#elif __linux__
-    // Wait for main window
-    while (runned)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
     return 0;
-#endif
 }
