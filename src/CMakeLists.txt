@@ -2,6 +2,7 @@ file(GLOB SOURCES
     common/*.cpp
 	control/*.cpp
 	config/*.cpp
+	framework/*.cpp
 	graphic/*.cpp
 	theme/*.cpp
 	theme/impl/*.cpp

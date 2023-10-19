@@ -11,6 +11,8 @@
 
 #include <wui/framework/framework_lin_impl.hpp>
 
+#include <thread>
+
 namespace wui
 {
 

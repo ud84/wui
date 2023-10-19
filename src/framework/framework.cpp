@@ -19,6 +19,9 @@
 #include <gdiplus.h>
 #endif
 
+#include <memory>
+#include <iostream>
+
 namespace wui
 {
 
