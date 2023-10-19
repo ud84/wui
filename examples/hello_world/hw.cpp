@@ -24,30 +24,22 @@
 #include <iostream>
 
 #ifdef _WIN32
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-    _In_opt_ HINSTANCE hPrevInstance,
+int APIENTRY wWinMain(_In_ HINSTANCE,
+    _In_opt_ HINSTANCE,
     _In_ LPWSTR    lpCmdLine,
     _In_ int       nCmdShow)
-{
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
 #elif __linux__
 int main(int argc, char *argv[])
-{
 #endif
-
+{
     wui::framework::init();
 
-#ifdef _WIN32
-    auto ok = wui::config::use_registry("Software\\wui\\hello_world");
-#else
-    auto ok = wui::config::use_ini_file("hello_world.ini");
+    auto ok = wui::config::create_config("hello_world.ini", "Software\\wui\\hello_world");
     if (!ok)
     {
         std::cerr << wui::config::get_error().str() << std::endl;
         return -1;
     }
-#endif
 
     wui::error err;
 

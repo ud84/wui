@@ -38,6 +38,16 @@ bool use_registry(const std::string &app_key, HKEY root)
 }
 #endif
 
+bool create_config(const std::string &file_name,
+    const std::string &app_key, int64_t root)
+{
+#ifdef _WIN32
+    return use_registry(app_key, root == 0 ? HKEY_CURRENT_USER : (HKEY)root);
+#else
+    return use_ini_file(file_name);
+#endif
+}
+
 error get_error()
 {
     if (instance)
