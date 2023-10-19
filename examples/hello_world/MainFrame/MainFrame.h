@@ -24,8 +24,6 @@ public:
 
     void Run();
 
-    bool Runned() const;
-
 private:
     static const int32_t WND_WIDTH = 400, WND_HEIGHT = 400;
 

@@ -7,6 +7,8 @@
 // Official repository: https://github.com/ud84/wui
 //
 
+#include <wui/framework/framework.hpp>
+
 #include <wui/config/config.hpp>
 
 #include <wui/theme/theme.hpp>
@@ -19,10 +21,6 @@
 
 #include <Resource.h>
 
-#ifdef _WIN32
-#include <gdiplus.h>
-#endif
-
 #include <iostream>
 
 #ifdef _WIN32
@@ -33,19 +31,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
-
-    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 #elif __linux__
 int main(int argc, char *argv[])
 {
-    if (setlocale(LC_ALL, "") == NULL)
-    {
-        std::cerr << "warning: could not set default locale" << std::endl;
-    }
-
 #endif
+
+    wui::framework::init();
 
 #ifdef _WIN32
     auto ok = wui::config::use_registry("Software\\wui\\hello_world");
@@ -96,21 +87,7 @@ int main(int argc, char *argv[])
     MainFrame mainFrame;
     mainFrame.Run();
 
-#ifdef _WIN32
-    // Main message loop
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-    return (int) msg.wParam;
-#elif __linux__
-    // Wait for main window
-    while (mainFrame.Runned())
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
+    wui::framework::run();
+
     return 0;
-#endif
 }

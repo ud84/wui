@@ -15,6 +15,8 @@
 #include <wui/locale/locale.hpp>
 #include <wui/locale/locale_selector.hpp>
 
+#include <wui/framework/framework.hpp>
+
 #include <wui/system/tools.hpp>
 
 #include <MainFrame/MainFrame.h>
@@ -115,11 +117,7 @@ void MainFrame::Run()
                         [this, &continue_](wui::message_result r) {
 							if (r == wui::message_result::yes)
 							{
-#ifdef _WIN32
-								PostQuitMessage(IDCANCEL);
-#else
-								runned = false;
-#endif
+                                wui::framework::stop();
 							}
                         });
                 }
@@ -134,13 +132,7 @@ void MainFrame::Run()
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
         static_cast<uint32_t>(wui::window_style::switch_theme_button) |
 		static_cast<uint32_t>(wui::window_style::switch_lang_button) |
-        static_cast<uint32_t>(wui::window_style::border_all)), [this]() {
-#ifdef _WIN32
-            PostQuitMessage(IDCANCEL);
-#else
-            runned = false;
-#endif
-    });
+        static_cast<uint32_t>(wui::window_style::border_all)), [this]() { wui::framework::stop(); });
 }
 
 void MainFrame::ReceiveEvents(const wui::event &ev)
@@ -194,9 +186,4 @@ void MainFrame::UpdateControlsPosition()
         center + 90,
         height - space
     });
-}
-
-bool MainFrame::Runned() const
-{
-    return runned;
 }

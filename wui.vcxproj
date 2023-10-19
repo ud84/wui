@@ -49,6 +49,10 @@
     <ClInclude Include="include\wui\event\keyboard_event.hpp" />
     <ClInclude Include="include\wui\event\mouse_event.hpp" />
     <ClInclude Include="include\wui\event\system_event.hpp" />
+    <ClInclude Include="include\wui\framework\framework.hpp" />
+    <ClInclude Include="include\wui\framework\framework_lin_impl.hpp" />
+    <ClInclude Include="include\wui\framework\framework_win_impl.hpp" />
+    <ClInclude Include="include\wui\framework\i_framework.hpp" />
     <ClInclude Include="include\wui\graphic\graphic.hpp" />
     <ClInclude Include="include\wui\graphic\primitive_container.hpp" />
     <ClInclude Include="include\wui\locale\i_locale.hpp" />
@@ -90,6 +94,9 @@
     <ClCompile Include="src\control\text.cpp" />
     <ClCompile Include="src\control\tooltip.cpp" />
     <ClCompile Include="src\control\tray_icon.cpp" />
+    <ClCompile Include="src\framework\framework.cpp" />
+    <ClCompile Include="src\framework\framework_lin_impl.cpp" />
+    <ClCompile Include="src\framework\framework_win_impl.cpp" />
     <ClCompile Include="src\graphic\graphic.cpp" />
     <ClCompile Include="src\graphic\primitive_container.cpp" />
     <ClCompile Include="src\locale\locale.cpp" />

@@ -67,6 +67,12 @@
     <Filter Include="Source Files\common">
       <UniqueIdentifier>{a1a556c0-d320-4909-b18a-b9da82e629ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\wui\framework">
+      <UniqueIdentifier>{e1544303-aed8-496f-bd9c-191a6718bf1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\framework">
+      <UniqueIdentifier>{cea1b422-bbc0-403d-99d8-a56432d09c6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\wui\common\color.hpp">
@@ -222,6 +228,18 @@
     <ClInclude Include="include\wui\common\error.hpp">
       <Filter>Header Files\wui\common</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\framework\framework.hpp">
+      <Filter>Header Files\wui\framework</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\framework\framework_lin_impl.hpp">
+      <Filter>Header Files\wui\framework</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\framework\framework_win_impl.hpp">
+      <Filter>Header Files\wui\framework</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\framework\i_framework.hpp">
+      <Filter>Header Files\wui\framework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -322,6 +340,15 @@
     </ClCompile>
     <ClCompile Include="src\common\error.cpp">
       <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\framework\framework_lin_impl.cpp">
+      <Filter>Source Files\framework</Filter>
+    </ClCompile>
+    <ClCompile Include="src\framework\framework_win_impl.cpp">
+      <Filter>Source Files\framework</Filter>
+    </ClCompile>
+    <ClCompile Include="src\framework\framework.cpp">
+      <Filter>Source Files\framework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
