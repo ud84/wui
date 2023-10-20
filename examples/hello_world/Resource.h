@@ -7,6 +7,8 @@
 // Official repository: https://github.com/ud84/wui
 //
 
+#pragma once
+
 #ifdef _WIN32
 
 #define IDI_MAIN_ICON           107

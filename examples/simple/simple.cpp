@@ -20,12 +20,7 @@
 #include <wui/control/slider.hpp>
 #include <wui/control/panel.hpp>
 
-#ifdef _WIN32
 #include <Resource.h>
-#else
-const std::string IMG_ACCOUNT = "res/images/dark/account.png";
-const std::string IMG_SETTINGS = "res/images/dark/settings.png";
-#endif
 
 #include <iostream>
 
@@ -254,7 +249,7 @@ int main(int argc, char *argv[])
 
     wui::set_app_locales({
         { wui::locale_type::eng, "English", "res/en_locale.json", TXT_LOCALE_EN },
-        { wui::locale_type::rus, "–ÛÒÒÍËÈ", "res/ru_locale.json", TXT_LOCALE_RU },
+        { wui::locale_type::rus, "–†—É—Å—Å–∫–∏–π", "res/ru_locale.json", TXT_LOCALE_RU },
         });
 
     auto current_locale = wui::get_default_system_locale();

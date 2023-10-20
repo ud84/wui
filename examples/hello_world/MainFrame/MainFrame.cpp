@@ -26,19 +26,6 @@
 #include <iostream>
 
 MainFrame::MainFrame()
-    : window(new wui::window()),
-    
-    logoImage(new wui::image(IMG_LOGO)),
-    whatsYourNameText(new wui::text(wui::locale("main_frame", "whats_your_name_text"), wui::text_alignment::center, "h1_text")),
-    userNameInput(new wui::input(wui::config::get_string("User", "Name", ""))),
-    okButton(new wui::button(wui::locale("main_frame", "ok_button"), [this](){
-        wui::config::set_string("User", "Name", userNameInput->text());
-        messageBox->show(wui::locale("main_frame", "hello_text") + userNameInput->text(),
-        wui::locale("main_frame", "ok_message_caption"), wui::message_icon::information, wui::message_button::ok, [this](wui::message_result) {
-            runned = false; window->destroy(); }); })),
-    messageBox(new wui::message(window)),
-
-    runned(false)
 {
     window->subscribe(std::bind(&MainFrame::ReceiveEvents,
         this,
@@ -59,12 +46,6 @@ MainFrame::MainFrame()
 
 void MainFrame::Run()
 {
-    if (runned)
-    {
-        return;
-    }
-    runned = true;
-
     UpdateControlsPosition();
 
     window->set_control_callback([&](wui::window_control control, std::string &tooltip_text, bool &continue_) {
@@ -109,14 +90,16 @@ void MainFrame::Run()
 			}
 			break;
             case wui::window_control::close:
-                if (runned)
+                if (!user_approve_close)
                 {
                     continue_ = false;
                     messageBox->show(wui::locale("main_frame", "confirm_close_text"),
-                        wui::locale("main_frame", "cross_message_caption"), wui::message_icon::information, wui::message_button::yes_no,
+                        wui::locale("main_frame", "cross_message_caption"),
+                        wui::message_icon::information, wui::message_button::yes_no,
                         [this, &continue_](wui::message_result r) {
 							if (r == wui::message_result::yes)
 							{
+                                user_approve_close = true;
                                 wui::framework::stop();
 							}
                         });
@@ -186,4 +169,15 @@ void MainFrame::UpdateControlsPosition()
         center + 90,
         height - space
     });
+}
+
+void MainFrame::OnOK()
+{
+    wui::config::set_string("User", "Name", userNameInput->text());
+
+    messageBox->show(wui::locale("main_frame", "hello_text") + userNameInput->text(),
+        wui::locale("main_frame", "ok_message_caption"), wui::message_icon::information, 
+        wui::message_button::ok, [this](wui::message_result) {
+            user_approve_close = true; window->destroy();
+        });
 }
