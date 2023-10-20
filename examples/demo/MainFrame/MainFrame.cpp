@@ -7,6 +7,8 @@
 // Official repository: https://github.com/ud84/wui
 //
 
+#include <wui/framework/framework.hpp>
+
 #include <wui/config/config.hpp>
 
 #include <wui/theme/theme.hpp>
@@ -101,11 +103,7 @@ void MainFrame::Run()
         static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
         static_cast<uint32_t>(wui::window_style::switch_theme_button) |
         static_cast<uint32_t>(wui::window_style::border_all)), [this]() {
-#ifdef _WIN32
-            PostQuitMessage(IDCANCEL);
-#else
-            runned = false;
-#endif
+            wui::framework::stop();
     });
 }
 

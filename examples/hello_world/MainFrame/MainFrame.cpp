@@ -100,7 +100,7 @@ void MainFrame::Run()
 							if (r == wui::message_result::yes)
 							{
                                 user_approve_close = true;
-                                wui::framework::stop();
+                                window->destroy();
 							}
                         });
                 }
@@ -178,6 +178,7 @@ void MainFrame::OnOK()
     messageBox->show(wui::locale("main_frame", "hello_text") + userNameInput->text(),
         wui::locale("main_frame", "ok_message_caption"), wui::message_icon::information, 
         wui::message_button::ok, [this](wui::message_result) {
-            user_approve_close = true; window->destroy();
+            user_approve_close = true;
+            window->destroy();
         });
 }
