@@ -55,3 +55,4 @@ private:
 
     bool user_approve_close = false;
 };
+
