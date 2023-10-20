@@ -134,12 +134,6 @@ In the following screenshot, the theme is changed to light, the language to Russ
 
     void MainFrame::Run()
     {
-        if (runned)
-        {
-            return;
-        }
-        runned = true;
-
         UpdateControlsPosition();
 
         window->set_control_callback([&](wui::window_control control, std::string &tooltip_text, bool &continue_) {
@@ -182,7 +176,7 @@ In the following screenshot, the theme is changed to light, the language to Russ
 			    }
 			    break;
                 case wui::window_control::close:
-                    if (runned)
+                    if (!user_approve_close)
                     {
                         continue_ = false;
                         messageBox->show(wui::locale("main_frame", "confirm_close_text"),
@@ -190,6 +184,7 @@ In the following screenshot, the theme is changed to light, the language to Russ
                             [this, &continue_](wui::message_result r) {
 							    if (r == wui::message_result::yes)
 							    {
+                                    user_approve_close = true;
                                     wui::framework::stop();
 							    }
                             });
