@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8.11)
 project (wui CXX C)
 
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -static-libstdc++ -static-libgcc")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static-libstdc++ -static-libgcc")
 
 set(CMAKE_MAKE_PROGRAM "make -j 3")
 
