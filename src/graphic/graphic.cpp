@@ -287,13 +287,13 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
 #endif
 }
 
-rect graphic::measure_text(const std::string &text, const font &font__)
+rect graphic::measure_text(std::string_view text_, const font &font__)
 {
 #ifdef _WIN32
     auto old_font = (HFONT)SelectObject(mem_dc, pc.get_font(font__));
 
     RECT text_rect = { 0 };
-    auto wide_str = boost::nowide::widen(text);
+    auto wide_str = boost::nowide::widen(text_);
     DrawTextW(mem_dc, wide_str.c_str(), static_cast<int32_t>(wide_str.size()), &text_rect, DT_CALCRECT);
 
     SelectObject(mem_dc, old_font);
@@ -308,9 +308,6 @@ rect graphic::measure_text(const std::string &text, const font &font__)
         return rect{ 0 };
     }
 
-    auto text_ = text; /// workaround to correct measure spaces
-    std::replace(text_.begin(), text_.end(), ' ', 't');
-
     auto cr = pc.get_font(font__, surface);
     if (!cr)
     {
@@ -321,13 +318,24 @@ rect graphic::measure_text(const std::string &text, const font &font__)
     }
 
     cairo_text_extents_t extents;
-    cairo_text_extents(cr, text_.c_str(), &extents);
+
+    if (text_.find(" ") == std::string::npos)
+    {
+        cairo_text_extents(cr, text_.data(), &extents);
+    }
+    else /// workaround to correct measure spaces
+    {
+        std::string text__(text_.begin(), text_.end());       
+        std::replace(text__.begin(), text__.end(), ' ', 't');
+
+        cairo_text_extents(cr, text__.c_str(), &extents);
+    }
 
     return { 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
 #endif
 }
 
-void graphic::draw_text(const rect &position, const std::string &text, color color_, const font &font__)
+void graphic::draw_text(const rect &position, std::string_view text_, color color_, const font &font__)
 {
 #ifdef _WIN32
     auto old_font = (HFONT)SelectObject(mem_dc, pc.get_font(font__));
@@ -353,7 +361,7 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
     {
         err.type = error_type::no_handle;
         err.component = "graphic::draw_text()";
-        err.message = "No cairo context";
+        err.message = "No cairo font context";
         return;
     }
 
@@ -363,7 +371,7 @@ void graphic::draw_text(const rect &position, const std::string &text, color col
         static_cast<double>(wui::get_blue(color_)) / 255);
 
     cairo_move_to(cr, position.left, (double)position.top + font__.size * 5 / 6);
-    cairo_show_text(cr, text.c_str());
+    cairo_show_text(cr, text_.data());
 #endif
 }
 
