@@ -185,7 +185,7 @@ void primitive_container::release()
 
 xcb_gcontext_t primitive_container::get_gc(color color_)
 {
-    if (context_.connection)
+    if (!context_.connection)
     {
         err.type = error_type::no_handle;
         err.component = "primitive_container::get_gc(color)";
