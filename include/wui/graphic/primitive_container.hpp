@@ -12,6 +12,7 @@
 #include <wui/common/color.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/font.hpp>
+#include <wui/common/error.hpp>
 #include <wui/system/system_context.hpp>
 
 #include <map>
@@ -35,6 +36,8 @@ public:
     void init();
     void release();
 
+    wui::error get_error() const;
+
 #ifdef _WIN32
     HPEN get_pen(int32_t style, int32_t width, color color_);
     HBRUSH get_brush(color color_);
@@ -47,6 +50,8 @@ public:
 
 private:
     wui::system_context &context_;
+
+    wui::error err;
 
 #ifdef _WIN32
     std::map<std::pair<std::pair<int32_t, int32_t>, color>, HPEN> pens;

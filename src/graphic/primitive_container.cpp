@@ -162,15 +162,19 @@ HBITMAP primitive_container::get_bitmap(int32_t width, int32_t height, uint8_t *
 
 void primitive_container::init()
 {
+    err.reset();
 }
 
 void primitive_container::release()
 {
-    for (auto &g : gcs)
+    if (context_.connection)
     {
-        xcb_free_gc(context_.connection, g.second);
+        for (auto &g : gcs)
+        {
+            xcb_free_gc(context_.connection, g.second);
+        }
+        gcs.clear();
     }
-    gcs.clear();
 
     for (auto &f : fonts)
     {
@@ -181,6 +185,14 @@ void primitive_container::release()
 
 xcb_gcontext_t primitive_container::get_gc(color color_)
 {
+    if (context_.connection)
+    {
+        err.type = error_type::no_handle;
+        err.component = "primitive_container::get_gc(color)";
+        err.message = "no context_.connection";
+        return;
+    }
+
     auto it = gcs.find(color_);
     if (it != gcs.end())
     {
@@ -222,5 +234,10 @@ _cairo *primitive_container::get_font(font font_, _cairo_surface *surface)
 }
 
 #endif
+
+wui::error primitive_container::get_error() const
+{
+    return err;
+}
 
 }
