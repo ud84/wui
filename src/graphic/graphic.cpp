@@ -164,7 +164,7 @@ void graphic::release()
         surface = nullptr;
     }
 
-    if (mem_pixmap)
+    if (context_.connection && mem_pixmap)
     {
         auto free_pixmap_cookie = xcb_free_pixmap(context_.connection, mem_pixmap);
         check_cookie(free_pixmap_cookie, context_.connection, err, "graphic::release()");
