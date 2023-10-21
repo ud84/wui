@@ -337,7 +337,7 @@ void graphic::draw_text(const rect &position, std::string_view text_, color colo
     SetTextColor(mem_dc, color_);
     SetBkMode(mem_dc, TRANSPARENT);
 
-    auto wide_str = boost::nowide::widen(text);
+    auto wide_str = boost::nowide::widen(text_);
     TextOutW(mem_dc, position.left, position.top, wide_str.c_str(), static_cast<int32_t>(wide_str.size()));
 
     SelectObject(mem_dc, old_font);
