@@ -190,7 +190,7 @@ xcb_gcontext_t primitive_container::get_gc(color color_)
         err.type = error_type::no_handle;
         err.component = "primitive_container::get_gc(color)";
         err.message = "no context_.connection";
-        return;
+        return -1;
     }
 
     auto it = gcs.find(color_);
