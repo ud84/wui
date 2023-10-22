@@ -319,17 +319,11 @@ rect graphic::measure_text(std::string_view text_, const font &font__)
 
     cairo_text_extents_t extents;
 
-    if (text_.find(" ") == std::string::npos)
-    {
-        cairo_text_extents(cr, text_.data(), &extents);
-    }
-    else /// workaround to correct measure spaces
-    {
-        std::string text__(text_.begin(), text_.end());
-        std::replace(text__.begin(), text__.end(), ' ', 't');
+    std::string text__(text_.begin(), text_.end());
+    std::replace(text__.begin(), text__.end(), ' ', 't');
+    text__ += '\0';
 
-        cairo_text_extents(cr, text__.c_str(), &extents);
-    }
+    cairo_text_extents(cr, text__.c_str(), &extents);
 
     return { 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
 #endif
@@ -371,7 +365,11 @@ void graphic::draw_text(const rect &position, std::string_view text_, color colo
         static_cast<double>(wui::get_blue(color_)) / 255);
 
     cairo_move_to(cr, position.left, (double)position.top + font__.size * 5 / 6);
-    cairo_show_text(cr, text_.data());
+    
+    std::string text__(text_.begin(), text_.end()); /// Workaround o prevent crashes
+    text__ += '\0';
+    
+    cairo_show_text(cr, text__.c_str());
 #endif
 }
 

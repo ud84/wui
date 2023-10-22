@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <atomic>
 
 namespace wui
 {
@@ -34,7 +35,7 @@ public:
     virtual error get_error() const;
 
 private:
-    bool runned_;
+    std::atomic<bool> runned_;
 
     error err;
 };
