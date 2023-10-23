@@ -112,7 +112,7 @@ void set_cursor(system_context &context, cursor cursor_)
     }
 }
 
-bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, error &err, const std::string &component)
+bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, error &err, std::string_view component)
 {
     xcb_generic_error_t *error = xcb_request_check(connection, cookie);
     if (error)

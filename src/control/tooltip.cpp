@@ -18,7 +18,7 @@
 namespace wui
 {
 
-tooltip::tooltip(const std::string &text_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+tooltip::tooltip(std::string_view text_, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name),
     theme_(theme__),
     position_(),
@@ -111,7 +111,7 @@ error tooltip::get_error() const
     return {};
 }
 
-void tooltip::update_theme_control_name(const std::string &theme_control_name)
+void tooltip::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);
@@ -168,7 +168,7 @@ bool tooltip::enabled() const
     return true;
 }
 
-void tooltip::set_text(const std::string &text_)
+void tooltip::set_text(std::string_view text_)
 {
     text = text_;
 

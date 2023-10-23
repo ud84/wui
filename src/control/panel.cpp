@@ -18,7 +18,7 @@
 namespace wui
 {
 
-panel::panel(const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+panel::panel(std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name),
     theme_(theme__),
     position_(),
@@ -28,7 +28,7 @@ panel::panel(const std::string &theme_control_name, std::shared_ptr<i_theme> the
 {
 }
 
-panel::panel(std::function<void(graphic&)> draw_callback_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+panel::panel(std::function<void(graphic&)> draw_callback_, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name),
     theme_(theme__),
     position_(),
@@ -112,7 +112,7 @@ error panel::get_error() const
     return {};
 }
 
-void panel::update_theme_control_name(const std::string &theme_control_name)
+void panel::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);

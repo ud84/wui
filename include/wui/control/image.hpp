@@ -34,7 +34,7 @@ public:
 #ifdef _WIN32
     image(int32_t resource_index, std::shared_ptr<i_theme> theme_ = nullptr);
 #endif
-    image(const std::string &file_name, std::shared_ptr<i_theme> theme_ = nullptr);
+    image(std::string_view file_name, std::shared_ptr<i_theme> theme_ = nullptr);
     image(const std::vector<uint8_t> &data);
     ~image();
 
@@ -50,7 +50,7 @@ public:
     virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
-    virtual void update_theme_control_name(const std::string &theme_control_name);
+    virtual void update_theme_control_name(std::string_view theme_control_name);
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -72,7 +72,7 @@ public:
     void change_image(int32_t resource_index);
 #endif
 
-    void change_image(const std::string &file_name);
+    void change_image(std::string_view file_name);
     void change_image(const std::vector<uint8_t> &data);
 
     int32_t width() const;

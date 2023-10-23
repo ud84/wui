@@ -126,7 +126,7 @@ wui::rect get_window_size(wui::system_context &context)
 namespace wui
 {
 
-window::window(const std::string &theme_control_name, std::shared_ptr<i_theme> theme_)
+window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> theme_)
     : context_{ 0 },
     graphic_(context_),
     controls(),
@@ -314,7 +314,7 @@ std::string window::subscribe(std::function<void(const event&)> receive_callback
     return id;
 }
 
-void window::unsubscribe(const std::string &subscriber_id)
+void window::unsubscribe(std::string_view subscriber_id)
 {
     auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [&subscriber_id](const event_subscriber &es) {
         return es.id == subscriber_id;
@@ -621,7 +621,7 @@ bool window::focusing() const
     return false;
 }
 
-void window::update_theme_control_name(const std::string &theme_control_name)
+void window::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);
@@ -970,7 +970,7 @@ window_state window::state() const
 }
 
 #ifndef _WIN32
-void set_wm_name(system_context &context_, const std::string &caption)
+void set_wm_name(system_context &context_, std::string_view caption)
 {
     xcb_icccm_set_wm_name(context_.connection, context_.wnd,
         XCB_ATOM_STRING, 8,
@@ -982,7 +982,7 @@ void set_wm_name(system_context &context_, const std::string &caption)
 }
 #endif
 
-void window::set_caption(const std::string &caption_)
+void window::set_caption(std::string_view caption_)
 {
     caption = caption_;
 
@@ -1542,7 +1542,7 @@ std::shared_ptr<window> window::get_transient_window()
     return transient_window_;
 }
 
-bool window::init(const std::string &caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_)
+bool window::init(std::string_view caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_)
 {
     err.reset();
 

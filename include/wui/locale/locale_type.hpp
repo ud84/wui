@@ -203,6 +203,6 @@ enum class locale_type
     zul
 };
 
-const std::string &str(locale_type);
+std::string_view str(locale_type);
 
 }

@@ -43,7 +43,7 @@ struct select_item
 class select : public i_control, public std::enable_shared_from_this<select>
 {
 public:
-    select(const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    select(std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~select();
 
     virtual void draw(graphic &gr, const rect &);
@@ -58,7 +58,7 @@ public:
     virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
-    virtual void update_theme_control_name(const std::string &theme_control_name);
+    virtual void update_theme_control_name(std::string_view theme_control_name);
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();

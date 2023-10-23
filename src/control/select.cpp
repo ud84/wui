@@ -27,7 +27,7 @@ namespace wui
 
 static const int32_t select_horizontal_indent = 5;
 
-select::select(const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+select::select(std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : items_(),
     change_callback(),
     tcn(theme_control_name),
@@ -367,7 +367,7 @@ error select::get_error() const
     return {};
 }
 
-void select::update_theme_control_name(const std::string &theme_control_name)
+void select::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);

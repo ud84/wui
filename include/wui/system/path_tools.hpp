@@ -15,6 +15,6 @@ namespace wui
 {
 
 /// Relative to absolute path converter
-std::string real_path(const std::string &relative_path);
+std::string real_path(std::string_view relative_path);
 
 }

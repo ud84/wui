@@ -22,7 +22,7 @@
 namespace wui
 {
 
-text::text(const std::string &text__, text_alignment alignment_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme_)
+text::text(std::string_view text__, text_alignment alignment_, std::string_view theme_control_name, std::shared_ptr<i_theme> theme_)
     : tcn(theme_control_name),
     theme_(theme_),
     position_(),
@@ -152,7 +152,7 @@ error text::get_error() const
     return {};
 }
 
-void text::update_theme_control_name(const std::string &theme_control_name)
+void text::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);
@@ -203,13 +203,13 @@ bool text::enabled() const
     return true;
 }
 
-void text::set_text(const std::string &text__)
+void text::set_text(std::string_view text__)
 {
     text_ = text__;
     redraw();
 }
 
-const std::string &text::get_text() const
+std::string_view text::get_text() const
 {
 	return text_;
 }

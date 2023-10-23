@@ -52,7 +52,7 @@ struct system_context;
 class i_window
 {
 public:
-    virtual bool init(const std::string &caption, const rect &position, window_style style, std::function<void(void)> close_callback) = 0;
+    virtual bool init(std::string_view caption, const rect &position, window_style style, std::function<void(void)> close_callback) = 0;
     virtual void destroy() = 0;
 
     virtual void add_control(std::shared_ptr<i_control> control, const rect &position) = 0;
@@ -64,7 +64,7 @@ public:
     virtual void redraw(const rect &position, bool clear = false) = 0;
 
     virtual std::string subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr) = 0;
-    virtual void unsubscribe(const std::string &subscriber_id) = 0;
+    virtual void unsubscribe(std::string_view subscriber_id) = 0;
 
     virtual system_context &context() = 0;
 

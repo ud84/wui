@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <string_view>
 
 namespace wui
 {
@@ -21,18 +22,18 @@ namespace wui
 class i_config
 {
 public:
-    virtual int32_t get_int(const std::string &section, const std::string &entry, int32_t default_) = 0;
-    virtual void set_int(const std::string &section, const std::string &entry, int32_t value) = 0;
+    virtual int32_t get_int(std::string_view section, std::string_view entry, int32_t default_) = 0;
+    virtual void set_int(std::string_view section, std::string_view entry, int32_t value) = 0;
 
-    virtual int64_t get_int64(const std::string &section, const std::string &entry, int64_t default_) = 0;
-    virtual void set_int64(const std::string &section, const std::string &entry, int64_t value) = 0;
+    virtual int64_t get_int64(std::string_view section, std::string_view entry, int64_t default_) = 0;
+    virtual void set_int64(std::string_view section, std::string_view entry, int64_t value) = 0;
 
-    virtual std::string get_string(const std::string &section, const std::string &entry, const std::string &default_) = 0;
-    virtual void set_string(const std::string &section, const std::string &entry, const std::string value) = 0;
+    virtual std::string get_string(std::string_view section, std::string_view entry, std::string_view default_) = 0;
+    virtual void set_string(std::string_view section, std::string_view entry, const std::string value) = 0;
 
-    virtual void delete_value(const std::string &section, const std::string &entry) = 0;
+    virtual void delete_value(std::string_view section, std::string_view entry) = 0;
 
-    virtual void delete_key(const std::string &section) = 0;
+    virtual void delete_key(std::string_view section) = 0;
        
     virtual error get_error() const = 0;
 

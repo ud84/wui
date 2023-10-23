@@ -41,8 +41,8 @@ message::~message()
 {
 }
 
-void message::show(const std::string &message_,
-    const std::string &title_,
+void message::show(std::string_view message_,
+    std::string_view title_,
     message_icon icon__,
     message_button button__,
     std::function<void(message_result)> result_callback_)
@@ -246,7 +246,7 @@ rect message::get_text_size()
         return { 0 };
     }
 
-    std::stringstream text__(text_->get_text());
+    std::stringstream text__(text_->get_text().data());
     std::string line, max_line;
     int32_t lines_count = 0;
 

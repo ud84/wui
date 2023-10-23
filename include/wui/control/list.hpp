@@ -28,7 +28,7 @@ namespace wui
 class list : public i_control, public std::enable_shared_from_this<list>
 {
 public:
-    list(const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    list(std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~list();
 
     virtual void draw(graphic &gr, const rect &);
@@ -43,7 +43,7 @@ public:
     virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
-    virtual void update_theme_control_name(const std::string &theme_control_name);
+    virtual void update_theme_control_name(std::string_view theme_control_name);
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();

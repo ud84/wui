@@ -59,7 +59,7 @@ void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t wi
 
 /// Service on Linux
 #ifdef __linux__
-bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, error &err, const std::string &component);
+bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, error &err, std::string_view component);
 #endif
 
 }

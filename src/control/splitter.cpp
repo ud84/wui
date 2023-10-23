@@ -18,7 +18,7 @@
 namespace wui
 {
 
- splitter::splitter(splitter_orientation orientation_, std::function<void(int32_t, int32_t)> callback_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+ splitter::splitter(splitter_orientation orientation_, std::function<void(int32_t, int32_t)> callback_, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : orientation(orientation_),
     callback(callback_),
     margin_min(-1), margin_max(-1),
@@ -212,7 +212,7 @@ error splitter::get_error() const
     return {};
 }
 
-void splitter::update_theme_control_name(const std::string &theme_control_name)
+void splitter::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);

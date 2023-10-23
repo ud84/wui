@@ -15,6 +15,6 @@ namespace wui
 {
 
 /// URI opening helper
-bool open_uri(const std::string &uri);
+bool open_uri(std::string_view uri);
 
 }

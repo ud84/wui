@@ -18,15 +18,15 @@ namespace wui
 
 /// Set and get the current theme
 #ifdef _WIN32
-bool set_default_theme_from_resource(const std::string &name, int32_t resource_index, const std::string &resource_section);
+bool set_default_theme_from_resource(std::string_view name, int32_t resource_index, std::string_view resource_section);
 #endif
-bool set_default_theme_from_json(const std::string &name, const std::string &json);
-bool set_default_theme_from_file(const std::string &name, const std::string &file_name);
-void set_default_theme_empty(const std::string &name);
+bool set_default_theme_from_json(std::string_view name, std::string_view json);
+bool set_default_theme_from_file(std::string_view name, std::string_view file_name);
+void set_default_theme_empty(std::string_view name);
 
 /// Load theme from regsitry on Windows or from file on other systems
 /// Parameters are setted by set_app_themes() in theme_selector.hpp
-bool set_default_theme_from_name(const std::string &name, error &err);
+bool set_default_theme_from_name(std::string_view name, error &err);
 
 /// Return details of the error that occurred
 error get_theme_error();
@@ -35,21 +35,21 @@ error get_theme_error();
 std::shared_ptr<i_theme> get_default_theme();
 
 /// Make the custom theme for the some control
-std::shared_ptr<i_theme> make_custom_theme(const std::string &name = "");
-std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json);
+std::shared_ptr<i_theme> make_custom_theme(std::string_view name = "");
+std::shared_ptr<i_theme> make_custom_theme(std::string_view name, std::string_view json);
 
 /// Return the item's color by current theme
-color theme_color(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+color theme_color(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's dimension by current theme
-int32_t theme_dimension(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+int32_t theme_dimension(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's string value by current theme
-const std::string &theme_string(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+std::string_view theme_string(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's font value by current theme
-font theme_font(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+font theme_font(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
-const std::vector<uint8_t> &theme_image(const std::string &name, std::shared_ptr<i_theme> theme_ = nullptr);
+const std::vector<uint8_t> &theme_image(std::string_view name, std::shared_ptr<i_theme> theme_ = nullptr);
 
 }

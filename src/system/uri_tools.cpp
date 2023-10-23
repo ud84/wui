@@ -24,7 +24,7 @@
 namespace wui
 {
 
-bool open_uri(const std::string &uri)
+bool open_uri(std::string_view uri)
 {
 #ifdef _WIN32
     return reinterpret_cast<int64_t>(ShellExecute(NULL, L"open", boost::nowide::widen(uri).c_str(), NULL, NULL, SW_SHOW)) < 32;

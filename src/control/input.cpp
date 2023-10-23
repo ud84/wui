@@ -27,7 +27,7 @@ namespace wui
 
 static const int32_t input_horizontal_indent = 5;
 
-input::input(const std::string &text__, input_view input_view__, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
+input::input(std::string_view text__, input_view input_view__, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : input_view_(input_view__),
     text_(text__),
     change_callback(),
@@ -46,9 +46,9 @@ input::input(const std::string &text__, input_view input_view__, const std::stri
     left_shift(0)
 {
     menu_->set_items({
-            { 0, menu_item_state::normal, locale(tc, cl_cut), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); } },
-            { 1, menu_item_state::normal, locale(tc, cl_copy), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); } },
-            { 2, menu_item_state::normal, locale(tc, cl_paste), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); } }
+            { 0, menu_item_state::normal, locale(tc, cl_cut).data(), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); } },
+            { 1, menu_item_state::normal, locale(tc, cl_copy).data(), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); } },
+            { 2, menu_item_state::normal, locale(tc, cl_paste).data(), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); } }
         });
 }
 
@@ -377,11 +377,11 @@ void input::receive_control_events(const event &ev)
             break;
             case mouse_event_type::right_up:
                 menu_->update_item({ 0, select_start_position != select_end_position && input_view_ != input_view::readonly && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_cut), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); parent_.lock()->set_focused(shared_from_this()); } });
+                    locale(tc, cl_cut).data(), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); parent_.lock()->set_focused(shared_from_this()); } });
                 menu_->update_item({ 1, select_start_position != select_end_position && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_copy), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); parent_.lock()->set_focused(shared_from_this()); } });
+                    locale(tc, cl_copy).data(), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); parent_.lock()->set_focused(shared_from_this()); } });
                 menu_->update_item({ 2, input_view_ != input_view::readonly ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_paste), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); parent_.lock()->set_focused(shared_from_this()); } });
+                    locale(tc, cl_paste).data(), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); parent_.lock()->set_focused(shared_from_this()); } });
 
                 menu_->show_on_control(shared_from_this(), 0, ev.mouse_event_.x);
             break;
@@ -659,7 +659,7 @@ error input::get_error() const
     return {};
 }
 
-void input::update_theme_control_name(const std::string &theme_control_name)
+void input::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);
@@ -715,7 +715,7 @@ bool input::enabled() const
     return enabled_;
 }
 
-void input::set_text(const std::string &text__)
+void input::set_text(std::string_view text__)
 {
     text_ = text__;
     cursor_position = 0;

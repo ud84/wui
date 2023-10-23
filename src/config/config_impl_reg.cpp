@@ -22,7 +22,7 @@ namespace wui
 namespace config
 {
 
-config_impl_reg::config_impl_reg(const std::string &base_application_key_, HKEY root_)
+config_impl_reg::config_impl_reg(std::string_view base_application_key_, HKEY root_)
 	: base_application_key(base_application_key_), root(root_)
 {
 }
@@ -31,9 +31,9 @@ config_impl_reg::~config_impl_reg()
 {
 }
 
-int32_t config_impl_reg::get_int(const std::string &section, const std::string &entry, int32_t default_)
+int32_t config_impl_reg::get_int(std::string_view section, std::string_view entry, int32_t default_)
 {
-	std::string strKey = base_application_key + "\\" + section;
+	std::string strKey = base_application_key + "\\" + std::string(section);
 
 	ATL::CRegKey key;
 
@@ -52,9 +52,9 @@ int32_t config_impl_reg::get_int(const std::string &section, const std::string &
 	return default_;
 }
 
-void config_impl_reg::set_int(const std::string &section, const std::string &entry, int32_t value)
+void config_impl_reg::set_int(std::string_view section, std::string_view entry, int32_t value)
 {
-	std::string strKey = base_application_key + "\\" + section;
+	std::string strKey = base_application_key + "\\" + std::string(section);
 
 	ATL::CRegKey key;
 
@@ -66,9 +66,9 @@ void config_impl_reg::set_int(const std::string &section, const std::string &ent
 	key.Close();
 }
 
-int64_t config_impl_reg::get_int64(const std::string &section, const std::string &entry, int64_t default_)
+int64_t config_impl_reg::get_int64(std::string_view section, std::string_view entry, int64_t default_)
 {
-	std::string strKey = base_application_key + "\\" + section;
+	std::string strKey = base_application_key + "\\" + std::string(section);
 
 	ATL::CRegKey key;
 
@@ -87,9 +87,9 @@ int64_t config_impl_reg::get_int64(const std::string &section, const std::string
 	return default_;
 }
 
-void config_impl_reg::set_int64(const std::string &section, const std::string &entry, int64_t value)
+void config_impl_reg::set_int64(std::string_view section, std::string_view entry, int64_t value)
 {
-	std::string strKey = base_application_key + "\\" + section;
+	std::string strKey = base_application_key + "\\" + std::string(section);
 
 	ATL::CRegKey key;
 
@@ -101,11 +101,11 @@ void config_impl_reg::set_int64(const std::string &section, const std::string &e
 	key.Close();
 }
 
-std::string config_impl_reg::get_string(const std::string &section, const std::string &entry, const std::string &default_)
+std::string config_impl_reg::get_string(std::string_view section, std::string_view entry, std::string_view default_)
 {
-	std::string strKey = base_application_key + "\\" + section;
+	std::string strKey = base_application_key + "\\" + std::string(section);
 
-	std::string out = default_;
+	std::string out(default_.begin(), default_.end());
 
 	ATL::CRegKey key;
 
@@ -116,8 +116,8 @@ std::string config_impl_reg::get_string(const std::string &section, const std::s
 		{
 			if (dwcbNeeded > 2048)
 			{
-				ATLTRACE(L"Config [E] too big string in: %s, %s, %s\n", base_application_key.c_str(), section.c_str(), entry.c_str());
-				return default_;
+				ATLTRACE(L"Config [E] too big string in: %s, %s, %s\n", base_application_key.c_str(), section.data(), entry.data());
+				return default_.data();
 			}
 
 			wchar_t *val = (wchar_t*)calloc(dwcbNeeded, sizeof(wchar_t));
@@ -137,9 +137,9 @@ std::string config_impl_reg::get_string(const std::string &section, const std::s
 	return out;
 }
 
-void config_impl_reg::set_string(const std::string &section, const std::string &entry, const std::string value)
+void config_impl_reg::set_string(std::string_view section, std::string_view entry, const std::string value)
 {
-	std::string strKey = base_application_key + "\\" + section;
+	std::string strKey = base_application_key + "\\" + std::string(section);
 
 	ATL::CRegKey key;
 
@@ -151,9 +151,9 @@ void config_impl_reg::set_string(const std::string &section, const std::string &
 	key.Close();
 }
 
-void config_impl_reg::delete_value(const std::string &section, const std::string &entry)
+void config_impl_reg::delete_value(std::string_view section, std::string_view entry)
 {
-	std::string strKey = base_application_key + "\\" + section;
+	std::string strKey = base_application_key + "\\" + std::string(section);
 
 	ATL::CRegKey key;
 
@@ -165,7 +165,7 @@ void config_impl_reg::delete_value(const std::string &section, const std::string
 	key.Close();
 }
 
-void config_impl_reg::delete_key(const std::string &section)
+void config_impl_reg::delete_key(std::string_view section)
 {
 	ATL::CRegKey key;
 

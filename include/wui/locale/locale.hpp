@@ -18,11 +18,11 @@ namespace wui
 
 /// Set and get the current locale
 #ifdef _WIN32
-bool set_locale_from_resource(locale_type type, const std::string &name, int32_t resource_index, const std::string &resource_section);
+bool set_locale_from_resource(locale_type type, std::string_view name, int32_t resource_index, std::string_view resource_section);
 #endif
-bool set_locale_from_json(locale_type type, const std::string &name, const std::string &json);
-bool set_locale_from_file(locale_type type, const std::string &name, const std::string &file_name);
-void set_locale_empty(locale_type type, const std::string &name);
+bool set_locale_from_json(locale_type type, std::string_view name, std::string_view json);
+bool set_locale_from_file(locale_type type, std::string_view name, std::string_view file_name);
+void set_locale_empty(locale_type type, std::string_view name);
 
 /// Load locale from regsitry on Windows or from file on other systems
 /// Parameters are setted by set_app_locales() in locale_selector.hpp
@@ -34,9 +34,9 @@ error get_locale_error();
 std::shared_ptr<i_locale> get_locale();
 
 /// Set locale section value
-void set_locale_value(const std::string &section, const std::string &value, const std::string &str);
+void set_locale_value(std::string_view section, std::string_view value, std::string_view str);
 
 /// Return the item's string value by current locale
-const std::string &locale(const std::string &section, const std::string &value);
+std::string_view locale(std::string_view section, std::string_view value);
 
 }

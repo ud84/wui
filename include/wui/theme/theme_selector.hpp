@@ -26,7 +26,7 @@ struct theme_params
         return name == lv.name;
     }
 
-    inline bool operator==(const std::string &nm)
+    inline bool operator==(std::string_view nm)
     {
         return name == nm;
     }
@@ -39,13 +39,13 @@ using themes_t = std::vector<theme_params>;
 void set_app_themes(const themes_t &);
 
 /// If there is no name to be selected this theme will be used
-void set_default_theme(const std::string &name);
+void set_default_theme(std::string_view name);
 
 /// Return the theme params of theme name
-theme_params get_app_theme(const std::string &name);
+theme_params get_app_theme(std::string_view name);
 
 /// Revolving theme search
-void set_current_app_theme(const std::string &name);
+void set_current_app_theme(std::string_view name);
 std::string get_next_app_theme();
 
 /// Return all setted themes in vector

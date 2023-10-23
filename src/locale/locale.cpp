@@ -21,7 +21,7 @@ static std::vector<uint8_t> dummy_image;
 /// Interface
 
 #ifdef _WIN32
-bool set_locale_from_resource(locale_type type, const std::string &name, int32_t resource_index, const std::string &resource_section)
+bool set_locale_from_resource(locale_type type, std::string_view name, int32_t resource_index, std::string_view resource_section)
 {
     instance.reset();
     instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
@@ -31,7 +31,7 @@ bool set_locale_from_resource(locale_type type, const std::string &name, int32_t
 }
 #endif
 
-bool set_locale_from_json(locale_type type, const std::string &name, const std::string &json)
+bool set_locale_from_json(locale_type type, std::string_view name, std::string_view json)
 {
     instance.reset();
     instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
@@ -40,7 +40,7 @@ bool set_locale_from_json(locale_type type, const std::string &name, const std::
     return instance->get_error().is_ok();
 }
 
-bool set_locale_from_file(locale_type type, const std::string &name, const std::string &file_name)
+bool set_locale_from_file(locale_type type, std::string_view name, std::string_view file_name)
 {
     instance.reset();
     instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
@@ -49,7 +49,7 @@ bool set_locale_from_file(locale_type type, const std::string &name, const std::
     return instance->get_error().is_ok();
 }
 
-void set_locale_empty(locale_type type, const std::string &name)
+void set_locale_empty(locale_type type, std::string_view name)
 {
     instance.reset();
     instance = std::shared_ptr<i_locale>(new locale_impl(type, name));
@@ -83,7 +83,7 @@ std::shared_ptr<i_locale> get_locale()
     return instance;    
 }
 
-void set_locale_value(const std::string &section, const std::string &value, const std::string &str)
+void set_locale_value(std::string_view section, std::string_view value, std::string_view str)
 {
     if (instance)
     {
@@ -91,7 +91,7 @@ void set_locale_value(const std::string &section, const std::string &value, cons
     }
 }
 
-const std::string &locale(const std::string &section, const std::string &value)
+std::string_view locale(std::string_view section, std::string_view value)
 {
     if (instance)
     {

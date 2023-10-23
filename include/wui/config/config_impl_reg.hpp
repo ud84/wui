@@ -24,21 +24,21 @@ namespace config
 class config_impl_reg : public i_config
 {
 public:
-    config_impl_reg(const std::string &base_application_key, HKEY root = HKEY_CURRENT_USER);
+    config_impl_reg(std::string_view base_application_key, HKEY root = HKEY_CURRENT_USER);
 	virtual ~config_impl_reg();
 
-    int32_t get_int(const std::string &section, const std::string &entry, int32_t default_);
-    void set_int(const std::string &section, const std::string &entry, int32_t value);
+    int32_t get_int(std::string_view section, std::string_view entry, int32_t default_);
+    void set_int(std::string_view section, std::string_view entry, int32_t value);
 
-    int64_t get_int64(const std::string &section, const std::string &entry, int64_t default_);
-    void set_int64(const std::string &section, const std::string &entry, int64_t value);
+    int64_t get_int64(std::string_view section, std::string_view entry, int64_t default_);
+    void set_int64(std::string_view section, std::string_view entry, int64_t value);
 
-    std::string get_string(const std::string &section, const std::string &entry, const std::string &default_);
-    void set_string(const std::string &section, const std::string &entry, const std::string value);
+    std::string get_string(std::string_view section, std::string_view entry, std::string_view default_);
+    void set_string(std::string_view section, std::string_view entry, const std::string value);
 
-    void delete_value(const std::string &section, const std::string &entry);
+    void delete_value(std::string_view section, std::string_view entry);
 
-    void delete_key(const std::string &section);
+    void delete_key(std::string_view section);
 
     virtual error get_error() const;
 

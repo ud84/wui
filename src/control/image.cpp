@@ -69,7 +69,7 @@ void load_image_from_resource(WORD image_id, const std::wstring &resource_sectio
     load_image_from_data(std::vector<uint8_t>(static_cast<const uint8_t*>(resource_data), static_cast<const uint8_t*>(resource_data) + image_size), img);
 }
 
-void load_image_from_file(const std::string &file_name, const std::string &images_path, Gdiplus::Image **img, wui::error &err)
+void load_image_from_file(std::string_view file_name, std::string_view images_path, Gdiplus::Image **img, wui::error &err)
 {
     *img = Gdiplus::Image::FromFile(std::wstring(boost::nowide::widen(images_path) + L"\\" + boost::nowide::widen(file_name)).c_str());
 }
@@ -116,7 +116,7 @@ void load_image_from_data(const std::vector<uint8_t> &data_, cairo_surface_t **i
     *img = cairo_image_surface_create_from_png_stream(+read_png_data, &reader_data);
 }
 
-void load_image_from_file(const std::string &file_name, const std::string &images_path, cairo_surface_t **img, wui::error &err)
+void load_image_from_file(std::string_view file_name, std::string_view images_path, cairo_surface_t **img, wui::error &err)
 {
     auto full_image_path = wui::real_path(images_path + "/" + file_name);
 
@@ -162,7 +162,7 @@ image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
 }
 #endif
 
-image::image(const std::string &file_name_, std::shared_ptr<i_theme> theme__)
+image::image(std::string_view file_name_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent_(),
@@ -281,7 +281,7 @@ error image::get_error() const
     return err;
 }
 
-void image::update_theme_control_name(const std::string &)
+void image::update_theme_control_name(std::string_view )
 {
 }
 
@@ -352,7 +352,7 @@ void image::change_image(int32_t resource_index_)
 }
 #endif
 
-void image::change_image(const std::string &file_name_)
+void image::change_image(std::string_view file_name_)
 {
     file_name = file_name_;
 

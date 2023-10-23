@@ -26,7 +26,7 @@ namespace wui
 
 #ifdef _WIN32
 
-void clipboard_put(const std::string &text, system_context &context)
+void clipboard_put(std::string_view text, system_context &context)
 {
     auto wide_str = boost::nowide::widen(text);
 
@@ -78,7 +78,7 @@ std::string clipboard_get_text(system_context &context)
 
 #elif __linux__
 
-void clipboard_put(const std::string &text, system_context &context)
+void clipboard_put(std::string_view text, system_context &context)
 {
 }
 

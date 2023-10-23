@@ -36,7 +36,7 @@ public:
         int32_t value,
         std::function<void(int32_t)> change_callback,
         slider_orientation orientation = slider_orientation::horizontal,
-        const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+        std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
 
     ~slider();
 
@@ -53,7 +53,7 @@ public:
     virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
-    virtual void update_theme_control_name(const std::string &theme_control_name);
+    virtual void update_theme_control_name(std::string_view theme_control_name);
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();

@@ -19,30 +19,30 @@ namespace wui
 class theme_impl : public i_theme
 {
 public:
-    theme_impl(const std::string &name);
+    theme_impl(std::string_view name);
 
     virtual std::string get_name() const;
 
-    virtual void set_color(const std::string &control, const std::string &value, color color_);
-    virtual color get_color(const std::string &control, const std::string &value) const;
+    virtual void set_color(std::string_view control, std::string_view value, color color_);
+    virtual color get_color(std::string_view control, std::string_view value) const;
 
-    virtual void set_dimension(const std::string &control, const std::string &value, int32_t dimension);
-    virtual int32_t get_dimension(const std::string &control, const std::string &value) const;
+    virtual void set_dimension(std::string_view control, std::string_view value, int32_t dimension);
+    virtual int32_t get_dimension(std::string_view control, std::string_view value) const;
 
-    virtual void set_string(const std::string &control, const std::string &value, const std::string &str);
-    virtual const std::string &get_string(const std::string &control, const std::string &value) const;
+    virtual void set_string(std::string_view control, std::string_view value, std::string_view str);
+    virtual std::string_view get_string(std::string_view control, std::string_view value) const;
 
-    virtual void set_font(const std::string &control, const std::string &value, const font &font_);
-    virtual font get_font(const std::string &control, const std::string &value) const;
+    virtual void set_font(std::string_view control, std::string_view value, const font &font_);
+    virtual font get_font(std::string_view control, std::string_view value) const;
 
-    virtual void set_image(const std::string &name, const std::vector<uint8_t> &data);
-    virtual const std::vector<uint8_t> &get_image(const std::string &name);
+    virtual void set_image(std::string_view name, const std::vector<uint8_t> &data);
+    virtual const std::vector<uint8_t> &get_image(std::string_view name);
 
 #ifdef _WIN32
-    virtual void load_resource(int32_t resource_index, const std::string &resource_section);
+    virtual void load_resource(int32_t resource_index, std::string_view resource_section);
 #endif
-    virtual void load_json(const std::string &json);
-    virtual void load_file(const std::string &file_name);
+    virtual void load_json(std::string_view json);
+    virtual void load_file(std::string_view file_name);
     virtual void load_theme(const i_theme &theme_);
 
     virtual error get_error() const;
@@ -50,9 +50,9 @@ public:
 private:
     std::string name;
 
-    std::map<std::string, int32_t> ints;
-    std::map<std::string, std::string> strings;
-    std::map<std::string, font> fonts;
+    std::map<std::pair<std::string, std::string>, int32_t> ints;
+    std::map<std::pair<std::string, std::string>, std::string> strings;
+    std::map<std::pair<std::string, std::string>, font> fonts;
     std::map<std::string, std::vector<uint8_t>> imgs;
 
     std::string dummy_string;

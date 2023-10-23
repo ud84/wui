@@ -24,7 +24,7 @@
 namespace wui
 {
 
-theme_impl::theme_impl(const std::string &name_)
+theme_impl::theme_impl(std::string_view name_)
     : name(name_), ints(), strings(), fonts(), imgs(), dummy_string(), dummy_image(), err{}
 {
 }
@@ -34,14 +34,14 @@ std::string theme_impl::get_name() const
     return name;
 }
 
-void theme_impl::set_color(const std::string &control, const std::string &value, color color_)
+void theme_impl::set_color(std::string_view control, std::string_view value, color color_)
 {
-    ints[control + value] = color_;
+    ints[{ control.data(), value.data() }] = color_;
 }
 
-color theme_impl::get_color(const std::string &control, const std::string &value) const
+color theme_impl::get_color(std::string_view control, std::string_view value) const
 {
-    auto it = ints.find(control + value);
+    auto it = ints.find({ control.data(), value.data() });
     if (it != ints.end())
     {
         return static_cast<color>(it->second);
@@ -49,14 +49,14 @@ color theme_impl::get_color(const std::string &control, const std::string &value
     return 0;
 }
 
-void theme_impl::set_dimension(const std::string &control, const std::string &value, int32_t dimension)
+void theme_impl::set_dimension(std::string_view control, std::string_view value, int32_t dimension)
 {
-    ints[control + value] = dimension;
+    ints[{ control.data(), value.data() }] = dimension;
 }
 
-int32_t theme_impl::get_dimension(const std::string &control, const std::string &value) const
+int32_t theme_impl::get_dimension(std::string_view control, std::string_view value) const
 {
-    auto it = ints.find(control + value);
+    auto it = ints.find({ control.data(), value.data() });
     if (it != ints.end())
     {
         return it->second;
@@ -64,14 +64,14 @@ int32_t theme_impl::get_dimension(const std::string &control, const std::string 
     return 0;
 }
 
-void theme_impl::set_string(const std::string &control, const std::string &value, const std::string &str)
+void theme_impl::set_string(std::string_view control, std::string_view value, std::string_view str)
 {
-    strings[control + value] = str;
+    strings[{ control.data(), value.data() }] = str;
 }
 
-const std::string &theme_impl::get_string(const std::string &control, const std::string &value) const
+std::string_view theme_impl::get_string(std::string_view control, std::string_view value) const
 {
-    auto it = strings.find(control + value);
+    auto it = strings.find({ control.data(), value.data() });
     if (it != strings.end())
     {
         return it->second;
@@ -79,14 +79,14 @@ const std::string &theme_impl::get_string(const std::string &control, const std:
     return dummy_string;
 }
 
-void theme_impl::set_font(const std::string &control, const std::string &value, const font &font_)
+void theme_impl::set_font(std::string_view control, std::string_view value, const font &font_)
 {
-    fonts[control + value] = font_;
+    fonts[{ control.data(), value.data() }] = font_;
 }
 
-font theme_impl::get_font(const std::string &control, const std::string &value) const
+font theme_impl::get_font(std::string_view control, std::string_view value) const
 {
-    auto it = fonts.find(control + value);
+    auto it = fonts.find({ control.data(), value.data() });
     if (it != fonts.end())
     {
         return it->second;
@@ -94,14 +94,14 @@ font theme_impl::get_font(const std::string &control, const std::string &value) 
     return font();
 }
 
-void theme_impl::set_image(const std::string &name_, const std::vector<uint8_t> &data)
+void theme_impl::set_image(std::string_view name_, const std::vector<uint8_t> &data)
 {
-    imgs[name_] = data;
+    imgs[name_.data()] = data;
 }
 
-const std::vector<uint8_t> &theme_impl::get_image(const std::string &name_)
+const std::vector<uint8_t> &theme_impl::get_image(std::string_view name_)
 {
-    auto it = imgs.find(name_);
+    auto it = imgs.find(name_.data());
     if (it != imgs.end())
     {
         return it->second;
@@ -110,7 +110,7 @@ const std::vector<uint8_t> &theme_impl::get_image(const std::string &name_)
 }
 
 #ifdef _WIN32
-void theme_impl::load_resource(int32_t resource_index, const std::string &resource_section)
+void theme_impl::load_resource(int32_t resource_index, std::string_view resource_section)
 {
     auto h_inst = GetModuleHandle(NULL);
     auto h_resource = FindResource(h_inst, MAKEINTRESOURCE(resource_index), boost::nowide::widen(resource_section).c_str());
@@ -135,7 +135,7 @@ void theme_impl::load_resource(int32_t resource_index, const std::string &resour
 }
 #endif
 
-void theme_impl::load_json(const std::string &json_)
+void theme_impl::load_json(std::string_view json_)
 {
     err.reset();
 
@@ -176,7 +176,7 @@ void theme_impl::load_json(const std::string &json_)
                             str.insert(0, "0x");
                             int32_t color = std::stol(str, nullptr, 16);
 
-                            ints[control + kvp.first] = make_color(get_red(color), get_green(color), get_blue(color));
+                            ints[{ control, kvp.first }] = make_color(get_red(color), get_green(color), get_blue(color));
                         }
                         catch (...)
                         {
@@ -187,12 +187,12 @@ void theme_impl::load_json(const std::string &json_)
                     }
                     else
                     {
-                        strings[control + kvp.first] = str;
+                        strings[{ control, kvp.first }] = str;
                     }
                 }
                 else if (kvp.second.is_number_integer())
                 {
-                    ints[control + kvp.first] = kvp.second.get<int32_t>();
+                    ints[{ control, kvp.first }] = kvp.second.get<int32_t>();
                 }
                 else if (kvp.second.is_object() && kvp.first.find("font") != std::string::npos)
                 {
@@ -226,7 +226,7 @@ void theme_impl::load_json(const std::string &json_)
                         size = size_it->second.get<std::int32_t>();
                     }
 
-                    fonts[control + kvp.first] = font{ font_name, size, static_cast<decorations>(decorations_) };
+                    fonts[{ control, kvp.first }] = font{ font_name, size, static_cast<decorations>(decorations_) };
                 }
             }
         }
@@ -287,7 +287,7 @@ void theme_impl::load_json(const std::string &json_)
     }
 }
 
-void theme_impl::load_file(const std::string &file_name)
+void theme_impl::load_file(std::string_view file_name)
 {
     err.reset();
 

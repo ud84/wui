@@ -21,7 +21,7 @@ static std::vector<uint8_t> dummy_image;
 /// Interface
 
 #ifdef _WIN32
-bool set_default_theme_from_resource(const std::string &name, int32_t resource_index, const std::string &resource_section)
+bool set_default_theme_from_resource(std::string_view name, int32_t resource_index, std::string_view resource_section)
 {
     instance.reset();
     instance = std::shared_ptr<i_theme>(new theme_impl(name));
@@ -31,7 +31,7 @@ bool set_default_theme_from_resource(const std::string &name, int32_t resource_i
 }
 #endif
 
-bool set_default_theme_from_json(const std::string &name, const std::string &json)
+bool set_default_theme_from_json(std::string_view name, std::string_view json)
 {
     instance.reset();
     instance = std::shared_ptr<i_theme>(new theme_impl(name));
@@ -40,7 +40,7 @@ bool set_default_theme_from_json(const std::string &name, const std::string &jso
     return instance->get_error().is_ok();
 }
 
-bool set_default_theme_from_file(const std::string &name, const std::string &file_name)
+bool set_default_theme_from_file(std::string_view name, std::string_view file_name)
 {
     instance.reset();
     instance = std::shared_ptr<i_theme>(new theme_impl(name));
@@ -49,13 +49,13 @@ bool set_default_theme_from_file(const std::string &name, const std::string &fil
     return instance->get_error().is_ok();
 }
 
-void set_default_theme_empty(const std::string &name)
+void set_default_theme_empty(std::string_view name)
 {
     instance.reset();
     instance = std::shared_ptr<i_theme>(new theme_impl(name));
 }
 
-bool set_default_theme_from_name(const std::string &name, error &err)
+bool set_default_theme_from_name(std::string_view name, error &err)
 {
     auto theme_params = wui::get_app_theme(name);
 
@@ -83,19 +83,19 @@ std::shared_ptr<i_theme> get_default_theme()
     return instance;    
 }
 
-std::shared_ptr<i_theme> make_custom_theme(const std::string &name)
+std::shared_ptr<i_theme> make_custom_theme(std::string_view name)
 {
     return std::shared_ptr<i_theme>(new theme_impl(name));
 }
 
-std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json)
+std::shared_ptr<i_theme> make_custom_theme(std::string_view name, std::string_view json)
 {
     auto ct = std::shared_ptr<i_theme>(new theme_impl(name));
     ct->load_json(json);
     return ct;
 }
 
-color theme_color(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
+color theme_color(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {
@@ -108,7 +108,7 @@ color theme_color(const std::string &control, const std::string &value, std::sha
     return 0;
 }
 
-int32_t theme_dimension(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
+int32_t theme_dimension(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {
@@ -121,7 +121,7 @@ int32_t theme_dimension(const std::string &control, const std::string &value, st
     return 0;
 }
 
-const std::string &theme_string(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
+std::string_view theme_string(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {
@@ -134,7 +134,7 @@ const std::string &theme_string(const std::string &control, const std::string &v
     return dummy_string;
 }
 
-font theme_font(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_)
+font theme_font(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {
@@ -147,7 +147,7 @@ font theme_font(const std::string &control, const std::string &value, std::share
     return font();
 }
 
-const std::vector<uint8_t> &theme_image(const std::string &name, std::shared_ptr<i_theme> theme_)
+const std::vector<uint8_t> &theme_image(std::string_view name, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {

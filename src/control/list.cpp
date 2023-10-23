@@ -21,7 +21,7 @@
 namespace wui
 {
 
-list::list(const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
+list::list(std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name_),
     theme_(theme__),
     position_(),
@@ -596,7 +596,7 @@ error list::get_error() const
     return {};
 }
 
-void list::update_theme_control_name(const std::string &theme_control_name)
+void list::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);

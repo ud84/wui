@@ -20,7 +20,7 @@ namespace wui
 namespace config
 {
 
-config_impl_ini::config_impl_ini(const std::string &file_name_)
+config_impl_ini::config_impl_ini(std::string_view file_name_)
     : file_name(wui::real_path(file_name_)),
     values(),
     err{}
@@ -28,19 +28,19 @@ config_impl_ini::config_impl_ini(const std::string &file_name_)
     load_values();
 }
 
-int32_t config_impl_ini::get_int(const std::string &section, const std::string &entry, int32_t default_)
+int32_t config_impl_ini::get_int(std::string_view section, std::string_view entry, int32_t default_)
 {
     return static_cast<int32_t>(get_int64(section, entry, default_));
 }
 
-void config_impl_ini::set_int(const std::string &section, const std::string &entry, int32_t value)
+void config_impl_ini::set_int(std::string_view section, std::string_view entry, int32_t value)
 {
     set_int64(section, entry, value);
 }
 
-int64_t config_impl_ini::get_int64(const std::string &section, const std::string &entry, int64_t default_)
+int64_t config_impl_ini::get_int64(std::string_view section, std::string_view entry, int64_t default_)
 {
-    auto s = values.find({ section, entry });
+    auto s = values.find({ section.data(), entry.data() });
     if (s != values.end() && s->second.type == value_type::int64)
     {
         return s->second.int_val;
@@ -48,37 +48,37 @@ int64_t config_impl_ini::get_int64(const std::string &section, const std::string
     return default_;
 }
 
-void config_impl_ini::set_int64(const std::string &section, const std::string &entry, int64_t value)
+void config_impl_ini::set_int64(std::string_view section, std::string_view entry, int64_t value)
 {
-    auto &s = values[{ section, entry }];
+    auto &s = values[{ section.data(), entry.data() }];
     s.type = value_type::int64;
     s.int_val = value;
 
     save_values();
 }
 
-std::string config_impl_ini::get_string(const std::string &section, const std::string &entry, const std::string &default_)
+std::string config_impl_ini::get_string(std::string_view section, std::string_view entry, std::string_view default_)
 {
-    auto s = values.find({ section, entry });
+    auto s = values.find({ section.data(), entry.data() });
     if (s != values.end())
     {
         return s->second.str_val;
     }
-    return default_;
+    return default_.data();
 }
 
-void config_impl_ini::set_string(const std::string &section, const std::string &entry, const std::string value)
+void config_impl_ini::set_string(std::string_view section, std::string_view entry, const std::string value)
 {
-    auto &s = values[{ section, entry }];
+    auto &s = values[{ section.data(), entry.data() }];
     s.type = value_type::string;
     s.str_val = value;
 
     save_values();
 }
 
-void config_impl_ini::delete_value(const std::string &section, const std::string &entry)
+void config_impl_ini::delete_value(std::string_view section, std::string_view entry)
 {
-    auto s = values.find({ section, entry });
+    auto s = values.find({ section.data(), entry.data() });
     if (s != values.end())
     {
         values.erase(s);
@@ -87,7 +87,7 @@ void config_impl_ini::delete_value(const std::string &section, const std::string
     save_values();
 }
 
-void config_impl_ini::delete_key(const std::string &section)
+void config_impl_ini::delete_key(std::string_view section)
 {
     // todo
 }

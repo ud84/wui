@@ -24,7 +24,7 @@ namespace wui
 class tooltip : public i_control, public std::enable_shared_from_this<tooltip>
 {
 public:
-    tooltip(const std::string &text, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    tooltip(std::string_view text, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~tooltip();
 
     virtual void draw(graphic &gr, const rect &);
@@ -39,7 +39,7 @@ public:
     virtual void set_topmost(bool);
     virtual bool topmost() const;
 
-    virtual void update_theme_control_name(const std::string &theme_control_name);
+    virtual void update_theme_control_name(std::string_view theme_control_name);
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -59,7 +59,7 @@ public:
     /// Tooltip's interface
     void show_on_control(i_control &control, int32_t indent);
 
-    void set_text(const std::string &text_);
+    void set_text(std::string_view text_);
 
 public:
     /// Control name in theme

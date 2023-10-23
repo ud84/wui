@@ -22,7 +22,7 @@
 namespace wui
 {
 
-progress::progress(int32_t from_, int32_t to_, int32_t value_, progress_orientation orientation_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+progress::progress(int32_t from_, int32_t to_, int32_t value_, progress_orientation orientation_, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent_(),
@@ -132,7 +132,7 @@ error progress::get_error() const
     return {};
 }
 
-void progress::update_theme_control_name(const std::string &theme_control_name)
+void progress::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);

@@ -67,7 +67,7 @@ menu_item *get_item(menu_items_t &items, int32_t n_item, int32_t pos = 0, int32_
     return nullptr;
 }
 
-menu::menu(const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+menu::menu(std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : list_theme(make_custom_theme()),
     list_(new list(list::tc, list_theme)),
     tcn(theme_control_name),
@@ -214,7 +214,7 @@ error menu::get_error() const
     return {};
 }
 
-void menu::update_theme_control_name(const std::string &theme_control_name)
+void menu::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);

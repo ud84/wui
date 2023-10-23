@@ -24,7 +24,7 @@
 namespace wui
 {
 
-locale_impl::locale_impl(locale_type type_, const std::string &name_)
+locale_impl::locale_impl(locale_type type_, std::string_view name_)
     : type(type_), name(name_), strings(), dummy_string(), err{}
 {
 }
@@ -39,14 +39,14 @@ std::string locale_impl::get_name() const
     return name;
 }
 
-void locale_impl::set(const std::string &control, const std::string &value, const std::string &str)
+void locale_impl::set(std::string_view control, std::string_view value, std::string_view str)
 {
-    strings[control + value] = str;
+    strings[{ control.data(), value.data() }] = str;
 }
 
-const std::string &locale_impl::get(const std::string &control, const std::string &value) const
+std::string_view locale_impl::get(std::string_view control, std::string_view value) const
 {
-    auto it = strings.find(control + value);
+    auto it = strings.find({ control.data(), value.data() });
     if (it != strings.end())
     {
         return it->second;
@@ -55,7 +55,7 @@ const std::string &locale_impl::get(const std::string &control, const std::strin
 }
 
 #ifdef _WIN32
-void locale_impl::load_resource(int32_t resource_index, const std::string &resource_section)
+void locale_impl::load_resource(int32_t resource_index, std::string_view resource_section)
 {
     auto h_inst = GetModuleHandle(NULL);
     auto h_resource = FindResource(h_inst, MAKEINTRESOURCE(resource_index), boost::nowide::widen(resource_section).c_str());
@@ -80,7 +80,7 @@ void locale_impl::load_resource(int32_t resource_index, const std::string &resou
 }
 #endif
 
-void locale_impl::load_json(const std::string &json_)
+void locale_impl::load_json(std::string_view json_)
 {
     err.reset();
 
@@ -113,7 +113,7 @@ void locale_impl::load_json(const std::string &json_)
                 if (kvp.second.is_string())
                 {
                     auto str = kvp.second.get<std::string>();
-                    strings[section + kvp.first] = str;
+                    strings[{ section, kvp.first }] = str;
                 }
             }
         }
@@ -126,7 +126,7 @@ void locale_impl::load_json(const std::string &json_)
     }
 }
 
-void locale_impl::load_file(const std::string &file_name)
+void locale_impl::load_file(std::string_view file_name)
 {
     err.reset();
 

@@ -24,8 +24,8 @@ namespace wui
 class panel : public i_control, public std::enable_shared_from_this<panel>
 {
 public:
-    panel(const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
-    panel(std::function<void(graphic&)> draw_callback, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    panel(std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    panel(std::function<void(graphic&)> draw_callback, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~panel();
 
     virtual void draw(graphic &gr, const rect &);
@@ -40,7 +40,7 @@ public:
     virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
-    virtual void update_theme_control_name(const std::string &theme_control_name);
+    virtual void update_theme_control_name(std::string_view theme_control_name);
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();

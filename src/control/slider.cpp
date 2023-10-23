@@ -20,7 +20,7 @@
 namespace wui
 {
 
-slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(int32_t)> change_callback_, slider_orientation orientation_, const std::string &theme_control_name, std::shared_ptr<i_theme> theme__)
+slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(int32_t)> change_callback_, slider_orientation orientation_, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : orientation(orientation_),
     from(from_), to(to_), value(value_),
     change_callback(change_callback_),
@@ -315,7 +315,7 @@ error slider::get_error() const
     return {};
 }
 
-void slider::update_theme_control_name(const std::string &theme_control_name)
+void slider::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);

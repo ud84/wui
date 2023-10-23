@@ -21,7 +21,7 @@ static std::shared_ptr<i_config> instance = nullptr;
 
 /// Interface
 
-bool use_ini_file(const std::string &file_name)
+bool use_ini_file(std::string_view file_name)
 {
     instance.reset();
     instance = std::shared_ptr<i_config>(new config_impl_ini(file_name));
@@ -29,7 +29,7 @@ bool use_ini_file(const std::string &file_name)
     return instance->get_error().is_ok();
 }
 #ifdef _WIN32
-bool use_registry(const std::string &app_key, HKEY root)
+bool use_registry(std::string_view app_key, HKEY root)
 {
     instance.reset();
     instance = std::shared_ptr<i_config>(new config_impl_reg(app_key, root));
@@ -38,8 +38,7 @@ bool use_registry(const std::string &app_key, HKEY root)
 }
 #endif
 
-bool create_config(const std::string &file_name,
-    const std::string &app_key, int64_t root)
+bool create_config(std::string_view file_name, std::string_view app_key, int64_t root)
 {
 #ifdef _WIN32
     return use_registry(app_key, root == 0 ? HKEY_CURRENT_USER : (HKEY)root);
@@ -57,7 +56,7 @@ error get_error()
     return {};
 }
 
-int32_t get_int(const std::string &section, const std::string &entry, int32_t default_)
+int32_t get_int(std::string_view section, std::string_view entry, int32_t default_)
 {
     if (instance)
     {
@@ -66,7 +65,7 @@ int32_t get_int(const std::string &section, const std::string &entry, int32_t de
     return -1;
 }
 
-void set_int(const std::string &section, const std::string &entry, int32_t value)
+void set_int(std::string_view section, std::string_view entry, int32_t value)
 {
     if (instance)
     {
@@ -74,7 +73,7 @@ void set_int(const std::string &section, const std::string &entry, int32_t value
     }
 }
 
-int64_t get_int64(const std::string &section, const std::string &entry, int64_t default_)
+int64_t get_int64(std::string_view section, std::string_view entry, int64_t default_)
 {
     if (instance)
     {
@@ -83,7 +82,7 @@ int64_t get_int64(const std::string &section, const std::string &entry, int64_t 
     return -1;
 }
 
-void set_int64(const std::string &section, const std::string &entry, int64_t value)
+void set_int64(std::string_view section, std::string_view entry, int64_t value)
 {
     if (instance)
     {
@@ -91,7 +90,7 @@ void set_int64(const std::string &section, const std::string &entry, int64_t val
     }
 }
 
-std::string get_string(const std::string &section, const std::string &entry, const std::string &default_)
+std::string get_string(std::string_view section, std::string_view entry, std::string_view default_)
 {
     if (instance)
     {
@@ -100,7 +99,7 @@ std::string get_string(const std::string &section, const std::string &entry, con
     return "";
 }
 
-void set_string(const std::string &section, const std::string &entry, const std::string value)
+void set_string(std::string_view section, std::string_view entry, const std::string value)
 {
     if (instance)
     {
@@ -108,7 +107,7 @@ void set_string(const std::string &section, const std::string &entry, const std:
     }
 }
 
-void delete_value(const std::string &section, const std::string &entry)
+void delete_value(std::string_view section, std::string_view entry)
 {
     if (instance)
     {
@@ -116,7 +115,7 @@ void delete_value(const std::string &section, const std::string &entry)
     }
 }
 
-void delete_key(const std::string &section)
+void delete_key(std::string_view section)
 {
     if (instance)
     {

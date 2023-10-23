@@ -21,7 +21,7 @@ InputSheet::InputSheet()
     inputText(new wui::text("", wui::text_alignment::left, "h1_text")),
     input0(new wui::input())
 {
-    input0->set_change_callback([this](const std::string &v) { inputText->set_text(v); });
+    input0->set_change_callback([this](std::string_view v) { inputText->set_text(v); });
     input0->set_return_callback([this]() { inputText->set_text("You pressed Enter"); });
 }
 

@@ -23,12 +23,12 @@ void set_app_themes(const themes_t &tt)
     instance = tt;
 }
 
-void set_default_theme(const std::string &name)
+void set_default_theme(std::string_view name)
 {
     default_theme = name;
 }
 
-theme_params get_app_theme(const std::string &name)
+theme_params get_app_theme(std::string_view name)
 {
     auto l = std::find(instance.begin(), instance.end(), name);
     if (l != instance.end())
@@ -45,7 +45,7 @@ theme_params get_app_theme(const std::string &name)
     return {};
 }
 
-void set_current_app_theme(const std::string &name)
+void set_current_app_theme(std::string_view name)
 {
     auto it = std::find(instance.begin(), instance.end(), name);
     if (it != instance.end())

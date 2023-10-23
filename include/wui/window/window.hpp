@@ -45,11 +45,11 @@ class button;
 class window : public i_window, public i_control, public std::enable_shared_from_this<window>
 {
 public:
-    window(const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    window(std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     virtual ~window();
 
     /// i_window impl
-    virtual bool init(const std::string &caption, const rect &position, window_style style, std::function<void(void)> close_callback = []() {});
+    virtual bool init(std::string_view caption, const rect &position, window_style style, std::function<void(void)> close_callback = []() {});
     virtual void destroy();
 
     virtual void add_control(std::shared_ptr<i_control> control, const rect &position);
@@ -61,7 +61,7 @@ public:
     virtual void redraw(const rect &position, bool clear = false);
 
     virtual std::string subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr);
-    virtual void unsubscribe(const std::string &subscriber_id);
+    virtual void unsubscribe(std::string_view subscriber_id);
 
     virtual system_context &context();
 
@@ -81,7 +81,7 @@ public:
     virtual bool focused() const;
     virtual bool focusing() const;
 
-    virtual void update_theme_control_name(const std::string &theme_control_name);
+    virtual void update_theme_control_name(std::string_view theme_control_name);
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -95,7 +95,7 @@ public:
     virtual error get_error() const;
 
     /// Window style methods
-    void set_caption(const std::string &caption);
+    void set_caption(std::string_view caption);
     void set_style(window_style style);
     void set_min_size(int32_t width, int32_t height);
 

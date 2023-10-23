@@ -59,8 +59,8 @@ public:
         std::shared_ptr<i_theme> theme_ = nullptr);
     ~message();
 
-    void show(const std::string &message_,
-        const std::string &title_,
+    void show(std::string_view message_,
+        std::string_view title_,
         message_icon icon_,
         message_button button_,
         std::function<void(message_result)> result_callback = [](message_result) {});

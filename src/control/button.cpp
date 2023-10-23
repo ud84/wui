@@ -21,7 +21,7 @@
 namespace wui
 {
 
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
+button::button(std::string_view caption_, std::function<void(void)> click_callback_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view::text),
     caption(caption_),
     image_(),
@@ -58,7 +58,7 @@ std::shared_ptr<image> get_button_image(button_view button_view_, std::shared_pt
     }
 }
 
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
+button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
     image_(get_button_image(button_view__, theme__)),
@@ -81,7 +81,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 }
 
 #ifdef _WIN32
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, int32_t image_resource_index_, int32_t image_size_, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
+button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, int32_t image_resource_index_, int32_t image_size_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
     image_(new image(image_resource_index_, theme__)),
@@ -103,7 +103,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
 }
 #endif
 
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::string &imageFileName_, int32_t image_size_, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
+button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, std::string_view imageFileName_, int32_t image_size_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
     image_(new image(imageFileName_, theme__)),
@@ -124,7 +124,7 @@ button::button(const std::string &caption_, std::function<void(void)> click_call
     update_err("button::constructor[image from file]", image_->get_error());
 }
 
-button::button(const std::string &caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::vector<uint8_t> &image_data, int32_t image_size_, const std::string &theme_control_name_, std::shared_ptr<i_theme> theme__)
+button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::vector<uint8_t> &image_data, int32_t image_size_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
     image_(new image(image_data)),
@@ -491,7 +491,7 @@ error button::get_error() const
     return err;
 }
 
-void button::update_theme_control_name(const std::string &theme_control_name)
+void button::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);
@@ -566,7 +566,7 @@ bool button::enabled() const
     return enabled_;
 }
 
-void button::set_caption(const std::string &caption_)
+void button::set_caption(std::string_view caption_)
 {
     caption = caption_;
     tooltip_->set_text(caption_);
@@ -600,7 +600,7 @@ void button::set_image(int32_t resource_index)
 }
 #endif
 
-void button::set_image(const std::string &file_name)
+void button::set_image(std::string_view file_name)
 {
     if (image_)
     {
@@ -681,10 +681,10 @@ void button::redraw()
     }
 }
 
-void button::update_err(const std::string &place, const error &input_err)
+void button::update_err(std::string_view place, const error &input_err)
 {
     err = input_err;
-    err.component = place + "::" + input_err.component;
+    err.component = std::string(place) + "::" + input_err.component;
 }
 
 }

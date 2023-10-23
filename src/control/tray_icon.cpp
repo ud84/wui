@@ -14,7 +14,7 @@ namespace wui
 {
 
 #ifdef _WIN32
-tray_icon::tray_icon(std::weak_ptr<window> parent__, int32_t icon_resource_index_, const std::string &tip_, std::function<void(tray_icon_action action)> click_callback_)
+tray_icon::tray_icon(std::weak_ptr<window> parent__, int32_t icon_resource_index_, std::string_view tip_, std::function<void(tray_icon_action action)> click_callback_)
     : parent(parent__),
     icon_resource_index(icon_resource_index_),
     icon_file_name(),
@@ -43,7 +43,7 @@ tray_icon::tray_icon(std::weak_ptr<window> parent__, int32_t icon_resource_index
 }
 #endif
 
-tray_icon::tray_icon(std::weak_ptr<window> parent__, const std::string &icon_file_name_, const std::string &tip_, std::function<void(tray_icon_action action)> click_callback_)
+tray_icon::tray_icon(std::weak_ptr<window> parent__, std::string_view icon_file_name_, std::string_view tip_, std::function<void(tray_icon_action action)> click_callback_)
     : parent(parent__),
 #ifdef _WIN32
     icon_resource_index(-1),
@@ -117,7 +117,7 @@ void tray_icon::change_icon(int32_t icon_resource_index_)
 }
 #endif
 
-void tray_icon::change_icon(const std::string &icon_file_name_)
+void tray_icon::change_icon(std::string_view icon_file_name_)
 {
     icon_file_name = icon_file_name_;
 #ifdef _WIN32
@@ -141,7 +141,7 @@ void tray_icon::change_icon(const std::string &icon_file_name_)
 #endif
 }
 
-void tray_icon::change_tip(const std::string &tip_)
+void tray_icon::change_tip(std::string_view tip_)
 {
     tip = tip_;
 #ifdef _WIN32
@@ -165,7 +165,7 @@ void tray_icon::change_tip(const std::string &tip_)
 #endif
 }
 
-void tray_icon::show_message(const std::string &title, const std::string &message)
+void tray_icon::show_message(std::string_view title, std::string_view message)
 {
 #ifdef _WIN32
     auto parent_ = parent.lock();

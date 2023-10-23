@@ -321,7 +321,6 @@ rect graphic::measure_text(std::string_view text_, const font &font__)
 
     std::string text__(text_.begin(), text_.end());
     std::replace(text__.begin(), text__.end(), ' ', 't');
-    text__ += '\0';
 
     cairo_text_extents(cr, text__.c_str(), &extents);
 

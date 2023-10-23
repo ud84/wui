@@ -22,11 +22,9 @@
 namespace wui
 {
 
-std::string real_path(const std::string &relative_path)
+std::string real_path(std::string_view relative_path)
 {
-#ifdef _WIN32
-    return relative_path;
-#else
+#ifndef _WIN32
     auto index = relative_path.find("~/");
     if (index != std::string::npos)
     {
@@ -35,16 +33,16 @@ std::string real_path(const std::string &relative_path)
         {
             homedir = getpwuid(getuid())->pw_dir;
 
-            std::string new_path = relative_path;
+            std::string new_path(relative_path.begin(), relative_path.end());
 
             new_path.replace(index, 1, homedir);
 
             return new_path;
         }
     }
-
-    return relative_path;
 #endif
+
+    return relative_path.data();
 }
 
 }

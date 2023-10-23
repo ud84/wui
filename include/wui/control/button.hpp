@@ -41,14 +41,14 @@ enum class button_view
 class button : public i_control, public std::enable_shared_from_this<button>
 {
 public:
-    button(const std::string &caption, std::function<void(void)> click_callback, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
-    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(std::string_view caption, std::function<void(void)> click_callback, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(std::string_view caption, std::function<void(void)> click_callback, button_view button_view_, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
 
 #ifdef _WIN32
-    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, int32_t image_resource_index, int32_t image_size, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(std::string_view caption, std::function<void(void)> click_callback, button_view button_view_, int32_t image_resource_index, int32_t image_size, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
 #endif
-    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::string &image_file_name, int32_t image_size, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
-    button(const std::string &caption, std::function<void(void)> click_callback, button_view button_view_, const std::vector<uint8_t> &image_data, int32_t image_size, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(std::string_view caption, std::function<void(void)> click_callback, button_view button_view_, std::string_view image_file_name, int32_t image_size, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    button(std::string_view caption, std::function<void(void)> click_callback, button_view button_view_, const std::vector<uint8_t> &image_data, int32_t image_size, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~button();
 
     /// i_control impl
@@ -64,7 +64,7 @@ public:
     virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
-    virtual void update_theme_control_name(const std::string &theme_control_name);
+    virtual void update_theme_control_name(std::string_view theme_control_name);
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -82,13 +82,13 @@ public:
 
 public:
     /// Button's interface
-    void set_caption(const std::string &caption);
+    void set_caption(std::string_view caption);
 
     void set_button_view(button_view button_view_);
 #ifdef _WIN32
     void set_image(int32_t resource_index);
 #endif
-    void set_image(const std::string &file_name);
+    void set_image(std::string_view file_name);
     void set_image(const std::vector<uint8_t> &image_data);
 
     void enable_focusing();
@@ -159,7 +159,7 @@ private:
 
     void redraw();
 
-    void update_err(const std::string &place, const error &input_err);
+    void update_err(std::string_view place, const error &input_err);
 };
 
 }

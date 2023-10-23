@@ -32,7 +32,7 @@ enum class text_alignment
 class text : public i_control, public std::enable_shared_from_this<text>
 {
 public:
-    text(const std::string &text = "", text_alignment alignment = text_alignment::left, const std::string &theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    text(std::string_view text = "", text_alignment alignment = text_alignment::left, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~text();
 
     virtual void draw(graphic &gr, const rect &);
@@ -47,7 +47,7 @@ public:
     virtual void set_topmost(bool yes);
     virtual bool topmost() const;
 
-    virtual void update_theme_control_name(const std::string &theme_control_name);
+    virtual void update_theme_control_name(std::string_view theme_control_name);
     virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
 
     virtual void show();
@@ -65,8 +65,8 @@ public:
 
 public:
     /// Text's interface
-    void set_text(const std::string &text);
-	const std::string &get_text() const;
+    void set_text(std::string_view text);
+	std::string_view get_text() const;
 
     void set_alignment(text_alignment alignment);
 

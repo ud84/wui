@@ -14,7 +14,7 @@
 namespace wui
 {
 
-const std::string &str(locale_type type)
+std::string_view str(locale_type type)
 {
     static const std::map<locale_type, std::string> names = {
         { locale_type::abk, "abk" },
