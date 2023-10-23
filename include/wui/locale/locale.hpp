@@ -37,6 +37,6 @@ std::shared_ptr<i_locale> get_locale();
 void set_locale_value(std::string_view section, std::string_view value, std::string_view str);
 
 /// Return the item's string value by current locale
-std::string_view locale(std::string_view section, std::string_view value);
+const std::string &locale(std::string_view section, std::string_view value);
 
 }

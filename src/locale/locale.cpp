@@ -91,7 +91,7 @@ void set_locale_value(std::string_view section, std::string_view value, std::str
     }
 }
 
-std::string_view locale(std::string_view section, std::string_view value)
+const std::string &locale(std::string_view section, std::string_view value)
 {
     if (instance)
     {

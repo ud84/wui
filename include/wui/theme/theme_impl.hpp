@@ -30,7 +30,7 @@ public:
     virtual int32_t get_dimension(std::string_view control, std::string_view value) const;
 
     virtual void set_string(std::string_view control, std::string_view value, std::string_view str);
-    virtual std::string_view get_string(std::string_view control, std::string_view value) const;
+    virtual const std::string &get_string(std::string_view control, std::string_view value) const;
 
     virtual void set_font(std::string_view control, std::string_view value, const font &font_);
     virtual font get_font(std::string_view control, std::string_view value) const;

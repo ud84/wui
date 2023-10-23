@@ -44,7 +44,7 @@ void locale_impl::set(std::string_view control, std::string_view value, std::str
     strings[{ control.data(), value.data() }] = str;
 }
 
-std::string_view locale_impl::get(std::string_view control, std::string_view value) const
+const std::string &locale_impl::get(std::string_view control, std::string_view value) const
 {
     auto it = strings.find({ control.data(), value.data() });
     if (it != strings.end())

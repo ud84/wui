@@ -175,7 +175,7 @@ void MainFrame::OnOK()
 {
     wui::config::set_string("User", "Name", userNameInput->text());
 
-    messageBox->show(std::string(wui::locale("main_frame", "hello_text")) + userNameInput->text(),
+    messageBox->show(wui::locale("main_frame", "hello_text") + userNameInput->text(),
         wui::locale("main_frame", "ok_message_caption"), wui::message_icon::information, 
         wui::message_button::ok, [this](wui::message_result) {
             user_approve_close = true;

@@ -69,7 +69,7 @@ void theme_impl::set_string(std::string_view control, std::string_view value, st
     strings[{ control.data(), value.data() }] = str;
 }
 
-std::string_view theme_impl::get_string(std::string_view control, std::string_view value) const
+const std::string &theme_impl::get_string(std::string_view control, std::string_view value) const
 {
     auto it = strings.find({ control.data(), value.data() });
     if (it != strings.end())

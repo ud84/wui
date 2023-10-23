@@ -25,7 +25,7 @@ public:
     virtual std::string get_name() const;
 
     virtual void set(std::string_view section, std::string_view value, std::string_view str);
-    virtual std::string_view get(std::string_view section, std::string_view value) const;
+    virtual const std::string &get(std::string_view section, std::string_view value) const;
 
 #ifdef _WIN32
     virtual void load_resource(int32_t resource_index, std::string_view resource_section);

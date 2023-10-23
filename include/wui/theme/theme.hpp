@@ -45,7 +45,7 @@ color theme_color(std::string_view control, std::string_view value, std::shared_
 int32_t theme_dimension(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's string value by current theme
-std::string_view theme_string(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
+const std::string &theme_string(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
 /// Return the item's font value by current theme
 font theme_font(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);

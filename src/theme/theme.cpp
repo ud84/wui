@@ -121,7 +121,7 @@ int32_t theme_dimension(std::string_view control, std::string_view value, std::s
     return 0;
 }
 
-std::string_view theme_string(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_)
+const std::string &theme_string(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_)
 {
     if (theme_)
     {
