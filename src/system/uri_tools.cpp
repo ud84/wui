@@ -35,7 +35,7 @@ bool open_uri(std::string_view uri)
 #else
         std::string("xdg-open ")
 #endif
-        + uri;
+        + std::string(uri);
 
     auto res = system(cmd.c_str());
     return res == 0;

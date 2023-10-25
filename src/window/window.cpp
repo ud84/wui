@@ -974,11 +974,11 @@ void set_wm_name(system_context &context_, std::string_view caption)
 {
     xcb_icccm_set_wm_name(context_.connection, context_.wnd,
         XCB_ATOM_STRING, 8,
-        caption.size(), caption.c_str());
+        caption.size(), caption.data());
 
     xcb_icccm_set_wm_icon_name(context_.connection, context_.wnd,
         XCB_ATOM_STRING, 8,
-        caption.size(), caption.c_str());
+        caption.size(), caption.data());
 }
 #endif
 
