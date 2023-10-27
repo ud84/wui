@@ -2,7 +2,7 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/wui/v15
+/.vs
 /x64/Debug
 /x64/Release
 /Debug
