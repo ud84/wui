@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\wui\common\about.hpp" />
     <ClInclude Include="include\wui\common\bit_helpers.hpp" />
     <ClInclude Include="include\wui\common\color.hpp" />
     <ClInclude Include="include\wui\common\error.hpp" />
