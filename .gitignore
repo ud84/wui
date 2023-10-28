@@ -27,3 +27,4 @@ examples/hello_world/hello_world
 /examples/hello_world/x64/Release
 /examples/hello_world/x64/Debug
 /examples/hello_world/Release
+/examples/demo/Release
