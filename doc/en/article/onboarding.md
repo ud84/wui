@@ -201,7 +201,6 @@ In the case of running on Windows, a standard infinite loop is run:
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-    return (int) msg.wParam;
 
 Each running, non-child window becomes a message recipient via its wnd_proc. Then, depending on the type of event, either controls are redrawn, window position/size is handled, or the event is sent to subscribers. The lifetime of the first window created determines the lifetime of the application.
 On linux the picture is slightly different, but it looks similar for the user and controls. Each non-child window, runs a separate thread to wait for events in xcb_wait_for_event() and send them out to subscribers as they arrive.
@@ -415,8 +414,10 @@ Shows the use of theme, locale and config, in an application that has two color 
 [main.cpp](https://github.com/ud84/wui/blob/main/examples/hello_world/hw.cpp)
 
 The demo application shows the logo, displays a caption and provides an input field. When the button is clicked, a message box is displayed and the application is closed. It also shows tracking of the user closing the window and displaying a confirmation message.
+<img src="doc/en/img/hw0.png">
 
 In the following screenshot, the theme is changed to light, the language to Russian and the "Nice to meet you" button is pressed
+<img src="doc/en/img/hw1.png">
 
 [MainFrame.h](https://github.com/ud84/wui/blob/main/examples/hello_world/MainFrame/MainFrame.h)
 [MainFrame.cpp](https://github.com/ud84/wui/blob/main/examples/hello_world/MainFrame/MainFrame.cpp)
@@ -443,6 +444,8 @@ A button can be of the following types:
     radio
     anchor
     sheet
+
+<img src="doc/en/img/button.png">
 
 ### image
 
@@ -492,14 +495,18 @@ Thus, replacing the IMAGES_DARK / IMAGES_LIGHT group causes the same effect as w
 
 ### input
 
+<img src="doc/en/img/input.png">
+
 This control implements a standard input field. Since the implementation is custom, at the moment there is no Undo / Redo, but in the future there should be spell checking, hints, validation.
 
 ### list
 
 Vertical list of items with scrolling. Items are rendered by custom code via callback. It is possible to create items with different heights. It can be used to make a chat room, a table to the database, basically any list.
 
+<img src="doc/en/img/list0.png">
 A chatroom example
 
+<img src="doc/en/img/list1.png">
 User's list example
 
 ### menu
