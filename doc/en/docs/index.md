@@ -54,32 +54,30 @@ When it is necessary to draw a part of the window, we search for controls fallin
 
 ## Quick start
 
-* [Receive, build and setup](doc/en/docs/howto/setup.md)
-* [Onboarding](doc/en/article/onboarding.md)
-* [Hello world application](doc/en/docs/howto/hello-world.md)
+* [Receive, build and setup](howto/setup.md)
+* [Hello world application](howto/hello-world.md)
 
 ## Handbook
 
-* [Main application loop](doc/en/docs/base/main-loop.md)
-* [Resources](doc/en/docs/base/resources.md)
+* [Main application loop](base/main-loop.md)
+* [Resources](base/resources.md)
 
-* [Transient / Modal](doc/en/docs/base/transient.md)
+* [Transient / Modal](base/transient.md)
 
-* [Visual themes](doc/en/docs/base/theme.md)
-* [Locales](doc/en/docs/base/locale.md)
-* [Config](doc/en/docs/base/config.md)
+* [Visual themes](base/theme.md)
+* [Locales](base/locale.md)
+* [Config](base/config.md)
 
-* [Multithreading](doc/en/docs/base/multi-threading.md)
-* [Unicode](doc/en/docs/base/unicode.md)
-* [Error Handling](doc/en/docs/base/error-handling.md)
+* [Multithreading](base/multi-threading.md)
+* [Unicode](base/unicode.md)
+* [Error Handling](base/error-handling.md)
 
-* [Controls](doc/en/docs/controls/all.md)
+* [Controls](controls/all.md)
 
-* [Dependencies](doc/en/docs/base/dependencies.md)
+* [Dependencies](base/dependencies.md)
 
 ## Contacts:
 
 * Email: [info@libwui.org](mailto:info@libwui.org)
 * GitHub tracker: [https://github.com/ud84/wui/issues](https://github.com/ud84/wui/issues)
 * Telegram: [Official WUI channel](https://t.me/libwui)
-
