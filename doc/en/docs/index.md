@@ -56,6 +56,7 @@ When it is necessary to draw a part of the window, we search for controls fallin
 
 * [Receive, build and setup](howto/setup.md)
 * [Hello world application](howto/hello-world.md)
+* [Onboarding](../article/onboarding.md)
 
 ## Handbook
 

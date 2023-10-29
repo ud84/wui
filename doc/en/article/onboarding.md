@@ -30,6 +30,7 @@ In the end, it was decided to make a minimal UI framework for this project, and 
 - Have a user-friendly interface for working with application configs. Windows registry and ini files are supported. Naturally, with the possibility of modification.
 
 ## General scheme of the framework
+<img src="../img/system.png">
 
 Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
 
@@ -200,7 +201,6 @@ In the case of running on Windows, a standard infinite loop is run:
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-    return (int) msg.wParam;
 
 Each running, non-child window becomes a message recipient via its wnd_proc. Then, depending on the type of event, either controls are redrawn, window position/size is handled, or the event is sent to subscribers. The lifetime of the first window created determines the lifetime of the application.
 On linux the picture is slightly different, but it looks similar for the user and controls. Each non-child window, runs a separate thread to wait for events in xcb_wait_for_event() and send them out to subscribers as they arrive.
@@ -414,8 +414,10 @@ Shows the use of theme, locale and config, in an application that has two color 
 [main.cpp](https://github.com/ud84/wui/blob/main/examples/hello_world/hw.cpp)
 
 The demo application shows the logo, displays a caption and provides an input field. When the button is clicked, a message box is displayed and the application is closed. It also shows tracking of the user closing the window and displaying a confirmation message.
+<img src="../img/hw0.png">
 
 In the following screenshot, the theme is changed to light, the language to Russian and the "Nice to meet you" button is pressed
+<img src="../img/hw1.png">
 
 [MainFrame.h](https://github.com/ud84/wui/blob/main/examples/hello_world/MainFrame/MainFrame.h)
 [MainFrame.cpp](https://github.com/ud84/wui/blob/main/examples/hello_world/MainFrame/MainFrame.cpp)
@@ -442,6 +444,8 @@ A button can be of the following types:
     radio
     anchor
     sheet
+
+<img src="../img/button.png">
 
 ### image
 
@@ -491,14 +495,18 @@ Thus, replacing the IMAGES_DARK / IMAGES_LIGHT group causes the same effect as w
 
 ### input
 
+<img src="../img/input.png">
+
 This control implements a standard input field. Since the implementation is custom, at the moment there is no Undo / Redo, but in the future there should be spell checking, hints, validation.
 
 ### list
 
 Vertical list of items with scrolling. Items are rendered by custom code via callback. It is possible to create items with different heights. It can be used to make a chat room, a table to the database, basically any list.
 
+<img src="../img/list0.png">
 A chatroom example
 
+<img src="../img/list1.png">
 User's list example
 
 ### menu
@@ -513,7 +521,7 @@ It has standard sets of buttons and icons presented in the enumerations message_
 
 Example:
     
-    messageBox->show(ìmessageî, "header", wui::message_icon::information,
+    messageBox->show(‚Äúmessage‚Äù, "header", wui::message_icon::information,
     wui::message_button::yes_no, [this](wui::message_result result) {
         if (result == wui::message_result::yes)
         {
@@ -570,5 +578,6 @@ We will be grateful for constructive criticism, help in developing the project w
 
 Thanks for your interest!
 
-Github: https://github.com/ud84
-Project site: https://libwui.org/
+[Github](https://github.com/ud84/wui)
+
+[Project site](https://libwui.org/)

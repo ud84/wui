@@ -1,12 +1,12 @@
-# ![alt text](https://libwui.org/main/img/wui_logo_black_small.png) WUI
+# WUI
 Window User Interface Library
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) WUI is a cross-platform modern C++ library for creating graphical user interfaces.
+* WUI is a cross-platform modern C++ library for creating graphical user interfaces.
 Now it support only Windows and Linux*.
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) WUI is an attempt to make as easy to use cross-platform library as possible for creating a modern graphical user interface in C++. The library uses C++17 and has a minimalistic API.
+* WUI is an attempt to make as easy to use cross-platform library as possible for creating a modern graphical user interface in C++. The library uses C++17 and has a minimalistic API.
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Tasks for the UI framework
+* Tasks for the UI framework
 
 - Run on Windows (At least 7, but works on XP as well)
 - Run on Linux (Starting with Ubuntu 16 / CentOS6)
@@ -21,23 +21,25 @@ Now it support only Windows and Linux*.
 - Provide an implementation of basic UI controls and have a clear and accessible way for third party developers to add new controls for their applications.
 - Have a user-friendly interface for working with application configs. Windows registry and ini files are supported. Naturally, with the possibility of modification.
 
-![alt text](https://libwui.org/doc/img/system.png)
+![system](https://ud84.github.io/wui/doc/en/img/system.png)
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
+Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Control is any visual element for user interaction - button, input field, list, menu, etc. Control knows how to handle events coming from Window, stores its states, and draws itself on the graphical context provided by the window containing it.
+Control is any visual element for user interaction - button, input field, list, menu, etc. Control knows how to handle events coming from Window, stores its states, and draws itself on the graphical context provided by the window containing it.
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Window - receives system events and provides their distribution to subscribers. The window also commands its controllers to redraw and provides them with their own graphic. In addition, the window controls the input focus, can do modality and send an event to the subscribed user or to the system.
+Window - receives system events and provides their distribution to subscribers. The window also commands its controllers to redraw and provides them with their own graphic. In addition, the window controls the input focus, can do modality and send an event to the subscribed user or to the system.
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Graphic is the third base entity that provides an interface to the system's drawing methods. Currently, drawing is implemented on Windows GDI/GDI+ and Linux xcb/cairo. Of course, there is no obstacle to implement drawing on vulcan/bare metal/etc.
+Graphic is the third base entity that provides an interface to the system's drawing methods. Currently, drawing is implemented on Windows GDI/GDI+ and Linux xcb/cairo. Of course, there is no obstacle to implement drawing on vulcan/bare metal/etc.
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) The library also has auxiliary tools for work - structures common (containing such basic types as rect, color), event (mouse, keyboard, internal and system events), graphic (for physical rendering on the system graphical context) and Theme (a system of constants for convenient support of visual themes).
+The library also has auxiliary tools for work - structures common (containing such basic types as rect, color), event (mouse, keyboard, internal and system events), graphic (for physical rendering on the system graphical context) and Theme (a system of constants for convenient support of visual themes).
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) To view more information go to the wiki: https://libwui.org/doc
+To view more information go to the wiki: https://libwui.org/doc
 
-![#1589F0](https://placehold.co/15x15/1589F0/1589F0.png) Web site: https://libwui.org
+[Onboarding article](doc/en/article/onboarding.md)
 
-![#c5f015](https://placehold.co/15x15/c5f015/c5f015.png) In order for me to implement macOS support I need a macbook, which I don't have.
+Web site: https://libwui.org
+
+In order for me to implement macOS support I need a macbook, which I don't have.
 If you want to donate a macbook to me on this place: https://libwui.org/donate
 
 Example screenshot (Video call application)
