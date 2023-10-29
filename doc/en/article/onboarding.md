@@ -511,11 +511,36 @@ User's list example
 
 ### menu
 
+<img src="../img/menu0.png">
+
 Menus are ribbon menus, with no side branches. Attachments expand downward, lengthening the menu.
+
+<img src="../img/menu1.png">
 
 The menu is set in a declarative style, vector, internally done on a list
 
+    menu->set_items({
+            { 0, wui::menu_item_state::separator, "Bla bla bla", "", menuImage1, {}, [](int32_t i) {} },
+            { 1, wui::menu_item_state::normal, "Expand me 1", "", nullptr, {
+                    { 11, wui::menu_item_state::normal, "Expanded 1.1", "", nullptr, {}, [](int32_t i) {} },
+                    { 12, wui::menu_item_state::normal, "Expanded 1.2", "", nullptr, {
+                            { 121, wui::menu_item_state::normal, "Expanded 1.1.1", "", nullptr, {}, [](int32_t i) {} },
+                            { 122, wui::menu_item_state::normal, "Expanded 1.1.2", "Shift+Del", menuImage2, {}, [](int32_t i) {} },
+                            { 123, wui::menu_item_state::separator, "Expanded 1.1.3", "", nullptr, {}, [](int32_t i) {} },
+                        }, [](int32_t i) {} },
+                    { 13, wui::menu_item_state::normal, "Expanded 1.3", "", nullptr, {}, [](int32_t i) {} },
+                }, [](int32_t i) {} },
+            { 2, wui::menu_item_state::separator, "Expand me 2", "Ctrl+Z", nullptr, {
+                    { 21, wui::menu_item_state::normal, "Expanded 2.1", "", nullptr, {}, [](int32_t i) {} },
+                    { 22, wui::menu_item_state::normal, "Expanded 2.2", "", nullptr, {}, [](int32_t i) {} },
+                    { 23, wui::menu_item_state::separator, "Expanded 2.3", "", nullptr, {}, [](int32_t i) {} },
+                }, [](int32_t i) {} },
+            { 3, wui::menu_item_state::normal, "Exit", "Alt+F4", nullptr, {}, [&window](int32_t i) { window->destroy(); } }
+        });
+
 ### message
+
+<img src="../img/message0.png">
 
 It has standard sets of buttons and icons presented in the enumerations message_icon, message_button and message_result. When using it, there is one peculiarity that will seem unusual at first, namely, the call to message::show() does not block the calling thread. Therefore, getting the ID of the pressed button is done in a callback.
 
@@ -530,13 +555,20 @@ Example:
     });
 
 ### panel
+
+<img src="../img/panel.png">
+
 A simple control to draw a rectangle of theme color on a window.
 
 ### progress
 
+<img src="../img/progress.png">
+
 A simple progress bar
 
 ### select
+
+<img src="../img/select.png">
 
 A drop-down list, aka combo box. It has no editor, i.e. it works only for selecting from the available ones. It is also implemented on list.
 
@@ -544,19 +576,27 @@ A drop-down list, aka combo box. It has no editor, i.e. it works only for select
 ### slider
 Aka "volume control". Like progress can be horizontal and vertical.
 
+<img src="../img/slider.png">
 
 Here text, slider and button
 
 ### splitter
 
+<img src="../img/splitter.png">
+
 Used to resize internal windows or panels.
+
 ### text
+
+<img src="../img/text.png">
 
 Text string. Allows you to set the text alignment and put a full stop if the text does not fit in the area.
 
 ### tooltip
 
-###trayicon
+<img src="../img/tooltip.png">
+
+### trayicon
 
 Allows you to control the tray icon and inform the user with placeholders.
 
