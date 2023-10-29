@@ -40,7 +40,7 @@ The library also has auxiliary tools for work - structures common (containing su
 
 [Onboarding article](doc/en/article/onboarding.md)
 
-To view more information go to the wiki: https://libwui.org/doc
+Docs: https://libwui.org/doc
 
 Web site: https://libwui.org
 
