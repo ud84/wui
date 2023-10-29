@@ -1,12 +1,13 @@
 # WUI
-Window User Interface Library
 
-* WUI is a cross-platform modern C++ library for creating graphical user interfaces.
+## Window User Interface Library
+
+WUI is a cross-platform modern C++ library for creating graphical user interfaces.
 Now it support only Windows and Linux*.
 
-* WUI is an attempt to make as easy to use cross-platform library as possible for creating a modern graphical user interface in C++. The library uses C++17 and has a minimalistic API.
+WUI is an attempt to make as easy to use cross-platform library as possible for creating a modern graphical user interface in C++. The library uses C++17 and has a minimalistic API.
 
-* Tasks for the UI framework
+## Tasks for the UI framework
 
 - Run on Windows (At least 7, but works on XP as well)
 - Run on Linux (Starting with Ubuntu 16 / CentOS6)
@@ -21,6 +22,8 @@ Now it support only Windows and Linux*.
 - Provide an implementation of basic UI controls and have a clear and accessible way for third party developers to add new controls for their applications.
 - Have a user-friendly interface for working with application configs. Windows registry and ini files are supported. Naturally, with the possibility of modification.
 
+## How it works
+
 ![system](https://ud84.github.io/wui/doc/en/img/system.png)
 
 Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
@@ -33,15 +36,24 @@ Graphic is the third base entity that provides an interface to the system's draw
 
 The library also has auxiliary tools for work - structures common (containing such basic types as rect, color), event (mouse, keyboard, internal and system events), graphic (for physical rendering on the system graphical context) and Theme (a system of constants for convenient support of visual themes).
 
-To view more information go to the wiki: https://libwui.org/doc
+## Start
 
 [Onboarding article](doc/en/article/onboarding.md)
 
+To view more information go to the wiki: https://libwui.org/doc
+
 Web site: https://libwui.org
+
+Telegram: https://t.me/libwui_chat
+
+Email: info@libwui.org
+
+## Example screenshot (Video call application)
+
+![alt text](https://libwui.org/main/img/screenshoot-1.png)
+![alt text](https://libwui.org/main/img/screenshoot-2.png)
+
+## Donate ❤️
 
 In order for me to implement macOS support I need a macbook, which I don't have.
 If you want to donate a macbook to me on this place: https://libwui.org/donate
-
-Example screenshot (Video call application)
-![alt text](https://libwui.org/main/img/screenshoot-1.png)
-![alt text](https://libwui.org/main/img/screenshoot-2.png)
