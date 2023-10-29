@@ -578,5 +578,6 @@ We will be grateful for constructive criticism, help in developing the project w
 
 Thanks for your interest!
 
-Github: https://github.com/ud84
-Project site: https://libwui.org/
+[Github](https://github.com/ud84/wui)
+
+[Project site](https://libwui.org/)
