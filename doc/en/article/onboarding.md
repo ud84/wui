@@ -30,6 +30,7 @@ In the end, it was decided to make a minimal UI framework for this project, and 
 - Have a user-friendly interface for working with application configs. Windows registry and ini files are supported. Naturally, with the possibility of modification.
 
 ## General scheme of the framework
+<img src="doc/en/img/system.png">
 
 Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
 
