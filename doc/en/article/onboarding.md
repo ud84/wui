@@ -30,7 +30,7 @@ In the end, it was decided to make a minimal UI framework for this project, and 
 - Have a user-friendly interface for working with application configs. Windows registry and ini files are supported. Naturally, with the possibility of modification.
 
 ## General scheme of the framework
-<img src="doc/en/img/system.png">
+<img src="../img/system.png">
 
 Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
 
@@ -414,10 +414,10 @@ Shows the use of theme, locale and config, in an application that has two color 
 [main.cpp](https://github.com/ud84/wui/blob/main/examples/hello_world/hw.cpp)
 
 The demo application shows the logo, displays a caption and provides an input field. When the button is clicked, a message box is displayed and the application is closed. It also shows tracking of the user closing the window and displaying a confirmation message.
-<img src="doc/en/img/hw0.png">
+<img src="../img/hw0.png">
 
 In the following screenshot, the theme is changed to light, the language to Russian and the "Nice to meet you" button is pressed
-<img src="doc/en/img/hw1.png">
+<img src="../img/hw1.png">
 
 [MainFrame.h](https://github.com/ud84/wui/blob/main/examples/hello_world/MainFrame/MainFrame.h)
 [MainFrame.cpp](https://github.com/ud84/wui/blob/main/examples/hello_world/MainFrame/MainFrame.cpp)
@@ -445,7 +445,7 @@ A button can be of the following types:
     anchor
     sheet
 
-<img src="doc/en/img/button.png">
+<img src="../img/button.png">
 
 ### image
 
@@ -495,7 +495,7 @@ Thus, replacing the IMAGES_DARK / IMAGES_LIGHT group causes the same effect as w
 
 ### input
 
-<img src="doc/en/img/input.png">
+<img src="../img/input.png">
 
 This control implements a standard input field. Since the implementation is custom, at the moment there is no Undo / Redo, but in the future there should be spell checking, hints, validation.
 
@@ -503,10 +503,10 @@ This control implements a standard input field. Since the implementation is cust
 
 Vertical list of items with scrolling. Items are rendered by custom code via callback. It is possible to create items with different heights. It can be used to make a chat room, a table to the database, basically any list.
 
-<img src="doc/en/img/list0.png">
+<img src="../img/list0.png">
 A chatroom example
 
-<img src="doc/en/img/list1.png">
+<img src="../img/list1.png">
 User's list example
 
 ### menu
