@@ -513,7 +513,7 @@ It has standard sets of buttons and icons presented in the enumerations message_
 
 Example:
     
-    messageBox->show(“message”, "header", wui::message_icon::information,
+    messageBox->show(â€œmessageâ€, "header", wui::message_icon::information,
     wui::message_button::yes_no, [this](wui::message_result result) {
         if (result == wui::message_result::yes)
         {
