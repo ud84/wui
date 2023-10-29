@@ -44,6 +44,8 @@ To view more information go to the wiki: https://libwui.org/doc
 
 Web site: https://libwui.org
 
+Reddit community: https://www.reddit.com/r/wui/
+
 Telegram: https://t.me/libwui_chat
 
 Email: info@libwui.org

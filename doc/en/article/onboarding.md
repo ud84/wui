@@ -618,6 +618,6 @@ We will be grateful for constructive criticism, help in developing the project w
 
 Thanks for your interest!
 
-[Github](https://github.com/ud84/wui)
+[Reddit community](https://www.reddit.com/r/wui/)
 
 [Project site](https://libwui.org/)
