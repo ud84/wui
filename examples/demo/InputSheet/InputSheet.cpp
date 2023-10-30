@@ -18,7 +18,7 @@
 
 InputSheet::InputSheet()
     : parentWindow_(),
-    inputText(new wui::text("", wui::text_alignment::left, "h1_text")),
+    inputText(new wui::text("", wui::hori_alignment::left, wui::vert_alignment::top, "h1_text")),
     input0(new wui::input())
 {
     input0->set_change_callback([this](std::string_view v) { inputText->set_text(v); });

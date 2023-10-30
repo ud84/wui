@@ -243,6 +243,9 @@
     <ClInclude Include="include\wui\common\about.hpp">
       <Filter>Header Files\wui\common</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\common\alignment.hpp">
+      <Filter>Header Files\wui\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">

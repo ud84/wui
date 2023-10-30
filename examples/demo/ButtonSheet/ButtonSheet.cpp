@@ -20,7 +20,7 @@
 
 ButtonSheet::ButtonSheet()
     : parentWindow_(),
-    buttonsText(new wui::text("", wui::text_alignment::left, "h1_text")),
+    buttonsText(new wui::text("", wui::hori_alignment::left, wui::vert_alignment::top, "h1_text")),
     simpleButton0(new wui::button(wui::locale("button_sheet", "simple0"), [this]() { buttonsText->set_text("First button pushed"); }, wui::button_view::text)),
     simpleButton1(new wui::button(wui::locale("button_sheet", "simple1"), [this]() { buttonsText->set_text("Second button pushed"); }, wui::button_view::text)),
     imageButton(new wui::button("", [this]() { buttonsText->set_text("Image button pushed"); }, wui::button_view::image, IMG_LOGO, 32)),

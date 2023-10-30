@@ -21,7 +21,7 @@
 MainSheet::MainSheet()
     : parentWindow_(),
     logoImage(new wui::image(IMG_LOGO)),
-    welcomeText(new wui::text(wui::locale("main_sheet", "main_title"), wui::text_alignment::left, "h1_text")),
+    welcomeText(new wui::text(wui::locale("main_sheet", "main_title"), wui::hori_alignment::left, wui::vert_alignment::top, "h1_text")),
     mainSiteAnchor(new wui::button(wui::about::web, [](){ wui::open_uri(wui::about::web); }, wui::button_view::anchor))
 {
     auto e = logoImage->get_error();

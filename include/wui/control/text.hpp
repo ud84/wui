@@ -13,6 +13,7 @@
 #include <wui/graphic/graphic.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
+#include <wui/common/alignment.hpp>
 
 #include <string>
 #include <functional>
@@ -22,17 +23,14 @@
 namespace wui
 {
 
-enum class text_alignment
-{
-    left,
-    center,
-    right
-};
-
 class text : public i_control, public std::enable_shared_from_this<text>
 {
 public:
-    text(std::string_view text = "", text_alignment alignment = text_alignment::left, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    text(std::string_view text = "",
+        hori_alignment hori_alignment_ = hori_alignment::left,
+        vert_alignment vert_alignment_ = vert_alignment::center,
+        std::string_view theme_control_name = tc,
+        std::shared_ptr<i_theme> theme_ = nullptr);
     ~text();
 
     virtual void draw(graphic &gr, const rect &);
@@ -68,7 +66,7 @@ public:
     void set_text(std::string_view text);
 	std::string_view get_text() const;
 
-    void set_alignment(text_alignment alignment);
+    void set_alignment(hori_alignment hori_alignment_, vert_alignment vert_alignment_);
 
 public:
     /// Control name in theme
@@ -90,7 +88,8 @@ private:
 
     std::string text_;
 
-    text_alignment alignment;
+    hori_alignment hori_alignment_;
+    vert_alignment vert_alignment_;
 	
     void redraw();
 };

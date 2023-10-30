@@ -22,14 +22,17 @@
 namespace wui
 {
 
-text::text(std::string_view text__, text_alignment alignment_, std::string_view theme_control_name, std::shared_ptr<i_theme> theme_)
+text::text(std::string_view text__,
+    hori_alignment hori_alignment__, vert_alignment vert_alignment__,
+    std::string_view theme_control_name,
+    std::shared_ptr<i_theme> theme_)
     : tcn(theme_control_name),
     theme_(theme_),
     position_(),
     parent_(),
     showed_(true), topmost_(false),
     text_(text__),
-    alignment(alignment_)
+    hori_alignment_(hori_alignment__), vert_alignment_(vert_alignment__)
 {
 }
 
@@ -72,18 +75,18 @@ void text::draw(graphic &gr, const rect &)
 
         int32_t left = control_pos.left;
 
-        switch (alignment)
+        switch (hori_alignment_)
         {
-            case text_alignment::left:
+            case hori_alignment::left:
                 // do nothing
             break;
-            case text_alignment::center:
+            case hori_alignment::center:
             {
                 auto line_width = gr.measure_text(line, font_).width();
                 left += ((control_pos.width() - line_width) / 2);
             }
             break;
-            case text_alignment::right:
+            case hori_alignment::right:
             {
                 auto line_width = gr.measure_text(line, font_).width();
                 left += (control_pos.width() - line_width);
@@ -214,9 +217,11 @@ std::string_view text::get_text() const
 	return text_;
 }
 
-void text::set_alignment(text_alignment alignment_)
+void text::set_alignment(hori_alignment hori_alignment__, vert_alignment vert_alignment__)
 {
-    alignment = alignment_;
+    hori_alignment_ = hori_alignment__;
+    vert_alignment_ = vert_alignment__;
+
     redraw();
 }
 
