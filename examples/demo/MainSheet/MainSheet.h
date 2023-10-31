@@ -15,6 +15,11 @@
 #include <wui/control/text.hpp>
 #include <wui/control/button.hpp>
 
+#include <wui/common/about.hpp>
+#include <wui/system/uri_tools.hpp>
+#include <wui/locale/locale.hpp>
+
+#include <Resource.h>
 
 class MainSheet
 {
@@ -29,7 +34,10 @@ public:
 private:
     std::weak_ptr<wui::window> parentWindow_;
     
-    std::shared_ptr<wui::image> logoImage;
-    std::shared_ptr<wui::text> welcomeText;
-    std::shared_ptr<wui::button> mainSiteAnchor;
+    std::shared_ptr<wui::image> logoImage = std::make_shared<wui::image>(IMG_LOGO);
+    std::shared_ptr<wui::text> welcomeText = std::make_shared<wui::text>(wui::locale("main_sheet", "main_title"), wui::hori_alignment::left, wui::vert_alignment::top, "h1_text");
+    
+    std::shared_ptr<wui::text> wuiInfoText = std::make_shared<wui::text>(wui::about::full_name + std::string("\n") + wui::about::version, wui::hori_alignment::left, wui::vert_alignment::top);
+
+    std::shared_ptr<wui::button> mainSiteAnchor = std::make_shared<wui::button>(wui::about::web, []() { wui::open_uri(wui::about::web); }, wui::button_view::anchor);
 };

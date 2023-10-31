@@ -42,7 +42,7 @@ private:
 
     std::shared_ptr<wui::text> whatsYourNameText = std::make_shared<wui::text>(
         wui::locale("main_frame", "whats_your_name_text"),
-        wui::hori_alignment::center, wui::vert_alignment::top,
+        wui::hori_alignment::center, wui::vert_alignment::center,
         "h1_text");
 
     std::shared_ptr<wui::input> userNameInput = std::make_shared<wui::input>(wui::config::get_string("User", "Name", ""));

@@ -9,19 +9,12 @@
 
 #include <MainSheet/MainSheet.h>
 
-#include <Resource.h>
-
-#include <wui/common/about.hpp>
-#include <wui/locale/locale.hpp>
 #include <wui/system/tools.hpp>
-#include <wui/system/uri_tools.hpp>
 
 #include <iostream>
 
 MainSheet::MainSheet()
-    : parentWindow_(),
-    logoImage(new wui::image(IMG_LOGO)),
-    welcomeText(new wui::text(wui::locale("main_sheet", "main_title"), wui::hori_alignment::left, wui::vert_alignment::top, "h1_text")),
+    : 
     mainSiteAnchor(new wui::button(wui::about::web, [](){ wui::open_uri(wui::about::web); }, wui::button_view::anchor))
 {
     auto e = logoImage->get_error();
@@ -43,6 +36,7 @@ void MainSheet::Run(std::weak_ptr<wui::window> parentWindow__)
 
         parentWindow->add_control(logoImage, { 0 });
         parentWindow->add_control(welcomeText, { 0 });
+        parentWindow->add_control(wuiInfoText, { 0 });
         parentWindow->add_control(mainSiteAnchor, { 0 });
 
         UpdateSize(width, height);
@@ -51,6 +45,7 @@ void MainSheet::Run(std::weak_ptr<wui::window> parentWindow__)
     logoImage->update_theme();
     welcomeText->update_theme();
     mainSiteAnchor->update_theme();
+    wuiInfoText->update_theme();
 }
 
 void MainSheet::End()
@@ -60,6 +55,7 @@ void MainSheet::End()
     {
         parentWindow->remove_control(logoImage);
         parentWindow->remove_control(welcomeText);
+        parentWindow->remove_control(wuiInfoText);
         parentWindow->remove_control(mainSiteAnchor);
     }
 }
@@ -69,4 +65,5 @@ void MainSheet::UpdateSize(int32_t width, int32_t height)
     logoImage->set_position({ 10, 100, 60, 150 });
     welcomeText->set_position({ 70, 122, width - 10, 150 });
     mainSiteAnchor->set_position({ 10, height - 40, width - 10, height - 20 });
+    wuiInfoText->set_position({ 10, 180, width - 10, 180 + 50 });
 }

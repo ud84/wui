@@ -52,6 +52,8 @@ void text::draw(graphic &gr, const rect &)
         return;
     }
 
+    const auto space_coeff = 1.2;
+
     auto font_ = theme_font(tcn, tv_font, theme_);
 
     std::stringstream text__(text_);
@@ -63,11 +65,23 @@ void text::draw(graphic &gr, const rect &)
         lines.push_back(line);
     }
 
+    auto line_height = gr.measure_text("Qq,`", font_).height();
+
     auto control_pos = position();
 
     int32_t line_top = control_pos.top;
-
-    auto text_height = gr.measure_text("Qq", font_).height();
+    switch (vert_alignment_)
+    {
+        case vert_alignment::top:
+            // line_top = control_pos.top;
+        break;
+        case vert_alignment::center:
+            line_top = control_pos.top + ((control_pos.height() - line_height * lines.size() * space_coeff) / 2);
+        break;
+        case vert_alignment::bottom:
+            line_top = control_pos.bottom - (line_height * lines.size() * space_coeff);
+        break;
+    }
 
     for (auto &line : lines)
     {
@@ -96,9 +110,9 @@ void text::draw(graphic &gr, const rect &)
         
         gr.draw_text({ left, line_top }, line, theme_color(tcn, tv_color, theme_), font_);
 
-        line_top += static_cast<int32_t>(text_height * 1.2);
+        line_top += static_cast<int32_t>(line_height * space_coeff);
 
-        if (line_top + text_height > control_pos.bottom)
+        if (line_top + line_height > control_pos.bottom)
         {
             break;
         }
