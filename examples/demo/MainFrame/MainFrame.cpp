@@ -115,14 +115,14 @@ void MainFrame::ReceiveEvents(const wui::event &ev)
                 if (window->state() == wui::window_state::normal &&
                     ev.internal_event_.x > 0 && ev.internal_event_.y > 0)
                 {
-                    UpdateSheetButtons();
+                    UpdateSheetsSize();
                 }
             break;
             case wui::internal_event_type::window_expanded:
-                UpdateSheetButtons();
+                UpdateSheetsSize();
             break;
             case wui::internal_event_type::window_normalized:
-                UpdateSheetButtons();
+                UpdateSheetsSize();
             break;
             case wui::internal_event_type::window_minimized:
             break;
@@ -130,7 +130,7 @@ void MainFrame::ReceiveEvents(const wui::event &ev)
     }
 }
 
-void MainFrame::UpdateSheetButtons()
+void MainFrame::UpdateSheetsSize()
 {
     const auto width = window->position().width(), height = window->position().height();
     const auto sheet_width = (width - 140) / 7;
@@ -149,6 +149,10 @@ void MainFrame::UpdateSheetButtons()
 
     accountButton->set_position({ width - button_size * 2 - 4, 30, width - button_size - 4, 30 + button_size });
     menuButton->set_position({ width - button_size - 2, 30, width - 2, 30 + button_size });
+
+    mainSheetImpl.UpdateSize(width, height);
+    buttonSheetImpl.UpdateSize(width, height);
+    inputSheetImpl.UpdateSize(width, height);
 }
 
 void MainFrame::UpdateSheets()

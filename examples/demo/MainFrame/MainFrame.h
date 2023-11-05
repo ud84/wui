@@ -50,6 +50,6 @@ private:
 
     void ReceiveEvents(const wui::event &ev);
 
-    void UpdateSheetButtons();
+    void UpdateSheetsSize();
     void UpdateSheets();
 };
