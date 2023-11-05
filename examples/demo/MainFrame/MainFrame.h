@@ -34,8 +34,6 @@ public:
 
     void Run();
 
-    bool Runned() const;
-
 private:
     static const int32_t WND_WIDTH = 800, WND_HEIGHT = 600;
 
@@ -43,8 +41,6 @@ private:
 
     std::shared_ptr<wui::button> mainSheet, windowSheet, buttonSheet, inputSheet, listSheet, menuSheet, panelSheet;
     std::shared_ptr<wui::button> accountButton, menuButton;
-
-    bool runned;
 
     Sheet sheet;
 
@@ -54,5 +50,6 @@ private:
 
     void ReceiveEvents(const wui::event &ev);
 
+    void UpdateSheetButtons();
     void UpdateSheets();
 };

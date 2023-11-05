@@ -37,7 +37,6 @@ MainFrame::MainFrame()
     accountButton(new wui::button(wui::locale("main_frame", "account_btn"),   []() {}, wui::button_view::image, IMG_ACCOUNT, 32, wui::button::tc_tool)),
     menuButton   (new wui::button(wui::locale("main_frame", "main_menu"),     []() {}, wui::button_view::image, IMG_MENU,    32, wui::button::tc_tool)),
     
-    runned(false),
     sheet(Sheet::Main),
 
     mainSheetImpl(),
@@ -63,12 +62,6 @@ MainFrame::MainFrame()
 
 void MainFrame::Run()
 {
-    if (runned)
-    {
-        return;
-    }
-    runned = true;
-
     UpdateSheets();
 
     window->set_control_callback([&](wui::window_control control, std::string &tooltip_text, bool &continue_) {
@@ -105,6 +98,8 @@ void MainFrame::Run()
         static_cast<uint32_t>(wui::window_style::border_all)), [this]() {
             wui::framework::stop();
     });
+
+    UpdateSheets();
 }
 
 void MainFrame::ReceiveEvents(const wui::event &ev)
@@ -120,14 +115,14 @@ void MainFrame::ReceiveEvents(const wui::event &ev)
                 if (window->state() == wui::window_state::normal &&
                     ev.internal_event_.x > 0 && ev.internal_event_.y > 0)
                 {
-                    UpdateSheets();
+                    UpdateSheetButtons();
                 }
             break;
             case wui::internal_event_type::window_expanded:
-                UpdateSheets();
+                UpdateSheetButtons();
             break;
             case wui::internal_event_type::window_normalized:
-                UpdateSheets();
+                UpdateSheetButtons();
             break;
             case wui::internal_event_type::window_minimized:
             break;
@@ -135,26 +130,29 @@ void MainFrame::ReceiveEvents(const wui::event &ev)
     }
 }
 
-void MainFrame::UpdateSheets()
+void MainFrame::UpdateSheetButtons()
 {
     const auto width = window->position().width(), height = window->position().height();
     const auto sheet_width = (width - 140) / 7;
 
     const int32_t sheets_top = 35, sheets_height = 30;
 
-    mainSheet  ->set_position({ 10,                       sheets_top, sheet_width,              sheets_top + sheets_height });
+    mainSheet->set_position({ 10,                       sheets_top, sheet_width,              sheets_top + sheets_height });
     windowSheet->set_position({ 10 * 2 + sheet_width,     sheets_top, 10 * 2 + sheet_width * 2, sheets_top + sheets_height });
     buttonSheet->set_position({ 10 * 3 + sheet_width * 2, sheets_top, 10 * 3 + sheet_width * 3, sheets_top + sheets_height });
-    inputSheet ->set_position({ 10 * 4 + sheet_width * 3, sheets_top, 10 * 4 + sheet_width * 4, sheets_top + sheets_height });
-    listSheet  ->set_position({ 10 * 5 + sheet_width * 4, sheets_top, 10 * 5 + sheet_width * 5, sheets_top + sheets_height });
-    menuSheet  ->set_position({ 10 * 6 + sheet_width * 5, sheets_top, 10 * 6 + sheet_width * 6, sheets_top + sheets_height });
-    panelSheet ->set_position({ 10 * 7 + sheet_width * 6, sheets_top, 10 * 7 + sheet_width * 7, sheets_top + sheets_height });
+    inputSheet->set_position({ 10 * 4 + sheet_width * 3, sheets_top, 10 * 4 + sheet_width * 4, sheets_top + sheets_height });
+    listSheet->set_position({ 10 * 5 + sheet_width * 4, sheets_top, 10 * 5 + sheet_width * 5, sheets_top + sheets_height });
+    menuSheet->set_position({ 10 * 6 + sheet_width * 5, sheets_top, 10 * 6 + sheet_width * 6, sheets_top + sheets_height });
+    panelSheet->set_position({ 10 * 7 + sheet_width * 6, sheets_top, 10 * 7 + sheet_width * 7, sheets_top + sheets_height });
 
     const int32_t button_size = 36;
 
     accountButton->set_position({ width - button_size * 2 - 4, 30, width - button_size - 4, 30 + button_size });
-    menuButton   ->set_position({ width - button_size - 2, 30, width - 2, 30 + button_size });
+    menuButton->set_position({ width - button_size - 2, 30, width - 2, 30 + button_size });
+}
 
+void MainFrame::UpdateSheets()
+{
     mainSheet  ->turn(false);
     windowSheet->turn(false);
     buttonSheet->turn(false);
@@ -220,7 +218,3 @@ void MainFrame::UpdateSheets()
     }
 }
 
-bool MainFrame::Runned() const
-{
-    return runned;
-}
