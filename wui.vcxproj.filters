@@ -246,6 +246,12 @@
     <ClInclude Include="include\wui\common\alignment.hpp">
       <Filter>Header Files\wui\common</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\control\scroll.hpp">
+      <Filter>Header Files\wui\control</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wui\common\orientation.hpp">
+      <Filter>Header Files\wui\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">
@@ -355,6 +361,9 @@
     </ClCompile>
     <ClCompile Include="src\framework\framework.cpp">
       <Filter>Source Files\framework</Filter>
+    </ClCompile>
+    <ClCompile Include="src\control\scroll.cpp">
+      <Filter>Source Files\control</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

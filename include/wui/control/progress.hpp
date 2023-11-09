@@ -13,6 +13,7 @@
 #include <wui/graphic/graphic.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
+#include <wui/common/orientation.hpp>
 
 #include <string>
 #include <functional>
@@ -21,16 +22,10 @@
 namespace wui
 {
 
-enum class progress_orientation
-{
-    vertical,
-    horizontal
-};
-
 class progress : public i_control, public std::enable_shared_from_this<progress>
 {
 public:
-    progress(int32_t from, int32_t to, int32_t value, progress_orientation orientation = progress_orientation::horizontal, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    progress(int32_t from, int32_t to, int32_t value, orientation orientation_ = orientation::horizontal, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~progress();
 
     virtual void draw(graphic &gr, const rect &);
@@ -68,7 +63,7 @@ public:
 
 public:
     /// Control name in theme
-    static constexpr const char *tc = "progress";
+    static constexpr const char *tc = "progress"; /// control name in theme
 
     /// Used theme values
     static constexpr const char *tv_border = "border";
@@ -77,7 +72,7 @@ public:
     static constexpr const char *tv_meter = "meter";
 
 private:
-    std::string tcn; /// control name in theme
+    std::string tcn;
     std::shared_ptr<i_theme> theme_;
 
     rect position_;
@@ -88,7 +83,7 @@ private:
 
     int32_t from, to, value;
 
-    progress_orientation orientation;
+    orientation orientation_;
 
     void redraw();
 };

@@ -15,6 +15,8 @@
 #include <wui/control/text.hpp>
 #include <wui/control/button.hpp>
 
+#include <wui/control/scroll.hpp>
+
 #include <wui/common/about.hpp>
 #include <wui/system/uri_tools.hpp>
 #include <wui/locale/locale.hpp>
@@ -40,4 +42,7 @@ private:
     std::shared_ptr<wui::text> wuiInfoText = std::make_shared<wui::text>(wui::about::full_name + std::string("\n") + wui::about::version, wui::hori_alignment::left, wui::vert_alignment::top);
 
     std::shared_ptr<wui::button> mainSiteAnchor = std::make_shared<wui::button>(wui::about::web, []() { wui::open_uri(wui::about::web); }, wui::button_view::anchor);
+
+    std::shared_ptr<wui::scroll> vertScroll = std::make_shared<wui::scroll>(100, 50, 1.0, wui::orientation::vertical, [this](wui::scroll_state, int32_t v) { welcomeText->set_text(std::to_string(v)); });
+    std::shared_ptr<wui::scroll> horScroll = std::make_shared<wui::scroll>(100, 50, 1.0, wui::orientation::horizontal, [this](wui::scroll_state, int32_t v) { welcomeText->set_text(std::to_string(v)); });
 };

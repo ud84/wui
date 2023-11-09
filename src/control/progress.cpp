@@ -22,7 +22,7 @@
 namespace wui
 {
 
-progress::progress(int32_t from_, int32_t to_, int32_t value_, progress_orientation orientation_, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
+progress::progress(int32_t from_, int32_t to_, int32_t value_, orientation orientation__, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
     position_(),
     parent_(),
@@ -30,7 +30,7 @@ progress::progress(int32_t from_, int32_t to_, int32_t value_, progress_orientat
     from(from_),
     to(to_),
     value(value_),
-    orientation(orientation_)
+    orientation_(orientation__)
 {
 }
 
@@ -60,11 +60,11 @@ void progress::draw(graphic &gr, const rect &)
         border_width,
         0);
 
-    double total = orientation == progress_orientation::horizontal ? control_pos.width() - border_width * 2 : control_pos.height() - border_width * 2;
+    double total = orientation_ == orientation::horizontal ? control_pos.width() - border_width * 2 : control_pos.height() - border_width * 2;
 
     double meter_pos = (total * static_cast<double>(value)) / static_cast<double>(to - from);
 
-    if (orientation == progress_orientation::horizontal)
+    if (orientation_ == orientation::horizontal)
     {
         gr.draw_rect({ control_pos.left + border_width,
                 control_pos.top + border_width,
@@ -72,7 +72,7 @@ void progress::draw(graphic &gr, const rect &)
                 control_pos.bottom - border_width },
             theme_color(tc, tv_meter, theme_));
     }
-    else if (orientation == progress_orientation::vertical)
+    else if (orientation_ == orientation::vertical)
     {
         gr.draw_rect({ control_pos.left + border_width,
                 control_pos.bottom - border_width,

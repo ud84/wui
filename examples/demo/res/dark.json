@@ -151,6 +151,12 @@
       }
     },
     {
+      "type": "scroll",
+      "background": "#3e3e42",
+      "slider": "#686868",
+      "slider_active": "#9e9e9e"
+    },
+    {
       "type": "menu",
       "background": "#1b1b1c",
       "border": "#333337",
