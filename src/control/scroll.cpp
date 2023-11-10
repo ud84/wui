@@ -312,9 +312,7 @@ void scroll::receive_control_events(const event& ev)
                 else if (slider_rect.in(ev.mouse_event_.x, ev.mouse_event_.y))
                 {
                     slider_scrolling = true;
-                    slider_click_pos = orientation_ == orientation::vertical ? 
-                        (ev.mouse_event_.y - slider_rect.top + position_.top) :
-                        (ev.mouse_event_.x - slider_rect.left + position_.left);
+                    slider_click_pos = orientation_ == orientation::vertical ? ev.mouse_event_.y : ev.mouse_event_.x;
                 }
             }    
             break;
@@ -454,14 +452,16 @@ void scroll::draw_arrow_right(graphic& gr, rect button_pos)
 
 void scroll::move_slider(int32_t v)
 {
-    if (scroll_interval < 0)
+    if (scroll_interval < 0 || v == slider_click_pos)
     {
         return;
     }
 
-    auto pos = v - slider_click_pos;
+    double delta = v - slider_click_pos;
+    slider_click_pos = v;
 
-    scroll_pos = pos * static_cast<int32_t>(scroll_interval);
+    scroll_pos += delta * scroll_interval;
+
     if (scroll_pos < 0)
     {
         scroll_pos = 0;
