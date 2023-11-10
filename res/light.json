@@ -114,6 +114,9 @@
       "title_text": "#191914",
       "selected_item": "#90c8f6",
       "active_item": "#f0f0f0",
+      "scrollbar": "#e8e8ec",
+      "scrollbar_slider": "#c2c3c9",
+      "scrollbar_slider_active": "#686868",
       "round": 0,
       "font": {
         "name": "Segoe UI",

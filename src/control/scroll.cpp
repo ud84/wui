@@ -30,7 +30,7 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_, double scroll_interval_,
     theme_(theme__),
     position_(),
     parent_(),
-    showed_(true), topmost_(false),
+    showed_(true), enabled_(true), topmost_(false),
     area(area_),
     scroll_pos(scroll_pos_),
     scroll_interval(scroll_interval_),
@@ -39,7 +39,8 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_, double scroll_interval_,
     worker_action_(worker_action::undefined),
     worker(),
     worker_runned(false),
-    scrollbar_state_(scrollbar_state::full),
+    progress(0),
+    scrollbar_state_(scrollbar_state::tiny),
     slider_scrolling(false),
     slider_click_pos(0),
     prev_scroll_pos(0)
@@ -87,6 +88,12 @@ rect scroll::position() const
 void scroll::set_parent(std::shared_ptr<window> window)
 {
     parent_ = window;
+
+    my_control_sid = window->subscribe(std::bind(&scroll::receive_control_events, this, std::placeholders::_1),
+        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
+        shared_from_this());
+
+    my_plain_sid = window->subscribe(std::bind(&scroll::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
 }
 
 std::weak_ptr<window> scroll::parent() const
@@ -96,6 +103,17 @@ std::weak_ptr<window> scroll::parent() const
 
 void scroll::clear_parent()
 {
+    end_work();
+
+    auto parent__ = parent_.lock();
+    if (parent__)
+    {
+        parent__->unsubscribe(my_control_sid);
+        my_control_sid.clear();
+
+        parent__->unsubscribe(my_plain_sid);
+        my_plain_sid.clear();
+    }
     parent_.reset();
 }
 
@@ -164,15 +182,17 @@ bool scroll::showed() const
 
 void scroll::enable()
 {
+    enabled_ = true;
 }
 
 void scroll::disable()
 {
+    enabled_ = false;
 }
 
 bool scroll::enabled() const
 {
-    return true;
+    return enabled_;
 }
 
 void scroll::set_values(int32_t area_, double scroll_interval_)
@@ -193,6 +213,135 @@ void scroll::set_scroll_pos(int32_t scroll_pos_)
 int32_t scroll::get_scroll_pos() const
 {
     return scroll_pos;
+}
+
+void scroll::receive_control_events(const event& ev)
+{
+    if (!showed_ || !enabled_)
+    {
+        return;
+    }
+
+    if (ev.type == event_type::mouse)
+    {
+        switch (ev.mouse_event_.type)
+        {
+            case mouse_event_type::enter:
+            {
+                scrollbar_state_ = scrollbar_state::full;
+                redraw();
+            }
+            break;
+            case mouse_event_type::leave:
+                if (!slider_scrolling)
+                {
+                    scrollbar_state_ = scrollbar_state::tiny;
+                    redraw();
+                }
+            break;
+            case mouse_event_type::left_down:
+            {
+                rect bar_rect = { 0 }, top_button_rect = { 0 }, bottom_button_rect = { 0 }, slider_rect = { 0 };
+                calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+
+                if (ev.mouse_event_.y <= top_button_rect.bottom)
+                {
+                    start_work(worker_action::scroll_up);
+                }
+                else if (ev.mouse_event_.y >= bottom_button_rect.top)
+                {
+                    start_work(worker_action::scroll_down);
+                }
+                else if (ev.mouse_event_.y < slider_rect.top)
+                {
+                    while (ev.mouse_event_.y < slider_rect.top)
+                    {
+                        scroll_up();
+                        calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+                    }
+                }
+                else if (ev.mouse_event_.y > slider_rect.bottom)
+                {
+                    while (ev.mouse_event_.y > slider_rect.bottom)
+                    {
+                        scroll_down();
+                        calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+                    }
+                }
+                else if (ev.mouse_event_.y > slider_rect.top && ev.mouse_event_.y < slider_rect.bottom)
+                {
+                    slider_scrolling = true;
+                    slider_click_pos = ev.mouse_event_.y - slider_rect.top + position_.top;
+                }
+            }    
+            break;
+            case mouse_event_type::left_up:
+            {
+                slider_scrolling = false;
+                end_work();
+            }
+            break;
+            case mouse_event_type::right_up:
+                
+            break;
+            case mouse_event_type::left_double:
+                
+            break;
+            case mouse_event_type::move:
+            {
+                if (slider_scrolling)
+                {
+                    return move_slider(ev.mouse_event_.y);
+                }
+
+                if (ev.mouse_event_.x > position().right - full_scrollbar_width)
+                {
+                    if (scrollbar_state_ != scrollbar_state::full)
+                    {
+                        scrollbar_state_ = scrollbar_state::full;
+                        progress = 0;
+                        start_work(worker_action::scrollbar_show);
+                    }
+                }
+            }
+            break;
+            case mouse_event_type::wheel:
+                if (ev.mouse_event_.wheel_delta > 0)
+                {
+                    scroll_up();
+                }
+                else
+                {
+                    scroll_down();
+                }
+            break;
+            default: break;
+        }
+    }
+}
+
+void scroll::receive_plain_events(const event& ev)
+{
+    if (ev.type == event_type::mouse)
+    {
+        switch (ev.mouse_event_.type)
+        {
+            case mouse_event_type::move:
+                if (slider_scrolling)
+                {
+                    move_slider(ev.mouse_event_.y);
+                }
+            break;
+            case mouse_event_type::left_up:
+                end_work();
+
+                slider_scrolling = false;
+                //scrollbar_state_ = scrollbar_state::hide;
+                
+                redraw();
+            break;
+        }
+    }
 }
 
 void scroll::redraw()
@@ -378,7 +527,11 @@ void scroll::calc_scrollbar_params(rect* bar_rect, rect* top_button_rect, rect* 
         SB_BUTTON_WIDTH = SB_WIDTH, SB_BUTTON_HEIGHT = SB_HEIGHT;
 
     auto control_pos = position();
-    
+    //if (drawing_coordinates)
+    {
+        //control_pos = { 0, 0, position_.width(), position_.height() };
+    }
+
     double client_height = control_pos.height() - (SB_HEIGHT * 2);
 
     auto scroll_interval = get_scroll_interval();
@@ -389,17 +542,17 @@ void scroll::calc_scrollbar_params(rect* bar_rect, rect* top_button_rect, rect* 
 
     if (bar_rect)
     {
-        *bar_rect = { control_pos.right, control_pos.top, control_pos.right + SB_WIDTH, control_pos.bottom };
+        *bar_rect = { control_pos.right - SB_WIDTH, control_pos.top, control_pos.right, control_pos.bottom };
     }
 
     if (top_button_rect && scrollbar_state_ == scrollbar_state::full)
     {
-        *top_button_rect = { control_pos.right, control_pos.top, control_pos.right + SB_BUTTON_WIDTH, control_pos.top + SB_BUTTON_HEIGHT };
+        *top_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.top, control_pos.right, control_pos.top + SB_BUTTON_HEIGHT };
     }
 
     if (bottom_button_rect && scrollbar_state_ == scrollbar_state::full)
     {
-        *bottom_button_rect = { control_pos.right, control_pos.bottom - SB_BUTTON_HEIGHT, control_pos.right + SB_BUTTON_WIDTH, control_pos.bottom };
+        *bottom_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.bottom - SB_BUTTON_HEIGHT, control_pos.right, control_pos.bottom };
     }
 
     if (slider_rect)
@@ -412,9 +565,9 @@ void scroll::calc_scrollbar_params(rect* bar_rect, rect* top_button_rect, rect* 
             slider_height = SB_SILDER_MIN_WIDTH;
         }
 
-        *slider_rect = { control_pos.right,
+        *slider_rect = { control_pos.right - SB_BUTTON_WIDTH,
             SB_HEIGHT + slider_top,
-            control_pos.right + SB_BUTTON_WIDTH,
+            control_pos.right,
             SB_HEIGHT + slider_top + slider_height };
 
         if (scrollbar_state_ == scrollbar_state::full && bottom_button_rect && slider_rect->bottom > bottom_button_rect->top)
@@ -424,5 +577,60 @@ void scroll::calc_scrollbar_params(rect* bar_rect, rect* top_button_rect, rect* 
     }
 }
 
+void scroll::start_work(worker_action action)
+{
+    worker_action_ = action;
+
+    if (!worker_runned)
+    {
+        worker_runned = true;
+        if (worker.joinable()) worker.join();
+        worker = std::thread(std::bind(&scroll::work, this));
+    }
+}
+
+void scroll::work()
+{
+    while (worker_runned)
+    {
+        switch (worker_action_)
+        {
+        case worker_action::scroll_up:
+            scroll_up();
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        break;
+        case worker_action::scroll_down:
+            scroll_down();
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        break;
+        case worker_action::scrollbar_show:
+            if (progress < full_scrollbar_width)
+            {
+                progress += 4;
+
+                auto parent__ = parent_.lock();
+                if (parent__)
+                {
+                    auto control_pos = position();
+                    parent__->redraw({ control_pos.right - progress, control_pos.top, control_pos.right, control_pos.bottom });
+                }
+            }
+            else
+            {
+                worker_runned = false;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        break;
+        default: break;
+        }
+    }
+}
+
+void scroll::end_work()
+{
+    worker_runned = false;
+    if (worker.joinable()) worker.join();
+}
 
 }

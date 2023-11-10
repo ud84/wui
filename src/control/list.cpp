@@ -1023,6 +1023,8 @@ void list::move_slider(int32_t y)
         return;
     }
 
+    auto position__ = get_control_position(position_, parent_);
+
     auto pos = y - position_.top - full_scrollbar_width - theme_dimension(tcn, tv_border_width, theme_) - slider_click_pos;
     
     scroll_pos = pos * static_cast<int32_t>(scroll_interval);

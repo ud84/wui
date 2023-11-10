@@ -11,6 +11,7 @@
 
 #include <wui/control/i_control.hpp>
 #include <wui/graphic/graphic.hpp>
+#include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
 #include <wui/common/color.hpp>
 #include <wui/common/orientation.hpp>
@@ -87,8 +88,9 @@ private:
     rect position_;
 
     std::weak_ptr<window> parent_;
+    std::string my_control_sid, my_plain_sid;
 
-    bool showed_, topmost_;
+    bool showed_, enabled_, topmost_;
 
     int32_t area, scroll_pos;
     double scroll_interval;
@@ -111,6 +113,8 @@ private:
     std::thread worker;
     bool worker_runned;
 
+    int32_t progress;
+
     enum class scrollbar_state
     {
         hide,
@@ -128,6 +132,9 @@ private:
     static const int32_t tiny_scrollbar_width = 3;
     static const int32_t full_scrollbar_width = 14;
 
+    void receive_control_events(const event& ev);
+    void receive_plain_events(const event& ev);
+
     void redraw();
 
     void scroll::draw_vert_scrollbar(graphic& gr);
@@ -142,6 +149,10 @@ private:
 
     void scroll_up();
     void scroll_down();
+
+    void start_work(worker_action action);
+    void work();
+    void end_work();
 };
 
 }
