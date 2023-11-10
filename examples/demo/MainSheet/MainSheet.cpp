@@ -77,5 +77,5 @@ void MainSheet::UpdateSize(int32_t width, int32_t height)
     wuiInfoText->set_position({ 10, 180, width - 10, 180 + 50 });
 
     vertScroll->set_position({ width - 50, 100, width - 35, height - 100 });
-    horScroll->set_position({ 10, height - 80, width - 10, height - 65 });
+    horScroll->set_position({ 10, height - 80, width - 10, height - 66 });
 }

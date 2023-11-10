@@ -129,22 +129,23 @@ private:
 
     int32_t title_height;
 
-    static const int32_t tiny_scrollbar_width = 3;
-    static const int32_t full_scrollbar_width = 14;
+    static const int32_t tiny_scrollbar_size = 3;
+    static const int32_t full_scrollbar_size = 14;
 
     void receive_control_events(const event& ev);
     void receive_plain_events(const event& ev);
 
     void redraw();
 
-    void scroll::draw_vert_scrollbar(graphic& gr);
-
     void draw_arrow_up(graphic& gr, rect button_pos);
+    void draw_arrow_left(graphic& gr, rect button_pos);
     void draw_arrow_down(graphic& gr, rect button_pos);
+    void draw_arrow_right(graphic& gr, rect button_pos);
+        
+    void calc_vert_scrollbar_params(rect* bar_rect = nullptr, rect* up_button_rect = nullptr, rect* down_button_rect = nullptr, rect* slider_rect = nullptr);
+    void calc_hor_scrollbar_params(rect* bar_rect = nullptr, rect* up_button_rect = nullptr, rect* down_button_rect = nullptr, rect* slider_rect = nullptr);
+    void calc_scrollbar_params(rect* bar_rect = nullptr, rect* up_button_rect = nullptr, rect* down_button_rect = nullptr, rect* slider_rect = nullptr);
 
-    void calc_scrollbar_params(rect* bar_rect = nullptr, rect* top_button_rect = nullptr, rect* bottom_button_rect = nullptr, rect* slider_rect = nullptr);
-
-    double get_scroll_interval() const;
     void move_slider(int32_t y);
 
     void scroll_up();
