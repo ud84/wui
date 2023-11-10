@@ -33,7 +33,7 @@ enum class scroll_state
 class scroll : public i_control, public std::enable_shared_from_this<scroll>
 {
 public:
-    scroll(int32_t area, int32_t scroll_pos, double scroll_interval = 1.0,
+    scroll(int32_t area, int32_t scroll_pos,
         orientation orientation_ = orientation::vertical,
         std::function<void(scroll_state, int32_t)> callback = nullptr,
         std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
@@ -69,7 +69,7 @@ public:
 
 public:
     /// Scroll's interface
-    void set_values(int32_t area, double scroll_interval);
+    void set_area(int32_t area);
     void set_scroll_pos(int32_t scroll_pos);
     int32_t get_scroll_pos() const;
 
@@ -93,7 +93,7 @@ private:
 
     bool showed_, enabled_, topmost_;
 
-    int32_t area, scroll_pos;
+    double area, scroll_pos, prev_scroll_pos;
     double scroll_interval;
 
     orientation orientation_;
@@ -126,7 +126,6 @@ private:
 
     bool slider_scrolling;
     int32_t slider_click_pos;
-    int32_t prev_scroll_pos;
 
     int32_t title_height;
 
@@ -142,12 +141,13 @@ private:
     void draw_arrow_left(graphic& gr, rect button_pos);
     void draw_arrow_down(graphic& gr, rect button_pos);
     void draw_arrow_right(graphic& gr, rect button_pos);
-        
+    
+    void calc_scroll_interval();
     void calc_vert_scrollbar_params(rect* bar_rect = nullptr, rect* up_button_rect = nullptr, rect* down_button_rect = nullptr, rect* slider_rect = nullptr);
     void calc_hor_scrollbar_params(rect* bar_rect = nullptr, rect* up_button_rect = nullptr, rect* down_button_rect = nullptr, rect* slider_rect = nullptr);
     void calc_scrollbar_params(rect* bar_rect = nullptr, rect* up_button_rect = nullptr, rect* down_button_rect = nullptr, rect* slider_rect = nullptr);
 
-    void move_slider(int32_t y);
+    void move_slider(int32_t v);
 
     void scroll_up();
     void scroll_down();

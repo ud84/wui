@@ -22,7 +22,7 @@
 namespace wui
 {
 
-scroll::scroll(int32_t area_, int32_t scroll_pos_, double scroll_interval_,
+scroll::scroll(int32_t area_, int32_t scroll_pos_,
     orientation orientation__,
     std::function<void(scroll_state, int32_t)> callback_,
     std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
@@ -33,7 +33,8 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_, double scroll_interval_,
     showed_(true), enabled_(true), topmost_(false),
     area(area_),
     scroll_pos(scroll_pos_),
-    scroll_interval(scroll_interval_),
+    prev_scroll_pos(0.0),
+    scroll_interval(1.0),
     orientation_(orientation__),
     callback(callback_),
     worker_action_(worker_action::undefined),
@@ -42,8 +43,7 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_, double scroll_interval_,
     progress(0),
     scrollbar_state_(scrollbar_state::tiny),
     slider_scrolling(false),
-    slider_click_pos(0),
-    prev_scroll_pos(0)
+    slider_click_pos(0)
 {
 }
 
@@ -97,6 +97,7 @@ void scroll::draw(graphic &gr, const rect &)
 void scroll::set_position(const rect &position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
+    calc_scroll_interval();
 }
 
 rect scroll::position() const
@@ -214,10 +215,11 @@ bool scroll::enabled() const
     return enabled_;
 }
 
-void scroll::set_values(int32_t area_, double scroll_interval_)
+void scroll::set_area(int32_t area_)
 {
     area = area_;
-    scroll_interval = scroll_interval_;
+
+    calc_scroll_interval();
 
     redraw();
 }
@@ -231,7 +233,7 @@ void scroll::set_scroll_pos(int32_t scroll_pos_)
 
 int32_t scroll::get_scroll_pos() const
 {
-    return scroll_pos;
+    return static_cast<int32_t>(scroll_pos);
 }
 
 void scroll::receive_control_events(const event& ev)
@@ -450,14 +452,14 @@ void scroll::draw_arrow_right(graphic& gr, rect button_pos)
     }
 }
 
-void scroll::move_slider(int32_t y)
+void scroll::move_slider(int32_t v)
 {
     if (scroll_interval < 0)
     {
         return;
     }
 
-    auto pos = y - full_scrollbar_size - slider_click_pos;
+    auto pos = v - slider_click_pos;
 
     scroll_pos = pos * static_cast<int32_t>(scroll_interval);
     if (scroll_pos < 0)
@@ -474,15 +476,15 @@ void scroll::move_slider(int32_t y)
     {
         if (scroll_pos == 0)
         {
-            callback(scroll_state::up_end, scroll_pos);
+            callback(scroll_state::up_end, static_cast<int32_t>(scroll_pos));
         }
         else if (scroll_pos == area)
         {
-            callback(scroll_state::down_end, scroll_pos);
+            callback(scroll_state::down_end, static_cast<int32_t>(scroll_pos));
         }
         else
         {
-            callback(scroll_state::moving, scroll_pos);
+            callback(scroll_state::moving, static_cast<int32_t>(scroll_pos));
         }
     }
 
@@ -508,7 +510,7 @@ void scroll::scroll_up()
 
     if (callback)
     {
-        callback(scroll_pos == 0 ? scroll_state::up_end : scroll_state::moving, scroll_pos);
+        callback(scroll_pos == 0 ? scroll_state::up_end : scroll_state::moving, static_cast<int32_t>(scroll_pos));
     }
 }
 
@@ -521,16 +523,20 @@ void scroll::scroll_down()
 
     auto end = orientation_ == orientation::vertical ? position_.height() : position_.width();
 
-    if (area >= scroll_pos && area - scroll_pos > end)
+    if (area > scroll_pos)
     {
         scroll_pos += static_cast<int32_t>(scroll_interval) * 10;
+        
+        if (scroll_pos > area)
+            scroll_pos = area;
+
         redraw();
     }
 
     if (callback)
     {
         callback((area - scroll_pos <= end && prev_scroll_pos != scroll_pos) ? 
-            scroll_state::down_end : scroll_state::moving, scroll_pos);
+            scroll_state::down_end : scroll_state::moving, static_cast<int32_t>(scroll_pos));
     }
     
     prev_scroll_pos = scroll_pos;
@@ -542,6 +548,19 @@ void scroll::calc_scrollbar_params(rect* bar_rect, rect* up_button_rect, rect* d
         calc_vert_scrollbar_params(bar_rect, up_button_rect, down_button_rect, slider_rect);
     else
         calc_hor_scrollbar_params(bar_rect, up_button_rect, down_button_rect, slider_rect);
+}
+
+void scroll::calc_scroll_interval()
+{
+    if (position_.is_null())
+        return;
+
+    const double coeff = 1.3;
+
+    if (orientation_ == orientation::vertical && position_.height() > full_scrollbar_size * coeff)
+        scroll_interval = (area + position_.height()) / (position_.height() - full_scrollbar_size * coeff);
+    else if (orientation_ == orientation::horizontal && position_.width() > full_scrollbar_size * coeff)
+        scroll_interval = (area + position_.width()) / (position_.width() - full_scrollbar_size * coeff);
 }
 
 void scroll::calc_vert_scrollbar_params(rect* bar_rect, rect* up_button_rect, rect* down_button_rect, rect* slider_rect)
@@ -590,8 +609,8 @@ void scroll::calc_vert_scrollbar_params(rect* bar_rect, rect* up_button_rect, re
 
     if (slider_rect)
     {
-        auto slider_top = control_pos.top + static_cast<int32_t>(round(((double)scroll_pos) / scroll_interval));
-        auto slider_height = static_cast<int32_t>(round((client_height) / scroll_interval));
+        auto slider_top = control_pos.top + static_cast<int32_t>(round(scroll_pos / scroll_interval));
+        auto slider_height = static_cast<int32_t>(round(client_height / scroll_interval));
 
         if (slider_height < SB_SILDER_MIN_HEIGHT)
         {
@@ -656,8 +675,8 @@ void scroll::calc_hor_scrollbar_params(rect* bar_rect, rect* up_button_rect, rec
 
     if (slider_rect)
     {
-        auto slider_left = control_pos.left + static_cast<int32_t>(round(((double)scroll_pos) / scroll_interval));
-        auto slider_width = static_cast<int32_t>(round((client_width) / scroll_interval));
+        auto slider_left = control_pos.left + static_cast<int32_t>(round(scroll_pos / scroll_interval));
+        auto slider_width = static_cast<int32_t>(round(client_width / scroll_interval));
 
         if (slider_width < SB_SILDER_MIN_WIDTH)
         {

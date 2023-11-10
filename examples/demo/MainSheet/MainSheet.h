@@ -43,6 +43,6 @@ private:
 
     std::shared_ptr<wui::button> mainSiteAnchor = std::make_shared<wui::button>(wui::about::web, []() { wui::open_uri(wui::about::web); }, wui::button_view::anchor);
 
-    std::shared_ptr<wui::scroll> vertScroll = std::make_shared<wui::scroll>(10000, 0, 5.0, wui::orientation::vertical, [this](wui::scroll_state, int32_t v) { welcomeText->set_text(std::to_string(v)); });
-    std::shared_ptr<wui::scroll> horScroll = std::make_shared<wui::scroll>(10000, 0, 5.0, wui::orientation::horizontal, [this](wui::scroll_state, int32_t v) { welcomeText->set_text(std::to_string(v)); });
+    std::shared_ptr<wui::scroll> vertScroll = std::make_shared<wui::scroll>(1000, 0, wui::orientation::vertical, [this](wui::scroll_state, int32_t v) { welcomeText->set_text(std::to_string(v)); });
+    std::shared_ptr<wui::scroll> horScroll = std::make_shared<wui::scroll>(1000, 1000, wui::orientation::horizontal, [this](wui::scroll_state, int32_t v) { welcomeText->set_text(std::to_string(v)); });
 };
