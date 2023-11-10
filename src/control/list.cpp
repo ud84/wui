@@ -1025,7 +1025,7 @@ void list::move_slider(int32_t y)
 
     auto position__ = get_control_position(position_, parent_);
 
-    auto pos = y - position_.top - full_scrollbar_width - theme_dimension(tcn, tv_border_width, theme_) - slider_click_pos;
+    auto pos = y - position__.top - full_scrollbar_width - theme_dimension(tcn, tv_border_width, theme_) - slider_click_pos;
     
     scroll_pos = pos * static_cast<int32_t>(scroll_interval);
     if (scroll_pos < 0)
@@ -1033,7 +1033,7 @@ void list::move_slider(int32_t y)
         scroll_pos = 0;
     }
 
-    auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) - position_.height() + title_height;
+    auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) - position__.height() + title_height;
     if (scroll_pos > last_item_bottom)
     {
         scroll_pos = last_item_bottom;
