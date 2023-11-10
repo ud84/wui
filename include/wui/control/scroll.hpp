@@ -111,8 +111,6 @@ private:
     std::thread worker;
     bool worker_runned;
 
-    int32_t progress;
-
     enum class scrollbar_state
     {
         hide,
@@ -137,7 +135,7 @@ private:
     void draw_arrow_up(graphic& gr, rect button_pos);
     void draw_arrow_down(graphic& gr, rect button_pos);
 
-    void calc_scrollbar_params(bool drawing_coordinates, rect* bar_rect = nullptr, rect* top_button_rect = nullptr, rect* bottom_button_rect = nullptr, rect* slider_rect = nullptr);
+    void calc_scrollbar_params(rect* bar_rect = nullptr, rect* top_button_rect = nullptr, rect* bottom_button_rect = nullptr, rect* slider_rect = nullptr);
 
     double get_scroll_interval() const;
     void move_slider(int32_t y);

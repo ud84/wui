@@ -23,7 +23,8 @@ namespace wui
 {
 
 progress::progress(int32_t from_, int32_t to_, int32_t value_, orientation orientation__, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
-    : theme_(theme__),
+    : tcn(theme_control_name),
+    theme_(theme__),
     position_(),
     parent_(),
     showed_(true), topmost_(false),
@@ -52,11 +53,11 @@ void progress::draw(graphic &gr, const rect &)
 
     auto control_pos = position();
 
-    auto border_width = theme_dimension(tc, tv_border_width, theme_);
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
 
     gr.draw_rect(control_pos,
-        theme_color(tc, tv_border, theme_),
-        theme_color(tc, tv_background, theme_),
+        theme_color(tcn, tv_border, theme_),
+        theme_color(tcn, tv_background, theme_),
         border_width,
         0);
 

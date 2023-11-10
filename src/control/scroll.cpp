@@ -26,7 +26,8 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_, double scroll_interval_,
     orientation orientation__,
     std::function<void(scroll_state, int32_t)> callback_,
     std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
-    : theme_(theme__),
+    : tcn(theme_control_name),
+    theme_(theme__),
     position_(),
     parent_(),
     showed_(true), topmost_(false),
@@ -34,7 +35,14 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_, double scroll_interval_,
     scroll_pos(scroll_pos_),
     scroll_interval(scroll_interval_),
     orientation_(orientation__),
-    callback(callback_)
+    callback(callback_),
+    worker_action_(worker_action::undefined),
+    worker(),
+    worker_runned(false),
+    scrollbar_state_(scrollbar_state::full),
+    slider_scrolling(false),
+    slider_click_pos(0),
+    prev_scroll_pos(0)
 {
 }
 
@@ -202,7 +210,7 @@ void scroll::redraw()
 void scroll::draw_vert_scrollbar(graphic& gr)
 {
     rect bar_rect = { 0 }, top_button_rect = { 0 }, bottom_button_rect = { 0 }, slider_rect = { 0 };
-    calc_scrollbar_params(true, &bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+    calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
 
     if (slider_rect.bottom == 0)
     {
@@ -349,7 +357,7 @@ void scroll::scroll_down()
     prev_scroll_pos = scroll_pos;
 }
 
-void scroll::calc_scrollbar_params(bool drawing_coordinates, rect* bar_rect, rect* top_button_rect, rect* bottom_button_rect, rect* slider_rect)
+void scroll::calc_scrollbar_params(rect* bar_rect, rect* top_button_rect, rect* bottom_button_rect, rect* slider_rect)
 {
     int32_t scrollbar_width = 0;
     if (scrollbar_state_ == scrollbar_state::tiny)
@@ -370,11 +378,7 @@ void scroll::calc_scrollbar_params(bool drawing_coordinates, rect* bar_rect, rec
         SB_BUTTON_WIDTH = SB_WIDTH, SB_BUTTON_HEIGHT = SB_HEIGHT;
 
     auto control_pos = position();
-    if (drawing_coordinates)
-    {
-        control_pos = { 0, 0, position_.width(), position_.height() };
-    }
-
+    
     double client_height = control_pos.height() - (SB_HEIGHT * 2);
 
     auto scroll_interval = get_scroll_interval();
@@ -385,17 +389,17 @@ void scroll::calc_scrollbar_params(bool drawing_coordinates, rect* bar_rect, rec
 
     if (bar_rect)
     {
-        *bar_rect = { control_pos.right - SB_WIDTH, control_pos.top, control_pos.right, control_pos.bottom };
+        *bar_rect = { control_pos.right, control_pos.top, control_pos.right + SB_WIDTH, control_pos.bottom };
     }
 
     if (top_button_rect && scrollbar_state_ == scrollbar_state::full)
     {
-        *top_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.top, control_pos.right, control_pos.top + SB_BUTTON_HEIGHT };
+        *top_button_rect = { control_pos.right, control_pos.top, control_pos.right + SB_BUTTON_WIDTH, control_pos.top + SB_BUTTON_HEIGHT };
     }
 
     if (bottom_button_rect && scrollbar_state_ == scrollbar_state::full)
     {
-        *bottom_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.bottom - SB_BUTTON_HEIGHT, control_pos.right, control_pos.bottom };
+        *bottom_button_rect = { control_pos.right, control_pos.bottom - SB_BUTTON_HEIGHT, control_pos.right + SB_BUTTON_WIDTH, control_pos.bottom };
     }
 
     if (slider_rect)
@@ -408,9 +412,9 @@ void scroll::calc_scrollbar_params(bool drawing_coordinates, rect* bar_rect, rec
             slider_height = SB_SILDER_MIN_WIDTH;
         }
 
-        *slider_rect = { control_pos.right - SB_BUTTON_WIDTH,
+        *slider_rect = { control_pos.right,
             SB_HEIGHT + slider_top,
-            control_pos.right,
+            control_pos.right + SB_BUTTON_WIDTH,
             SB_HEIGHT + slider_top + slider_height };
 
         if (scrollbar_state_ == scrollbar_state::full && bottom_button_rect && slider_rect->bottom > bottom_button_rect->top)
