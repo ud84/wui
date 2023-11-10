@@ -427,9 +427,9 @@ void scroll::move_slider(int32_t y)
         return;
     }
 
-    auto pos = y - position_.top - full_scrollbar_width - slider_click_pos;
+    auto pos = y - full_scrollbar_width - slider_click_pos;
 
-    pos = pos * static_cast<int32_t>(scroll_interval);
+    scroll_pos = pos * static_cast<int32_t>(scroll_interval);
     if (scroll_pos < 0)
     {
         scroll_pos = 0;
@@ -526,11 +526,7 @@ void scroll::calc_scrollbar_params(rect* bar_rect, rect* top_button_rect, rect* 
         SB_HEIGHT = full_scrollbar_width, SB_SILDER_MIN_WIDTH = 5,
         SB_BUTTON_WIDTH = SB_WIDTH, SB_BUTTON_HEIGHT = SB_HEIGHT;
 
-    auto control_pos = position();
-    //if (drawing_coordinates)
-    {
-        //control_pos = { 0, 0, position_.width(), position_.height() };
-    }
+    auto control_pos = get_control_position(position_, parent_);
 
     double client_height = control_pos.height() - (SB_HEIGHT * 2);
 
