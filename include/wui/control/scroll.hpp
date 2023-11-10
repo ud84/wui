@@ -26,7 +26,8 @@ namespace wui
 enum class scroll_state
 {
     up_end,
-    down_end
+    down_end,
+    moving
 };
 
 class scroll : public i_control, public std::enable_shared_from_this<scroll>

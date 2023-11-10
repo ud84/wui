@@ -264,37 +264,55 @@ void scroll::receive_control_events(const event& ev)
             break;
             case mouse_event_type::left_down:
             {
-                rect bar_rect = { 0 }, top_button_rect = { 0 }, bottom_button_rect = { 0 }, slider_rect = { 0 };
-                calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+                rect bar_rect = { 0 }, up_button_rect = { 0 }, down_button_rect = { 0 }, slider_rect = { 0 };
+                calc_scrollbar_params(&bar_rect, &up_button_rect, &down_button_rect, &slider_rect);
 
-                if (ev.mouse_event_.y <= top_button_rect.bottom)
+                if (up_button_rect.in(ev.mouse_event_.x, ev.mouse_event_.y))
                 {
                     start_work(worker_action::scroll_up);
                 }
-                else if (ev.mouse_event_.y >= bottom_button_rect.top)
+                else if (down_button_rect.in(ev.mouse_event_.x, ev.mouse_event_.y))
                 {
                     start_work(worker_action::scroll_down);
                 }
-                else if (ev.mouse_event_.y < slider_rect.top)
+                else if (orientation_ == orientation::vertical && ev.mouse_event_.y < slider_rect.top)
                 {
                     while (ev.mouse_event_.y < slider_rect.top)
                     {
                         scroll_up();
-                        calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+                        calc_scrollbar_params(&bar_rect, &up_button_rect, &down_button_rect, &slider_rect);
                     }
                 }
-                else if (ev.mouse_event_.y > slider_rect.bottom)
+                else if (orientation_ == orientation::vertical && ev.mouse_event_.y > slider_rect.bottom)
                 {
                     while (ev.mouse_event_.y > slider_rect.bottom)
                     {
                         scroll_down();
-                        calc_scrollbar_params(&bar_rect, &top_button_rect, &bottom_button_rect, &slider_rect);
+                        calc_scrollbar_params(&bar_rect, &up_button_rect, &down_button_rect, &slider_rect);
                     }
                 }
-                else if (ev.mouse_event_.y > slider_rect.top && ev.mouse_event_.y < slider_rect.bottom)
+                else if (orientation_ == orientation::horizontal && ev.mouse_event_.x < slider_rect.left)
+                {
+                    while (ev.mouse_event_.x < slider_rect.left)
+                    {
+                        scroll_up();
+                        calc_scrollbar_params(&bar_rect, &up_button_rect, &down_button_rect, &slider_rect);
+                    }
+                }
+                else if (orientation_ == orientation::horizontal && ev.mouse_event_.x > slider_rect.right)
+                {
+                    while (ev.mouse_event_.x > slider_rect.right)
+                    {
+                        scroll_down();
+                        calc_scrollbar_params(&bar_rect, &up_button_rect, &down_button_rect, &slider_rect);
+                    }
+                }
+                else if (slider_rect.in(ev.mouse_event_.x, ev.mouse_event_.y))
                 {
                     slider_scrolling = true;
-                    slider_click_pos = ev.mouse_event_.y - slider_rect.top + position_.top;
+                    slider_click_pos = orientation_ == orientation::vertical ? 
+                        (ev.mouse_event_.y - slider_rect.top + position_.top) :
+                        (ev.mouse_event_.x - slider_rect.left + position_.left);
                 }
             }    
             break;
@@ -314,7 +332,7 @@ void scroll::receive_control_events(const event& ev)
             {
                 if (slider_scrolling)
                 {
-                    return move_slider(ev.mouse_event_.y);
+                    return move_slider(orientation_ == orientation::vertical ? ev.mouse_event_.y : ev.mouse_event_.x);
                 }
             }
             break;
@@ -342,14 +360,13 @@ void scroll::receive_plain_events(const event& ev)
             case mouse_event_type::move:
                 if (slider_scrolling)
                 {
-                    move_slider(ev.mouse_event_.y);
+                    move_slider(orientation_ == orientation::vertical ? ev.mouse_event_.y : ev.mouse_event_.x);
                 }
             break;
             case mouse_event_type::left_up:
                 end_work();
 
                 slider_scrolling = false;
-                //scrollbar_state_ = scrollbar_state::hide;
                 
                 redraw();
             break;
@@ -389,15 +406,15 @@ void scroll::draw_arrow_left(graphic& gr, rect button_pos)
 {
     auto color = theme_color(tcn, tv_slider_acive, theme_);
 
-    int w = 8, h = 4;
+    int w = 4, h = 8;
 
-    for (int j = 0; j != h; ++j)
+    for (int j = 0; j != w; ++j)
     {
-        for (int i = 0; i != w; ++i)
+        for (int i = 0; i != h; ++i)
         {
-            gr.draw_pixel({ button_pos.left + 3 + j + i, button_pos.top + 8 - j }, color);
+            gr.draw_pixel({ button_pos.left + 8 - j, button_pos.top + 3 + i + j }, color);
         }
-        w -= 2;
+        h -= 2;
     }
 }
 
@@ -421,15 +438,15 @@ void scroll::draw_arrow_right(graphic& gr, rect button_pos)
 {
     auto color = theme_color(tcn, tv_slider_acive, theme_);
 
-    int w = 8, h = 4;
+    int w = 4, h = 8;
 
-    for (int j = 0; j != h; ++j)
+    for (int j = 0; j != w; ++j)
     {
-        for (int i = 0; i != w; ++i)
+        for (int i = 0; i != h; ++i)
         {
-            gr.draw_pixel({ button_pos.left + 3 + j + i, button_pos.top + 5 + j }, color);
+            gr.draw_pixel({ button_pos.left + 5 + j, button_pos.top + 3 + i + j }, color);
         }
-        w -= 2;
+        h -= 2;
     }
 }
 
@@ -463,6 +480,10 @@ void scroll::move_slider(int32_t y)
         {
             callback(scroll_state::down_end, scroll_pos);
         }
+        else
+        {
+            callback(scroll_state::moving, scroll_pos);
+        }
     }
 
     redraw();
@@ -472,12 +493,7 @@ void scroll::move_slider(int32_t y)
 
 void scroll::scroll_up()
 {
-    if (scroll_pos == 0)
-    {
-        return;
-    }
-
-    if (scroll_interval < 0)
+    if (scroll_pos == 0 || scroll_interval < 0)
     {
         return;
     }
@@ -490,9 +506,9 @@ void scroll::scroll_up()
 
     redraw();
 
-    if (scroll_pos == 0 && callback)
+    if (callback)
     {
-        callback(scroll_state::up_end, scroll_pos);
+        callback(scroll_pos == 0 ? scroll_state::up_end : scroll_state::moving, scroll_pos);
     }
 }
 
@@ -503,17 +519,20 @@ void scroll::scroll_down()
         return;
     }
 
-    if (area >= scroll_pos && area - scroll_pos > position_.height())
+    auto end = orientation_ == orientation::vertical ? position_.height() : position_.width();
+
+    if (area >= scroll_pos && area - scroll_pos > end)
     {
         scroll_pos += static_cast<int32_t>(scroll_interval) * 10;
         redraw();
     }
 
-    if (callback && area - scroll_pos <= position_.height() && prev_scroll_pos != scroll_pos)
+    if (callback)
     {
-        callback(scroll_state::down_end, scroll_pos);
+        callback((area - scroll_pos <= end && prev_scroll_pos != scroll_pos) ? 
+            scroll_state::down_end : scroll_state::moving, scroll_pos);
     }
-
+    
     prev_scroll_pos = scroll_pos;
 }
 
