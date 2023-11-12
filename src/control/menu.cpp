@@ -154,9 +154,9 @@ void menu::update_list_theme()
     list_theme->set_color(list::tc, list::tv_border, theme_color(tcn, tv_border, theme_));
     list_theme->set_color(list::tc, list::tv_focused_border, theme_color(tcn, tv_border, theme_));
     list_theme->set_dimension(list::tc, list::tv_border_width, theme_dimension(tcn, tv_border_width, theme_));
-    list_theme->set_color(list::tc, list::tv_scrollbar, theme_color(tcn, tv_scrollbar, theme_));
-    list_theme->set_color(list::tc, list::tv_scrollbar_slider, theme_color(tcn, tv_scrollbar_slider, theme_));
-    list_theme->set_color(list::tc, list::tv_scrollbar_slider_acive, theme_color(tcn, tv_scrollbar_slider_acive, theme_));
+    list_theme->set_color(scroll::tc, scroll::tv_background, theme_color(tcn, tv_scrollbar, theme_));
+    list_theme->set_color(scroll::tc, scroll::tv_slider, theme_color(tcn, tv_scrollbar_slider, theme_));
+    list_theme->set_color(scroll::tc, scroll::tv_slider_acive, theme_color(tcn, tv_scrollbar_slider_acive, theme_));
     list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tcn, tv_round, theme_));
 }
 

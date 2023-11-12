@@ -73,6 +73,14 @@ public:
     void set_scroll_pos(int32_t scroll_pos);
     int32_t get_scroll_pos() const;
 
+    /// Good to call from mouse whell event
+    void scroll_up();
+    void scroll_down();
+
+    /// If you need to embed a scroll bar in your control, you can draw it with scroll::draw() and subscribe it to events 
+    void receive_control_events(const event& ev);
+    void receive_plain_events(const event& ev);
+
 public:
     /// Control name in theme
     static constexpr const char *tc = "scroll";
@@ -132,9 +140,6 @@ private:
     static const int32_t tiny_scrollbar_size = 3;
     static const int32_t full_scrollbar_size = 14;
 
-    void receive_control_events(const event& ev);
-    void receive_plain_events(const event& ev);
-
     void redraw();
 
     void draw_arrow_up(graphic& gr, rect button_pos);
@@ -148,9 +153,6 @@ private:
     void calc_scrollbar_params(rect* bar_rect = nullptr, rect* up_button_rect = nullptr, rect* down_button_rect = nullptr, rect* slider_rect = nullptr);
 
     void move_slider(int32_t v);
-
-    void scroll_up();
-    void scroll_down();
 
     void start_work(worker_action action);
     void work();

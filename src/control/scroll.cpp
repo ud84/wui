@@ -228,7 +228,25 @@ void scroll::set_scroll_pos(int32_t scroll_pos_)
 {
     scroll_pos = scroll_pos_;
 
+    if (callback && prev_scroll_pos != scroll_pos)
+    {
+        if (scroll_pos == 0)
+        {
+            callback(scroll_state::up_end, static_cast<int32_t>(scroll_pos));
+        }
+        else if (scroll_pos >= area)
+        {
+            callback(scroll_state::down_end, static_cast<int32_t>(scroll_pos));
+        }
+        else
+        {
+            callback(scroll_state::moving, static_cast<int32_t>(scroll_pos));
+        }
+    }
+
     redraw();
+
+    prev_scroll_pos = scroll_pos;
 }
 
 int32_t scroll::get_scroll_pos() const
@@ -478,7 +496,7 @@ void scroll::move_slider(int32_t v)
         {
             callback(scroll_state::up_end, static_cast<int32_t>(scroll_pos));
         }
-        else if (scroll_pos == area)
+        else if (scroll_pos >= area)
         {
             callback(scroll_state::down_end, static_cast<int32_t>(scroll_pos));
         }
@@ -497,10 +515,11 @@ void scroll::scroll_up()
 {
     if (scroll_pos == 0 || scroll_interval < 0)
     {
+        worker_runned = false;
         return;
     }
 
-    scroll_pos -= static_cast<int32_t>(scroll_interval) * 10;
+    scroll_pos -= scroll_interval * 10;
     if (scroll_pos < 0)
     {
         scroll_pos = 0;
@@ -516,8 +535,9 @@ void scroll::scroll_up()
 
 void scroll::scroll_down()
 {
-    if (scroll_interval < 0)
+    if (scroll_interval < 0 || scroll_pos == area)
     {
+        worker_runned = false;
         return;
     }
 
@@ -525,7 +545,7 @@ void scroll::scroll_down()
 
     if (area > scroll_pos)
     {
-        scroll_pos += static_cast<int32_t>(scroll_interval) * 10;
+        scroll_pos += scroll_interval * 10;
         
         if (scroll_pos > area)
             scroll_pos = area;
