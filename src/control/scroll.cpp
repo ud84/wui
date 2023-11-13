@@ -32,7 +32,7 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_,
     parent_(),
     showed_(true), enabled_(true), topmost_(false),
     area(area_),
-    scroll_pos(scroll_pos_),
+    scroll_pos(0.0),
     prev_scroll_pos(0.0),
     scroll_interval(1.0),
     orientation_(orientation__),
@@ -97,6 +97,7 @@ void scroll::draw(graphic &gr, const rect &)
 void scroll::set_position(const rect &position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
+
     calc_scroll_interval();
 }
 
@@ -217,7 +218,7 @@ bool scroll::enabled() const
 
 void scroll::set_area(int32_t area_)
 {
-    area = area_ - position_.height();
+    area = area_;
 
     calc_scroll_interval();
 
@@ -547,7 +548,9 @@ void scroll::scroll_down()
         scroll_pos += scroll_interval * 10;
         
         if (scroll_pos > area)
+        {
             scroll_pos = area;
+        }
 
         redraw();
     }
@@ -564,22 +567,30 @@ void scroll::scroll_down()
 void scroll::calc_scrollbar_params(rect* bar_rect, rect* up_button_rect, rect* down_button_rect, rect* slider_rect)
 {
     if (orientation_ == orientation::vertical)
+    {
         calc_vert_scrollbar_params(bar_rect, up_button_rect, down_button_rect, slider_rect);
+    }
     else
+    {
         calc_hor_scrollbar_params(bar_rect, up_button_rect, down_button_rect, slider_rect);
+    }
 }
 
 void scroll::calc_scroll_interval()
 {
     if (position_.is_null())
+    {
         return;
+    }
 
-    const double coeff = 1.3;
-
-    if (orientation_ == orientation::vertical && position_.height() > full_scrollbar_size * coeff)
-        scroll_interval = (area + position_.height()) / (position_.height() - full_scrollbar_size * coeff);
-    else if (orientation_ == orientation::horizontal && position_.width() > full_scrollbar_size * coeff)
-        scroll_interval = (area + position_.width()) / (position_.width() - full_scrollbar_size * coeff);
+    if (orientation_ == orientation::vertical && position_.height() > full_scrollbar_size * 2)
+    {
+        scroll_interval = (area + position_.height()) / (position_.height() - full_scrollbar_size * 2);
+    }
+    else if (orientation_ == orientation::horizontal && position_.width() > full_scrollbar_size * 2)
+    {
+        scroll_interval = (area + position_.width()) / (position_.width() - full_scrollbar_size * 2);
+    } // 2 - is two buttons (up / down)
 }
 
 void scroll::calc_vert_scrollbar_params(rect* bar_rect, rect* up_button_rect, rect* down_button_rect, rect* slider_rect)
@@ -641,9 +652,9 @@ void scroll::calc_vert_scrollbar_params(rect* bar_rect, rect* up_button_rect, re
             control_pos.right,
             SB_HEIGHT + slider_top + slider_height };
 
-        if (scrollbar_state_ == scrollbar_state::full && down_button_rect && slider_rect->bottom > down_button_rect->top)
+        if (scroll_pos == area)
         {
-            slider_rect->move(0, down_button_rect->top - slider_rect->bottom);
+            slider_rect->move(0, control_pos.bottom - SB_BUTTON_HEIGHT - slider_rect->bottom);
         }
     }
 }
@@ -707,9 +718,9 @@ void scroll::calc_hor_scrollbar_params(rect* bar_rect, rect* up_button_rect, rec
             SB_WIDTH + slider_left + slider_width,
             control_pos.bottom };
 
-        if (scrollbar_state_ == scrollbar_state::full && down_button_rect && slider_rect->right > down_button_rect->left)
+        if (scroll_pos == area)
         {
-            slider_rect->move(down_button_rect->left - slider_rect->right, 0);
+            slider_rect->move(control_pos.right - SB_BUTTON_HEIGHT - slider_rect->right, 0);
         }
     }
 }

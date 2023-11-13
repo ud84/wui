@@ -176,12 +176,12 @@ private:
 
     bool has_scrollbar();
 
-    int32_t calc_scroll_area() const;
-
     void update_selected_item(int32_t y);
     void update_active_item(int32_t y);
 
     void make_selected_visible();
+
+    void update_scroll_area();
 };
 
 }

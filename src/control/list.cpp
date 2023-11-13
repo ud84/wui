@@ -418,9 +418,7 @@ void list::set_position(const rect &position__, bool redraw)
         position_.right - border_width,
         position_.bottom - border_width });
 
-    scroll_area = calc_scroll_area();
-
-    vert_scroll->set_area(scroll_area);
+    update_scroll_area();
 }
 
 rect list::position() const
@@ -608,8 +606,7 @@ void list::set_item_count(int32_t count)
 
     item_count = count;
 
-    scroll_area = calc_scroll_area();
-    vert_scroll->set_area(scroll_area);
+    update_scroll_area();
 
     redraw();
 }
@@ -834,11 +831,6 @@ bool list::has_scrollbar()
     return scroll_area > position_.height();
 }
 
-int32_t list::calc_scroll_area() const
-{
-    return title_height + get_item_top(item_count - 1) + get_item_height(item_count - 1);
-}
-
 void list::update_selected_item(int32_t y)
 {
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
@@ -941,6 +933,13 @@ void list::make_selected_visible()
     {
         scroll_pos = selected_item_bottom - position_.height() + title_height;
     }
+}
+
+void list::update_scroll_area()
+{
+    scroll_area = title_height + get_item_top(item_count - 1) + get_item_height(item_count - 1) - position_.height();
+
+    vert_scroll->set_area(scroll_area);
 }
 
 }
