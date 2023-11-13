@@ -135,7 +135,7 @@ private:
     std::shared_ptr<i_theme> theme_;
 
     rect position_;
-
+    
     std::weak_ptr<window> parent_;
     std::string my_control_sid;
 

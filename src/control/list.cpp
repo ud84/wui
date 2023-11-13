@@ -828,7 +828,7 @@ void list::draw_items(graphic &gr_)
 
 bool list::has_scrollbar()
 {
-    return scroll_area > position_.height();
+    return scroll_area + position_.height() > position_.height();
 }
 
 void list::update_selected_item(int32_t y)
@@ -937,9 +937,25 @@ void list::make_selected_visible()
 
 void list::update_scroll_area()
 {
+    bool scrolled_down = false;
+    if (scroll_area != 0 && vert_scroll->get_scroll_pos() == scroll_area)
+    {
+        scrolled_down = true;
+    }
+
     scroll_area = title_height + get_item_top(item_count - 1) + get_item_height(item_count - 1) - position_.height();
 
     vert_scroll->set_area(scroll_area);
+
+    if (vert_scroll->get_scroll_pos() > scroll_area)
+    {
+        vert_scroll->set_scroll_pos(scroll_area);
+    }
+
+    if (scrolled_down)
+    {
+        vert_scroll->set_scroll_pos(scroll_area);
+    }
 }
 
 }
