@@ -110,32 +110,35 @@ void list::receive_control_events(const event &ev)
         return;
     }
 
-    if (ev.type == event_type::mouse && has_scrollbar())
+    if (ev.type == event_type::mouse)
     {
-        if (vert_scroll->position().in(ev.mouse_event_.x, ev.mouse_event_.y))
+        if (has_scrollbar())
         {
-            if (!mouse_on_slider)
+            if (vert_scroll->position().in(ev.mouse_event_.x, ev.mouse_event_.y))
             {
-                mouse_on_slider = true;
+                if (!mouse_on_slider)
+                {
+                    mouse_on_slider = true;
 
-                event sev = ev;
-                sev.mouse_event_.type = wui::mouse_event_type::enter;
+                    event sev = ev;
+                    sev.mouse_event_.type = wui::mouse_event_type::enter;
 
-                return vert_scroll->receive_control_events(sev);
+                    return vert_scroll->receive_control_events(sev);
+                }
+
+                return vert_scroll->receive_control_events(ev);
             }
-
-            return vert_scroll->receive_control_events(ev);
-        }
-        else
-        {
-            if (mouse_on_slider)
+            else
             {
-                mouse_on_slider = false;
+                if (mouse_on_slider)
+                {
+                    mouse_on_slider = false;
 
-                event sev = ev;
-                sev.mouse_event_.type = wui::mouse_event_type::leave;
+                    event sev = ev;
+                    sev.mouse_event_.type = wui::mouse_event_type::leave;
 
-                return vert_scroll->receive_control_events(sev);
+                    return vert_scroll->receive_control_events(sev);
+                }
             }
         }
 
