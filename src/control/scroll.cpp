@@ -217,7 +217,7 @@ bool scroll::enabled() const
 
 void scroll::set_area(int32_t area_)
 {
-    area = area_;
+    area = area_ - position_.height();
 
     calc_scroll_interval();
 
@@ -227,16 +227,21 @@ void scroll::set_area(int32_t area_)
 void scroll::set_scroll_pos(int32_t scroll_pos_)
 {
     scroll_pos = scroll_pos_;
+    if (scroll_pos < 0)
+    {
+        scroll_pos = 0;
+    }
 
     if (callback && prev_scroll_pos != scroll_pos)
     {
         if (scroll_pos == 0)
         {
-            callback(scroll_state::up_end, static_cast<int32_t>(scroll_pos));
+            callback(scroll_state::up_end, static_cast<int32_t>(0));
         }
         else if (scroll_pos >= area)
         {
-            callback(scroll_state::down_end, static_cast<int32_t>(scroll_pos));
+            scroll_pos = area;
+            callback(scroll_state::down_end, static_cast<int32_t>(area));
         }
         else
         {
@@ -339,12 +344,6 @@ void scroll::receive_control_events(const event& ev)
                 slider_scrolling = false;
                 end_work();
             }
-            break;
-            case mouse_event_type::right_up:
-                
-            break;
-            case mouse_event_type::left_double:
-                
             break;
             case mouse_event_type::move:
             {

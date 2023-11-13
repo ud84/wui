@@ -149,6 +149,8 @@ private:
 
     int32_t title_height;
 
+    int32_t scroll_area;
+
     std::shared_ptr<scroll> vert_scroll;
 
     std::function<void(graphic&, int32_t, const rect&, item_state)> draw_callback;
@@ -174,7 +176,7 @@ private:
 
     bool has_scrollbar();
 
-    int32_t get_scroll_area() const;
+    int32_t calc_scroll_area() const;
 
     void update_selected_item(int32_t y);
     void update_active_item(int32_t y);

@@ -32,6 +32,7 @@ list::list(std::string_view theme_control_name_, std::shared_ptr<i_theme> theme_
     mode(list_mode::simple),
     item_count(0), selected_item_(0), active_item_(-1),
     title_height(-1),
+    scroll_area(0),
     vert_scroll(new scroll(0, 0, orientation::vertical, std::bind(&list::on_scroll, this, std::placeholders::_1, std::placeholders::_2), scroll::tc, theme__)),
     draw_callback(),
     item_height_callback(),
@@ -109,7 +110,7 @@ void list::receive_control_events(const event &ev)
         return;
     }
 
-    if (ev.type == event_type::mouse)
+    if (ev.type == event_type::mouse && has_scrollbar())
     {
         if (vert_scroll->position().in(ev.mouse_event_.x, ev.mouse_event_.y))
         {
@@ -141,9 +142,11 @@ void list::receive_control_events(const event &ev)
         switch (ev.mouse_event_.type)
         {
             case mouse_event_type::enter:
-            {
+                if (has_scrollbar())
+                {
+                    vert_scroll->show();
+                }
                 mouse_on_control = true;
-            }
             break;
             case mouse_event_type::leave:
                 mouse_on_control = false;
@@ -179,9 +182,6 @@ void list::receive_control_events(const event &ev)
                         item_click_callback(click_button::left, selected_item_, ev.mouse_event_.x, ev.mouse_event_.y);
                     }
                 }
-            break;
-            case mouse_event_type::left_up:
-
             break;
             case mouse_event_type::right_up:
                 if (ev.mouse_event_.y - position().top <= title_height)
@@ -265,8 +265,7 @@ void list::receive_control_events(const event &ev)
                     {
                         if (selected_item_ != item_count - 1)
                         {
-                            auto last_item_bottom = get_item_top(item_count - 1) + get_item_height(item_count - 1) + title_height;
-                            vert_scroll->set_scroll_pos(0);
+                            vert_scroll->set_scroll_pos(scroll_area - position_.height());
 
                             selected_item_ = static_cast<int32_t>(item_count - 1);
                             redraw();
@@ -416,7 +415,9 @@ void list::set_position(const rect &position__, bool redraw)
         position_.right - border_width,
         position_.bottom - border_width });
 
-    vert_scroll->set_area(get_scroll_area());
+    scroll_area = calc_scroll_area();
+
+    vert_scroll->set_area(scroll_area);
 }
 
 rect list::position() const
@@ -608,7 +609,10 @@ void list::set_item_count(int32_t count)
     }
 
     item_count = count;
-    vert_scroll->set_area(get_scroll_area());
+
+    scroll_area = calc_scroll_area();
+    vert_scroll->set_area(scroll_area);
+
     redraw();
 }
 
@@ -625,7 +629,7 @@ void list::scroll_to_start()
 
 void list::scroll_to_end()
 {
-    vert_scroll->set_scroll_pos(get_scroll_area());
+    vert_scroll->set_scroll_pos(scroll_area);
     redraw();
 }
 
@@ -829,12 +833,12 @@ void list::draw_items(graphic &gr_)
 
 bool list::has_scrollbar()
 {
-    return get_scroll_area() + position_.height() > position_.height();
+    return scroll_area > position_.height();
 }
 
-int32_t list::get_scroll_area() const
+int32_t list::calc_scroll_area() const
 {
-    return title_height + get_item_top(item_count - 1) + get_item_height(item_count - 1) - position_.height();
+    return title_height + get_item_top(item_count - 1) + get_item_height(item_count - 1);
 }
 
 void list::update_selected_item(int32_t y)

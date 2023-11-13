@@ -126,7 +126,6 @@ private:
 
     enum class scrollbar_state
     {
-        hide,
         tiny,
         full
     };
