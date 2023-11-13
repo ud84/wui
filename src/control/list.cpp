@@ -26,7 +26,7 @@ list::list(std::string_view theme_control_name_, std::shared_ptr<i_theme> theme_
     theme_(theme__),
     position_(),
     parent_(),
-    my_control_sid(), scroll_plain_sid(),
+    my_control_sid(),
     showed_(true), enabled_(true), focused_(false), mouse_on_control(false), mouse_on_slider(false),
     columns_(),
     mode(list_mode::simple),
@@ -433,9 +433,7 @@ void list::set_parent(std::shared_ptr<window> window)
         static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
         shared_from_this());
 
-    scroll_plain_sid = window->subscribe(std::bind(&scroll::receive_plain_events, vert_scroll, std::placeholders::_1), event_type::mouse);
-
-    vert_scroll->set_parent(window);
+    window->add_control(vert_scroll, { 0 });
 }
 
 std::weak_ptr<window> list::parent() const
@@ -448,14 +446,11 @@ void list::clear_parent()
     auto parent__ = parent_.lock();
     if (parent__)
     {
+        parent__->remove_control(vert_scroll);
+
         parent__->unsubscribe(my_control_sid);
         my_control_sid.clear();
-
-        parent__->unsubscribe(scroll_plain_sid);
-        scroll_plain_sid.clear();
     }
-
-    vert_scroll->clear_parent();
 
     parent_.reset();
 }

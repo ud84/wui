@@ -137,7 +137,7 @@ private:
     rect position_;
 
     std::weak_ptr<window> parent_;
-    std::string my_control_sid, scroll_plain_sid;
+    std::string my_control_sid;
 
     bool showed_, enabled_, focused_, mouse_on_control, mouse_on_slider;
 
