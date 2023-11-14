@@ -285,7 +285,7 @@ void scroll::receive_control_events(const event& ev)
                 if (!slider_scrolling)
                 {
                     scrollbar_state_ = scrollbar_state::tiny;
-                    redraw();
+                    redraw(true);
                 }
             break;
             case mouse_event_type::left_down:
@@ -392,14 +392,14 @@ void scroll::receive_plain_events(const event& ev)
     }
 }
 
-void scroll::redraw()
+void scroll::redraw(bool clear)
 {
     if (showed_)
     {
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position());
+            parent__->redraw(position(), clear);
         }
     }
 }
