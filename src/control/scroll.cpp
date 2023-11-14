@@ -58,7 +58,7 @@ scroll::~scroll()
 
 void scroll::draw(graphic &gr, const rect &)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }
