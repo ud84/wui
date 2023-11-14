@@ -17,7 +17,7 @@
 
 #include <boost/nowide/convert.hpp>
 
-#include <cstring>
+#include <cmath>
 
 namespace wui
 {
@@ -639,8 +639,8 @@ void scroll::calc_vert_scrollbar_params(rect* bar_rect, rect* up_button_rect, re
 
     if (slider_rect)
     {
-        auto slider_top = control_pos.top + static_cast<int32_t>(round(scroll_pos / scroll_interval));
-        auto slider_height = static_cast<int32_t>(round(client_height / scroll_interval));
+        auto slider_top = control_pos.top + static_cast<int32_t>(std::round(scroll_pos / scroll_interval));
+        auto slider_height = static_cast<int32_t>(std::round(client_height / scroll_interval));
 
         if (slider_height < SB_SILDER_MIN_HEIGHT)
         {
@@ -705,8 +705,8 @@ void scroll::calc_hor_scrollbar_params(rect* bar_rect, rect* up_button_rect, rec
 
     if (slider_rect)
     {
-        auto slider_left = control_pos.left + static_cast<int32_t>(round(scroll_pos / scroll_interval));
-        auto slider_width = static_cast<int32_t>(round(client_width / scroll_interval));
+        auto slider_left = control_pos.left + static_cast<int32_t>(std::round(scroll_pos / scroll_interval));
+        auto slider_width = static_cast<int32_t>(std::round(client_width / scroll_interval));
 
         if (slider_width < SB_SILDER_MIN_WIDTH)
         {
