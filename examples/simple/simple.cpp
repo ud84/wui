@@ -393,21 +393,22 @@ int main(int argc, char *argv[])
 
         std::shared_ptr<wui::select> select1(new wui::select());
 
+        std::shared_ptr<wui::list> list1(new wui::list());
+
         wui::select_items_t items = { { 1, "123" }, { 2, "456" }, { 3, "789" }, { 4, "101112" }, { 5, "131415" }, { 6, "161718" }, { 7, "192021" }, { 8, "222324" } };
 
         select1->set_items(items);
 
         dialog->add_control(select1, { 10, 130, 200, 155 });
 
-        std::shared_ptr<wui::input> dialogInput1(new wui::input());
-        std::shared_ptr<wui::button> dialogButton(new wui::button("Close", [&dialog]() { dialog->destroy(); }));
-        dialog->add_control(dialogInput1, { 10, 175, 100, 200 });
-        dialog->add_control(dialogButton, { 10, 210, 100, 245 });
+        dialog->add_control(list1, { 10, 245, 200, 400 });
 
+        std::shared_ptr<wui::button> dialogButton(new wui::button("Close", [&dialog]() { dialog->destroy(); }));
+        dialog->add_control(dialogButton, { 10, 410, 100, 435 });
         dialog->set_default_push_control(dialogButton);
 
         dialog->set_transient_for(window);
-        dialog->init("Modal dialog", { -1, -1, 350, 350 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
+        dialog->init("Modal dialog", { -1, -1, 350, 550 }, wui::window_style::dialog, [&dialog]() { /*dialog.reset();*/ });
     }));
 
     std::shared_ptr<wui::button> cancelButton(new wui::button("Cancel", [window]() { window->destroy(); }, wui::button_view::image_right_text, IMG_ACCOUNT, 24, wui::button::tc, MakeRedButtonTheme()));

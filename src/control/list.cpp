@@ -54,7 +54,7 @@ list::~list()
 
 void list::draw(graphic &gr, const rect &)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }
@@ -502,6 +502,9 @@ void list::show()
     if (!showed_)
     {
         showed_ = true;
+
+        vert_scroll->show();
+
         redraw();
     }
 }
@@ -511,6 +514,9 @@ void list::hide()
     if (showed_)
     {
         showed_ = false;
+
+        vert_scroll->hide();
+        
         auto parent__ = parent_.lock();
         if (parent__)
         {
@@ -943,6 +949,10 @@ void list::update_scroll_area()
     }
 
     scroll_area = title_height + get_item_top(item_count - 1) + get_item_height(item_count - 1) - position_.height();
+    if (scroll_area < 0)
+    {
+        scroll_area = 0;
+    }
 
     vert_scroll->set_area(scroll_area);
 

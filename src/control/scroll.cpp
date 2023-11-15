@@ -578,7 +578,7 @@ void scroll::calc_scrollbar_params(rect* bar_rect, rect* up_button_rect, rect* d
 
 void scroll::calc_scroll_interval()
 {
-    if (position_.is_null())
+    if (area == 0. || position_.is_null())
     {
         return;
     }
