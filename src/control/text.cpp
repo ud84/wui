@@ -76,10 +76,10 @@ void text::draw(graphic &gr, const rect &)
             // line_top = control_pos.top;
         break;
         case vert_alignment::center:
-            line_top = control_pos.top + ((control_pos.height() - line_height * lines.size() * space_coeff) / 2);
+            line_top = control_pos.top + static_cast<int32_t>((control_pos.height() - line_height * lines.size() * space_coeff) / 2);
         break;
         case vert_alignment::bottom:
-            line_top = control_pos.bottom - (line_height * lines.size() * space_coeff);
+            line_top = control_pos.bottom - static_cast<int32_t>(line_height * lines.size() * space_coeff);
         break;
     }
 
