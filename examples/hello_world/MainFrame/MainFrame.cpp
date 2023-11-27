@@ -15,6 +15,8 @@
 #include <wui/locale/locale.hpp>
 #include <wui/locale/locale_selector.hpp>
 
+#include <wui/common/flag_helpers.hpp>
+
 #include <wui/framework/framework.hpp>
 
 #include <wui/system/tools.hpp>
@@ -30,9 +32,7 @@ MainFrame::MainFrame()
     window->subscribe(std::bind(&MainFrame::ReceiveEvents,
         this,
         std::placeholders::_1),
-        static_cast<wui::event_type>(static_cast<int32_t>(wui::event_type::internal) |
-            static_cast<int32_t>(wui::event_type::system) |
-            static_cast<int32_t>(wui::event_type::keyboard)));
+        wui::flags_map<wui::event_type>(3, wui::event_type::internal, wui::event_type::system, wui::event_type::keyboard));
 
     window->add_control(logoImage,         { 0 });
     window->add_control(whatsYourNameText, { 0 });
@@ -112,10 +112,8 @@ void MainFrame::Run()
     auto height = wui::config::get_int("MainFrame", "Height", WND_HEIGHT);
 
     window->init(wui::locale("main_frame", "caption"), { -1, -1, width, height },
-        static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
-        static_cast<uint32_t>(wui::window_style::switch_theme_button) |
-		static_cast<uint32_t>(wui::window_style::switch_lang_button) |
-        static_cast<uint32_t>(wui::window_style::border_all)), [this]() { wui::framework::stop(); });
+        wui::flags_map<wui::window_style>(4, wui::window_style::frame, wui::window_style::switch_theme_button, wui::window_style::switch_lang_button, wui::window_style::border_all),
+        [this]() { wui::framework::stop(); });
 }
 
 void MainFrame::ReceiveEvents(const wui::event &ev)

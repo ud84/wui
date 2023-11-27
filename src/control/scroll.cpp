@@ -15,7 +15,7 @@
 
 #include <wui/system/tools.hpp>
 
-#include <boost/nowide/convert.hpp>
+#include <wui/common/flag_helpers.hpp>
 
 #include <cmath>
 
@@ -111,7 +111,7 @@ void scroll::set_parent(std::shared_ptr<window> window)
     parent_ = window;
 
     my_control_sid = window->subscribe(std::bind(&scroll::receive_control_events, this, std::placeholders::_1),
-        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
+        wui::flags_map<wui::event_type>(3, wui::event_type::internal, wui::event_type::mouse, wui::event_type::keyboard),
         shared_from_this());
 
     my_plain_sid = window->subscribe(std::bind(&scroll::receive_plain_events, this, std::placeholders::_1), event_type::mouse);

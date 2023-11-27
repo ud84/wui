@@ -25,8 +25,7 @@ tray_icon::tray_icon(std::weak_ptr<window> parent__, int32_t icon_resource_index
     auto parent_ = parent.lock();
     if (parent_)
     {
-        my_subscriber_id = parent_->subscribe(std::bind(&tray_icon::receive_event, this, std::placeholders::_1),
-            static_cast<event_type>(static_cast<uint32_t>(event_type::internal)));
+        my_subscriber_id = parent_->subscribe(std::bind(&tray_icon::receive_event, this, std::placeholders::_1), event_type::internal);
 
         NOTIFYICONDATA nid;
         memset(&nid, 0, sizeof(NOTIFYICONDATA));
@@ -56,8 +55,7 @@ tray_icon::tray_icon(std::weak_ptr<window> parent__, std::string_view icon_file_
     auto parent_ = parent.lock();
     if (parent_)
     {
-        my_subscriber_id = parent_->subscribe(std::bind(&tray_icon::receive_event, this, std::placeholders::_1),
-            static_cast<event_type>(static_cast<uint32_t>(event_type::internal)));
+        my_subscriber_id = parent_->subscribe(std::bind(&tray_icon::receive_event, this, std::placeholders::_1), event_type::internal);
 
 #ifdef _WIN32
         NOTIFYICONDATA nid;

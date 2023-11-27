@@ -6,6 +6,7 @@
 #include <wui/theme/theme_selector.hpp>
 #include <wui/locale/locale.hpp>
 #include <wui/locale/locale_selector.hpp>
+#include <wui/common/flag_helpers.hpp>
 #include <wui/window/window.hpp>
 #include <wui/control/button.hpp>
 #include <wui/control/input.hpp>
@@ -458,7 +459,7 @@ int main(int argc, char *argv[])
 
     window->set_min_size(100, 100);
 
-    auto sid = window->subscribe([&menuButton, text0, &pluggedWindow, &vertSplitter, &nameInput, &someSelect, &okButton, &cancelButton](const wui::event &e) {
+    auto sid = window->subscribe([&](const wui::event &e) {
         if (e.internal_event_.type == wui::internal_event_type::size_changed)
         {
             int32_t w = e.internal_event_.x, h = e.internal_event_.y;
@@ -479,7 +480,7 @@ int main(int argc, char *argv[])
         }
     }, wui::event_type::internal);
 
-    window->set_control_callback([&window, &pluggedWindow, &dialog, &cancelButton](wui::window_control control, std::string &tooltip_text, bool continue_) {
+    window->set_control_callback([&](wui::window_control control, std::string &tooltip_text, bool continue_) {
         if (control == wui::window_control::theme)
         {
             auto theme_name = wui::get_default_theme()->get_name();
@@ -505,10 +506,7 @@ int main(int argc, char *argv[])
     window->set_default_push_control(okButton);
 
     window->init("Hello from WUI :*", { -1, -1, 900, 600 },
-        static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
-            static_cast<uint32_t>(wui::window_style::switch_theme_button) |
-            static_cast<uint32_t>(wui::window_style::border_all)),
-        //wui::window_style::frame,
+        wui::flags_map<wui::window_style>(3, wui::window_style::frame, wui::window_style::switch_theme_button, wui::window_style::border_all),
         []() {
             wui::framework::stop();
         });

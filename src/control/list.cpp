@@ -15,6 +15,8 @@
 
 #include <wui/system/tools.hpp>
 
+#include <wui/common/flag_helpers.hpp>
+
 #include <algorithm>
 
 namespace wui
@@ -430,7 +432,7 @@ void list::set_parent(std::shared_ptr<window> window)
     parent_ = window;
 
     my_control_sid = window->subscribe(std::bind(&list::receive_control_events, this, std::placeholders::_1),
-        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse) | static_cast<uint32_t>(event_type::keyboard)),
+        wui::flags_map<wui::event_type>(3, wui::event_type::internal, wui::event_type::mouse, wui::event_type::keyboard),
         shared_from_this());
 
     window->add_control(vert_scroll, { 0 });

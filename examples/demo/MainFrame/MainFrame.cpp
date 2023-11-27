@@ -17,6 +17,8 @@
 #include <wui/locale/locale.hpp>
 #include <wui/locale/locale_selector.hpp>
 
+#include <wui/common/flag_helpers.hpp>
+
 #include <MainFrame/MainFrame.h>
 
 #include <Resource.h>
@@ -45,9 +47,7 @@ MainFrame::MainFrame()
     window->subscribe(std::bind(&MainFrame::ReceiveEvents,
         this,
         std::placeholders::_1),
-        static_cast<wui::event_type>(static_cast<int32_t>(wui::event_type::internal) |
-            static_cast<int32_t>(wui::event_type::system) |
-            static_cast<int32_t>(wui::event_type::keyboard)));
+        wui::flags_map<wui::event_type>(3, wui::event_type::internal, wui::event_type::system, wui::event_type::keyboard));
 
     window->add_control(mainSheet,     { 0 });
     window->add_control(windowSheet,   { 0 });
@@ -93,9 +93,8 @@ void MainFrame::Run()
     });
 
     window->init(wui::locale("main_frame", "caption"), { -1, -1, WND_WIDTH, WND_HEIGHT },
-        static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::frame) |
-        static_cast<uint32_t>(wui::window_style::switch_theme_button) |
-        static_cast<uint32_t>(wui::window_style::border_all)), [this]() {
+        wui::flags_map<wui::window_style>(3, wui::window_style::frame, wui::window_style::switch_theme_button, wui::window_style::border_all),
+        [this]() {
             wui::framework::stop();
     });
 

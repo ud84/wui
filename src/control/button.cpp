@@ -17,6 +17,7 @@
 #include <wui/theme/theme.hpp>
 
 #include <wui/system/tools.hpp>
+#include <wui/common/flag_helpers.hpp>
 
 namespace wui
 {
@@ -446,7 +447,7 @@ void button::set_parent(std::shared_ptr<window> window_)
     parent_ = window_;
     window_->add_control(tooltip_, tooltip_->position());
     my_subscriber_id = window_->subscribe(std::bind(&button::receive_event, this, std::placeholders::_1),
-        static_cast<event_type>(static_cast<uint32_t>(event_type::internal) | static_cast<uint32_t>(event_type::mouse)),
+        wui::flags_map<wui::event_type>(2, wui::event_type::internal, wui::event_type::mouse),
         shared_from_this());
 }
 
