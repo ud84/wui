@@ -1056,7 +1056,7 @@ void window::start_docking(std::shared_ptr<i_control> control)
 
     docked_control = control;
 
-    send_internal(internal_event_type::set_focus, 0, 0);
+    send_internal(internal_event_type::remove_focus, 0, 0);
 
     set_focused(control);
 }
