@@ -42,7 +42,8 @@ static const uint8_t vk_right = 0x27;
 
 /// The modifier keys
 static const uint8_t vk_capital = 0x14;
-static const uint8_t vk_shift = 0x10;
+static const uint8_t vk_lshift = 0x10;
+static const uint8_t vk_rshift = 0x10;
 static const uint8_t vk_alt = 0x12;
 static const uint8_t vk_lcontrol = 0xA2;
 static const uint8_t vk_rcontrol = 0xA3;
@@ -67,11 +68,12 @@ static const uint8_t vk_right = 0x72;
 
 /// The modifier keys
 static const uint8_t vk_capital = 0x02;
-static const uint8_t vk_shift = 0x01;
-static const uint8_t vk_alt = 0x08;
-static const uint8_t vk_lcontrol = 0x04;
-static const uint8_t vk_rcontrol = 0x04;
-static const uint8_t vk_insert = 0;
+static const uint8_t vk_lshift = 0x32;
+static const uint8_t vk_rshift = 0x3E;
+static const uint8_t vk_alt = 0x40;
+static const uint8_t vk_lcontrol = 0x25;
+static const uint8_t vk_rcontrol = 0x69;
+static const uint8_t vk_insert = 0x76;
 #endif
 
 struct keyboard_event

@@ -162,7 +162,8 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_active_window(),
     prev_button_click(0),
     runned(false),
-    thread()
+    thread(),
+    key_modifier(0)
 #endif
 {
 	switch_lang_button->disable_focusing();
@@ -1867,7 +1868,7 @@ uint8_t get_key_modifier()
 {
     if (GetKeyState(VK_SHIFT) < 0)
     {
-        return vk_shift;
+        return vk_lshift;
     }
     else if (GetKeyState(VK_CAPITAL) & 0x0001)
     {
@@ -2389,16 +2390,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
 #elif __linux__
 
-uint8_t normalize_modifier(int32_t state)
-{
-    if (state >= 8192)
-    {
-        return state - 8192;
-    }
-
-    return state;
-}
-
 void window::process_events()
 {
     xcb_generic_event_t *e = nullptr;
@@ -2724,11 +2715,21 @@ void window::process_events()
                 {
                     execute_focused();
                 }
-                else if (ev_.detail == vk_esc || ev_.detail == vk_back || ev_.detail == vk_del || ev_.detail == vk_end || ev_.detail == vk_home || ev_.detail == vk_page_up || ev_.detail == vk_page_down || ev_.detail == vk_left || ev_.detail == vk_right || ev_.detail == vk_up || ev_.detail == vk_down || ev_.detail == vk_shift)
+                else if (ev_.detail == vk_esc ||
+                    ev_.detail == vk_back ||
+                    ev_.detail == vk_del ||
+                    ev_.detail == vk_end ||
+                    ev_.detail == vk_home ||
+                    ev_.detail == vk_page_up ||
+                    ev_.detail == vk_page_down ||
+                    ev_.detail == vk_left ||
+                    ev_.detail == vk_right ||
+                    ev_.detail == vk_up ||
+                    ev_.detail == vk_down)
                 {
                     event ev;
                     ev.type = event_type::keyboard;
-                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, normalize_modifier(ev_.state), 0 };
+                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, key_modifier, 0 };
                     ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
 
                     auto control = get_focused();
@@ -2738,11 +2739,19 @@ void window::process_events()
                     }
                     send_event_to_plains(ev);
                 }
+                else if (ev_.detail == vk_lshift ||
+                    ev_.detail == vk_rshift ||
+                    ev_.detail == vk_capital ||
+                    ev_.detail == vk_alt ||
+                    ev_.detail == vk_insert)
+                {
+                    key_modifier = ev_.detail;
+                }
                 else
                 {
                     event ev;
                     ev.type = event_type::keyboard;
-                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, normalize_modifier(ev_.state), 0 };
+                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, key_modifier, 0 };
 
                     XKeyPressedEvent keyev;
                     keyev.display = context_.display;
@@ -2766,9 +2775,18 @@ void window::process_events()
             {
                 auto ev_ = *(xcb_key_press_event_t *)e;
 
+                if (ev_.detail == vk_lshift ||
+                    ev_.detail == vk_rshift ||
+                    ev_.detail == vk_capital ||
+                    ev_.detail == vk_alt ||
+                    ev_.detail == vk_insert)
+                {
+                    key_modifier = 0;
+                }
+
                 event ev;
                 ev.type = event_type::keyboard;
-                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, normalize_modifier(ev_.state), 0 };
+                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, key_modifier, 0 };
                 ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
 
                 auto control = get_focused();

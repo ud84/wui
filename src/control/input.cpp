@@ -422,7 +422,10 @@ void input::receive_control_events(const event &ev)
 
                             move_cursor_left();
 
-                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, prev_position, cursor_position);
+                            update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
+                                ev.keyboard_event_.modifier == vk_rshift,
+                                prev_position,
+                                cursor_position);
                             redraw();
                         }
                     break;
@@ -433,19 +436,27 @@ void input::receive_control_events(const event &ev)
 
                             move_cursor_right();
 
-                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, prev_position, cursor_position);
+                            update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
+                                ev.keyboard_event_.modifier == vk_rshift,
+                                prev_position,
+                                cursor_position);
                             redraw();
                         }
                     break;
                     case vk_home:
-                        update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position, 0);
+                        update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
+                            ev.keyboard_event_.modifier == vk_rshift,
+                            cursor_position, 0);
                         cursor_position = 0;
                         redraw();
                     break;
                     case vk_end:
                         if (!text_.empty())
                         {
-                            update_select_positions(ev.keyboard_event_.modifier == vk_shift, cursor_position, text_.size());
+                            update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
+                                ev.keyboard_event_.modifier == vk_rshift,
+                                cursor_position,
+                                text_.size());
 
                             cursor_position = text_.size();
 
@@ -509,7 +520,7 @@ void input::receive_control_events(const event &ev)
             case keyboard_event_type::up:
                 timer_.start(500);
 
-                if (ev.keyboard_event_.key[0] == vk_shift)
+                if (ev.keyboard_event_.key[0] == vk_lshift || ev.keyboard_event_.key[0] == vk_rshift)
                 {
                     selecting = false;
                 }

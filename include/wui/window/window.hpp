@@ -226,6 +226,9 @@ private:
 
     bool runned;
     std::thread thread;
+
+    uint8_t key_modifier;
+
     void process_events();
 
     void init_atoms();
