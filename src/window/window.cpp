@@ -2711,7 +2711,7 @@ void window::process_events()
                 {
                     change_focus();
                 }
-                else if (ev_.detail == vk_return)
+                else if (ev_.detail == vk_return || ev_.detail == vk_rreturn)
                 {
                     execute_focused();
                 }

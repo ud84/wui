@@ -51,6 +51,7 @@ static const uint8_t vk_insert = 0x2D;
 #elif __linux__
 static const uint8_t vk_tab = 0x17;
 static const uint8_t vk_return = 0x24;
+static const uint8_t vk_rreturn = 0x68;
 static const uint8_t vk_esc = 0x09;
 
 static const uint8_t vk_back = 0x16;

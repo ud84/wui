@@ -509,7 +509,7 @@ void input::receive_control_events(const event &ev)
                             }
                         }
                     break;
-                    case vk_return:
+                    case vk_return: case vk_rreturn:
                         if (return_callback)
                         {
                             return_callback();
@@ -526,7 +526,8 @@ void input::receive_control_events(const event &ev)
                 }
             break;
             case keyboard_event_type::key:
-                if ((input_view_ == input_view::singleline && ev.keyboard_event_.key[0] == vk_return) ||
+                if ((input_view_ == input_view::singleline &&
+                    (ev.keyboard_event_.key[0] == vk_return || ev.keyboard_event_.key[0] == vk_rreturn)) ||
                     ev.keyboard_event_.key[0] == vk_tab)
                 {
                     return;
