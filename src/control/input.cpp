@@ -415,7 +415,7 @@ void input::receive_control_events(const event &ev)
                 cursor_visible = true;
                 switch (ev.keyboard_event_.key[0])
                 {
-                    case vk_left:
+                    case vk_left: case vk_nleft:
                         if (cursor_position > 0)
                         {
                             auto prev_position = cursor_position;
@@ -429,7 +429,7 @@ void input::receive_control_events(const event &ev)
                             redraw();
                         }
                     break;
-                    case vk_right:
+                    case vk_right: case vk_nright:
                         if (cursor_position < text_.size())
                         {
                             auto prev_position = cursor_position;
@@ -443,14 +443,14 @@ void input::receive_control_events(const event &ev)
                             redraw();
                         }
                     break;
-                    case vk_home:
+                    case vk_home: case vk_nhome:
                         update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
                             ev.keyboard_event_.modifier == vk_rshift,
                             cursor_position, 0);
                         cursor_position = 0;
                         redraw();
                     break;
-                    case vk_end:
+                    case vk_end: case vk_nend:
                         if (!text_.empty())
                         {
                             update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
@@ -526,13 +526,6 @@ void input::receive_control_events(const event &ev)
                 }
             break;
             case keyboard_event_type::key:
-                if ((input_view_ == input_view::singleline &&
-                    (ev.keyboard_event_.key[0] == vk_return || ev.keyboard_event_.key[0] == vk_rreturn)) ||
-                    ev.keyboard_event_.key[0] == vk_tab)
-                {
-                    return;
-                }
-
                 if (ev.keyboard_event_.key[0] == 0x3)       // ctrl + c
                 {
                     return buffer_copy();

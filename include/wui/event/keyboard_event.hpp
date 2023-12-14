@@ -59,14 +59,22 @@ static const uint8_t vk_back = 0x16;
 static const uint8_t vk_del = 0x77;
 
 static const uint8_t vk_end = 0x73;
+static const uint8_t vk_nend = 0x57;
 static const uint8_t vk_home = 0x6E;
+static const uint8_t vk_nhome = 0x4F;
 static const uint8_t vk_page_up = 0x70;
+static const uint8_t vk_npage_up = 0x51;
 static const uint8_t vk_page_down = 0x75;
+static const uint8_t vk_npage_down = 0x59;
 
 static const uint8_t vk_up = 0x6F;
+static const uint8_t vk_nup = 0x50;
 static const uint8_t vk_down = 0x74;
+static const uint8_t vk_ndown = 0x58;
 static const uint8_t vk_left = 0x71;
+static const uint8_t vk_nleft = 0x53;
 static const uint8_t vk_right = 0x72;
+static const uint8_t vk_nright = 0x55;
 
 /// The modifier keys
 static const uint8_t vk_capital = 0x02;

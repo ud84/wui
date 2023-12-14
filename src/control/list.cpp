@@ -255,7 +255,7 @@ void list::receive_control_events(const event &ev)
                 active_item_ = -1;
                 switch (ev.keyboard_event_.key[0])
                 {
-                    case vk_home:
+                    case vk_home: case vk_nhome:
                     {
                         if (selected_item_ != 0)
                         {
@@ -265,7 +265,7 @@ void list::receive_control_events(const event &ev)
                         }
                     }
                     break;
-                    case vk_end:
+                    case vk_end: case vk_nend:
                     {
                         if (selected_item_ != item_count - 1)
                         {
@@ -276,7 +276,7 @@ void list::receive_control_events(const event &ev)
                         }
                     }
                     break;
-                    case vk_up:
+                    case vk_up: case vk_nup:
                         if (selected_item_ != 0)
                         {
                             --selected_item_;
@@ -295,7 +295,7 @@ void list::receive_control_events(const event &ev)
                             }
                         }
                     break;
-                    case vk_down:
+                    case vk_down: case vk_ndown:
                         if (selected_item_ != item_count - 1)
                         {
                             ++selected_item_;
@@ -314,7 +314,7 @@ void list::receive_control_events(const event &ev)
                             }
                         }
                     break;
-                    case vk_page_up:
+                    case vk_page_up: case vk_npage_up:
                         if (selected_item_ != 0)
                         {
                             const int32_t diff_scroll = 10;
@@ -338,7 +338,7 @@ void list::receive_control_events(const event &ev)
                             }
                         }
                     break;
-                    case vk_page_down:
+                    case vk_page_down: case vk_npage_down:
                         if (selected_item_ != item_count - 1 && item_count != 0)
                         {
                             int32_t diff_scroll = 10;

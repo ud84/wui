@@ -2719,13 +2719,21 @@ void window::process_events()
                     ev_.detail == vk_back ||
                     ev_.detail == vk_del ||
                     ev_.detail == vk_end ||
+                    ev_.detail == vk_nend ||
                     ev_.detail == vk_home ||
+                    ev_.detail == vk_nhome ||
                     ev_.detail == vk_page_up ||
+                    ev_.detail == vk_npage_up ||
                     ev_.detail == vk_page_down ||
+                    ev_.detail == vk_npage_down ||
                     ev_.detail == vk_left ||
+                    ev_.detail == vk_nleft ||
                     ev_.detail == vk_right ||
+                    ev_.detail == vk_nright ||
                     ev_.detail == vk_up ||
-                    ev_.detail == vk_down)
+                    ev_.detail == vk_nup ||
+                    ev_.detail == vk_down ||
+                    ev_.detail == vk_ndown)
                 {
                     event ev;
                     ev.type = event_type::keyboard;

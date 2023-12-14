@@ -208,10 +208,10 @@ void select::receive_control_events(const event &ev)
             case keyboard_event_type::down:
                 switch (ev.keyboard_event_.key[0])
                 {
-                    case vk_up:
+                    case vk_up: case vk_nup:
                         select_up();
                     break;
-                    case vk_down:
+                    case vk_down: case vk_ndown:
                         select_down();
                     break;
                     case vk_home: case vk_page_up:
@@ -221,7 +221,7 @@ void select::receive_control_events(const event &ev)
                             redraw();
                         }
                     break;
-                    case vk_end: case vk_page_down:
+                    case vk_end: case vk_nend: case vk_page_down: case vk_npage_down:
                         if (!items_.empty())
                         {
                             list_->select_item(static_cast<int32_t>(items_.size() - 1));
