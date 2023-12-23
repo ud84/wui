@@ -137,7 +137,7 @@ std::string config_impl_reg::get_string(std::string_view section, std::string_vi
 	return out;
 }
 
-void config_impl_reg::set_string(std::string_view section, std::string_view entry, const std::string value)
+void config_impl_reg::set_string(std::string_view section, std::string_view entry, std::string_view value)
 {
 	std::string strKey = base_application_key + "\\" + std::string(section);
 

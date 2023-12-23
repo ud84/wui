@@ -99,7 +99,7 @@ std::string get_string(std::string_view section, std::string_view entry, std::st
     return "";
 }
 
-void set_string(std::string_view section, std::string_view entry, const std::string value)
+void set_string(std::string_view section, std::string_view entry, std::string_view value)
 {
     if (instance)
     {

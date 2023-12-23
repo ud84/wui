@@ -29,7 +29,7 @@ public:
     virtual void set_int64(std::string_view section, std::string_view entry, int64_t value) = 0;
 
     virtual std::string get_string(std::string_view section, std::string_view entry, std::string_view default_) = 0;
-    virtual void set_string(std::string_view section, std::string_view entry, const std::string value) = 0;
+    virtual void set_string(std::string_view section, std::string_view entry, std::string_view value) = 0;
 
     virtual void delete_value(std::string_view section, std::string_view entry) = 0;
 

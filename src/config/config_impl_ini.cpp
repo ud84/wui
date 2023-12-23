@@ -67,7 +67,7 @@ std::string config_impl_ini::get_string(std::string_view section, std::string_vi
     return default_.data();
 }
 
-void config_impl_ini::set_string(std::string_view section, std::string_view entry, const std::string value)
+void config_impl_ini::set_string(std::string_view section, std::string_view entry, std::string_view value)
 {
     auto &s = values[{ section.data(), entry.data() }];
     s.type = value_type::string;
