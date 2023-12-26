@@ -159,7 +159,7 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
 #ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__
-    wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_active_window(),
+    wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_active_window(), net_wm_state_fullscreen(), net_wm_state_maximized_vert(), net_wm_state_maximized_horz(),
     prev_button_click(0),
     runned(false),
     thread(),
@@ -496,10 +496,20 @@ void window::set_position(const rect &position__, bool redraw_)
 #ifdef _WIN32
     SetWindowPos(context_.hwnd, NULL, position___.left, position___.top, position___.width(), position___.height(), NULL);
 #elif __linux__
-        uint32_t values[] = { static_cast<uint32_t>(position___.left), static_cast<uint32_t>(position___.top),
-            static_cast<uint32_t>(position___.width()), static_cast<uint32_t>(position___.height()) };
-        xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
-            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+        int32_t values[] = { position___.left,
+            position___.top,
+            position___.width(),
+            position___.height() };
+
+        xcb_configure_window(context_.connection,
+            context_.wnd,
+            XCB_CONFIG_WINDOW_X |
+            XCB_CONFIG_WINDOW_Y |
+            XCB_CONFIG_WINDOW_WIDTH |
+            XCB_CONFIG_WINDOW_HEIGHT,
+            values);
+
+        xcb_flush(context_.connection);
 #endif
         redraw({ 0, 0, position___.width(), position___.height() }, true);
     }
@@ -846,7 +856,11 @@ void window::expand()
     }
 
     window_state_ = window_state::maximized;
-    normal_position = position();
+    auto screenSize = wui::get_screen_size(context());
+    if (position().width() != screenSize.width() && position().height() != screenSize.height())
+    {
+        normal_position = position();
+    }
 
 #ifdef _WIN32
     MONITORINFO mi = { sizeof(mi) };
@@ -876,38 +890,12 @@ void window::expand()
 
     if (flag_is_set(window_style_, window_style::title_showed)) // normal window maximization
     {
-        xcb_ewmh_connection_t ewmh_connection;
-
-        if (xcb_ewmh_init_atoms_replies(&ewmh_connection,
-            xcb_ewmh_init_atoms(context_.connection, &ewmh_connection),
-            nullptr))
-        {
-            xcb_ewmh_get_workarea_reply_t wa;
-            auto ok = xcb_ewmh_get_workarea_reply(&ewmh_connection,
-                xcb_ewmh_get_workarea(&ewmh_connection, 0),
-                &wa,
-                nullptr);
-
-            if (ok)
-            {
-                uint32_t values[] = { wa.workarea->x, wa.workarea->y, wa.workarea->width, wa.workarea->height };
-                xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
-                    XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-
-                xcb_flush(context_.connection);
-            }
-
-            xcb_ewmh_get_workarea_reply_wipe(&wa);
-            xcb_ewmh_connection_wipe(&ewmh_connection);
-        }
+        change_style(net_wm_state, 1, net_wm_state_maximized_vert);
+        change_style(net_wm_state, 1, net_wm_state_maximized_horz);
     }
     else // fullscreen
     {
-        uint32_t values[] = { 0, 0, context_.screen->width_in_pixels, context_.screen->height_in_pixels };
-        xcb_configure_window(context_.connection, context_.wnd, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
-            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-
-        xcb_flush(context_.connection);
+        change_style(net_wm_state, 1, net_wm_state_fullscreen);
     }
 #endif
     expand_button->set_image(theme_image(ti_normal, theme_));
@@ -934,6 +922,14 @@ void window::normal()
 #elif __linux__
     if (context_.connection)
     {
+        change_style(net_wm_state, 0, net_wm_state_maximized_vert);
+        change_style(net_wm_state, 0, net_wm_state_maximized_horz);
+        change_style(net_wm_state, 0, net_wm_state_fullscreen);
+        
+        /// Bring window to top
+        change_style(net_wm_state, 1, net_wm_state_above);
+        change_style(net_wm_state, 0, net_wm_state_above);
+
         xcb_client_message_event_t event = { 0 };
 
         event.window = context_.wnd;
@@ -944,8 +940,6 @@ void window::normal()
 
         xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
         xcb_flush(context_.connection);
-
-        /// todo bring window to top
     }
 #endif
 
@@ -2950,6 +2944,21 @@ void window::init_atoms()
         xcb_intern_atom(context_.connection, 0, 18, "_NET_ACTIVE_WINDOW"), NULL);
     net_active_window = net_active_window_reply->atom;
     free(net_active_window_reply);
+
+    auto net_wm_state_fullscreen_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 24, "_NET_WM_STATE_FULLSCREEN"), NULL);
+    net_wm_state_fullscreen = net_wm_state_fullscreen_reply->atom;
+    free(net_wm_state_fullscreen_reply);
+
+    auto net_wm_state_maximized_vert_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 28, "_NET_WM_STATE_MAXIMIZED_VERT"), NULL);
+    net_wm_state_maximized_vert = net_wm_state_maximized_vert_reply->atom;
+    free(net_wm_state_maximized_vert_reply);
+
+    auto net_wm_state_maximized_horz_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 28, "_NET_WM_STATE_MAXIMIZED_HORZ"), NULL);
+    net_wm_state_maximized_horz = net_wm_state_maximized_horz_reply->atom;
+    free(net_wm_state_maximized_horz_reply);
 }
 
 void window::send_destroy_event()
@@ -2969,27 +2978,27 @@ void window::send_destroy_event()
     }
 }
 
+void window::change_style(xcb_atom_t type, xcb_atom_t action, xcb_atom_t style) noexcept
+{
+    xcb_client_message_event_t event = { 0 };
+
+    event.window = context_.wnd;
+    event.response_type = XCB_CLIENT_MESSAGE;
+    event.type = type;
+    event.format = 32;
+    event.data.data32[0] = action;
+    event.data.data32[1] = style;
+
+    xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+    xcb_flush(context_.connection);
+}
+
 void window::update_window_style()
 {
     if (!context_.valid())
     {
         return;
     }
-
-    auto change_style = [this](xcb_atom_t type, xcb_atom_t action, xcb_atom_t style) noexcept -> void
-    {
-        xcb_client_message_event_t event = { 0 };
-
-        event.window = context_.wnd;
-        event.response_type = XCB_CLIENT_MESSAGE;
-        event.type = type;
-        event.format = 32;
-        event.data.data32[0] = action;
-        event.data.data32[1] = style;
-
-        xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
-        xcb_flush(context_.connection);
-    };
 
     change_style(net_wm_state, flag_is_set(window_style_, window_style::topmost) ? 1 : 0, net_wm_state_above);
     change_style(net_wm_state, showed_ ? 0 : 1, net_wm_state_skip_taskbar);

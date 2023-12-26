@@ -219,8 +219,16 @@ private:
 
 #elif __linux__
 
-    xcb_atom_t wm_protocols_event, wm_delete_msg, wm_change_state,
-        net_wm_state, net_wm_state_focused, net_wm_state_above, net_wm_state_skip_taskbar, net_active_window;
+    xcb_atom_t wm_protocols_event,
+        wm_delete_msg,
+        wm_change_state,
+        net_wm_state,
+        net_wm_state_focused,
+        net_wm_state_above,
+        net_wm_state_skip_taskbar,
+        net_active_window,
+        net_wm_state_fullscreen,
+        net_wm_state_maximized_vert, net_wm_state_maximized_horz;
 
     time_t prev_button_click;
 
@@ -234,6 +242,8 @@ private:
     void init_atoms();
 
     void send_destroy_event();
+
+    void change_style(xcb_atom_t type, xcb_atom_t action, xcb_atom_t style) noexcept;
 
     void update_window_style();
 
