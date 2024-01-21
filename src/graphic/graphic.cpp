@@ -179,21 +179,7 @@ void graphic::set_background_color(color background_color_)
 {
     background_color = background_color_;
 
-#ifdef _WIN32
-    RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
-    FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
-#elif __linux__
-    if (!context_.display || !mem_pixmap)
-    {
-        return;
-    }
-
-    xcb_rectangle_t rct = { 0,
-        0,
-        static_cast<uint16_t>(max_size.width()),
-        static_cast<uint16_t>(max_size.height()) };
-    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, pc.get_gc(background_color), 1, &rct);
-#endif
+    clear({ 0, 0, max_size.width(), max_size.height() });
 }
 
 void graphic::clear(const rect &position)
@@ -212,11 +198,15 @@ void graphic::clear(const rect &position)
         return;
     }
 
-    xcb_rectangle_t rct = { static_cast<int16_t>(position.left),
-        static_cast<int16_t>(position.top),
-        static_cast<uint16_t>(position.width()),
-        static_cast<uint16_t>(position.height()) };
-    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, pc.get_gc(background_color), 1, &rct);
+    auto cr = cairo_create(surface);
+
+    cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(background_color)) / 255,
+        static_cast<double>(wui::get_green(background_color)) / 255,
+        static_cast<double>(wui::get_blue(background_color)) / 255);
+    cairo_rectangle(cr, position.left, position.top, position.width(), position.height());
+    cairo_fill(cr);
+
+    cairo_destroy(cr);
 #endif
 }
 
@@ -281,9 +271,17 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
 
     SelectObject(mem_dc, old_pen);
 #elif __linux__
-    xcb_point_t polyline[] = { { static_cast<int16_t>(position.left), static_cast<int16_t>(position.top) },
-        { static_cast<int16_t>(position.right), static_cast<int16_t>(position.bottom) } };
-    xcb_poly_line(context_.connection, XCB_COORD_MODE_ORIGIN, mem_pixmap, pc.get_gc(color_), 2, polyline);
+    auto cr = cairo_create(surface);
+
+    cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(color_)) / 255,
+        static_cast<double>(wui::get_green(color_)) / 255,
+        static_cast<double>(wui::get_blue(color_)) / 255);
+    cairo_move_to(cr, position.left, position.top);
+    cairo_line_to(cr, position.right, position.bottom);
+    cairo_set_line_width (cr, width);
+    cairo_stroke(cr);
+
+    cairo_destroy(cr);
 #endif
 }
 
@@ -388,11 +386,15 @@ void graphic::draw_rect(const rect &position, color fill_color)
         std::swap(pos.top, pos.bottom);
     }
 
-    xcb_rectangle_t rct = { static_cast<int16_t>(pos.left),
-        static_cast<int16_t>(pos.top),
-        static_cast<uint16_t>(pos.width()),
-        static_cast<uint16_t>(pos.height()) };
-    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, pc.get_gc(fill_color), 1, &rct);
+    auto cr = cairo_create(surface);
+
+    cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(fill_color)) / 255,
+        static_cast<double>(wui::get_green(fill_color)) / 255,
+        static_cast<double>(wui::get_blue(fill_color)) / 255);
+    cairo_rectangle(cr, pos.left, pos.top, pos.width(), pos.height());
+    cairo_fill(cr);
+
+    cairo_destroy(cr);
 #endif
 }
 
@@ -409,17 +411,36 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
 
     SelectObject(mem_dc, old_pen);
 #elif __linux__
-    draw_rect(position, fill_color);
 
-    if (border_width != 0)
-    {
-        xcb_rectangle_t rct = { static_cast<int16_t>(position.left),
-                static_cast<int16_t>(position.top),
-                static_cast<uint16_t>(position.width() - 1),
-                static_cast<uint16_t>(position.height() - 1) };
+    auto cr = cairo_create(surface);
 
-        xcb_poly_rectangle(context_.connection, mem_pixmap, pc.get_gc(border_color), 1, &rct);
-    }
+    double x  = position.left,
+       y      = position.top,
+       width  = position.width(),
+       height = position.height();
+
+    double radius = rnd;
+    double degrees = M_PI / 180.0;
+
+    cairo_new_sub_path (cr);
+    cairo_arc (cr, x + width - radius, y + radius, radius, -90 * degrees, 0 * degrees);
+    cairo_arc (cr, x + width - radius, y + height - radius, radius, 0 * degrees, 90 * degrees);
+    cairo_arc (cr, x + radius, y + height - radius, radius, 90 * degrees, 180 * degrees);
+    cairo_arc (cr, x + radius, y + radius, radius, 180 * degrees, 270 * degrees);
+    cairo_close_path (cr);
+
+    cairo_set_source_rgb (cr, static_cast<double>(wui::get_red(fill_color)) / 255,
+        static_cast<double>(wui::get_green(fill_color)) / 255,
+        static_cast<double>(wui::get_blue(fill_color)) / 255);
+    cairo_fill_preserve (cr);
+    cairo_set_source_rgba (cr, static_cast<double>(wui::get_red(border_color)) / 255,
+        static_cast<double>(wui::get_green(border_color)) / 255,
+        static_cast<double>(wui::get_blue(border_color)) / 255, 0.5);
+    cairo_set_line_width (cr, border_width);
+    cairo_stroke (cr);
+
+    cairo_destroy(cr);
+
 #endif
 }
 
