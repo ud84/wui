@@ -350,8 +350,6 @@ void window::draw(graphic &gr, const rect &paint_rect)
 
     auto window_pos = position();
 
-    gr.draw_rect(window_pos, theme_color(tcn, tv_background, theme_));
-
     if (flag_is_set(window_style_, window_style::title_showed))
     {
         gr.draw_text({ window_pos.left + 5, window_pos.top + 5, 0, 0 },
@@ -360,7 +358,22 @@ void window::draw(graphic &gr, const rect &paint_rect)
             theme_font(tcn, tv_caption_font, theme_));
     }
 
-    draw_border(gr);
+    if (flag_is_set(window_style_, window_style::border_left) &&
+        flag_is_set(window_style_, window_style::border_top) &&
+        flag_is_set(window_style_, window_style::border_right) &&
+        flag_is_set(window_style_, window_style::border_bottom))
+    {
+        gr.draw_rect(window_pos, 
+            theme_color(tcn, tv_border, theme_),
+            theme_color(tcn, tv_background, theme_),
+            theme_dimension(tcn, tv_border_width, theme_),
+            theme_dimension(tcn, tv_round, theme_)
+        );
+    }
+    else
+    {
+        draw_border(gr);
+    }
 
     std::vector<std::shared_ptr<i_control>> topmost_controls;
     
@@ -1380,11 +1393,12 @@ void window::update_button_images()
 
 void window::update_buttons()
 {
-	auto border_width = flag_is_set(window_style_, window_style::border_top) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
+	auto border_height = flag_is_set(window_style_, window_style::border_top) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
+    auto border_width = flag_is_set(window_style_, window_style::border_right) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
 
     auto btn_size = 26;
-    auto left = position_.width() - btn_size - 1;
-    auto top = border_width;
+    auto left = position_.width() - btn_size - 1 - border_width;
+    auto top = border_height;
 
     if (flag_is_set(window_style_, window_style::close_button))
     {

@@ -5,6 +5,7 @@
       "background": "#131519",
       "border": "#404040",
       "border_width": 1,
+      "round": 5,
       "text": "#f5f5f0",
       "active_button": "#3b3d41",
       "caption_font": {
@@ -36,7 +37,7 @@
       "text": "#f0f1f1",
       "disabled": "#a5a5a0",
       "anchor": "#0066cc",
-      "round": 0,
+      "round": 4,
       "focusing": 1,
       "font": {
         "name": "Segoe UI",
@@ -50,7 +51,7 @@
       "border_width": 0,
       "text": "#f0f1f1",
       "disabled": "#131519",
-      "round": 0,
+      "round": 2,
       "focusing": 0,
       "font": {
         "name": "Segoe UI",
@@ -80,7 +81,7 @@
       "border": "#404040",
       "border_width": 1,
       "focused_border": "#8c8c8c",
-      "round": 0,
+      "round": 4,
       "font": {
         "name": "Segoe UI",
         "size": 18
@@ -100,7 +101,7 @@
       "scrollbar_slider_active": "#9e9e9e",
       "selected_item": "#9c9c9c",
       "active_item": "#43474f",
-      "round": 0,
+      "round": 4,
       "font": {
         "name": "Segoe UI",
         "size": 18
@@ -116,7 +117,7 @@
       "title_text": "#f0ebf0",
       "selected_item": "#9c9c9c",
       "active_item": "#43474f",
-      "round": 0,
+      "round": 4,
       "font": {
         "name": "Segoe UI",
         "size": 18
@@ -139,7 +140,7 @@
       "scrollbar_slider": "#686868",
       "scrollbar_slider_active": "#9e9e9e",
       "selected_item": "#333334",
-      "round": 0,
+      "round": 4,
       "font": {
         "name": "Segoe UI",
         "size": 18
@@ -151,7 +152,7 @@
       "border": "#f1f2f7",
       "border_width": 1,
       "text": "#061912",
-      "round": 0,
+      "round": 3,
       "text_indent": 3,
       "font": {
         "name": "Segoe UI",
