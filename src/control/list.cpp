@@ -65,12 +65,6 @@ void list::draw(graphic &gr, const rect &)
 
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
 
-    gr.draw_rect(control_pos,
-        !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
-        theme_color(tcn, tv_background, theme_),
-        border_width,
-        theme_dimension(tcn, tv_round, theme_));
-
     /// Create memory dc for inner content   
     system_context ctx = { 0 };
     auto parent__ = parent_.lock();
@@ -102,6 +96,12 @@ void list::draw(graphic &gr, const rect &)
     {
         vert_scroll->draw(gr, {});
     }
+
+    gr.draw_rect(control_pos,
+        !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
+        { theme_color(tcn, tv_background, theme_), 0 },
+        border_width,
+        theme_dimension(tcn, tv_round, theme_));
 }
 
 void list::receive_control_events(const event &ev)

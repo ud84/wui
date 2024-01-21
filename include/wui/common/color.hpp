@@ -38,4 +38,13 @@ static inline unsigned char get_blue(color rgb)
 	return rgb & 0xFF;
 }
 
+struct color_alpha
+{
+	color c;
+	unsigned char a;
+
+	color_alpha(color c_) : c(c_), a(255) {}
+	color_alpha(color c_, unsigned char a_) : c(c_), a(a_) {}
+};
+
 }

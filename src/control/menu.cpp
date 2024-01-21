@@ -458,7 +458,7 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect, li
 
     if (state == list::item_state::selected)
     {
-        gr.draw_rect({ item_rect.left, item_rect.top + 1, item_rect.right, item_rect.bottom - 1 }, theme_color(tcn, tv_selected_item));
+        gr.draw_rect({ item_rect.left, item_rect.top, item_rect.right, item_rect.bottom }, theme_color(tcn, tv_selected_item));
     }
     
     if (item->image_)

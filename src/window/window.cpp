@@ -350,26 +350,16 @@ void window::draw(graphic &gr, const rect &paint_rect)
 
     auto window_pos = position();
 
-    if (flag_is_set(window_style_, window_style::border_left) &&
-        flag_is_set(window_style_, window_style::border_top) &&
-        flag_is_set(window_style_, window_style::border_right) &&
-        flag_is_set(window_style_, window_style::border_bottom))
-    {
-        gr.draw_rect(window_pos, 
-            theme_color(tcn, tv_border, theme_),
-            theme_color(tcn, tv_background, theme_),
-            theme_dimension(tcn, tv_border_width, theme_),
-            theme_dimension(tcn, tv_round, theme_)
-        );
-    }
-    else
-    {
-        draw_border(gr);
-    }
+    gr.draw_rect(window_pos, 
+        theme_color(tcn, tv_background, theme_),
+        { theme_color(tcn, tv_background, theme_), 255 },
+        theme_dimension(tcn, tv_border_width, theme_),
+        theme_dimension(tcn, tv_round, theme_)
+    );
 
     if (flag_is_set(window_style_, window_style::title_showed))
     {
-        gr.draw_text({ window_pos.left + 5, window_pos.top + 5, 0, 0 },
+        gr.draw_text({ window_pos.left + 10, window_pos.top + 10, 0, 0 },
             caption,
             theme_color(tcn, tv_text, theme_),
             theme_font(tcn, tv_caption_font, theme_));
@@ -395,6 +385,23 @@ void window::draw(graphic &gr, const rect &paint_rect)
     for (auto &control : topmost_controls)
     {
         control->draw(gr, paint_rect);
+    }
+
+    if (flag_is_set(window_style_, window_style::border_left) &&
+        flag_is_set(window_style_, window_style::border_top) &&
+        flag_is_set(window_style_, window_style::border_right) &&
+        flag_is_set(window_style_, window_style::border_bottom))
+    {
+        gr.draw_rect(window_pos, 
+            theme_color(tcn, tv_border, theme_),
+            { theme_color(tcn, tv_background, theme_), 0 },
+            theme_dimension(tcn, tv_border_width, theme_),
+            theme_dimension(tcn, tv_round, theme_)
+        );
+    }
+    else
+    {
+        draw_border(gr);
     }
 }
 
@@ -1397,7 +1404,7 @@ void window::update_buttons()
     auto border_width = flag_is_set(window_style_, window_style::border_right) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
 
     auto btn_size = 26;
-    auto left = position_.width() - btn_size - 1 - border_width;
+    auto left = position_.width() - btn_size - (border_width * 2);
     auto top = border_height;
 
     if (flag_is_set(window_style_, window_style::close_button))
