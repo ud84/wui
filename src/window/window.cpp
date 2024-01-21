@@ -350,14 +350,6 @@ void window::draw(graphic &gr, const rect &paint_rect)
 
     auto window_pos = position();
 
-    if (flag_is_set(window_style_, window_style::title_showed))
-    {
-        gr.draw_text({ window_pos.left + 5, window_pos.top + 5, 0, 0 },
-            caption,
-            theme_color(tcn, tv_text, theme_),
-            theme_font(tcn, tv_caption_font, theme_));
-    }
-
     if (flag_is_set(window_style_, window_style::border_left) &&
         flag_is_set(window_style_, window_style::border_top) &&
         flag_is_set(window_style_, window_style::border_right) &&
@@ -373,6 +365,14 @@ void window::draw(graphic &gr, const rect &paint_rect)
     else
     {
         draw_border(gr);
+    }
+
+    if (flag_is_set(window_style_, window_style::title_showed))
+    {
+        gr.draw_text({ window_pos.left + 5, window_pos.top + 5, 0, 0 },
+            caption,
+            theme_color(tcn, tv_text, theme_),
+            theme_font(tcn, tv_caption_font, theme_));
     }
 
     std::vector<std::shared_ptr<i_control>> topmost_controls;

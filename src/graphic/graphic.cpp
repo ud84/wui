@@ -414,30 +414,51 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
 
     auto cr = cairo_create(surface);
 
-    double x  = position.left,
-       y      = position.top,
+    double l = position.left,
+       t     = position.top,
+       r     = position.right,
+       b     = position.bottom,
        width  = position.width(),
        height = position.height();
 
-    double radius = rnd;
-    double degrees = M_PI / 180.0;
+    cairo_new_sub_path(cr);
 
-    cairo_new_sub_path (cr);
-    cairo_arc (cr, x + width - radius, y + radius, radius, -90 * degrees, 0 * degrees);
-    cairo_arc (cr, x + width - radius, y + height - radius, radius, 0 * degrees, 90 * degrees);
-    cairo_arc (cr, x + radius, y + height - radius, radius, 90 * degrees, 180 * degrees);
-    cairo_arc (cr, x + radius, y + radius, radius, 180 * degrees, 270 * degrees);
-    cairo_close_path (cr);
+    if (rnd == 0)
+    {
+        cairo_move_to(cr, l, t);
+        cairo_line_to(cr, r, t);
+        cairo_line_to(cr, r, b);
+        cairo_line_to(cr, l, b);
+        cairo_line_to(cr, l, t);
+    }
+    else
+    {
+        l += border_width;
+        t += border_width;
+        width -= border_width * 2;
+        height -= border_width * 2;
+        
+        double radius = rnd;
+        double degrees = M_PI / 180.0;
+        
+        cairo_arc (cr, l + width - radius, t + radius, radius, -90 * degrees, 0 * degrees);
+        cairo_arc (cr, l + width - radius, t + height - radius, radius, 0 * degrees, 90 * degrees);
+        cairo_arc (cr, l + radius, t + height - radius, radius, 90 * degrees, 180 * degrees);
+        cairo_arc (cr, l + radius, t + radius, radius, 180 * degrees, 270 * degrees);
+    }
 
-    cairo_set_source_rgb (cr, static_cast<double>(wui::get_red(fill_color)) / 255,
+    cairo_close_path(cr);
+
+    cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(fill_color)) / 255,
         static_cast<double>(wui::get_green(fill_color)) / 255,
         static_cast<double>(wui::get_blue(fill_color)) / 255);
     cairo_fill_preserve (cr);
+
     cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(border_color)) / 255,
         static_cast<double>(wui::get_green(border_color)) / 255,
         static_cast<double>(wui::get_blue(border_color)) / 255);
-    cairo_set_line_width (cr, border_width);
-    cairo_stroke (cr);
+    cairo_set_line_width(cr, border_width);
+    cairo_stroke(cr);
 
     cairo_destroy(cr);
 
