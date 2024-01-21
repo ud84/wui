@@ -124,14 +124,12 @@ bool graphic::init(const rect &max_size_, color background_color_)
         max_size.height());
     if (!check_cookie(pixmap_create_cookie, context_.connection, err, "graphic::init() xcb_create_pixmap"))
     {
+        err.type = error_type::no_handle;
+        err.component = "graphic::init() xcb_create_pixmap";
+        err.message = "Can't create the x11 pixmap";
+
         return false;
     }
-
-    xcb_rectangle_t rct = { 0,
-        0,
-        static_cast<uint16_t>(max_size.width()),
-        static_cast<uint16_t>(max_size.height()) };
-    xcb_poly_fill_rectangle(context_.connection, mem_pixmap, pc.get_gc(background_color), 1, &rct);
 
     surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, default_visual_type(context_), max_size.width(), max_size.height());
     if (!surface)
@@ -142,6 +140,8 @@ bool graphic::init(const rect &max_size_, color background_color_)
 
         return false;
     }
+
+    clear(max_size_);
 #endif
 
     pc.init();
@@ -311,7 +311,7 @@ rect graphic::measure_text(std::string_view text_, const font &font__)
     {
         err.type = error_type::no_handle;
         err.component = "graphic::measure_text()";
-        err.message = "No cairo context";
+        err.message = "No cairo font context";
         return rect{ 0 };
     }
 
@@ -363,7 +363,7 @@ void graphic::draw_text(const rect &position, std::string_view text_, color colo
 
     cairo_move_to(cr, position.left, (double)position.top + font__.size * 5 / 6);
     
-    std::string text__(text_.begin(), text_.end()); /// Workaround o prevent crashes
+    std::string text__(text_); /// Workaround to prevent crashes
     text__ += '\0';
     
     cairo_show_text(cr, text__.c_str());
@@ -433,9 +433,9 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
         static_cast<double>(wui::get_green(fill_color)) / 255,
         static_cast<double>(wui::get_blue(fill_color)) / 255);
     cairo_fill_preserve (cr);
-    cairo_set_source_rgba (cr, static_cast<double>(wui::get_red(border_color)) / 255,
+    cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(border_color)) / 255,
         static_cast<double>(wui::get_green(border_color)) / 255,
-        static_cast<double>(wui::get_blue(border_color)) / 255, 0.5);
+        static_cast<double>(wui::get_blue(border_color)) / 255);
     cairo_set_line_width (cr, border_width);
     cairo_stroke (cr);
 
