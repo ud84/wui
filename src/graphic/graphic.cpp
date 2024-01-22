@@ -404,7 +404,7 @@ void graphic::draw_rect(const rect &position, color border_color, color_alpha fi
 #ifdef _WIN32
     auto old_pen = (HPEN)SelectObject(mem_dc, pc.get_pen(border_width != 0 ? PS_SOLID : PS_NULL, border_width, border_color));
 
-    auto old_brush = (HBRUSH)SelectObject(mem_dc, pc.get_brush(fill_color.c));
+    auto old_brush = (HBRUSH)SelectObject(mem_dc, fill_color.a != 0 ? pc.get_brush(fill_color.c) : GetStockObject(NULL_BRUSH));
 
     RoundRect(mem_dc, position.left, position.top, position.right, position.bottom, rnd, rnd);
 
