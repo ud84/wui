@@ -2428,7 +2428,7 @@ void window::process_events()
                     auto caption_font = theme_font(tcn, tv_caption_font, theme_);
 
                     auto caption_rect = graphic_.measure_text(caption, caption_font);
-                    caption_rect.move(5, 5);
+                    caption_rect.move(10, 5);
 
                     if (caption_rect.in(paint_rect))
                     {
