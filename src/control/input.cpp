@@ -536,7 +536,10 @@ void input::receive_control_events(const event &ev)
                 }
                 else if (ev.keyboard_event_.key[0] == 0x16) // ctrl + v
                 {
-                    return buffer_paste();
+                    if (input_view_ != input_view::readonly)
+                    {
+                        return buffer_paste();
+                    }
                 }
                 else if (ev.keyboard_event_.key[0] == 0x1)  // ctrl + a
                 {
@@ -544,10 +547,14 @@ void input::receive_control_events(const event &ev)
                 }
                 else if (ev.keyboard_event_.key[0] == 0x7f) // ctrl + backspace
                 {
-                    return set_text("");
+                    if (input_view_ != input_view::readonly)
+                    {
+                        return set_text("");
+                    }
                 }
 
-                if (input_view_ == input_view::readonly)
+                if (input_view_ == input_view::readonly ||
+                    ev.keyboard_event_.key[0] == vk_tab)
                 {
                     return;
                 }
