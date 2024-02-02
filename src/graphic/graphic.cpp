@@ -271,17 +271,9 @@ void graphic::draw_line(const rect &position, color color_, uint32_t width)
 
     SelectObject(mem_dc, old_pen);
 #elif __linux__
-    auto cr = cairo_create(surface);
-
-    cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(color_)) / 255,
-        static_cast<double>(wui::get_green(color_)) / 255,
-        static_cast<double>(wui::get_blue(color_)) / 255);
-    cairo_move_to(cr, position.left, position.top);
-    cairo_line_to(cr, position.right, position.bottom);
-    cairo_set_line_width (cr, width);
-    cairo_stroke(cr);
-
-    cairo_destroy(cr);
+    xcb_point_t polyline[] = { { static_cast<int16_t>(position.left), static_cast<int16_t>(position.top) },
+        { static_cast<int16_t>(position.right), static_cast<int16_t>(position.bottom) } };
+    xcb_poly_line(context_.connection, XCB_COORD_MODE_ORIGIN, mem_pixmap, pc.get_gc(color_), 2, polyline);
 #endif
 }
 
