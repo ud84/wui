@@ -416,6 +416,10 @@ void input::receive_control_events(const event &ev)
                 switch (ev.keyboard_event_.key[0])
                 {
                     case vk_left: case vk_nleft:
+                        if (ev.keyboard_event_.key[0] == vk_nleft && ev.keyboard_event_.modifier == vk_numlock)
+                        {
+                            return;
+                        }
                         if (cursor_position > 0)
                         {
                             auto prev_position = cursor_position;
@@ -430,6 +434,10 @@ void input::receive_control_events(const event &ev)
                         }
                     break;
                     case vk_right: case vk_nright:
+                        if (ev.keyboard_event_.key[0] == vk_nright && ev.keyboard_event_.modifier == vk_numlock)
+                        {
+                            return;
+                        }
                         if (cursor_position < text_.size())
                         {
                             auto prev_position = cursor_position;
