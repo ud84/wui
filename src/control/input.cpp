@@ -444,6 +444,10 @@ void input::receive_control_events(const event &ev)
                         }
                     break;
                     case vk_home: case vk_nhome:
+                        if (ev.keyboard_event_.key[0] == vk_nhome && ev.keyboard_event_.modifier == vk_numlock)
+                        {
+                            return;
+                        }
                         update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
                             ev.keyboard_event_.modifier == vk_rshift,
                             cursor_position, 0);
@@ -451,6 +455,10 @@ void input::receive_control_events(const event &ev)
                         redraw();
                     break;
                     case vk_end: case vk_nend:
+                        if (ev.keyboard_event_.key[0] == vk_nend && ev.keyboard_event_.modifier == vk_numlock)
+                        {
+                            return;
+                        }
                         if (!text_.empty())
                         {
                             update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||

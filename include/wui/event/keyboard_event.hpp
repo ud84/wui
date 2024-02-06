@@ -57,6 +57,7 @@ static const uint8_t vk_alt = 0x12;
 static const uint8_t vk_lcontrol = 0xA2;
 static const uint8_t vk_rcontrol = 0xA3;
 static const uint8_t vk_insert = 0x2D;
+static const uint8_t vk_numlock = 0x90;
 #elif __linux__
 static const uint8_t vk_tab = 0x17;
 static const uint8_t vk_return = 0x24;
@@ -92,6 +93,7 @@ static const uint8_t vk_alt = 0x40;
 static const uint8_t vk_lcontrol = 0x25;
 static const uint8_t vk_rcontrol = 0x69;
 static const uint8_t vk_insert = 0x76;
+static const uint8_t vk_numlock = 0x90;
 #endif
 
 struct keyboard_event

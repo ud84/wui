@@ -1905,6 +1905,10 @@ uint8_t get_key_modifier()
     {
         return vk_insert;
     }
+    else if (GetKeyState(VK_NUMLOCK) & 0x0001)
+    {
+        return vk_numlock;
+    }
     return 0;
 }
 
