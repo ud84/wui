@@ -93,7 +93,7 @@ static const uint8_t vk_alt = 0x40;
 static const uint8_t vk_lcontrol = 0x25;
 static const uint8_t vk_rcontrol = 0x69;
 static const uint8_t vk_insert = 0x76;
-static const uint8_t vk_numlock = 0x90;
+static const uint8_t vk_numlock = 0x4D;
 #endif
 
 struct keyboard_event
