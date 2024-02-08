@@ -2754,6 +2754,65 @@ void window::process_events()
                     ev_.detail == vk_down ||
                     ev_.detail == vk_ndown)
                 {
+                    XKeyboardState st;
+                    XGetKeyboardControl(context_.display, &st);
+                
+                    if (st.led_mask & 2 &&
+                        (
+                            ev_.detail == vk_nend ||
+                            ev_.detail == vk_ndown ||
+                            ev_.detail == vk_npage_down ||
+                            ev_.detail == vk_nright ||
+                            ev_.detail == vk_nleft ||
+                            ev_.detail == vk_nhome ||
+                            ev_.detail == vk_nup ||
+                            ev_.detail == vk_npage_up
+                        )
+                    )
+                    {
+                        event ev;
+                        ev.type = event_type::keyboard;
+                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, key_modifier, 0 };
+                        ev.keyboard_event_.key_size = 1;
+
+                        switch (ev_.detail)
+                        {
+                            case vk_nend:
+                                ev.keyboard_event_.key[0] = '1';
+                            break;
+                            case vk_ndown:
+                                ev.keyboard_event_.key[0] = '2';
+                            break;
+                            case vk_npage_down:
+                                ev.keyboard_event_.key[0] = '3';
+                            break;
+                            case vk_nleft:
+                                ev.keyboard_event_.key[0] = '4';
+                            break;
+                            case vk_nright:
+                                ev.keyboard_event_.key[0] = '6';
+                            break;
+                            case vk_nhome:
+                                ev.keyboard_event_.key[0] = '7';
+                            break;
+                            case vk_nup:
+                                ev.keyboard_event_.key[0] = '8';
+                            break;
+                            case vk_npage_up:
+                                ev.keyboard_event_.key[0] = '9';
+                            break;
+                            default: break;
+                        }
+
+                        auto control = get_focused();
+                        if (control)
+                        {
+                            send_event_to_control(control, ev);
+                        }
+                        send_event_to_plains(ev);
+                        
+                        continue;
+                    }
                     event ev;
                     ev.type = event_type::keyboard;
                     ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, key_modifier, 0 };
@@ -2806,7 +2865,8 @@ void window::process_events()
                     ev_.detail == vk_rshift ||
                     ev_.detail == vk_capital ||
                     ev_.detail == vk_alt ||
-                    ev_.detail == vk_insert)
+                    ev_.detail == vk_insert ||
+                    ev_.detail == vk_numlock)
                 {
                     key_modifier = 0;
                 }
