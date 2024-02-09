@@ -4,4 +4,8 @@
     <LocalDebuggerWorkingDirectory>$(ProjectDir)\x64\Debug</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug(v141_xp)|x64'">
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)\x64\Debug</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>
