@@ -26,18 +26,18 @@
 #include <iostream>
 
 MainFrame::MainFrame()
-    : window(new wui::window()),
+    : window(std::make_shared<wui::window>()),
     
-    mainSheet    (new wui::button(wui::locale("main_frame", "main_sheet_"),   [this](){ sheet = Sheet::Main;   UpdateSheets(); }, wui::button_view::sheet)),
-    windowSheet  (new wui::button(wui::locale("main_frame", "window_sheet_"), [this](){ sheet = Sheet::Window; UpdateSheets(); }, wui::button_view::sheet)),
-    buttonSheet  (new wui::button(wui::locale("main_frame", "button_sheet_"), [this](){ sheet = Sheet::Button; UpdateSheets(); }, wui::button_view::sheet)),
-    inputSheet   (new wui::button(wui::locale("main_frame", "input_sheet_"),  [this](){ sheet = Sheet::Input;  UpdateSheets(); }, wui::button_view::sheet)),
-    listSheet    (new wui::button(wui::locale("main_frame", "list_sheet_"),   [this](){ sheet = Sheet::List;   UpdateSheets(); }, wui::button_view::sheet)),
-    menuSheet    (new wui::button(wui::locale("main_frame", "menu_sheet_"),   [this](){ sheet = Sheet::Menu;   UpdateSheets(); }, wui::button_view::sheet)),
-    panelSheet   (new wui::button(wui::locale("main_frame", "other_sheet_"),  [this](){ sheet = Sheet::Others; UpdateSheets(); }, wui::button_view::sheet)),
+    mainSheet    (std::make_shared<wui::button>(wui::locale("main_frame", "main_sheet_"),   [this](){ sheet = Sheet::Main;   UpdateSheets(); }, wui::button_view::sheet)),
+    windowSheet  (std::make_shared<wui::button>(wui::locale("main_frame", "window_sheet_"), [this](){ sheet = Sheet::Window; UpdateSheets(); }, wui::button_view::sheet)),
+    buttonSheet  (std::make_shared<wui::button>(wui::locale("main_frame", "button_sheet_"), [this](){ sheet = Sheet::Button; UpdateSheets(); }, wui::button_view::sheet)),
+    inputSheet   (std::make_shared<wui::button>(wui::locale("main_frame", "input_sheet_"),  [this](){ sheet = Sheet::Input;  UpdateSheets(); }, wui::button_view::sheet)),
+    listSheet    (std::make_shared<wui::button>(wui::locale("main_frame", "list_sheet_"),   [this](){ sheet = Sheet::List;   UpdateSheets(); }, wui::button_view::sheet)),
+    menuSheet    (std::make_shared<wui::button>(wui::locale("main_frame", "menu_sheet_"),   [this](){ sheet = Sheet::Menu;   UpdateSheets(); }, wui::button_view::sheet)),
+    panelSheet   (std::make_shared<wui::button>(wui::locale("main_frame", "other_sheet_"),  [this](){ sheet = Sheet::Others; UpdateSheets(); }, wui::button_view::sheet)),
     
-    accountButton(new wui::button(wui::locale("main_frame", "account_btn"),   []() {}, wui::button_view::image, IMG_ACCOUNT, 32, wui::button::tc_tool)),
-    menuButton   (new wui::button(wui::locale("main_frame", "main_menu"),     []() {}, wui::button_view::image, IMG_MENU,    32, wui::button::tc_tool)),
+    accountButton(std::make_shared<wui::button>(wui::locale("main_frame", "account_btn"),   []() {}, wui::button_view::image, IMG_ACCOUNT, 32, wui::button::tc_tool)),
+    menuButton   (std::make_shared<wui::button>(wui::locale("main_frame", "main_menu"),     []() {}, wui::button_view::image, IMG_MENU,    32, wui::button::tc_tool)),
     
     sheet(Sheet::Main),
 

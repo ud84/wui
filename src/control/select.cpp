@@ -38,7 +38,7 @@ select::select(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     parent_(),
     my_control_sid(), my_plain_sid(),
     list_theme(make_custom_theme()),
-    list_(new list(list::tc, list_theme)),
+    list_(std::make_shared<list>(list::tc, list_theme)),
     showed_(true), enabled_(true), active(false), topmost_(false),
     focused_(false),
     focusing_(true),

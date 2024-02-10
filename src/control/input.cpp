@@ -40,7 +40,7 @@ input::input(std::string_view text__, input_view input_view__, std::string_view 
     parent_(),
     my_control_sid(), my_plain_sid(),
     timer_(std::bind(&input::redraw_cursor, this)),
-    menu_(new menu(menu::tc, theme_)),
+    menu_(std::make_shared<menu>(menu::tc, theme_)),
     showed_(true), enabled_(true), topmost_(false),
     focused_(false),
     cursor_visible(false),

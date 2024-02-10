@@ -24,7 +24,7 @@ static std::shared_ptr<i_config> instance = nullptr;
 bool use_ini_file(std::string_view file_name)
 {
     instance.reset();
-    instance = std::shared_ptr<i_config>(new config_impl_ini(file_name));
+    instance = std::make_shared<config_impl_ini>(file_name);
 
     return instance->get_error().is_ok();
 }
@@ -32,7 +32,7 @@ bool use_ini_file(std::string_view file_name)
 bool use_registry(std::string_view app_key, HKEY root)
 {
     instance.reset();
-    instance = std::shared_ptr<i_config>(new config_impl_reg(app_key, root));
+    instance = std::make_shared<config_impl_reg>(app_key, root);
 
     return instance->get_error().is_ok();
 }

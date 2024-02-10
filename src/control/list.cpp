@@ -34,7 +34,7 @@ list::list(std::string_view theme_control_name_, std::shared_ptr<i_theme> theme_
     item_count(0), selected_item_(0), active_item_(-1),
     title_height(-1),
     scroll_area(0),
-    vert_scroll(new scroll(0, 0, orientation::vertical, std::bind(&list::on_scroll, this, std::placeholders::_1, std::placeholders::_2), scroll::tc, theme__)),
+    vert_scroll(std::make_shared<scroll>(0, 0, orientation::vertical, std::bind(&list::on_scroll, this, std::placeholders::_1, std::placeholders::_2), scroll::tc, theme__)),
     draw_callback(),
     item_height_callback(),
     item_change_callback(),

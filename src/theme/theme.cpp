@@ -24,7 +24,7 @@ static std::vector<uint8_t> dummy_image;
 bool set_default_theme_from_resource(std::string_view name, int32_t resource_index, std::string_view resource_section)
 {
     instance.reset();
-    instance = std::shared_ptr<i_theme>(new theme_impl(name));
+    instance = std::make_shared<theme_impl>(name);
     instance->load_resource(resource_index, resource_section);
 
     return instance->get_error().is_ok();
@@ -34,7 +34,7 @@ bool set_default_theme_from_resource(std::string_view name, int32_t resource_ind
 bool set_default_theme_from_json(std::string_view name, std::string_view json)
 {
     instance.reset();
-    instance = std::shared_ptr<i_theme>(new theme_impl(name));
+    instance = std::make_shared<theme_impl>(name);
     instance->load_json(json);
 
     return instance->get_error().is_ok();
@@ -43,7 +43,7 @@ bool set_default_theme_from_json(std::string_view name, std::string_view json)
 bool set_default_theme_from_file(std::string_view name, std::string_view file_name)
 {
     instance.reset();
-    instance = std::shared_ptr<i_theme>(new theme_impl(name));
+    instance = std::make_shared<theme_impl>(name);
     instance->load_file(file_name);
 
     return instance->get_error().is_ok();
@@ -52,7 +52,7 @@ bool set_default_theme_from_file(std::string_view name, std::string_view file_na
 void set_default_theme_empty(std::string_view name)
 {
     instance.reset();
-    instance = std::shared_ptr<i_theme>(new theme_impl(name));
+    instance = std::make_shared<theme_impl>(name);
 }
 
 bool set_default_theme_from_name(std::string_view name, error &err)
@@ -85,12 +85,12 @@ std::shared_ptr<i_theme> get_default_theme()
 
 std::shared_ptr<i_theme> make_custom_theme(std::string_view name)
 {
-    return std::shared_ptr<i_theme>(new theme_impl(name));
+    return std::make_shared<theme_impl>(name);
 }
 
 std::shared_ptr<i_theme> make_custom_theme(std::string_view name, std::string_view json)
 {
-    auto ct = std::shared_ptr<i_theme>(new theme_impl(name));
+    auto ct = std::make_shared<theme_impl>(name);
     ct->load_json(json);
     return ct;
 }

@@ -26,12 +26,12 @@ message::message(std::shared_ptr<wui::window> transient_window__,
     result_callback(),
     transient_window_(transient_window__), docked_(docked__),
     theme_(theme__),
-	window_(new window(window::tc, theme_)),
-    icon(new image(theme_image("message_info", theme_))),
-    text_(new text("", hori_alignment::left, vert_alignment::top, text::tc, theme_)),
-    button0(new button("", std::bind(&message::button0_click, this), button::tc, theme_)),
-    button1(new button("", std::bind(&message::button1_click, this), button::tc, theme_)),
-    button2(new button("", std::bind(&message::button2_click, this), button::tc, theme_)),
+	window_(std::make_shared<window>(window::tc, theme_)),
+    icon(std::make_shared<image>(theme_image("message_info", theme_))),
+    text_(std::make_shared<text>("", hori_alignment::left, vert_alignment::top, text::tc, theme_)),
+    button0(std::make_shared<button>("", std::bind(&message::button0_click, this), button::tc, theme_)),
+    button1(std::make_shared<button>("", std::bind(&message::button1_click, this), button::tc, theme_)),
+    button2(std::make_shared<button>("", std::bind(&message::button2_click, this), button::tc, theme_)),
     result_(message_result::undef)
 {
     window_->set_transient_for(transient_window_, docked_);

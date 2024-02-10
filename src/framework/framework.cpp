@@ -53,11 +53,11 @@ void run()
         return;
     }
 #ifdef _WIN32
-    instance = std::shared_ptr<i_framework>(new framework_win_impl());
+    instance = std::make_shared<framework_win_impl>();
 #elif __linux__
-    instance = std::shared_ptr<i_framework>(new framework_lin_impl());
+    instance = std::make_shared<framework_lin_impl>();
 #elif __APPLE__
-    instance = std::shared_ptr<i_framework>(new framework_mac_impl());
+    instance = std::make_shared<framework_mac_impl>();
 #endif
 
     instance->run();

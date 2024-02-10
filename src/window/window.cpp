@@ -150,12 +150,12 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     close_callback(),
     control_callback(),
     default_push_control(),
-	switch_lang_button(new button(locale(tcn, cl_switch_lang), std::bind(&window::switch_lang, this), button_view::image, theme_image(ti_switch_lang), 24, button::tc_tool)),
-    switch_theme_button(new button(locale(tcn, cl_light_theme), std::bind(&window::switch_theme, this), button_view::image, theme_image(ti_switch_theme), 24, button::tc_tool)),
-    pin_button(new button(locale(tcn, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24, button::tc_tool)),
-    minimize_button(new button("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24, button::tc_tool)),
-    expand_button(new button("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24, button::tc_tool)),
-    close_button(new button("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24, button::tc_tool_red)),
+	switch_lang_button(std::make_shared<button>(locale(tcn, cl_switch_lang), std::bind(&window::switch_lang, this), button_view::image, theme_image(ti_switch_lang), 24, button::tc_tool)),
+    switch_theme_button(std::make_shared<button>(locale(tcn, cl_light_theme), std::bind(&window::switch_theme, this), button_view::image, theme_image(ti_switch_theme), 24, button::tc_tool)),
+    pin_button(std::make_shared<button>(locale(tcn, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24, button::tc_tool)),
+    minimize_button(std::make_shared<button>("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24, button::tc_tool)),
+    expand_button(std::make_shared<button>("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24, button::tc_tool)),
+    close_button(std::make_shared<button>("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24, button::tc_tool_red)),
 #ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__

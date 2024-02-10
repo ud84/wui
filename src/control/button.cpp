@@ -27,7 +27,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     caption(caption_),
     image_(),
     image_size(0),
-    tooltip_(new tooltip(caption_, tooltip::tc, theme__)),
+    tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
@@ -48,10 +48,10 @@ std::shared_ptr<image> get_button_image(button_view button_view_, std::shared_pt
     switch (button_view_)
     {
         case button_view::switcher:
-            return std::shared_ptr<image>(new image(theme_image(button::ti_switcher_on, theme_)));
+            return std::make_shared<image>(theme_image(button::ti_switcher_on, theme_));
         break;
         case button_view::radio:
-            return std::shared_ptr<image>(new image(theme_image(button::ti_radio_on, theme_)));
+            return std::make_shared<image>(theme_image(button::ti_radio_on, theme_));
         break;
         default:
             return nullptr;
@@ -64,7 +64,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     caption(caption_),
     image_(get_button_image(button_view__, theme__)),
     image_size(0),
-    tooltip_(new tooltip(caption_, tooltip::tc, theme__)),
+    tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
@@ -85,9 +85,9 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
 button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, int32_t image_resource_index_, int32_t image_size_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
-    image_(new image(image_resource_index_, theme__)),
+    image_(std::make_shared<image>(image_resource_index_, theme__)),
     image_size(image_size_),
-    tooltip_(new tooltip(caption_, tooltip::tc, theme__)),
+    tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
@@ -107,9 +107,9 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
 button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, std::string_view imageFileName_, int32_t image_size_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
-    image_(new image(imageFileName_, theme__)),
+    image_(std::make_shared<image>(imageFileName_, theme__)),
     image_size(image_size_),
-    tooltip_(new tooltip(caption_, tooltip::tc, theme__)),
+    tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
@@ -128,9 +128,9 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
 button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::vector<uint8_t> &image_data, int32_t image_size_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
-    image_(new image(image_data)),
+    image_(std::make_shared<image>(image_data)),
     image_size(image_size_),
-    tooltip_(new tooltip(caption_, tooltip::tc, theme__)),
+    tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
@@ -593,7 +593,7 @@ void button::set_image(int32_t resource_index)
     }
     else
     {
-        image_ = std::shared_ptr<image>(new image(resource_index));
+        image_ = std::make_shared<image>(resource_index);
     }
 
     update_err("button::set_image[from resource]", image_->get_error());
@@ -609,7 +609,7 @@ void button::set_image(std::string_view file_name)
     }
     else
     {
-        image_ = std::shared_ptr<image>(new image(file_name));
+        image_ = std::make_shared<image>(file_name);
     }
     
     update_err("button::set_image[from file]", image_->get_error());
@@ -624,7 +624,7 @@ void button::set_image(const std::vector<uint8_t> &image_data)
     }
     else
     {
-        image_ = std::shared_ptr<image>(new image(image_data));
+        image_ = std::make_shared<image>(image_data);
     }
 
     update_err("button::set_image[from data]", image_->get_error());

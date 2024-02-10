@@ -15,7 +15,7 @@
 
 MainSheet::MainSheet()
     : 
-    mainSiteAnchor(new wui::button(wui::about::web, [](){ wui::open_uri(wui::about::web); }, wui::button_view::anchor))
+    mainSiteAnchor(std::make_shared<wui::button>(wui::about::web, [](){ wui::open_uri(wui::about::web); }, wui::button_view::anchor))
 {
     auto e = logoImage->get_error();
     if (!e.is_ok())

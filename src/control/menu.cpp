@@ -70,7 +70,7 @@ menu_item *get_item(menu_items_t &items, int32_t n_item, int32_t pos = 0, int32_
 
 menu::menu(std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : list_theme(make_custom_theme()),
-    list_(new list(list::tc, list_theme)),
+    list_(std::make_shared<list>(list::tc, list_theme)),
     tcn(theme_control_name),
     theme_(theme__),
     position_(),
