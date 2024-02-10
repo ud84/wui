@@ -1548,14 +1548,7 @@ void window::send_system(system_event_type type, int32_t x, int32_t y)
 
 std::shared_ptr<window> window::get_transient_window()
 {
-    auto transient_window_ = transient_window.lock();
-
-    while (transient_window_ && transient_window_->parent_.lock() != nullptr)
-    {
-        transient_window_ = transient_window_->parent_.lock();
-    }
-
-    return transient_window_;
+    return transient_window.lock();
 }
 
 bool window::init(std::string_view caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_)
