@@ -383,7 +383,9 @@ int main(int argc, char *argv[])
 
     auto dialog = std::make_shared<wui::window>();
 
-    auto okButton = std::make_shared<wui::button>("OK", [window, &dialog]()
+    auto messageBox = std::make_shared<wui::message>(dialog);
+
+    auto okButton = std::make_shared<wui::button>("OK", [&messageBox, &window, &dialog]()
     {
         auto input1 = std::make_shared<wui::input>();
         dialog->add_control(input1, { 10, 35, 200, 60 });
@@ -403,8 +405,14 @@ int main(int argc, char *argv[])
 
         dialog->add_control(list1, { 10, 245, 200, 400 });
 
+        auto dialogMsgButton = std::make_shared<wui::button>("Test message", [&]() {
+                messageBox->show("Test message",
+                "Test title", wui::message_icon::information, wui::message_button::ok);
+            });
+        dialog->add_control(dialogMsgButton, { 10, 410, 100, 435 });
+
         auto dialogCloseButton = std::make_shared<wui::button>("Close", [&dialog]() { dialog->destroy(); });
-        dialog->add_control(dialogCloseButton, { 10, 410, 100, 435 });
+        dialog->add_control(dialogCloseButton, { 110, 410, 210, 435 });
         dialog->set_default_push_control(dialogCloseButton);
 
         dialog->set_transient_for(window);
