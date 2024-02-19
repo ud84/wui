@@ -1,5 +1,7 @@
 site_name: WUI
 
+theme: material
+
 nav:
   - Home: 'index.md'
   - Manuals:

@@ -24,7 +24,7 @@ WUI is an attempt to make as easy to use cross-platform library as possible for 
 
 ## How it works
 
-![system](https://ud84.github.io/wui/doc/en/img/system.png)
+![UI framework principals](https://ud84.github.io/wui/doc/en/img/system.png)
 
 Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
 
@@ -52,8 +52,8 @@ Email: info@libwui.org
 
 ## Example screenshot (Video call application)
 
-![alt text](https://libwui.org/main/img/screenshoot-1.png)
-![alt text](https://libwui.org/main/img/screenshoot-2.png)
+![WUI screen 1](https://libwui.org/main/img/screenshoot-1.png)
+![WUI screen 2](https://libwui.org/main/img/screenshoot-2.png)
 
 ## Donate ❤️
 

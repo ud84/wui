@@ -45,4 +45,4 @@
     anchor
     sheet
 
-<img src="../../img/button.png">
+![WUI button control](../img/button.png)

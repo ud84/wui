@@ -18,7 +18,7 @@ WUI is an attempt to make an easy to use and as fast as possible cross-platform 
 
 ## General scheme of the framework
 
-<img src="img/system.png">
+![WUI system principals](../img/system.png)
 
 Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
 

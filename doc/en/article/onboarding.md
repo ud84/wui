@@ -30,7 +30,7 @@ In the end, it was decided to make a minimal UI framework for this project, and 
 - Have a user-friendly interface for working with application configs. Windows registry and ini files are supported. Naturally, with the possibility of modification.
 
 ## General scheme of the framework
-<img src="../img/system.png">
+[System](../img/system.png)
 
 Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
 
@@ -414,10 +414,10 @@ Shows the use of theme, locale and config, in an application that has two color 
 [main.cpp](https://github.com/ud84/wui/blob/main/examples/hello_world/hw.cpp)
 
 The demo application shows the logo, displays a caption and provides an input field. When the button is clicked, a message box is displayed and the application is closed. It also shows tracking of the user closing the window and displaying a confirmation message.
-<img src="../img/hw0.png">
+![Hellow world 1](../img/hw0.png)
 
 In the following screenshot, the theme is changed to light, the language to Russian and the "Nice to meet you" button is pressed
-<img src="../img/hw1.png">
+![Hellow world 2](../img/hw1.png)
 
 [MainFrame.h](https://github.com/ud84/wui/blob/main/examples/hello_world/MainFrame/MainFrame.h)
 [MainFrame.cpp](https://github.com/ud84/wui/blob/main/examples/hello_world/MainFrame/MainFrame.cpp)
@@ -445,7 +445,7 @@ A button can be of the following types:
     anchor
     sheet
 
-<img src="../img/button.png">
+![WUI Button control](../img/button.png)
 
 ### image
 
@@ -495,7 +495,7 @@ Thus, replacing the IMAGES_DARK / IMAGES_LIGHT group causes the same effect as w
 
 ### input
 
-<img src="../img/input.png">
+![WUI Input control](../img/input.png)
 
 This control implements a standard input field. Since the implementation is custom, at the moment there is no Undo / Redo, but in the future there should be spell checking, hints, validation.
 
@@ -503,19 +503,19 @@ This control implements a standard input field. Since the implementation is cust
 
 Vertical list of items with scrolling. Items are rendered by custom code via callback. It is possible to create items with different heights. It can be used to make a chat room, a table to the database, basically any list.
 
-<img src="../img/list0.png">
+![WUI List control](../img/list0.png)
 A chatroom example
 
-<img src="../img/list1.png">
+![Another WUI List control](../img/list1.png)
 User's list example
 
 ### menu
 
-<img src="../img/menu0.png">
+![WUI Menu control](../img/menu0.png)
 
 Menus are ribbon menus, with no side branches. Attachments expand downward, lengthening the menu.
 
-<img src="../img/menu1.png">
+![Another WUI Menu control](../img/menu1.png)
 
 The menu is set in a declarative style, vector, internally done on a list
 
@@ -540,7 +540,7 @@ The menu is set in a declarative style, vector, internally done on a list
 
 ### message
 
-<img src="../img/message0.png">
+![WUI message box control](../img/message0.png)
 
 It has standard sets of buttons and icons presented in the enumerations message_icon, message_button and message_result. When using it, there is one peculiarity that will seem unusual at first, namely, the call to message::show() does not block the calling thread. Therefore, getting the ID of the pressed button is done in a callback.
 
@@ -556,19 +556,19 @@ Example:
 
 ### panel
 
-<img src="../img/panel.png">
+![WUI panel control](../img/panel.png)
 
 A simple control to draw a rectangle of theme color on a window.
 
 ### progress
 
-<img src="../img/progress.png">
+![WUI progress bar control](../img/progress.png)
 
 A simple progress bar
 
 ### select
 
-<img src="../img/select.png">
+![WUI select control](../img/select.png)
 
 A drop-down list, aka combo box. It has no editor, i.e. it works only for selecting from the available ones. It is also implemented on list.
 
@@ -576,25 +576,25 @@ A drop-down list, aka combo box. It has no editor, i.e. it works only for select
 ### slider
 Aka "volume control". Like progress can be horizontal and vertical.
 
-<img src="../img/slider.png">
+![WUI slider control](../img/slider.png)
 
 Here text, slider and button
 
 ### splitter
 
-<img src="../img/splitter.png">
+![WUI splitter control](../img/splitter.png)
 
 Used to resize internal windows or panels.
 
 ### text
 
-<img src="../img/text.png">
+![WUI text control](../img/text.png)
 
 Text string. Allows you to set the text alignment and put a full stop if the text does not fit in the area.
 
 ### tooltip
 
-<img src="../img/tooltip.png">
+![WUI tooltip control](../img/tooltip.png)
 
 ### trayicon
 

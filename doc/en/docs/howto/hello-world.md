@@ -66,11 +66,11 @@ Shows the use of theme, locale, and config, in an application that has two color
 
 The demo application shows the logo, displays a caption and provides an input field. When the button is clicked, a message box is displayed and the application is closed. It also shows tracking of the user closing the window and displaying a confirmation message.
 
-<img src="../../img/hw0.png">
+![WUI hello world app](../img/hw0.png)
 
 In the following screenshot, the theme is changed to light, the language to Russian and the "Nice to meet you" button is pressed
 
-<img src="../../img/hw1.png">
+![WUI hello world app another view](../img/hw1.png)
 
 ## MainFrame.h
 
