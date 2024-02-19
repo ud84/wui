@@ -18,7 +18,7 @@ WUI is an attempt to make an easy to use and as fast as possible cross-platform 
 
 ## General scheme of the framework
 
-![WUI system principals](../img/system.png)
+![WUI system principals](img/system.png)
 
 Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
 
@@ -56,7 +56,7 @@ When it is necessary to draw a part of the window, we search for controls fallin
 
 * [Receive, build and setup](howto/setup.md)
 * [Hello world application](howto/hello-world.md)
-* [Onboarding](../article/onboarding.md)
+* [Onboarding](article/onboarding.md)
 
 ## Handbook
 

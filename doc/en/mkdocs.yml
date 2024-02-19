@@ -4,6 +4,8 @@ theme: material
 
 nav:
   - Home: 'index.md'
+  - Onboarding:
+    - Article: 'article/onboarding.md'
   - Manuals:
     - Installation: 'howto/setup.md'
     - Hello world: 'howto/hello-world.md'
