@@ -146,7 +146,10 @@ void update_control_position(rect &control_position,
             int32_t max_right = prev_position.right > control_position.right ? prev_position.right : control_position.right;
             int32_t max_bottom = prev_position.bottom > control_position.bottom ? prev_position.bottom : control_position.bottom;
 
-            parent_->redraw({ min_left, min_top, max_right, max_bottom}, true);
+            parent_->redraw({ min_left,
+                min_top,
+                max_right,
+                max_bottom }, true);
         }
     }
 }
