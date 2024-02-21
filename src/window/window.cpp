@@ -982,6 +982,9 @@ void set_wm_name(system_context &context_, std::string_view caption)
     xcb_icccm_set_wm_icon_name(context_.connection, context_.wnd,
         XCB_ATOM_STRING, 8,
         caption.size(), caption.data());
+
+    std::string class_hint = std::string(caption) + '\0' + std::string(caption) + '\0';
+    xcb_icccm_set_wm_class(context_.connection, context_.wnd, class_hint.size(), class_hint.c_str());
 }
 #endif
 
@@ -994,12 +997,9 @@ void window::set_caption(std::string_view caption_)
 #ifdef _WIN32
         SetWindowText(context_.hwnd, boost::nowide::widen(caption).c_str());
 #elif __linux__
-        if (context_.connection)
+        if (context_.connection && context_.wnd)
         {
             set_wm_name(context_, caption_);
-
-            std::string class_hint = caption + '\0' + caption + '\0';
-            xcb_icccm_set_wm_class(context_.connection, context_.wnd, class_hint.size(), class_hint.c_str());
         }
 #endif
         redraw({ 0, 0, position_.width(), 30 }, true);
@@ -1763,9 +1763,6 @@ bool window::init(std::string_view caption_, const rect &position__, window_styl
     }
 
     set_wm_name(context_, caption_);
-
-    std::string class_hint = caption + '\0' + caption + '\0';
-    xcb_icccm_set_wm_class(context_.connection, context_.wnd, class_hint.size(), class_hint.c_str());
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd, wm_protocols_event, 4, 32, 1, &wm_delete_msg);
 

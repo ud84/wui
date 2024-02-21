@@ -512,7 +512,7 @@ int main(int argc, char *argv[])
 
     window->set_default_push_control(okButton);
 
-    window->init("Hello from WUI :*", { -1, -1, 900, 600 },
+    window->init("Hello from WUI!", { -1, -1, 900, 600 },
         wui::flags_map<wui::window_style>(3, wui::window_style::frame, wui::window_style::switch_theme_button, wui::window_style::border_all),
         []() {
             wui::framework::stop();
