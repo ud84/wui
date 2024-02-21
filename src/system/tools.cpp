@@ -141,18 +141,12 @@ void update_control_position(rect &control_position,
         auto parent_ = parent.lock();
         if (parent_)
         {
-            if (parent_->parent().lock() != nullptr)
-            {
-                prev_position.move(parent_->position().left, parent_->position().top);
-            }
-            parent_->redraw(prev_position, true);
+            int32_t min_left = prev_position.left < control_position.left ? prev_position.left : control_position.left;
+            int32_t min_top = prev_position.top < control_position.top ? prev_position.top : control_position.top;
+            int32_t max_right = prev_position.right > control_position.right ? prev_position.right : control_position.right;
+            int32_t max_bottom = prev_position.bottom > control_position.bottom ? prev_position.bottom : control_position.bottom;
 
-            auto new_position = control_position;
-            if (parent_->parent().lock() != nullptr)
-            {
-                new_position.move(parent_->position().left, parent_->position().top);
-            }
-            parent_->redraw(new_position);
+            parent_->redraw({ min_left, min_top, max_right, max_bottom}, true);
         }
     }
 }

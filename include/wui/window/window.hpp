@@ -229,7 +229,8 @@ private:
         net_wm_state_skip_taskbar,
         net_active_window,
         net_wm_state_fullscreen,
-        net_wm_state_maximized_vert, net_wm_state_maximized_horz;
+        net_wm_state_maximized_vert, net_wm_state_maximized_horz,
+        net_wm_moveresize;
 
     time_t prev_button_click;
 
