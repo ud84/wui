@@ -166,7 +166,7 @@ private:
     std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
-    bool showed_, enabled_;
+    bool showed_, enabled_, skip_draw_;
 
     size_t focused_index;
 

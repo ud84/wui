@@ -138,7 +138,7 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     window_state_(window_state::normal), prev_window_state_(window_state_),
     tcn(theme_control_name),
     theme_(theme_),
-    showed_(true), enabled_(true),
+    showed_(true), enabled_(true), skip_draw_(false),
     focused_index(0),
     parent_(),
     my_control_sid(), my_plain_sid(),
@@ -257,7 +257,7 @@ void window::move_to_back(std::shared_ptr<i_control> control)
 
 void window::redraw(const rect &redraw_position, bool clear)
 {
-    if (redraw_position.is_null())
+    if (redraw_position.is_null() || skip_draw_)
     {
         return;
     }
@@ -534,9 +534,10 @@ void window::set_position(const rect &position__, bool redraw_)
         redraw({ 0, 0, position___.width(), position___.height() }, true);
     }
 
-    if (parent_.lock())
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        auto parent_pos = parent_.lock()->position();
+        auto parent_pos = parent__->position();
 
         auto left = position___.left;
         if (left == -1)
@@ -549,15 +550,28 @@ void window::set_position(const rect &position__, bool redraw_)
             top = (parent_pos.height() - position___.height()) / 2;
         }
 
-        position___ = { left, top, left + position___.width(), top + position___.height() };
+        position_ = { left, top, left + position___.width(), top + position___.height() };
 
-        update_control_position(position_, position___, showed_ && redraw_, parent_);
+        //update_control_position(position_, position___, showed_ && redraw_, parent_);
 
+        skip_draw_ = true;
         send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
         if (old_position.width() != position_.width())
         {
             update_buttons();
+        }
+        skip_draw_ = false;
+
+        if (showed_ && redraw_)
+        {
+            rect update_field {
+                old_position.left < position_.left ? old_position.left : position_.left,
+                old_position.top < position_.top ? old_position.top : position_.top,
+                old_position.right > position_.right ? old_position.right : position_.right,
+                old_position.bottom > position_.bottom ? old_position.bottom : position_.bottom
+            };
+            parent__->redraw(update_field, true);
         }
     }
 }
