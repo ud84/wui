@@ -27,7 +27,7 @@ namespace wui
     position_(),
     parent_(),
     my_control_sid(), my_plain_sid(),
-    showed_(true), enabled_(true), active(false), topmost_(false)
+    showed_(true), enabled_(true), active(false), topmost_(false), no_redraw(false)
 {
 }
 
@@ -155,7 +155,7 @@ void splitter::receive_plain_events(const event &ev)
 
 void splitter::set_position(const rect &position__, bool redraw)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    update_control_position(position_, position__, showed_ && redraw && !no_redraw, parent_);
 }
 
 rect splitter::position() const
@@ -283,6 +283,11 @@ void splitter::set_margins(int32_t min_, int32_t max_)
 {
     margin_min = min_;
     margin_max = max_;
+}
+
+void splitter::set_no_redraw(bool yes)
+{
+    no_redraw = yes;
 }
 
 void splitter::redraw()

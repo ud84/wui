@@ -69,6 +69,8 @@ public:
 
     void set_margins(int32_t min_, int32_t max_);
 
+    void set_no_redraw(bool yes); /// To increase performance
+
 public:
     /// Control name in theme
     static constexpr const char *tc = "splitter";
@@ -90,7 +92,7 @@ private:
     std::weak_ptr<window> parent_;
     std::string my_control_sid, my_plain_sid;
 
-    bool showed_, enabled_, active, topmost_;
+    bool showed_, enabled_, active, topmost_, no_redraw;
 
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);

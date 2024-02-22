@@ -552,8 +552,6 @@ void window::set_position(const rect &position__, bool redraw_)
 
         position_ = { left, top, left + position___.width(), top + position___.height() };
 
-        //update_control_position(position_, position___, showed_ && redraw_, parent_);
-
         skip_draw_ = true;
         send_internal(internal_event_type::size_changed, position_.width(), position_.height());
 
