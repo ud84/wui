@@ -270,7 +270,10 @@ void window::redraw(const rect &redraw_position, bool clear)
     else
     {
 #ifdef _WIN32
-        RECT invalidatingRect = { redraw_position.left, redraw_position.top, redraw_position.right, redraw_position.bottom };
+        RECT invalidatingRect = { redraw_position.left > 0 ? redraw_position.left : 0,
+            redraw_position.top > 0 ? redraw_position.top : 0,
+            redraw_position.right > 0 ? redraw_position.right : 0,
+            redraw_position.bottom > 0 ? redraw_position.bottom : 0 };
         InvalidateRect(context_.hwnd, &invalidatingRect, clear ? TRUE : FALSE);
 #elif __linux__
         if (context_.connection)
@@ -279,10 +282,10 @@ void window::redraw(const rect &redraw_position, bool clear)
 
             event.window = context_.wnd;
             event.response_type = XCB_EXPOSE;
-            event.x = redraw_position.left;
-            event.y = redraw_position.top;
-            event.width = redraw_position.width();
-            event.height = redraw_position.height();
+            event.x = redraw_position.left > 0 ? redraw_position.left : 0;
+            event.y = redraw_position.top > 0 ? redraw_position.top : 0;
+            event.width = redraw_position.width() > 0 ? redraw_position.width() : 0;
+            event.height = redraw_position.height() > 0 ? redraw_position.height() : 0;
             event.pad0 = clear ? 1 : 0;
 
             xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_EXPOSURE, (const char*)&event);
