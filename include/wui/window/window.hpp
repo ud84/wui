@@ -110,6 +110,11 @@ public:
     void normal();
     window_state state() const;
 
+    /// Disabling draw for increase performance on mass operations
+    void disable_draw();
+    void enable_draw();
+    bool draw_enabled() const;
+
     /// Emit event methods
     void emit_event(int32_t x, int32_t y);
     

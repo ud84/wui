@@ -265,7 +265,10 @@ void window::redraw(const rect &redraw_position, bool clear)
     auto parent__ = parent_.lock();
     if (parent__)
     {
-        parent__->redraw(redraw_position, clear);
+        auto update_pos = redraw_position;
+        auto wnd_pos = position();
+        update_pos.move(wnd_pos.left, wnd_pos.top);
+        parent__->redraw(update_pos, clear);
     }
     else
     {
@@ -1084,6 +1087,21 @@ void window::end_docking()
     enabled_ = true;
 
     docked_control.reset();
+}
+
+void window::disable_draw()
+{
+    skip_draw_ = true;
+}
+
+void window::enable_draw()
+{
+    skip_draw_ = false;
+}
+
+bool window::draw_enabled() const
+{
+    return !skip_draw_;
 }
 
 void window::emit_event(int32_t x, int32_t y)
