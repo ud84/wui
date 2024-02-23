@@ -265,10 +265,7 @@ void window::redraw(const rect &redraw_position, bool clear)
     auto parent__ = parent_.lock();
     if (parent__)
     {
-        auto update_pos = redraw_position;
-        auto wnd_pos = position();
-        update_pos.move(wnd_pos.left, wnd_pos.top);
-        parent__->redraw(update_pos, clear);
+        parent__->redraw(redraw_position, clear);
     }
     else
     {
