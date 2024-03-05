@@ -397,7 +397,7 @@ void window::draw(graphic &gr, const rect &paint_rect)
     {
         gr.draw_rect(window_pos, 
             theme_color(tcn, tv_border, theme_),
-            make_color(0, 0, 0, 0),
+            make_color(0, 0, 0, 255),
             theme_dimension(tcn, tv_border_width, theme_),
             theme_dimension(tcn, tv_round, theme_)
         );
@@ -1421,8 +1421,8 @@ void window::update_buttons()
 	auto border_height = flag_is_set(window_style_, window_style::border_top) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
     auto border_width = flag_is_set(window_style_, window_style::border_right) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
 
-    auto btn_size = 26;
-    auto left = position_.width() - btn_size - (border_width * 2);
+    auto btn_size = 28;
+    auto left = position_.width() - btn_size - border_width;
     auto top = border_height;
 
     if (flag_is_set(window_style_, window_style::close_button))
