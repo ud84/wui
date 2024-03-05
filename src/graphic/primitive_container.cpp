@@ -81,11 +81,16 @@ HPEN primitive_container::get_pen(int32_t style, int32_t width, color color_)
 
 HBRUSH primitive_container::get_brush(color color_)
 {
+    if (get_alpha(color_) != 0)
+    {
+        return (HBRUSH)GetStockObject(NULL_BRUSH);
+    }
     auto it = brushes.find(color_);
     if (it != brushes.end())
     {
         return it->second;
     }
+
     auto brush = CreateSolidBrush(color_);
 
     brushes[color_] = brush;

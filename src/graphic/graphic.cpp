@@ -362,11 +362,11 @@ void graphic::draw_text(const rect &position, std::string_view text_, color colo
 #endif
 }
 
-void graphic::draw_rect(const rect &position, color_alpha fill_color)
+void graphic::draw_rect(const rect &position, color fill_color)
 {
 #ifdef _WIN32
     RECT position_rect = { position.left, position.top, position.right, position.bottom };
-    FillRect(mem_dc, &position_rect, pc.get_brush(fill_color.c));
+    FillRect(mem_dc, &position_rect, pc.get_brush(fill_color));
 #elif __linux__
     auto pos = position;
     if (pos.left > pos.right)
@@ -391,12 +391,12 @@ void graphic::draw_rect(const rect &position, color_alpha fill_color)
 #endif
 }
 
-void graphic::draw_rect(const rect &position, color border_color, color_alpha fill_color, uint32_t border_width, uint32_t rnd)
+void graphic::draw_rect(const rect &position, color border_color, color fill_color, uint32_t border_width, uint32_t rnd)
 {
 #ifdef _WIN32
     auto old_pen = (HPEN)SelectObject(mem_dc, pc.get_pen(border_width != 0 ? PS_SOLID : PS_NULL, border_width, border_color));
 
-    auto old_brush = (HBRUSH)SelectObject(mem_dc, fill_color.a != 0 ? pc.get_brush(fill_color.c) : GetStockObject(NULL_BRUSH));
+    auto old_brush = (HBRUSH)SelectObject(mem_dc, pc.get_brush(fill_color));
 
     RoundRect(mem_dc, position.left, position.top, position.right, position.bottom, rnd, rnd);
 
@@ -442,12 +442,12 @@ void graphic::draw_rect(const rect &position, color border_color, color_alpha fi
 
     cairo_close_path(cr);
 
-    if (fill_color.a != 0)
+    if (get_alpha(fill_color) != 0)
     {
         cairo_set_source_rgba(cr, static_cast<double>(wui::get_red(fill_color.c)) / 255,
             static_cast<double>(wui::get_green(fill_color.c)) / 255,
             static_cast<double>(wui::get_blue(fill_color.c)) / 255,
-            static_cast<double>(fill_color.a) / 255);
+            static_cast<double>(get_alpha(fill_color) / 255);
         cairo_fill_preserve (cr);
     }
 

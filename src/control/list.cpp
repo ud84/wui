@@ -99,7 +99,7 @@ void list::draw(graphic &gr, const rect &)
 
     gr.draw_rect(control_pos,
         !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
-        { theme_color(tcn, tv_background, theme_), 0 },
+        make_color(0, 0, 0, 255), //{ theme_color(tcn, tv_background, theme_), 0 },
         border_width,
         theme_dimension(tcn, tv_round, theme_));
 }

@@ -355,7 +355,7 @@ void window::draw(graphic &gr, const rect &paint_rect)
 
     gr.draw_rect(window_pos, 
         theme_color(tcn, tv_background, theme_),
-        { theme_color(tcn, tv_background, theme_), 255 },
+        theme_color(tcn, tv_background, theme_),
         theme_dimension(tcn, tv_border_width, theme_),
         theme_dimension(tcn, tv_round, theme_)
     );
@@ -397,7 +397,7 @@ void window::draw(graphic &gr, const rect &paint_rect)
     {
         gr.draw_rect(window_pos, 
             theme_color(tcn, tv_border, theme_),
-            { theme_color(tcn, tv_background, theme_), 0 },
+            make_color(0, 0, 0, 0),
             theme_dimension(tcn, tv_border_width, theme_),
             theme_dimension(tcn, tv_round, theme_)
         );

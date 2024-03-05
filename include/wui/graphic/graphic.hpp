@@ -51,8 +51,8 @@ public:
     rect measure_text(std::string_view text, const font &font_);
     void draw_text(const rect &position, std::string_view text, color color_, const font &font_);
 
-    void draw_rect(const rect &position, color_alpha fill_color);
-    void draw_rect(const rect &position, color border_color, color_alpha fill_color, uint32_t border_width, uint32_t round);
+    void draw_rect(const rect &position, color fill_color);
+    void draw_rect(const rect &position, color border_color, color fill_color, uint32_t border_width, uint32_t round);
 
     /// draw some buffer on context
     void draw_buffer(const rect &position, uint8_t *buffer, int32_t left_shift, int32_t top_shift);
