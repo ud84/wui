@@ -28,7 +28,7 @@ static inline color make_color(unsigned char red, unsigned char green, unsigned 
 #ifdef _WIN32
 	return ((red) | (static_cast<unsigned short>(green) << 8)) | (static_cast<unsigned long>(blue) << 16) | (static_cast<unsigned long>(alpha) << 24);
 #elif __linux__
-	return ((alpha) | (static_cast<unsigned short>(blue) << 8)) | (static_cast<unsigned long>(green) << 16) | (static_cast<unsigned long>(reg) << 24);
+	return ((alpha) | (static_cast<unsigned short>(blue) << 8)) | (static_cast<unsigned long>(green) << 16) | (static_cast<unsigned long>(red) << 24);
 #endif
 }
 

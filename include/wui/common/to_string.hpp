@@ -18,6 +18,6 @@ namespace wui
 {
 
 std::string to_string(const rect&);
-std::string to_string(const color_alpha&);
+std::string to_string(const color&);
 
 }

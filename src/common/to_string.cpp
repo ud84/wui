@@ -20,9 +20,12 @@ std::string to_string(const rect &r)
         std::to_string(r.bottom) + "}";
 }
 
-std::string to_string(const color_alpha &ca)
+std::string to_string(const color &c)
 {
-    return "";
+    return "RGBA(" + std::to_string(get_red(c)) + "," +
+        std::to_string(get_green(c)) + "," +
+        std::to_string(get_blue(c)) + "," +
+        std::to_string(get_alpha(c)) + ")";
 }
 
 }

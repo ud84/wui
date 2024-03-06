@@ -380,10 +380,10 @@ void graphic::draw_rect(const rect &position, color fill_color)
 
     auto cr = cairo_create(surface);
 
-    cairo_set_source_rgba(cr, static_cast<double>(wui::get_red(fill_color.c)) / 255,
-        static_cast<double>(wui::get_green(fill_color.c)) / 255,
-        static_cast<double>(wui::get_blue(fill_color.c)) / 255,
-        static_cast<double>(fill_color.a) / 255);
+    cairo_set_source_rgba(cr, static_cast<double>(wui::get_red(fill_color)) / 255,
+        static_cast<double>(wui::get_green(fill_color)) / 255,
+        static_cast<double>(wui::get_blue(fill_color)) / 255,
+        static_cast<double>(wui::get_alpha(fill_color)) / 255);
     cairo_rectangle(cr, pos.left, pos.top, pos.width(), pos.height());
     cairo_fill(cr);
 
@@ -444,10 +444,10 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
 
     if (get_alpha(fill_color) != 0)
     {
-        cairo_set_source_rgba(cr, static_cast<double>(wui::get_red(fill_color.c)) / 255,
-            static_cast<double>(wui::get_green(fill_color.c)) / 255,
-            static_cast<double>(wui::get_blue(fill_color.c)) / 255,
-            static_cast<double>(get_alpha(fill_color) / 255);
+        cairo_set_source_rgba(cr, static_cast<double>(wui::get_red(fill_color)) / 255,
+            static_cast<double>(wui::get_green(fill_color)) / 255,
+            static_cast<double>(wui::get_blue(fill_color)) / 255,
+            static_cast<double>(wui::get_alpha(fill_color)) / 255);
         cairo_fill_preserve (cr);
     }
 
