@@ -28,13 +28,17 @@ static inline color make_color(unsigned char red, unsigned char green, unsigned 
 #ifdef _WIN32
 	return ((red) | (static_cast<unsigned short>(green) << 8)) | (static_cast<unsigned long>(blue) << 16) | (static_cast<unsigned long>(alpha) << 24);
 #elif __linux__
-	return ((alpha) | (static_cast<unsigned short>(blue) << 8)) | (static_cast<unsigned long>(green) << 16) | (static_cast<unsigned long>(red) << 24);
+	return ((blue) | (static_cast<unsigned short>(green) << 8)) | (static_cast<unsigned long>(red) << 16) | (static_cast<unsigned long>(alpha) << 24);
 #endif
 }
 
 static inline unsigned char get_alpha(color rgb)
 {
+#ifdef _WIN32
 	return (rgb >> 24) & 0xFF;
+#else
+	return  255 - ((rgb >> 24) & 0xFF);
+#endif
 }
 
 static inline unsigned char get_red(color rgb)
