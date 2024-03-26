@@ -1679,8 +1679,18 @@ bool window::init(std::string_view caption_, const rect &position__, window_styl
         center_vertically(position_, context_);
     }
     
-    context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST, wcex.lpszClassName, L"", WS_VISIBLE | WS_POPUP | (window_state_ == window_state::minimized ? WS_MINIMIZE : 0),
-        position_.left, position_.top, position_.width(), position_.height(), nullptr, nullptr, h_inst, this);
+    context_.hwnd = CreateWindowEx(!topmost() ? 0 : WS_EX_TOPMOST,
+        wcex.lpszClassName,
+        L"",
+        WS_VISIBLE | WS_MINIMIZEBOX | WS_POPUP | (window_state_ == window_state::minimized ? WS_MINIMIZE : 0),
+        position_.left,
+        position_.top,
+        position_.width(),
+        position_.height(),
+        nullptr,
+        nullptr,
+        h_inst,
+        this);
 
     if (!context_.hwnd)
     {
