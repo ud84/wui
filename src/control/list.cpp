@@ -615,6 +615,8 @@ void list::set_item_count(int32_t count)
 
     update_scroll_area();
 
+    make_selected_visible();
+
     redraw();
 }
 
@@ -918,12 +920,11 @@ void list::make_selected_visible()
 {
     auto selected_item_top = get_item_top(selected_item_);
     auto selected_item_bottom = selected_item_top + get_item_height(selected_item_);
-
     auto scroll_pos = vert_scroll->get_scroll_pos();
+
     if (selected_item_top < scroll_pos)
     {
-        scroll_pos = selected_item_top;
-        return;
+        return vert_scroll->set_scroll_pos(selected_item_top);
     }
 
     if (position_.height() <= 0 || position_.height() > selected_item_bottom || position_.height() - scroll_pos >= selected_item_top)
@@ -933,12 +934,12 @@ void list::make_selected_visible()
 
     if (selected_item_bottom > scroll_pos)
     {
-        scroll_pos = selected_item_top;
+        vert_scroll->set_scroll_pos(selected_item_top);
     }
 
     if (selected_item_bottom - scroll_pos < position_.height() - title_height)
     {
-        scroll_pos = selected_item_bottom - position_.height() + title_height;
+        vert_scroll->set_scroll_pos(selected_item_bottom - position_.height() + title_height);
     }
 }
 
