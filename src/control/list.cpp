@@ -615,8 +615,6 @@ void list::set_item_count(int32_t count)
 
     update_scroll_area();
 
-    make_selected_visible();
-
     redraw();
 }
 
