@@ -1,6 +1,6 @@
 # Welcome to WUI
 
-WUI is an attempt to make an easy to use and as fast as possible cross-platform library for creating a modern C++ graphical user interface. The library uses C++11 and has a minimalistic API.
+WUI is a minimalistic, C++17 cross-platform library for creating a modern GUI for desktop applications.
 
 ## Tasks for UI framework
 - Run on Windows (At least 7, but works on XP as well)
