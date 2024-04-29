@@ -1,6 +1,6 @@
 # Welcome to WUI
 
-WUI is an attempt to make an easy to use and as fast as possible cross-platform library for creating a modern C++ graphical user interface. The library uses C++11 and has a minimalistic API.
+WUI is a minimalistic, C++17 cross-platform library for creating a modern GUI for desktop applications.
 
 ## Tasks for UI framework
 - Run on Windows (At least 7, but works on XP as well)
@@ -20,7 +20,7 @@ WUI is an attempt to make an easy to use and as fast as possible cross-platform 
 
 ![WUI system principals](img/system.png)
 
-Everything is based on two entities - Window and Control. A window can contain controls, and the window itself is a control.
+Everything is based on two entitiespip install mkdocs-material - Window and Control. A window can contain controls, and the window itself is a control.
 
 [Control](base/interfaces.md#control) is any visual element for user interaction - button, input field, list, menu, etc.
 Control knows how to handle events coming from Window, stores its states, and draws itself on the graphical context provided by the window containing it.
