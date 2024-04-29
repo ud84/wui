@@ -48,3 +48,6 @@ examples/hello_world/hello_world
 /examples/hello_world/Debug(v141_xp)
 /doc/.vs
 /wui/x64/Release
+/wui/Debug
+/wui/Release
+/wui/x64/Debug

@@ -13,6 +13,7 @@
 #include <wui/system/string_tools.hpp>
 
 #include <fstream>
+#include <filesystem>
 
 namespace wui
 {
@@ -101,7 +102,7 @@ bool config_impl_ini::load_values()
 {
     err.reset();
 
-    std::ifstream f(file_name, std::ios::in);
+    std::ifstream f(std::filesystem::u8path(file_name), std::ios::in);
 	if (!f)
 	{
         err.type = error_type::file_not_found;
@@ -183,7 +184,7 @@ bool config_impl_ini::save_values()
 {
     err.reset();
 
-    std::ofstream f(file_name, std::ios::out | std::ios::trunc);
+    std::ofstream f(std::filesystem::u8path(file_name), std::ios::out | std::ios::trunc);
 	if (!f)
 	{
         err.type = error_type::file_not_found;
