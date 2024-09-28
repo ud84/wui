@@ -17,4 +17,5 @@ target_link_libraries(hello_world
 	X11-xcb
 	cairo
 	pthread
+	stdc++fs
 )
