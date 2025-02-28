@@ -1,6 +1,8 @@
 #!/bin/sh
 
-sudo apt install libxcb-cursor0
-sudo apt install libxcb-ewmh2
 sudo apt install libx11-xcb-dev
 sudo apt install libcairo2-dev
+sudo apt install libxcb-image0-dev
+sudo apt install libxcb-cursor-dev
+sudo apt install libxcb-ewmh-dev
+sudo apt install libxcb-icccm4-dev
