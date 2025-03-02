@@ -1,0 +1,39 @@
+# 1.1.250302
+1. Fixed selected visibility on list
+
+# 1.1.240326
+1. Fix minimizing by click on task bar icon
+2. Improved color with alpha
+3. Fixed wrong slowly redraw in negative rect points.
+4. Added scroll control
+
+# 1.0.240206
+1. Added no_redraw method to increase performance of resizing
+2. Improved pinned windows resizing
+3. Fixed windows sizing on Linux
+4. Fixed & improved docs
+
+# 1.0.240121
+1. Fixed numpad on linux
+2. Improved initialization
+3. Fix transient
+
+# 1.0.231113
+1. Added scroll control
+2. Implemented vert scroll bar
+3. Make list with the new different scroll control
+
+# 1.0.231028
+1. Updated thirdparty boost to 1.83
+2. Added msvc 2022 support
+3. Returned a more user-friendly theme and locale interface
+4. Replaced const std::string& to std::string_view ewerything it's possible.
+5. Now used C++17
+
+# 1.0.230920
+1. Improved multi monitor window expanding behavior
+2. Improved preformance of graphic::draw_buffer
+3. Removed mutex from window, now wui does not care about thread safe
+
+# 1.0.230918
+1. First stable release
