@@ -151,6 +151,8 @@ private:
 
     int32_t scroll_area;
 
+    int32_t prev_selected_item;
+
     std::shared_ptr<scroll> vert_scroll;
 
     std::function<void(graphic&, int32_t, const rect&, item_state)> draw_callback;

@@ -34,6 +34,7 @@ list::list(std::string_view theme_control_name_, std::shared_ptr<i_theme> theme_
     item_count(0), selected_item_(0), active_item_(-1),
     title_height(-1),
     scroll_area(0),
+    prev_selected_item(-1),
     vert_scroll(std::make_shared<scroll>(0, 0, orientation::vertical, std::bind(&list::on_scroll, this, std::placeholders::_1, std::placeholders::_2), scroll::tc, theme__)),
     draw_callback(),
     item_height_callback(),
@@ -568,6 +569,8 @@ void list::set_mode(list_mode mode_)
 
 void list::select_item(int32_t n_item)
 {
+    prev_selected_item = selected_item_;
+
     selected_item_ = n_item;
 
     make_selected_visible();
@@ -920,24 +923,15 @@ void list::make_selected_visible()
     auto selected_item_bottom = selected_item_top + get_item_height(selected_item_);
     auto scroll_pos = vert_scroll->get_scroll_pos();
 
-    if (selected_item_top < scroll_pos)
-    {
-        return vert_scroll->set_scroll_pos(selected_item_top);
-    }
-
     if (position_.height() <= 0 || position_.height() > selected_item_bottom || position_.height() - scroll_pos >= selected_item_top)
     {
         return;
     }
 
-    if (selected_item_bottom > scroll_pos)
+    if (selected_item_top < scroll_pos || selected_item_bottom > scroll_pos) 
     {
-        vert_scroll->set_scroll_pos(selected_item_top);
-    }
-
-    if (selected_item_bottom - scroll_pos < position_.height() - title_height)
-    {
-        vert_scroll->set_scroll_pos(selected_item_bottom - position_.height() + title_height);
+        auto prev_selected_item_top = get_item_top(prev_selected_item);
+        vert_scroll->set_scroll_pos(selected_item_top > prev_selected_item_top ? prev_selected_item_top : selected_item_top);
     }
 }
 
