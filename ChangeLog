@@ -1,3 +1,6 @@
+# 1.1.250410
+1. Fixed: in some wm (xfce, fly) window does not remove standard title and buttons (I-9)
+
 # 1.1.250302
 1. Fixed selected visibility on list
 
