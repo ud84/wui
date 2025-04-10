@@ -232,6 +232,8 @@ private:
         net_wm_state_focused,
         net_wm_state_above,
         net_wm_state_skip_taskbar,
+        net_wm_name,
+        utf8_string,
         net_active_window,
         net_wm_state_fullscreen,
         net_wm_state_maximized_vert, net_wm_state_maximized_horz,
@@ -253,6 +255,8 @@ private:
     void change_style(xcb_atom_t type, xcb_atom_t action, xcb_atom_t style) noexcept;
 
     void update_window_style();
+
+    void set_wm_name(std::string_view caption);
 
 #endif
     void receive_control_events(const event &ev);

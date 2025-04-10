@@ -159,7 +159,7 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
 #ifdef _WIN32
     mouse_tracked(false)
 #elif __linux__
-    wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_active_window(), net_wm_state_fullscreen(), net_wm_state_maximized_vert(), net_wm_state_maximized_horz(), net_wm_moveresize(),
+    wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_wm_name(), utf8_string(), net_active_window(), net_wm_state_fullscreen(), net_wm_state_maximized_vert(), net_wm_state_maximized_horz(), net_wm_moveresize(),
     prev_button_click(0),
     runned(false),
     thread(),
@@ -987,22 +987,6 @@ window_state window::state() const
     return window_state_;
 }
 
-#ifndef _WIN32
-void set_wm_name(system_context &context_, std::string_view caption)
-{
-    xcb_icccm_set_wm_name(context_.connection, context_.wnd,
-        XCB_ATOM_STRING, 8,
-        caption.size(), caption.data());
-
-    xcb_icccm_set_wm_icon_name(context_.connection, context_.wnd,
-        XCB_ATOM_STRING, 8,
-        caption.size(), caption.data());
-
-    std::string class_hint = std::string(caption) + '\0' + std::string(caption) + '\0';
-    xcb_icccm_set_wm_class(context_.connection, context_.wnd, class_hint.size(), class_hint.c_str());
-}
-#endif
-
 void window::set_caption(std::string_view caption_)
 {
     caption = caption_;
@@ -1014,7 +998,7 @@ void window::set_caption(std::string_view caption_)
 #elif __linux__
         if (context_.connection && context_.wnd)
         {
-            set_wm_name(context_, caption_);
+            set_wm_name(caption_);
         }
 #endif
         redraw({ 0, 0, position_.width(), 30 }, true);
@@ -1802,7 +1786,7 @@ bool window::init(std::string_view caption_, const rect &position__, window_styl
         xcb_icccm_set_wm_transient_for(context_.connection, context_.wnd, transient_window_->context().wnd);
     }
 
-    set_wm_name(context_, caption_);
+    set_wm_name(caption_);
 
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd, wm_protocols_event, 4, 32, 1, &wm_delete_msg);
 
@@ -2984,6 +2968,16 @@ void window::init_atoms()
     net_wm_state_skip_taskbar = net_wm_state_skip_taskbar_reply->atom;
     free(net_wm_state_skip_taskbar_reply);
 
+    auto net_wm_name_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 12, "_NET_WM_NAME"), NULL);
+    net_wm_name = net_wm_name_reply->atom;
+    free(net_wm_name_reply);
+
+    auto utf8_string_reply = xcb_intern_atom_reply(context_.connection,
+        xcb_intern_atom(context_.connection, 0, 11, "UTF8_STRING"), NULL);
+    utf8_string = utf8_string_reply->atom;
+    free(utf8_string_reply);
+
     auto net_active_window_reply = xcb_intern_atom_reply(context_.connection,
         xcb_intern_atom(context_.connection, 0, 18, "_NET_ACTIVE_WINDOW"), NULL);
     net_active_window = net_active_window_reply->atom;
@@ -3060,6 +3054,22 @@ void window::update_window_style()
     {
         change_style(net_active_window, 0, 0);
     }
+}
+
+void window::set_wm_name(std::string_view caption)
+{
+    xcb_change_property(
+        context_.connection,
+        XCB_PROP_MODE_REPLACE,
+        context_.wnd,
+        net_wm_name,
+        utf8_string,
+        8,
+        caption.size(),
+        caption.data()
+    );
+
+    xcb_icccm_set_wm_name(context_.connection, context_.wnd, XCB_ATOM_STRING, 8, caption.size(), caption.data());
 }
 
 #endif
