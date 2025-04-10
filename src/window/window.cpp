@@ -96,15 +96,15 @@ void remove_window_decorations(wui::system_context &context)
     };
 
     motif_hints hints = { 0 };
-    hints.flags = 2;
+    hints.flags = (1L << 1);
 
     xcb_change_property(context.connection,
         XCB_PROP_MODE_REPLACE,
         context.wnd,
         mwh_atom,
-        XCB_ATOM_WM_HINTS,
+        mwh_atom,
         32,
-        5,
+        sizeof(hints) / 4,
         &hints);
 }
 
@@ -1771,17 +1771,17 @@ bool window::init(std::string_view caption_, const rect &position__, window_styl
 
     xcb_atom_t styles[2] = { 0 };
     uint32_t styles_count = 0;
+    
     if (flag_is_set(window_style_, window_style::topmost))
     {
-        styles[0] = net_wm_state_above;
-        ++styles_count;
+        styles[styles_count++] = net_wm_state_above;
     }
     if (!showed_)
     {
-        styles[1] = net_wm_state_skip_taskbar;
-        ++styles_count;
+        styles[styles_count++] = net_wm_state_skip_taskbar;
         minimize();
     }
+
     xcb_change_property(context_.connection, XCB_PROP_MODE_REPLACE, context_.wnd,
         net_wm_state, XCB_ATOM_ATOM, 32, styles_count, styles);
 
