@@ -1,3 +1,6 @@
+# 1.1.250418
+1. Changed int32_t system event values to int64 (I-15)
+
 # 1.1.250414
 1. Added dll variant for boost nowide in thirdparty, updated boost to 1.88
 

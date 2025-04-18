@@ -20,7 +20,7 @@ enum class system_event_type
 struct system_event
 {
     system_event_type type;
-    int32_t x, y;
+    uint64_t w, l;
 };
 
 }
