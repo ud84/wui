@@ -477,7 +477,7 @@ void window::receive_plain_events(const event &ev)
 {
     if (ev.type == event_type::internal && ev.internal_event_.type == wui::internal_event_type::size_changed)
     {
-        int32_t w = ev.internal_event_.x, h = ev.internal_event_.y;
+        auto w = ev.internal_event_.x, h = ev.internal_event_.y;
         if (docked_)
         {
             int32_t left = (w - position_.width()) / 2;
@@ -1540,7 +1540,7 @@ void window::send_internal(internal_event_type type, int32_t x, int32_t y)
     send_event_to_plains(ev_);
 }
 
-void window::send_system(system_event_type type, int32_t x, int32_t y)
+void window::send_system(system_event_type type, uint64_t x, uint64_t y)
 {
     event ev_;
     ev_.type = event_type::system;
