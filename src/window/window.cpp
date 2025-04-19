@@ -31,6 +31,8 @@
 
 #include <windowsx.h>
 
+#include <dbt.h>
+
 #elif __linux__
 
 #include <cstring>
@@ -1553,6 +1555,10 @@ std::shared_ptr<window> window::get_transient_window()
     return transient_window.lock();
 }
 
+#ifdef _WIN32
+void Subscribe_USB_HID_Changes(HWND w);
+#endif
+
 bool window::init(std::string_view caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_)
 {
     err.reset();
@@ -1696,6 +1702,8 @@ bool window::init(std::string_view caption_, const rect &position__, window_styl
     {
         ShowWindow(context_.hwnd, SW_HIDE);
     }
+
+    Subscribe_USB_HID_Changes(context_.hwnd);
 
 #elif __linux__
 
@@ -1903,6 +1911,24 @@ uint8_t get_key_modifier()
         return vk_numlock;
     }
     return 0;
+}
+
+void Subscribe_USB_HID_Changes(HWND w)
+{
+    static const GUID usb_hid = { 0xA5DCBF10L, 0x6530, 0x11D2, {0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED} };
+
+    DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
+
+    ZeroMemory(&NotificationFilter, sizeof(NotificationFilter));
+    NotificationFilter.dbcc_size = sizeof(DEV_BROADCAST_DEVICEINTERFACE);
+    NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
+    NotificationFilter.dbcc_classguid = usb_hid;
+
+    auto hDeviceNotify = RegisterDeviceNotification(
+        w,
+        &NotificationFilter,
+        DEVICE_NOTIFY_WINDOW_HANDLE
+    );
 }
 
 LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
@@ -2372,7 +2398,23 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA))->send_internal(internal_event_type::user_emitted, static_cast<int32_t>(w_param), static_cast<int32_t>(l_param));
         break;
         case WM_DEVICECHANGE:
-            reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA))->send_system(system_event_type::device_change, static_cast<int32_t>(w_param), static_cast<int32_t>(l_param));
+        {
+            system_event_type set = system_event_type::undefined;
+            switch (w_param)
+            {
+                case DBT_DEVICEARRIVAL:
+                    set = system_event_type::device_connected;
+                break;
+                case DBT_DEVICEREMOVECOMPLETE:
+                    set = system_event_type::device_disconnected;
+                break;
+                case DBT_DEVNODES_CHANGED:
+                    set = system_event_type::device_reordered;
+                break;
+                default: break;
+            }
+            reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA))->send_system(set, static_cast<uint64_t>(w_param), static_cast<uint64_t>(l_param));
+        }
         break;
         case WM_DESTROY:
         {

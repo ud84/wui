@@ -14,7 +14,11 @@ namespace wui
 
 enum class system_event_type
 {
-    device_change
+    undefined = 0,
+
+    device_connected,
+    device_disconnected,
+    device_reordered
 };
 
 struct system_event
