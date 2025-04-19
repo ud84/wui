@@ -159,7 +159,8 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     expand_button(std::make_shared<button>("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24, button::tc_tool)),
     close_button(std::make_shared<button>("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24, button::tc_tool_red)),
 #ifdef _WIN32
-    mouse_tracked(false)
+    mouse_tracked(false),
+    dev_notify_handle(0)
 #elif __linux__
     wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_wm_name(), utf8_string(), net_active_window(), net_wm_state_fullscreen(), net_wm_state_maximized_vert(), net_wm_state_maximized_horz(), net_wm_moveresize(),
     prev_button_click(0),
@@ -1542,11 +1543,11 @@ void window::send_internal(internal_event_type type, int32_t x, int32_t y)
     send_event_to_plains(ev_);
 }
 
-void window::send_system(system_event_type type, uint64_t x, uint64_t y)
+void window::send_system(system_event_type type, device_type device, uint64_t x, uint64_t y)
 {
     event ev_;
     ev_.type = event_type::system;
-    ev_.system_event_ = system_event{ type, x, y };
+    ev_.system_event_ = system_event{ type, device, x, y };
     send_event_to_plains(ev_);
 }
 
@@ -1556,7 +1557,7 @@ std::shared_ptr<window> window::get_transient_window()
 }
 
 #ifdef _WIN32
-void Subscribe_USB_HID_Changes(HWND w);
+HDEVNOTIFY Subscribe_USB_HID_Changes(HWND w);
 #endif
 
 bool window::init(std::string_view caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_)
@@ -1703,7 +1704,7 @@ bool window::init(std::string_view caption_, const rect &position__, window_styl
         ShowWindow(context_.hwnd, SW_HIDE);
     }
 
-    Subscribe_USB_HID_Changes(context_.hwnd);
+    dev_notify_handle = Subscribe_USB_HID_Changes(context_.hwnd);
 
 #elif __linux__
 
@@ -1870,6 +1871,7 @@ void window::destroy()
     else
     {
 #ifdef _WIN32
+        UnregisterDeviceNotification(dev_notify_handle);
         DestroyWindow(context_.hwnd);
 #elif __linux__
         send_destroy_event();
@@ -1913,7 +1915,7 @@ uint8_t get_key_modifier()
     return 0;
 }
 
-void Subscribe_USB_HID_Changes(HWND w)
+HDEVNOTIFY Subscribe_USB_HID_Changes(HWND w)
 {
     static const GUID usb_hid = { 0xA5DCBF10L, 0x6530, 0x11D2, {0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED} };
 
@@ -1924,7 +1926,7 @@ void Subscribe_USB_HID_Changes(HWND w)
     NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
     NotificationFilter.dbcc_classguid = usb_hid;
 
-    auto hDeviceNotify = RegisterDeviceNotification(
+    return RegisterDeviceNotification(
         w,
         &NotificationFilter,
         DEVICE_NOTIFY_WINDOW_HANDLE
@@ -2399,7 +2401,19 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
         break;
         case WM_DEVICECHANGE:
         {
+            PDEV_BROADCAST_HDR hdr = (PDEV_BROADCAST_HDR)l_param;
+            if (!hdr)
+            {
+                return 0;
+            }
+
+            if (hdr->dbch_devicetype != DBT_DEVTYP_DEVICEINTERFACE)
+            {
+                return 0;
+            }
+
             system_event_type set = system_event_type::undefined;
+            device_type dev = device_type::undefined;
             switch (w_param)
             {
                 case DBT_DEVICEARRIVAL:
@@ -2413,7 +2427,20 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                 break;
                 default: break;
             }
-            reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA))->send_system(set, static_cast<uint64_t>(w_param), static_cast<uint64_t>(l_param));
+
+            auto pDi = (DEV_BROADCAST_DEVICEINTERFACE*)hdr;
+            OutputDebugStringW(pDi->dbcc_name);
+            OutputDebugStringW(L"\n");
+
+            /*if (g_pwszSymbolicLink)
+            {
+                if (_wcsicmp(g_pwszSymbolicLink, pDi->dbcc_name) == 0)
+                {
+                    *pbDeviceLost = TRUE;
+                }
+            }*/
+            
+            reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA))->send_system(set, dev, static_cast<uint64_t>(w_param), static_cast<uint64_t>(l_param));
         }
         break;
         case WM_DESTROY:
