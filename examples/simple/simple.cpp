@@ -182,31 +182,47 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         });
 
         window->subscribe([this](const wui::event &e) {
-            if (e.internal_event_.type == wui::internal_event_type::size_changed)
+            switch (e.type)
             {
-                int32_t w = e.internal_event_.x, h = e.internal_event_.y;
+            case wui::event_type::internal:
+                if (e.internal_event_.type == wui::internal_event_type::size_changed)
+                {
+                    int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                list->set_position({ 10, 30, w - 10, h - 40 }, false);
-                panel->set_position({ 0, h - 35, w, h }, false);
-                button1->set_position({ 10, h - 30, 30, h - 10 }, false);
-                button2->set_position({ 40, h - 30, 60, h - 10 }, false);
-                button3->set_position({ 70, h - 30, 90, h - 10 }, false);
-                input->set_position({ 100, h - 30, w - 10, h - 10 }, false);
-            }
-            else if (e.internal_event_.type == wui::internal_event_type::user_emitted)
-            {
-                int32_t x = e.internal_event_.x, y = e.internal_event_.y;
+                    list->set_position({ 10, 30, w - 10, h - 40 }, false);
+                    panel->set_position({ 0, h - 35, w, h }, false);
+                    button1->set_position({ 10, h - 30, 30, h - 10 }, false);
+                    button2->set_position({ 40, h - 30, 60, h - 10 }, false);
+                    button3->set_position({ 70, h - 30, 90, h - 10 }, false);
+                    input->set_position({ 100, h - 30, w - 10, h - 10 }, false);
+                }
+                else if (e.internal_event_.type == wui::internal_event_type::user_emitted)
+                {
+                    int32_t x = e.internal_event_.x, y = e.internal_event_.y;
 
-                messageBox->show("user emitted event received, x: " + std::to_string(x) + ", y: " + std::to_string(y),
-                    "user emitted event", wui::message_icon::information, wui::message_button::yes_no, [this](wui::message_result result) {
-                    if (result == wui::message_result::yes)
-                    {
-                        dialog->set_transient_for(window);
-                        dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, []() {});
-                    }
-                });
+                    messageBox->show("user emitted event received, x: " + std::to_string(x) + ", y: " + std::to_string(y),
+                        "user emitted event", wui::message_icon::information, wui::message_button::yes_no, [this](wui::message_result result) {
+                            if (result == wui::message_result::yes)
+                            {
+                                dialog->set_transient_for(window);
+                                dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, []() {});
+                            }
+                        });
+                }
+            break;
+            case wui::event_type::system:
+                switch (e.system_event_.type)
+                {
+                    case wui::system_event_type::device_connected:
+                        //OutputDebugStringA("+\n");
+                    break;
+                    case wui::system_event_type::device_disconnected:
+                        //OutputDebugStringA("-\n");
+                    break;
+                }
+            break;
             }
-        }, wui::event_type::internal);
+        }, wui::flags_map<wui::event_type>(2, wui::event_type::internal, wui::event_type::system));
 
         Plug();
         Init();
