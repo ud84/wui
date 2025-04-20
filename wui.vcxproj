@@ -115,6 +115,7 @@
     <ClCompile Include="src\control\text.cpp" />
     <ClCompile Include="src\control\tooltip.cpp" />
     <ClCompile Include="src\control\tray_icon.cpp" />
+    <ClCompile Include="src\event\system_event.cpp" />
     <ClCompile Include="src\framework\framework.cpp" />
     <ClCompile Include="src\framework\framework_lin_impl.cpp" />
     <ClCompile Include="src\framework\framework_win_impl.cpp" />
