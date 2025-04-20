@@ -1,3 +1,6 @@
+# 1.1.250420
+1.Implemented deteremining and sending the device type in system event (I-18)
+
 # 1.1.250418
 1.Implemented robust device change event reseiver, improved system_event (I-16)
 
