@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <string_view>
+
 namespace wui
 {
 
@@ -21,10 +23,38 @@ enum class system_event_type
     device_reordered
 };
 
+enum class device_type
+{
+    undefined = 0,
+
+    usb,
+
+    monitor,
+    camera,
+    
+    microphone,
+    speaker,
+    media,      /// On Windows it's microphone or speaker
+
+    storage,
+    smartcard,
+
+    network,
+
+    keyboard,
+    mouse,
+    hid         /// On Windows it's keyboard or mouse
+};
+
 struct system_event
 {
     system_event_type type;
+    device_type device;
+    
     uint64_t w, l;
 };
+
+std::string_view to_string(system_event_type t);
+std::string_view to_string(device_type t);
 
 }

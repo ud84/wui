@@ -221,7 +221,11 @@ private:
 
     bool mouse_tracked;
 
+    HDEVNOTIFY dev_notify_handle;
+
     static LRESULT CALLBACK wnd_proc(HWND hWnd, UINT message, WPARAM w_param, LPARAM l_param);
+
+    static void ProcessDeviceChanges(window* wnd, WPARAM w, LPARAM l);
 
 #elif __linux__
 
@@ -283,7 +287,6 @@ private:
     void draw_border(graphic &gr);
 
     void send_internal(internal_event_type type, int32_t x, int32_t y);
-    void send_system(system_event_type type, uint64_t x, uint64_t y);
 };
 
 }

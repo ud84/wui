@@ -214,10 +214,14 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 switch (e.system_event_.type)
                 {
                     case wui::system_event_type::device_connected:
-                        //OutputDebugStringA("+\n");
+                        OutputDebugStringA("connect device: ");
+                        OutputDebugStringA(to_string(e.system_event_.device).data());
+                        OutputDebugStringA("\n");
                     break;
                     case wui::system_event_type::device_disconnected:
-                        //OutputDebugStringA("-\n");
+                        OutputDebugStringA("disconnect device: ");
+                        OutputDebugStringA(to_string(e.system_event_.device).data());
+                        OutputDebugStringA("\n");
                     break;
                 }
             break;

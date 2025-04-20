@@ -73,6 +73,9 @@
     <Filter Include="Source Files\framework">
       <UniqueIdentifier>{cea1b422-bbc0-403d-99d8-a56432d09c6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\event">
+      <UniqueIdentifier>{e214d354-aae4-4c38-b442-703612a9ca34}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\wui\common\color.hpp">
@@ -364,6 +367,9 @@
     </ClCompile>
     <ClCompile Include="src\control\scroll.cpp">
       <Filter>Source Files\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\event\system_event.cpp">
+      <Filter>Source Files\event</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
