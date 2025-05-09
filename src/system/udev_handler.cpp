@@ -15,13 +15,17 @@
 
 #include <string.h>
 
+#include <unistd.h>
+#include <stdio.h>
+
 namespace wui
 {
 
 udev_handler::udev_handler(std::function<void(const event &ev)> callback_)
     : callback(callback_),
     started(false),
-    thread()
+    thread(),
+    wake{ 0 }
 {
 }
 
@@ -45,7 +49,7 @@ void udev_handler::stop()
 
     started = false;
 
-    udev_monitor_unref(static_cast<struct udev_monitor*>(mon));
+    write(wake[1], "q", 1);
 
     if (thread.joinable()) thread.join();
 }
@@ -100,38 +104,29 @@ void handle_device(struct udev_device *dev, std::function<void(const event &ev)>
 void udev_handler::process()
 {
     struct udev *udev = udev_new();
-    mon = udev_monitor_new_from_netlink(udev, "udev");
+    struct udev_monitor *mon = udev_monitor_new_from_netlink(udev, "udev");
 
-    udev_monitor_filter_add_match_subsystem_devtype(static_cast<struct udev_monitor*>(mon), "usb", NULL);
-    udev_monitor_enable_receiving(static_cast<struct udev_monitor*>(mon));
+    udev_monitor_filter_add_match_subsystem_devtype(mon, "usb", NULL);
+    udev_monitor_enable_receiving(mon);
 
-    int fd = udev_monitor_get_fd(static_cast<struct udev_monitor*>(mon));
+    int fd = udev_monitor_get_fd(mon);
+
+    pipe(wake);
 
     while (started)
     {
-        fd_set fds;
-        FD_ZERO(&fds);
-        FD_SET(fd, &fds);
-
-        int r = select(fd+1, &fds, NULL, NULL, NULL);
+        fd_set fds; FD_ZERO(&fds);
+        FD_SET(fd,   &fds);
+        FD_SET(wake[0],  &fds);
+        
+        int nfds = (fd > wake[0] ? fd : wake[0]) + 1;
+        int r = select(nfds, &fds, NULL, NULL, NULL);      
 
         if (r < 0 && errno == EBADF) break;
 
         if (FD_ISSET(fd, &fds))
         {
-            struct udev_device *dev = udev_monitor_receive_device(static_cast<struct udev_monitor*>(mon));
-            if (!dev)
-            {
-                continue;
-            }
-
-            auto action = udev_device_get_action(dev);
-
-            if (!action)
-            {
-                continue;
-            }
-
+            struct udev_device *dev = udev_monitor_receive_device(mon);
             if (dev)
             {
                 handle_device(dev, callback);
