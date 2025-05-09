@@ -1135,6 +1135,10 @@ void window::set_default_push_control(std::shared_ptr<i_control> control)
     default_push_control = control;
 }
 
+#ifdef _WIN32
+HDEVNOTIFY Subscribe_USB_HID_Changes(HWND w);
+#endif
+
 void window::enable_device_change_handling(bool yes)
 {
 #ifdef _WIN32
@@ -1581,10 +1585,6 @@ std::shared_ptr<window> window::get_transient_window()
     return transient_window.lock();
 }
 
-#ifdef _WIN32
-HDEVNOTIFY Subscribe_USB_HID_Changes(HWND w);
-#endif
-
 bool window::init(std::string_view caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_)
 {
     err.reset();
@@ -1727,11 +1727,6 @@ bool window::init(std::string_view caption_, const rect &position__, window_styl
     if (!showed_)
     {
         ShowWindow(context_.hwnd, SW_HIDE);
-    }
-
-    if (device_change_handling)
-    {
-        dev_notify_handle = Subscribe_USB_HID_Changes(context_.hwnd);
     }
 
 #elif __linux__
@@ -2050,7 +2045,7 @@ void window::ProcessDeviceChanges(window* wnd, WPARAM w, LPARAM l)
 
                     if (class_name.find(L"USB") != std::wstring::npos)
                     {
-                        sev.device = device_type::usb;
+                        continue; 
                     }
                     else if (class_name.find(L"Camera") != std::wstring::npos)
                     {
@@ -2549,7 +2544,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA))->send_internal(internal_event_type::user_emitted, static_cast<int32_t>(w_param), static_cast<int32_t>(l_param));
         break;
         case WM_DEVICECHANGE:
-            if (device_change_handling)
+            if (reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA))->device_change_handling)
             {
                 ProcessDeviceChanges(reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)), w_param, l_param);
             }
