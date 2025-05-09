@@ -23,7 +23,7 @@ enum class error_type
     invalid_value,
     system_error,
     no_handle,
-    already_runned
+    already_started
 };
 
 std::string str(error_type);

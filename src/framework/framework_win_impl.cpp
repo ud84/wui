@@ -20,21 +20,21 @@ namespace framework
 {
 
 framework_win_impl::framework_win_impl()
-    : runned_(false),
+    : started_(false),
     err{}
 {
 }
 
 void framework_win_impl::run()
 {
-    if (runned_)
+    if (started_)
     {
-        err.type = error_type::already_runned;
+        err.type = error_type::already_started;
         err.component = "framework_win_impl::run()";
 
         return;
     }
-    runned_ = true;
+    started_ = true;
 
     MSG msg;
     while (GetMessage(&msg, nullptr, 0, 0))
@@ -46,18 +46,18 @@ void framework_win_impl::run()
 
 void framework_win_impl::stop()
 {
-    if (runned_)
+    if (started_)
     {
         PostQuitMessage(IDCANCEL);
-        runned_ = false;
+        started_ = false;
 
         err.reset();
     }
 }
 
-bool framework_win_impl::runned() const
+bool framework_win_impl::started() const
 {
-    return runned_;
+    return started_;
 }
 
 error framework_win_impl::get_error() const

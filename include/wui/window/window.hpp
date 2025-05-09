@@ -245,9 +245,9 @@ private:
 
     time_t prev_button_click;
 
-    bool runned;
+    bool started;
     std::thread thread;
-
+    
     uint8_t key_modifier;
 
     void process_events();
@@ -267,7 +267,11 @@ private:
     void receive_plain_events(const event &ev);
 
     void send_event_to_control(const std::shared_ptr<i_control> &control, const event &ev);
+    
+public: /// Need to udev handler
     void send_event_to_plains(const event &ev);
+
+private:
     void send_mouse_event(const mouse_event &ev);
 
     bool check_control_here(int32_t x, int32_t y);
@@ -287,6 +291,7 @@ private:
     void draw_border(graphic &gr);
 
     void send_internal(internal_event_type type, int32_t x, int32_t y);
+
 };
 
 }

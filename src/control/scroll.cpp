@@ -39,7 +39,7 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_,
     callback(callback_),
     worker_action_(worker_action::undefined),
     worker(),
-    worker_runned(false),
+    worker_started(false),
     progress(0),
     scrollbar_state_(scrollbar_state::tiny),
     slider_scrolling(false),
@@ -515,7 +515,7 @@ void scroll::scroll_up()
 {
     if (scroll_pos == 0 || scroll_interval < 0)
     {
-        worker_runned = false;
+        worker_started = false;
         return;
     }
 
@@ -537,7 +537,7 @@ void scroll::scroll_down()
 {
     if (scroll_interval < 0 || scroll_pos == area)
     {
-        worker_runned = false;
+        worker_started = false;
         return;
     }
 
@@ -729,9 +729,9 @@ void scroll::start_work(worker_action action)
 {
     worker_action_ = action;
 
-    if (!worker_runned)
+    if (!worker_started)
     {
-        worker_runned = true;
+        worker_started = true;
         if (worker.joinable()) worker.join();
         worker = std::thread(std::bind(&scroll::work, this));
     }
@@ -739,7 +739,7 @@ void scroll::start_work(worker_action action)
 
 void scroll::work()
 {
-    while (worker_runned)
+    while (worker_started)
     {
         switch (worker_action_)
         {
@@ -768,7 +768,7 @@ void scroll::work()
             }
             else
             {
-                worker_runned = false;
+                worker_started = false;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -780,7 +780,7 @@ void scroll::work()
 
 void scroll::end_work()
 {
-    worker_runned = false;
+    worker_started = false;
     if (worker.joinable()) worker.join();
 }
 

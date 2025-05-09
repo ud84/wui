@@ -1,8 +1,11 @@
+# 1.1.250510
+1. Added udev handler to send device change events on Linux (I-20)
+
 # 1.1.250420
-1.Implemented deteremining and sending the device type in system event (I-18)
+1.Implemented determining and sending the device type in system event (I-18)
 
 # 1.1.250418
-1.Implemented robust device change event reseiver, improved system_event (I-16)
+1.Implemented robust device change event receiver, improved system_event (I-16)
 
 # 1.1.250414
 1. Added dll variant for boost nowide in thirdparty, updated boost to 1.88
@@ -40,12 +43,12 @@
 1. Updated thirdparty boost to 1.83
 2. Added msvc 2022 support
 3. Returned a more user-friendly theme and locale interface
-4. Replaced const std::string& to std::string_view ewerything it's possible.
+4. Replaced const std::string& to std::string_view everything it's possible.
 5. Now used C++17
 
 # 1.0.230920
 1. Improved multi monitor window expanding behavior
-2. Improved preformance of graphic::draw_buffer
+2. Improved performance of graphic::draw_buffer
 3. Removed mutex from window, now wui does not care about thread safe
 
 # 1.0.230918

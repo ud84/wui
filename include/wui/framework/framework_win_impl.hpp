@@ -29,12 +29,12 @@ public:
     virtual void run();
     virtual void stop();
 
-    virtual bool runned() const;
+    virtual bool started() const;
 
     virtual error get_error() const;
 
 private:
-    bool runned_;
+    bool started_;
 
     error err;
 };

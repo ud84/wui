@@ -30,12 +30,12 @@ public:
     virtual void run();
     virtual void stop();
 
-    virtual bool runned() const;
+    virtual bool started() const;
 
     virtual error get_error() const;
 
 private:
-    std::atomic<bool> runned_;
+    std::atomic<bool> started_;
 
     error err;
 };

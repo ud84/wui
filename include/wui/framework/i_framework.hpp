@@ -24,7 +24,7 @@ public:
     virtual void run() = 0;
     virtual void stop() = 0;
 
-    virtual bool runned() const = 0;
+    virtual bool started() const = 0;
 
     virtual error get_error() const = 0;
 

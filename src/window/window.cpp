@@ -44,6 +44,8 @@
 
 #include <X11/Xutil.h>
 
+#include <wui/system/udev_handler.hpp>
+
 #endif
 
 // Some helpers
@@ -166,7 +168,7 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
 #elif __linux__
     wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_wm_name(), utf8_string(), net_active_window(), net_wm_state_fullscreen(), net_wm_state_maximized_vert(), net_wm_state_maximized_horz(), net_wm_moveresize(),
     prev_button_click(0),
-    runned(false),
+    started(false),
     thread(),
     key_modifier(0)
 #endif
@@ -1802,7 +1804,8 @@ bool window::init(std::string_view caption_, const rect &position__, window_styl
     graphic_.init(get_screen_size(context_), theme_color(tcn, tv_background, theme_));
     graphic_.start_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
 
-    runned = true;
+    started = true;
+    
     if (thread.joinable()) thread.join();
     thread = std::thread(std::bind(&window::process_events, this));
 
@@ -2544,7 +2547,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 void window::process_events()
 {
     xcb_generic_event_t *e = nullptr;
-    while (runned && (e = xcb_wait_for_event(context_.connection)))
+    while (started && (e = xcb_wait_for_event(context_.connection)))
     {
         switch (e->response_type & ~0x80)
         {
@@ -3046,7 +3049,7 @@ void window::process_events()
                     xcb_destroy_window(context_.connection, context_.wnd);
                     XCloseDisplay(context_.display);
 
-                    runned = false;
+                    started = false;
 
                     auto transient_window_ = get_transient_window();
                     if (transient_window_)

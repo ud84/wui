@@ -74,7 +74,7 @@ bool graphic::init(const rect &max_size_, color background_color_)
 #ifdef _WIN32
     if (mem_dc)
     {
-        err.type = error_type::already_runned;
+        err.type = error_type::already_started;
         err.component = "graphic::init()";
         return false;
     }
@@ -108,7 +108,7 @@ bool graphic::init(const rect &max_size_, color background_color_)
 #elif __linux__
     if (!context_.display || mem_pixmap)
     {
-        err.type = error_type::already_runned;
+        err.type = error_type::already_started;
         err.component = "graphic::init()";
         return false;
     }

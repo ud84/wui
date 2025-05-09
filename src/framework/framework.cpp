@@ -72,7 +72,7 @@ void stop()
     instance.reset();
 }
 
-bool runned()
+bool started()
 {
     return instance != nullptr;
 }
