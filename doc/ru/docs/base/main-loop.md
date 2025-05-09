@@ -22,7 +22,7 @@
     void window::process_events()
     {
         xcb_generic_event_t *e = nullptr;
-        while (runned && (e = xcb_wait_for_event(context_.connection)))
+        while (started && (e = xcb_wait_for_event(context_.connection)))
         {
             switch (e->response_type & ~0x80)
             {

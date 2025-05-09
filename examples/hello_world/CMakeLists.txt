@@ -18,4 +18,5 @@ target_link_libraries(hello_world
 	cairo
 	pthread
 	stdc++fs
+	udev
 )

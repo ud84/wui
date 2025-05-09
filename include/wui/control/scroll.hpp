@@ -120,7 +120,7 @@ private:
 
     worker_action worker_action_;
     std::thread worker;
-    bool worker_runned;
+    bool worker_started;
 
     int32_t progress;
 

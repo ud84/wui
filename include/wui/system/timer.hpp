@@ -29,7 +29,7 @@ class timer
 {
 public:
 	explicit timer(std::function<void(void)> callback_)
-		: runned(false), thread(), callback(callback_), interval(1000)
+		: started(false), thread(), callback(callback_), interval(1000)
 	{
 	}
 
@@ -40,10 +40,10 @@ public:
 
 	void start(const uint32_t interval_ = 1000 /* in milliseconds */)
 	{
-		if (!runned)
+		if (!started)
 		{
 			interval = interval_;
-			runned = true;
+			started = true;
 
 			thread = std::thread(&timer::run, this);
 		}
@@ -51,9 +51,9 @@ public:
 
 	void stop()
 	{
-		if (runned)
+		if (started)
 		{
-			runned = false;
+			started = false;
 			if (thread.joinable()) thread.join();
 		}
 	}
@@ -62,7 +62,7 @@ public:
 	timer& operator=(const timer&) = delete;
 
 private:
-	std::atomic<bool> runned;
+	std::atomic<bool> started;
 	std::thread thread;
 	std::function<void(void)> callback;
 
@@ -72,7 +72,7 @@ private:
 	{
 	    auto begin = std::chrono::high_resolution_clock::now();
 
-		while (runned)
+		while (started)
 		{
 			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin).count();
 			if (elapsed > interval * 1000)
@@ -92,7 +92,7 @@ class timer
 {
 public:
 	explicit timer(std::function<void(void)> callback_)
-		: callback(callback_), h_timer(nullptr), h_timer_queue(nullptr), runned(false)
+		: callback(callback_), h_timer(nullptr), h_timer_queue(nullptr), started(false)
 	{
 	}
 
@@ -103,7 +103,7 @@ public:
 
 	void start(const uint32_t interval = 1000)
 	{
-		if (runned || h_timer_queue)
+		if (started || h_timer_queue)
 		{
 			return;
 		}
@@ -119,12 +119,12 @@ public:
 		{
 			throw std::exception("Error CreateTimerQueueTimer()");
 		}
-		runned = true;
+		started = true;
 	}
 
 	void stop()
 	{
-		if (!runned)
+		if (!started)
 		{
 			return;
 		}
@@ -139,7 +139,7 @@ public:
 			DeleteTimerQueue(h_timer_queue);
             h_timer_queue = nullptr;
 		}
-		runned = false;
+		started = false;
 	}
 
 	timer(const timer&) = delete;
@@ -151,7 +151,7 @@ private:
 	HANDLE h_timer;
     HANDLE h_timer_queue;
 
-	std::atomic<bool> runned;
+	std::atomic<bool> started;
 	
 	static VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN)
 	{

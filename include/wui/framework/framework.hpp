@@ -24,7 +24,7 @@ void init();
 void run();
 void stop();
 
-bool runned();
+bool started();
 
 error get_error();
 
