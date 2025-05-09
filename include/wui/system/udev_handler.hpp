@@ -32,7 +32,7 @@ private:
     bool started;
     std::thread thread;
 
-    void *mon;
+    int wake[2];
 
     void process();
 };
