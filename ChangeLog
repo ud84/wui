@@ -1,5 +1,6 @@
 # 1.1.250510
 1. Added udev handler to send device change events on Linux (I-20)
+2. Add new method to window: void enable_device_change_handling(bool yes); It is needed to enable the window to receive events about connection / disconnection of devices (will be sent to system_event) (I-20)
 
 # 1.1.250420
 1.Implemented determining and sending the device type in system event (I-18)
