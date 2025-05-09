@@ -41,6 +41,7 @@ enum class window_control
 };
 
 class button;
+class udev_handler;
 
 class window : public i_window, public i_control, public std::enable_shared_from_this<window>
 {
@@ -126,6 +127,10 @@ public:
 
     /// Set the control (button) to be pressed when user press enter on the keyboard
     void set_default_push_control(std::shared_ptr<i_control> control);
+
+    /// Enable/disable the window to receive events about connecting / disconnecting devices (will be sent to system_event)
+    /// Call this only after the window::init()
+    void enable_device_change_handling(bool yes);
 
 public:
     /// Control name in theme / locale
@@ -220,6 +225,7 @@ private:
 #ifdef _WIN32
 
     bool mouse_tracked;
+    bool device_change_handling;
 
     HDEVNOTIFY dev_notify_handle;
 
@@ -247,6 +253,8 @@ private:
 
     bool started;
     std::thread thread;
+
+    std::unique_ptr<udev_handler> udev_handler_;
     
     uint8_t key_modifier;
 
@@ -267,11 +275,7 @@ private:
     void receive_plain_events(const event &ev);
 
     void send_event_to_control(const std::shared_ptr<i_control> &control, const event &ev);
-    
-public: /// Need to udev handler
     void send_event_to_plains(const event &ev);
-
-private:
     void send_mouse_event(const mouse_event &ev);
 
     bool check_control_here(int32_t x, int32_t y);

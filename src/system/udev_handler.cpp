@@ -48,22 +48,15 @@ void udev_handler::stop()
     if (!started) return;
 
     started = false;
-
     write(wake[1], "q", 1);
-
     if (thread.joinable()) thread.join();
 }
 
 void send_event(device_type dt, system_event_type et, std::function<void(const event &ev)> callback)
 {
-    system_event sev = { et,
-        dt,
-        0,
-        0
-    };
     event ev_;
     ev_.type = event_type::system;
-    ev_.system_event_ = sev;
+    ev_.system_event_ = { et, dt, 0, 0 };
     callback(ev_);
 }
 
@@ -82,7 +75,7 @@ void handle_device(struct udev_device *dev, std::function<void(const event &ev)>
         return send_event(device_type::usb, system_event_type::device_disconnected, callback); // It's workaround, need to be improve
     }
 
-    const char *ifs = udev_device_get_property_value(dev,"ID_USB_INTERFACES");
+    const char *ifs = udev_device_get_property_value(dev, "ID_USB_INTERFACES");
     if (!ifs) return;
 
     bool has_cam = false, has_audio = false, has_hid = false;
@@ -96,9 +89,9 @@ void handle_device(struct udev_device *dev, std::function<void(const event &ev)>
         if (cls == 0x03) has_hid = true;
     }
 
-    if (has_cam) send_event(device_type::camera, system_event_type::device_connected, callback);
-    if (has_audio) send_event(device_type::media, system_event_type::device_connected, callback);
-    if (has_hid) send_event(device_type::hid, system_event_type::device_connected, callback);
+    if (has_cam)   send_event(device_type::camera, system_event_type::device_connected, callback);
+    if (has_audio) send_event(device_type::media,  system_event_type::device_connected, callback);
+    if (has_hid)   send_event(device_type::hid,    system_event_type::device_connected, callback);
 }
 
 void udev_handler::process()
@@ -116,13 +109,11 @@ void udev_handler::process()
     while (started)
     {
         fd_set fds; FD_ZERO(&fds);
-        FD_SET(fd,   &fds);
-        FD_SET(wake[0],  &fds);
+        FD_SET(fd, &fds);
+        FD_SET(wake[0], &fds);
         
         int nfds = (fd > wake[0] ? fd : wake[0]) + 1;
         int r = select(nfds, &fds, NULL, NULL, NULL);      
-
-        if (r < 0 && errno == EBADF) break;
 
         if (FD_ISSET(fd, &fds))
         {
