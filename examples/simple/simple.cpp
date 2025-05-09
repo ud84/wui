@@ -20,7 +20,6 @@
 #include <wui/control/progress.hpp>
 #include <wui/control/slider.hpp>
 #include <wui/control/panel.hpp>
-#include <wui/system/udev_handler.hpp>
 
 #include <Resource.h>
 
@@ -308,9 +307,6 @@ int main(int argc, char *argv[])
 
     auto window = std::make_shared<wui::window>();
 
-    auto udev_handler_ = wui::udev_handler(std::bind(&wui::window::send_event_to_plains, window, std::placeholders::_1));
-    udev_handler_.start();
-
     auto menuImage1 = std::make_shared<wui::image>(IMG_ACCOUNT);
     auto menuImage2 = std::make_shared<wui::image>(IMG_SETTINGS);
 
@@ -549,6 +545,8 @@ int main(int argc, char *argv[])
         []() {
             wui::framework::stop();
         });
+
+    window->enable_device_change_handling(true);
 
     wui::framework::run();
 

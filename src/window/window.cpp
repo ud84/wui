@@ -164,12 +164,14 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     close_button(std::make_shared<button>("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24, button::tc_tool_red)),
 #ifdef _WIN32
     mouse_tracked(false),
+    device_change_handling(false),
     dev_notify_handle(0)
 #elif __linux__
     wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_wm_name(), utf8_string(), net_active_window(), net_wm_state_fullscreen(), net_wm_state_maximized_vert(), net_wm_state_maximized_horz(), net_wm_moveresize(),
     prev_button_click(0),
     started(false),
     thread(),
+    udev_handler_(),
     key_modifier(0)
 #endif
 {
@@ -1133,6 +1135,33 @@ void window::set_default_push_control(std::shared_ptr<i_control> control)
     default_push_control = control;
 }
 
+void window::enable_device_change_handling(bool yes)
+{
+#ifdef _WIN32
+    device_change_handling = yes;
+    if (yes && !dev_notify_handle)
+    {
+        dev_notify_handle = Subscribe_USB_HID_Changes(context_.hwnd);
+    }
+    else if (!yes && dev_notify_handle)
+    {
+        UnregisterDeviceNotification(dev_notify_handle);
+        dev_notify_handle = 0;
+    }
+#elif __linux__
+    if (yes && !udev_handler_)
+    {
+        udev_handler_ = std::make_unique<udev_handler>(std::bind(&wui::window::send_event_to_plains, this, std::placeholders::_1));
+        udev_handler_->start();
+    }
+    else if (!yes && udev_handler_)
+    {
+        udev_handler_->stop();
+        udev_handler_.reset();
+    }
+#endif
+}
+
 void window::send_event_to_control(const std::shared_ptr<i_control> &control_, const event &ev)
 {
     auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [control_, ev](const event_subscriber &es) {
@@ -1700,7 +1729,10 @@ bool window::init(std::string_view caption_, const rect &position__, window_styl
         ShowWindow(context_.hwnd, SW_HIDE);
     }
 
-    dev_notify_handle = Subscribe_USB_HID_Changes(context_.hwnd);
+    if (device_change_handling)
+    {
+        dev_notify_handle = Subscribe_USB_HID_Changes(context_.hwnd);
+    }
 
 #elif __linux__
 
@@ -1868,7 +1900,10 @@ void window::destroy()
     else
     {
 #ifdef _WIN32
-        UnregisterDeviceNotification(dev_notify_handle);
+        if (device_change_handling)
+        {
+            UnregisterDeviceNotification(dev_notify_handle);
+        }
         DestroyWindow(context_.hwnd);
 #elif __linux__
         send_destroy_event();
@@ -2514,7 +2549,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA))->send_internal(internal_event_type::user_emitted, static_cast<int32_t>(w_param), static_cast<int32_t>(l_param));
         break;
         case WM_DEVICECHANGE:
-            ProcessDeviceChanges(reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)), w_param, l_param);
+            if (device_change_handling)
+            {
+                ProcessDeviceChanges(reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)), w_param, l_param);
+            }
         break;
         case WM_DESTROY:
         {
