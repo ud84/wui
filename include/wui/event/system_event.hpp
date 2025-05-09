@@ -27,14 +27,14 @@ enum class device_type
 {
     undefined = 0,
 
-    usb,
+    usb,        /// On Linux all devices on disconnecting
 
     monitor,
     camera,
     
     microphone,
     speaker,
-    media,      /// On Windows it's microphone or speaker
+    media,      /// It's microphone or speaker
 
     storage,
     smartcard,
@@ -43,7 +43,7 @@ enum class device_type
 
     keyboard,
     mouse,
-    hid         /// On Windows it's keyboard or mouse
+    hid         /// It's keyboard or mouse
 };
 
 struct system_event
