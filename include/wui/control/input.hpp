@@ -32,10 +32,22 @@ enum class input_view
     password
 };
 
+enum class input_content
+{
+    text,
+    integer,
+    numeric
+};
+
 class input : public i_control, public std::enable_shared_from_this<input>
 {
 public:
-    input(std::string_view text = "", input_view input_view_ = input_view::singleline, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
+    input(std::string_view text = "",
+        input_view input_view_ = input_view::singleline,
+        input_content input_content_ = input_content::text,
+        int32_t symbols_limit = 10000, /// By default, the maximum limit - 10000 symbols
+        std::string_view theme_control_name = tc,
+        std::shared_ptr<i_theme> theme_ = nullptr);
     ~input();
 
     virtual void draw(graphic &gr, const rect &);
@@ -72,6 +84,8 @@ public:
     std::string text() const;
 
     void set_input_view(input_view input_view_);
+    void set_input_content(input_content input_content_);
+    void set_symbols_limit(int32_t symbols_limit);
 
     void set_change_callback(std::function<void(const std::string&)> change_callback);
     void set_return_callback(std::function<void()> return_callback);
@@ -98,6 +112,9 @@ public:
 
 private:
     input_view input_view_;
+    input_content input_content_;
+    int32_t symbols_limit;
+
     std::string text_;
     
     std::function<void(const std::string&)> change_callback;

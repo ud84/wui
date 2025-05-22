@@ -378,6 +378,8 @@ int main(int argc, char *argv[])
     
     auto nameInput = std::make_shared<wui::input>(/*"", wui::input_view::password*/);
     nameInput->set_text("Hello world!");
+    //nameInput->set_input_content(wui::input_content::numeric);
+    //nameInput->set_symbols_limit(20);
     //nameInput->set_input_view(wui::input_view::readonly);
     window->add_control(nameInput, { 320, 250, 890, 275 });
 
