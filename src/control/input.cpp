@@ -24,13 +24,18 @@
 #include <boost/nowide/convert.hpp>
 #include <utf8/utf8.h>
 
+#include <regex>
+#include <cctype>
+
 namespace wui
 {
 
 static const int32_t input_horizontal_indent = 5;
 
-input::input(std::string_view text__, input_view input_view__, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
+input::input(std::string_view text__, input_view input_view__, input_content input_content__, int32_t symbols_limit_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : input_view_(input_view__),
+    input_content_(input_content__),
+    symbols_limit(symbols_limit_),
     text_(text__),
     change_callback(),
     tcn(theme_control_name_),
@@ -321,6 +326,11 @@ void input::move_cursor_right()
     }
 }
 
+bool is_number(std::string_view s)
+{
+    return s.find_first_not_of("-,.0123456789");
+}
+
 void input::receive_control_events(const event &ev)
 {
     if (!showed_ || !enabled_)
@@ -570,7 +580,20 @@ void input::receive_control_events(const event &ev)
                 }
 
                 if (input_view_ == input_view::readonly ||
-                    ev.keyboard_event_.key[0] == vk_tab)
+                    ev.keyboard_event_.key[0] == vk_tab ||
+                    text_.size() >= symbols_limit)
+                {
+                    return;
+                }
+
+                if (input_content_ == input_content::integer &&
+                    !std::isdigit(ev.keyboard_event_.key[0]))
+                {
+                    return;
+                }
+
+                if (input_content_ == input_content::numeric &&
+                    !is_number(ev.keyboard_event_.key))
                 {
                     return;
                 }
@@ -768,6 +791,16 @@ void input::set_input_view(input_view input_view__)
     input_view_ = input_view__;
 }
 
+void input::set_input_content(input_content input_content__)
+{
+    input_content_ = input_content__;
+}
+
+void input::set_symbols_limit(int32_t symbols_limit_)
+{
+    symbols_limit = symbols_limit_;
+}
+
 void input::set_change_callback(std::function<void(const std::string&)> change_callback_)
 {
     change_callback = change_callback_;
@@ -848,6 +881,17 @@ void input::buffer_paste()
     clear_selected_text();
 
     auto paste_string = clipboard_get_text(parent_.lock()->context());
+
+    if (paste_string.size() + text_.size() > symbols_limit)
+    {
+        auto need_to_erase = (paste_string.size() + text_.size()) - symbols_limit;
+        if (paste_string.size() > need_to_erase)
+        {
+            paste_string.resize(paste_string.size() - need_to_erase);
+        }
+        else
+            return;
+    }
     
     text_.insert(cursor_position, paste_string);
 
