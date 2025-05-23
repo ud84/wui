@@ -255,7 +255,7 @@ void button::draw(graphic &gr, const rect &)
                 text_left = image_left + image_->width() + 5;
                 text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
 
-                truncate_line(caption, gr, font_, control_pos.right - text_left - 10, 1);
+                truncate_line(caption, gr, font_, control_pos.right - text_left - 10);
             }
         break;
         case button_view::image_bottom_text:

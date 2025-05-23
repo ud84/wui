@@ -280,26 +280,37 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
     return out_pos;
 }
 
-void truncate_line(std::string &line, graphic &gr, const font &font_, int32_t width, int32_t truncating_count)
+void truncate_line(std::string& text, graphic& gr, const font& f, int32_t max_width, std::string_view ellipsis)
 {
-    bool line_truncated = false;
-    auto text_size = gr.measure_text(line, font_);
-    while (static_cast<int32_t>(line.size()) > truncating_count && text_size.width() > width)
-    {
-        auto actual_truncated = line.size() - truncating_count;
-        while (actual_truncated > 0 && utf8::find_invalid(line.begin(), line.begin() + actual_truncated) != line.begin() + actual_truncated)
+    if (gr.measure_text(text, f).width() <= max_width)
+        return;
+
+    const int32_t ell_w = gr.measure_text(ellipsis, f).width();
+    if (ell_w > max_width)
+        return;
+
+    auto safe_cp_boundary = [](std::string_view s, std::size_t pos) -> std::size_t
         {
-            --actual_truncated;
-        }
-        line.resize(actual_truncated);
-        text_size = gr.measure_text(line, font_);
-        line_truncated = true;
+            while (pos && (static_cast<unsigned char>(s[pos]) & 0xC0) == 0x80)
+                --pos;                             // 10xxxxxx - continue byte
+            return pos;
+        };
+
+    std::size_t lo = 0, hi = text.size();
+    while (lo < hi)
+    {
+        std::size_t mid = (lo + hi + 1) / 2;
+        std::size_t cut = safe_cp_boundary(text, mid);
+
+        int32_t w = gr.measure_text(text.substr(0, cut), f).width() + ell_w;
+        if (w <= max_width)
+            lo = cut;
+        else
+            hi = cut ? cut - 1 : 0;
     }
 
-    if (line_truncated)
-    {
-        line += "...";
-    }
+    text.resize(lo);
+    text += ellipsis;
 }
 
 }

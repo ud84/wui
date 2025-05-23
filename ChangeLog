@@ -1,5 +1,6 @@
-# 1.1.250522
+# Unreleased
 1. Implemented symbols limits and numberic content checking in input (I-32)
+2. Improved truncate_line() tool (I-34)
 
 # 1.1.250510
 1. Added udev handler to send device change events on Linux (I-20)
