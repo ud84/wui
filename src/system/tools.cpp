@@ -15,6 +15,8 @@
 
 #include <boost/nowide/convert.hpp>
 
+#include <algorithm>
+
 #ifdef _WIN32
 
 #include <windows.h>
@@ -280,6 +282,8 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
     return out_pos;
 }
 
+#undef min
+
 void truncate_line(std::string& text, graphic& gr, const font& f, int32_t max_width, std::string_view ellipsis)
 {
     if (gr.measure_text(text, f).width() <= max_width)
@@ -292,7 +296,7 @@ void truncate_line(std::string& text, graphic& gr, const font& f, int32_t max_wi
     // Helper: start of the current UTF-8 character
     auto cp_start = [](std::string_view s, std::size_t pos)
         {
-            pos = min(pos, s.size());
+            pos = std::min(pos, s.size());
             while (pos && (static_cast<unsigned char>(s[pos - 1]) & 0xC0) == 0x80)
                 --pos;                  // 10xxxxxx -> continued
             return pos;
