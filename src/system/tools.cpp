@@ -289,27 +289,47 @@ void truncate_line(std::string& text, graphic& gr, const font& f, int32_t max_wi
     if (ell_w > max_width)
         return;
 
-    auto safe_cp_boundary = [](std::string_view s, std::size_t pos) -> std::size_t
+    // Helper: start of the current UTF-8 character
+    auto cp_start = [](std::string_view s, std::size_t pos)
         {
-            while (pos && (static_cast<unsigned char>(s[pos]) & 0xC0) == 0x80)
-                --pos;                             // 10xxxxxx - continue byte
+            pos = min(pos, s.size());
+            while (pos && (static_cast<unsigned char>(s[pos - 1]) & 0xC0) == 0x80)
+                --pos;                  // 10xxxxxx -> continued
             return pos;
         };
 
-    std::size_t lo = 0, hi = text.size();
-    while (lo < hi)
+    auto check_count_valid = [](std::string_view s, std::size_t count)
+        {
+            auto end_it = utf8::find_invalid(s.begin(), s.begin() + count);
+            return end_it == s.begin() + count;
+        };
+
+    // Binary search by half-open range [lo, hi)
+    std::size_t lo = 0;                 // guaranteed to fit
+    std::size_t hi = text.size();       // guaranteed not to fit
+
+    while (hi - lo > 1)                 // as long as the range is wider than one byte
     {
-        std::size_t mid = (lo + hi + 1) / 2;
-        std::size_t cut = safe_cp_boundary(text, mid);
+        std::size_t mid = (lo + hi) / 2;
+        std::size_t cut = cp_start(text, mid);
+
+        // if the boundary has not moved -> cannot be narrowed further
+        if (cut == lo) break;
 
         int32_t w = gr.measure_text(text.substr(0, cut), f).width() + ell_w;
         if (w <= max_width)
-            lo = cut;
+            lo = cut;                   // try further to the right
         else
-            hi = cut ? cut - 1 : 0;
+            hi = cut;                   // cut to the left
+    }
+
+    while (!check_count_valid(text, lo) && lo != 0)
+    {
+        --lo;        
     }
 
     text.resize(lo);
+        
     text += ellipsis;
 }
 
