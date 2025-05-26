@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2021-2022 Anton Golovkov (udattsk at gmail dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -284,57 +284,72 @@ rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position,
 
 #undef min
 
-void truncate_line(std::string& text, graphic& gr, const font& f, int32_t max_width, std::string_view ellipsis)
+namespace
 {
+    // helper: check "first len bytes - valid UTF-8".
+    inline bool prefix_is_valid_utf8(const std::string& s, std::size_t len)
+    {
+        return utf8::find_invalid(s.begin(), s.begin() + len) ==
+            s.begin() + len;
+    }
+
+    // helper: nearest valid position <= pos
+    std::size_t safe_utf8_cut(const std::string& s, std::size_t pos)
+    {
+        pos = std::min(pos, s.size());
+        while (pos && !prefix_is_valid_utf8(s, pos))
+            --pos;                       // maximum 3-4 steps (code point length)
+        return pos;
+    }
+}
+
+void truncate_line(std::string& text,
+    graphic& gr,
+    const font& f,
+    int32_t           max_width,
+    std::string_view  ellipsis)
+{
+    // 0. Does it fit yet?
     if (gr.measure_text(text, f).width() <= max_width)
         return;
 
     const int32_t ell_w = gr.measure_text(ellipsis, f).width();
-    if (ell_w > max_width)
-        return;
+    if (ell_w > max_width) { text.clear(); return; }
 
-    // Helper: start of the current UTF-8 character
-    auto cp_start = [](std::string_view s, std::size_t pos)
-        {
-            pos = std::min(pos, s.size());
-            while (pos && (static_cast<unsigned char>(s[pos - 1]) & 0xC0) == 0x80)
-                --pos;                  // 10xxxxxx -> continued
-            return pos;
-        };
+    // 1. Exponential acceleration: find "hi" where width > max_width
+    std::size_t lo = 0;
+    std::size_t hi = 1;
+    const std::size_t n = text.size();
 
-    auto check_count_valid = [](std::string_view s, std::size_t count)
-        {
-            auto end_it = utf8::find_invalid(s.begin(), s.begin() + count);
-            return end_it == s.begin() + count;
-        };
+    while (hi < n) {
+        std::size_t cut = safe_utf8_cut(text, hi);
+        if (cut == lo) { hi = std::min(hi * 2, n); continue; }
 
-    // Binary search by half-open range [lo, hi)
-    std::size_t lo = 0;                 // guaranteed to fit
-    std::size_t hi = text.size();       // guaranteed not to fit
+        int32_t w = gr.measure_text(
+            std::string_view(text.data(), cut), f).width() + ell_w;
+        if (w > max_width) break;
 
-    while (hi - lo > 1)                 // as long as the range is wider than one byte
-    {
+        lo = cut;
+        hi = std::min(hi * 2, n);
+    }
+    hi = std::max<std::size_t>(hi, lo + 1);   // guarantee hi > lo
+
+    // 2. Binary search in [lo, hi)
+    while (hi - lo > 1) {
         std::size_t mid = (lo + hi) / 2;
-        std::size_t cut = cp_start(text, mid);
+        std::size_t cut = safe_utf8_cut(text, mid);
+        if (cut == lo) { hi = lo + 1; break; }   // no progress
 
-        // if the boundary has not moved -> cannot be narrowed further
-        if (cut == lo) break;
-
-        int32_t w = gr.measure_text(text.substr(0, cut), f).width() + ell_w;
-        if (w <= max_width)
-            lo = cut;                   // try further to the right
-        else
-            hi = cut;                   // cut to the left
+        int32_t w = gr.measure_text(
+            std::string_view(text.data(), cut), f).width() + ell_w;
+        (w <= max_width) ? lo = cut : hi = cut;
     }
 
-    while (!check_count_valid(text, lo) && lo != 0)
-    {
-        --lo;        
+    // 3. Result
+    if (lo < text.size()) {
+        text.resize(lo);
+        text.append(ellipsis);
     }
-
-    text.resize(lo);
-        
-    text += ellipsis;
 }
 
 }
