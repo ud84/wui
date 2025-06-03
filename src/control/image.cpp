@@ -186,7 +186,8 @@ image::image(const std::vector<uint8_t> &data)
 #ifdef _WIN32
     resource_index(0),
 #endif
-    img(nullptr)
+    img(nullptr),
+    err{}
 {
     load_image_from_data(data, &img);
 }

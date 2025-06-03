@@ -171,13 +171,23 @@ void menu::receive_event(const event &ev)
     switch (ev.type)
     {
         case event_type::mouse:
-            if ((ev.mouse_event_.type == mouse_event_type::left_up || ev.mouse_event_.type == mouse_event_type::right_up) &&
-                !list_->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }) &&
-                (!activation_control ||
-                (activation_control && !activation_control->position().in({ ev.mouse_event_.x, ev.mouse_event_.y, ev.mouse_event_.x, ev.mouse_event_.y }))))
+        {
+            auto x = ev.mouse_event_.x, y = ev.mouse_event_.y;
+
+            bool mouse_btn_up = ev.mouse_event_.type == mouse_event_type::left_up ||
+                ev.mouse_event_.type == mouse_event_type::right_up;
+
+            bool outside_list = !list_->position().in({ x, y, x, y });
+
+            bool outside_activation =
+                !activation_control ||
+                !activation_control->position().in({ x, y, x, y });
+
+            if (mouse_btn_up && outside_list && outside_activation)
             {
                 list_->hide();
             }
+        }
         break;
         case event_type::keyboard:
             if (ev.keyboard_event_.type == keyboard_event_type::up)
