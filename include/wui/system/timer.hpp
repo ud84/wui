@@ -136,7 +136,7 @@ public:
 		}
 		if (h_timer_queue)
 		{
-			DeleteTimerQueue(h_timer_queue);
+			DeleteTimerQueueEx(h_timer_queue, INVALID_HANDLE_VALUE);
             h_timer_queue = nullptr;
 		}
 		started = false;

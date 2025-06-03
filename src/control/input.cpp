@@ -328,7 +328,7 @@ void input::move_cursor_right()
 
 bool is_number(std::string_view s)
 {
-    return s.find_first_not_of("-,.0123456789");
+    return s.find_first_not_of("-,.0123456789") != std::string::npos;
 }
 
 void input::receive_control_events(const event &ev)

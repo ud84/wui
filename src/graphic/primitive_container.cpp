@@ -23,7 +23,17 @@ namespace wui
 {
 
 primitive_container::primitive_container(wui::system_context &context__)
-    : context_(context__)
+    : context_(context__),
+    err{},
+#ifdef _WIN32
+    pens{},
+    brushes{},
+    fonts{},
+    bitmaps{}
+#elif __linux__
+    gcs{},
+    fonts{}
+#endif
 {
 }
 

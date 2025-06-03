@@ -43,7 +43,8 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_,
     progress(0),
     scrollbar_state_(scrollbar_state::tiny),
     slider_scrolling(false),
-    slider_click_pos(0)
+    slider_click_pos(0),
+    title_height(0)
 {
 }
 
