@@ -55,9 +55,9 @@ Email: info@libwui.org
 ![WUI screen 1](https://libwui.org/main/img/screenshoot-1.png)
 ![WUI screen 2](https://libwui.org/main/img/screenshoot-2.png)
 
-## Using PVS-Studio
+## SAST Tools
 
-We use PVS-Studio to improve code quality and search for potential errors.
+[PVS-Studio](https://pvs-studio.com/pvs-studio/?utm_source=website&utm_medium=github&utm_campaign=open_source) - static analyzer for C, C++, C#, and Java code.
 
 ## Donate ❤️
 
