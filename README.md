@@ -55,6 +55,10 @@ Email: info@libwui.org
 ![WUI screen 1](https://libwui.org/main/img/screenshoot-1.png)
 ![WUI screen 2](https://libwui.org/main/img/screenshoot-2.png)
 
+## Using PVS-Studio
+
+We use PVS-Studio to improve code quality and search for potential errors.
+
 ## Donate ❤️
 
 In order for me to implement macOS support I need a macbook, which I don't have.
