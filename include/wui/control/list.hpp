@@ -106,7 +106,7 @@ public:
         right
     };
 
-    void set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state)> draw_callback_);
+    void set_draw_callback(std::function<void(graphic&, int32_t, rect, item_state)> draw_callback_);
     void set_item_height_callback(std::function<void(int32_t, int32_t&)> item_height_callback_);
     void set_item_click_callback(std::function<void(click_button, int32_t, int32_t, int32_t)> item_click_callback_);
     void set_item_change_callback(std::function<void(int32_t)> item_change_callback_);
@@ -155,7 +155,7 @@ private:
 
     std::shared_ptr<scroll> vert_scroll;
 
-    std::function<void(graphic&, int32_t, const rect&, item_state)> draw_callback;
+    std::function<void(graphic&, int32_t, rect, item_state)> draw_callback;
     std::function<void(int32_t, int32_t&)> item_height_callback;
     std::function<void(click_button, int32_t, int32_t, int32_t)> item_click_callback;
     std::function<void(int32_t)> item_change_callback;

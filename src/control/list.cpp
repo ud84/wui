@@ -656,7 +656,7 @@ int32_t list::get_item_top(int32_t n_item) const
     return top;
 }
 
-void list::set_draw_callback(std::function<void(graphic&, int32_t, const rect&, item_state state)> draw_callback_)
+void list::set_draw_callback(std::function<void(graphic&, int32_t, rect, item_state state)> draw_callback_)
 {
     draw_callback = draw_callback_;
 }
