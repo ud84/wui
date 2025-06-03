@@ -38,9 +38,9 @@ public:
     image(const std::vector<uint8_t> &data);
     ~image();
 
-    virtual void draw(graphic &gr, const rect &);
+    virtual void draw(graphic &gr, rect );
 
-    virtual void set_position(const rect &position, bool redraw = true);
+    virtual void set_position(rect position, bool redraw = true);
     virtual std::weak_ptr<window> parent() const;
     virtual rect position() const;
 

@@ -64,7 +64,7 @@ select::~select()
     }
 }
 
-void select::draw(graphic &gr, const rect &)
+void select::draw(graphic &gr, rect )
 {
     if (!showed_ || position_.width() == 0 || position_.height() == 0)
     {
@@ -295,7 +295,7 @@ void select::update_list_theme()
     list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tcn, tv_round, theme_));
 }
 
-void select::set_position(const rect &position__, bool redraw)
+void select::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 }
@@ -524,7 +524,7 @@ void select::redraw()
     }
 }
 
-void select::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect, list::item_state state)
+void select::draw_list_item(graphic &gr, int32_t n_item, rect item_rect, list::item_state state)
 {
     if (static_cast<int32_t>(items_.size()) <= n_item)
     {

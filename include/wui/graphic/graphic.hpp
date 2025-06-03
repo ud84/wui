@@ -35,30 +35,30 @@ public:
     graphic(system_context &context);
     ~graphic();
 
-    bool init(const rect &max_size, color background_color);
+    bool init(rect max_size, color background_color);
     void release();
 
     void set_background_color(color background_color);
 
-    void clear(const rect &position);
+    void clear(rect position);
 
-    void flush(const rect &updated_size);
+    void flush(rect updated_size);
 
-    void draw_pixel(const rect &position, color color_);
+    void draw_pixel(rect position, color color_);
 
-    void draw_line(const rect &position, color color_, uint32_t width = 1);
+    void draw_line(rect position, color color_, uint32_t width = 1);
 
     rect measure_text(std::string_view text, const font &font_);
-    void draw_text(const rect &position, std::string_view text, color color_, const font &font_);
+    void draw_text(rect position, std::string_view text, color color_, const font &font_);
 
-    void draw_rect(const rect &position, color fill_color);
-    void draw_rect(const rect &position, color border_color, color fill_color, uint32_t border_width, uint32_t round);
+    void draw_rect(rect position, color fill_color);
+    void draw_rect(rect position, color border_color, color fill_color, uint32_t border_width, uint32_t round);
 
     /// draw some buffer on context
-    void draw_buffer(const rect &position, uint8_t *buffer, int32_t left_shift, int32_t top_shift);
+    void draw_buffer(rect position, uint8_t *buffer, int32_t left_shift, int32_t top_shift);
 
     /// draw another graphic on context
-    void draw_graphic(const rect &position, graphic &graphic_, int32_t left_shift, int32_t top_shift);
+    void draw_graphic(rect position, graphic &graphic_, int32_t left_shift, int32_t top_shift);
 
 #ifdef _WIN32
     HDC drawable();
@@ -69,7 +69,7 @@ public:
     void start_cairo_device();
     void end_cairo_device();
 
-    void draw_surface(_cairo_surface &surface, const rect &position);
+    void draw_surface(_cairo_surface &surface, rect position);
 #endif
 
     error get_error() const;

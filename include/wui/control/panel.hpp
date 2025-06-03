@@ -28,9 +28,9 @@ public:
     panel(std::function<void(graphic&)> draw_callback, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~panel();
 
-    virtual void draw(graphic &gr, const rect &);
+    virtual void draw(graphic &gr, rect );
 
-    virtual void set_position(const rect &position, bool redraw = true);
+    virtual void set_position(rect position, bool redraw = true);
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);

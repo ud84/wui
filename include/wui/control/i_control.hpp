@@ -25,9 +25,9 @@ class i_theme;
 class i_control
 {
 public:
-    virtual void draw(graphic &gr, const rect &paint_rect) = 0;
+    virtual void draw(graphic &gr, rect paint_rect) = 0;
 
-    virtual void set_position(const rect &position, bool redraw = true) = 0;
+    virtual void set_position(rect position, bool redraw = true) = 0;
     virtual rect position() const = 0;
 
     virtual void set_parent(std::shared_ptr<window> window_) = 0;

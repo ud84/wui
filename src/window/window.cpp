@@ -201,7 +201,7 @@ window::~window()
 #endif
 }
 
-void window::add_control(std::shared_ptr<i_control> control, const rect &control_position)
+void window::add_control(std::shared_ptr<i_control> control, rect control_position)
 {
     if (std::find(controls.begin(), controls.end(), control) == controls.end())
     {
@@ -264,7 +264,7 @@ void window::move_to_back(std::shared_ptr<i_control> control)
     }
 }
 
-void window::redraw(const rect &redraw_position, bool clear)
+void window::redraw(rect redraw_position, bool clear)
 {
     if (redraw_position.is_null() || skip_draw_)
     {
@@ -351,7 +351,7 @@ system_context &window::context()
     }
 }
 
-void window::draw(graphic &gr, const rect &paint_rect)
+void window::draw(graphic &gr, rect paint_rect)
 {
     /// drawing the child window
 
@@ -503,7 +503,7 @@ void window::receive_plain_events(const event &ev)
     send_event_to_plains(ev);
 }
 
-void window::set_position(const rect &position__, bool redraw_)
+void window::set_position(rect position__, bool redraw_)
 {
     auto old_position = position_;
     auto position___ = position__;
@@ -1585,7 +1585,7 @@ std::shared_ptr<window> window::get_transient_window()
     return transient_window.lock();
 }
 
-bool window::init(std::string_view caption_, const rect &position__, window_style style, std::function<void(void)> close_callback_)
+bool window::init(std::string_view caption_, rect position__, window_style style, std::function<void(void)> close_callback_)
 {
     err.reset();
 
