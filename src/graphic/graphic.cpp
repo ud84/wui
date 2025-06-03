@@ -66,7 +66,7 @@ graphic::~graphic()
     release();
 }
 
-bool graphic::init(const rect &max_size_, color background_color_)
+bool graphic::init(rect max_size_, color background_color_)
 {
     max_size = max_size_;
     background_color = background_color_;
@@ -182,7 +182,7 @@ void graphic::set_background_color(color background_color_)
     clear({ 0, 0, max_size.width(), max_size.height() });
 }
 
-void graphic::clear(const rect &position)
+void graphic::clear(rect position)
 {
 #ifdef _WIN32
     if (!mem_dc)
@@ -210,7 +210,7 @@ void graphic::clear(const rect &position)
 #endif
 }
 
-void graphic::flush(const rect &updated_size)
+void graphic::flush(rect updated_size)
 {
 #ifdef _WIN32
     auto wnd_dc = GetDC(context_.hwnd);
@@ -251,7 +251,7 @@ void graphic::flush(const rect &updated_size)
 #endif
 }
 
-void graphic::draw_pixel(const rect &position, color color_)
+void graphic::draw_pixel(rect position, color color_)
 {
 #ifdef _WIN32
     SetPixel(mem_dc, position.left, position.top, color_);
@@ -261,7 +261,7 @@ void graphic::draw_pixel(const rect &position, color color_)
 #endif
 }
 
-void graphic::draw_line(const rect &position, color color_, uint32_t width)
+void graphic::draw_line(rect position, color color_, uint32_t width)
 {
 #ifdef _WIN32
     auto old_pen = (HPEN)SelectObject(mem_dc, pc.get_pen(PS_SOLID, width, color_));
@@ -318,7 +318,7 @@ rect graphic::measure_text(std::string_view text_, const font &font__)
 #endif
 }
 
-void graphic::draw_text(const rect &position, std::string_view text_, color color_, const font &font__)
+void graphic::draw_text(rect position, std::string_view text_, color color_, const font &font__)
 {
 #ifdef _WIN32
     auto old_font = (HFONT)SelectObject(mem_dc, pc.get_font(font__));
@@ -362,7 +362,7 @@ void graphic::draw_text(const rect &position, std::string_view text_, color colo
 #endif
 }
 
-void graphic::draw_rect(const rect &position, color fill_color)
+void graphic::draw_rect(rect position, color fill_color)
 {
 #ifdef _WIN32
     RECT position_rect = { position.left, position.top, position.right, position.bottom };
@@ -391,7 +391,7 @@ void graphic::draw_rect(const rect &position, color fill_color)
 #endif
 }
 
-void graphic::draw_rect(const rect &position, color border_color, color fill_color, uint32_t border_width, uint32_t rnd)
+void graphic::draw_rect(rect position, color border_color, color fill_color, uint32_t border_width, uint32_t rnd)
 {
 #ifdef _WIN32
     auto old_pen = (HPEN)SelectObject(mem_dc, pc.get_pen(border_width != 0 ? PS_SOLID : PS_NULL, border_width, border_color));
@@ -462,7 +462,7 @@ void graphic::draw_rect(const rect &position, color border_color, color fill_col
 #endif
 }
 
-void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_shift, int32_t top_shift)
+void graphic::draw_buffer(rect position, uint8_t *buffer, int32_t left_shift, int32_t top_shift)
 {
 #ifdef _WIN32
     auto source_bitmap = pc.get_bitmap(position.width(), position.height(), buffer, mem_dc);
@@ -536,7 +536,7 @@ void graphic::draw_buffer(const rect &position, uint8_t *buffer, int32_t left_sh
 #endif
 }
 
-void graphic::draw_graphic(const rect &position, graphic &graphic_, int32_t left_shift, int32_t top_shift)
+void graphic::draw_graphic(rect position, graphic &graphic_, int32_t left_shift, int32_t top_shift)
 {
 #ifdef _WIN32
     if (graphic_.drawable())
@@ -603,7 +603,7 @@ void graphic::end_cairo_device()
     }
 }
 
-void graphic::draw_surface(cairo_surface_t &surface_, const rect &position__)
+void graphic::draw_surface(cairo_surface_t &surface_, rect position__)
 {
     auto cr = cairo_create(surface);
 

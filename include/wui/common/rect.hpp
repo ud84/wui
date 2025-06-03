@@ -18,17 +18,17 @@ struct rect
 {
     int32_t left, top, right, bottom;
 
-    inline bool operator==(const rect &lv)
+    inline bool operator==(rect lv)
     {
         return left == lv.left && top == lv.top && right == lv.right && bottom == lv.bottom;
     }
 
-    inline bool operator>(const rect &lv)
+    inline bool operator>(rect lv)
     {
         return width() > lv.width() && height() > lv.height();
     }
 
-    inline rect operator+(const rect &lv)
+    inline rect operator+(rect lv)
     {
         return rect{ left + lv.left, top + lv.top, left + lv.right, top + lv.bottom };
     }
@@ -38,7 +38,7 @@ struct rect
         return x >= left && x <= right && y >= top && y <= bottom;
     }
 
-    inline bool in(const rect &outer) const
+    inline bool in(rect outer) const
     {
         return !((outer.right <= left || right <= outer.left || outer.bottom <= top || bottom <= outer.top));
     }

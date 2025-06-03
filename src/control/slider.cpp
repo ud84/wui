@@ -47,7 +47,7 @@ slider::~slider()
     }
 }
 
-void slider::draw(graphic &gr, const rect &)
+void slider::draw(graphic &gr, rect )
 {
     if (!showed_)
     {
@@ -253,7 +253,7 @@ void slider::receive_plain_events(const event &ev)
     }
 }
 
-void slider::set_position(const rect &position__, bool redraw)
+void slider::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 

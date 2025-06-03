@@ -203,7 +203,7 @@ image::~image()
     }
 }
 
-void image::draw(graphic &gr_, const rect &)
+void image::draw(graphic &gr_, rect )
 {
     if (!showed_)
     {
@@ -232,7 +232,7 @@ void image::draw(graphic &gr_, const rect &)
 #endif
 }
 
-void image::set_position(const rect &position__, bool redraw)
+void image::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 }

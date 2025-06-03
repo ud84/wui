@@ -37,7 +37,7 @@ tooltip::~tooltip()
     }
 }
 
-void tooltip::draw(graphic &gr, const rect &)
+void tooltip::draw(graphic &gr, rect )
 {
     if (!showed_)
     {
@@ -62,7 +62,7 @@ void tooltip::draw(graphic &gr, const rect &)
     gr.draw_text(text_position, text, theme_color(tcn, tv_text, theme_), font_);
 }
 
-void tooltip::set_position(const rect &position__, bool redraw)
+void tooltip::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 }

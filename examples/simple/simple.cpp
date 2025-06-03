@@ -240,7 +240,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         Init();
     }
 
-    void DrawListItem(wui::graphic &gr, int32_t nItem, const wui::rect &itemRect, wui::list::item_state state)
+    void DrawListItem(wui::graphic &gr, int32_t nItem, wui::rect itemRect, wui::list::item_state state)
     {
         auto border_width = wui::theme_dimension(wui::list::tc, wui::list::tv_border_width);
 

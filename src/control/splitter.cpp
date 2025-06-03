@@ -40,7 +40,7 @@ splitter::~splitter()
     }
 }
 
-void splitter::draw(graphic &gr, const rect &)
+void splitter::draw(graphic &gr, rect )
 {
     if (!showed_)
     {
@@ -153,7 +153,7 @@ void splitter::receive_plain_events(const event &ev)
     }
 }
 
-void splitter::set_position(const rect &position__, bool redraw)
+void splitter::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw && !no_redraw, parent_);
 }

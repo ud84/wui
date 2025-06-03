@@ -50,16 +50,16 @@ public:
     virtual ~window();
 
     /// i_window impl
-    virtual bool init(std::string_view caption, const rect &position, window_style style, std::function<void(void)> close_callback = []() {});
+    virtual bool init(std::string_view caption, rect position, window_style style, std::function<void(void)> close_callback = []() {});
     virtual void destroy();
 
-    virtual void add_control(std::shared_ptr<i_control> control, const rect &position);
+    virtual void add_control(std::shared_ptr<i_control> control, rect position);
     virtual void remove_control(std::shared_ptr<i_control> control);
 
     virtual void bring_to_front(std::shared_ptr<i_control> control);
     virtual void move_to_back(std::shared_ptr<i_control> control);
 
-    virtual void redraw(const rect &position, bool clear = false);
+    virtual void redraw(rect position, bool clear = false);
 
     virtual std::string subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr);
     virtual void unsubscribe(std::string_view subscriber_id);
@@ -67,9 +67,9 @@ public:
     virtual system_context &context();
 
 	/// i_control impl
-    virtual void draw(graphic &gr, const rect &paint_rect);
+    virtual void draw(graphic &gr, rect paint_rect);
 
-    virtual void set_position(const rect &position, bool redraw = true);
+    virtual void set_position(rect position, bool redraw = true);
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);

@@ -69,9 +69,9 @@ public:
     menu(std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     ~menu();
 
-    virtual void draw(graphic &gr, const rect &);
+    virtual void draw(graphic &gr, rect);
 
-    virtual void set_position(const rect &position, bool redraw = true);
+    virtual void set_position(rect position, bool redraw = true);
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);
@@ -158,7 +158,7 @@ private:
     void update_size();
 
     void draw_arrow_down(graphic &gr, rect pos, bool expanded);
-    void draw_list_item(wui::graphic &gr, int32_t n_item, const wui::rect &item_rect_, list::item_state state);
+    void draw_list_item(wui::graphic &gr, int32_t n_item, rect item_rect_, list::item_state state);
     void activate_list_item(int32_t n_item);
 };
 

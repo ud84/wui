@@ -47,7 +47,7 @@ panel::~panel()
     }
 }
 
-void panel::draw(graphic &gr, const rect &)
+void panel::draw(graphic &gr, rect )
 {
     if (!showed_)
     {
@@ -62,7 +62,7 @@ void panel::draw(graphic &gr, const rect &)
     }
 }
 
-void panel::set_position(const rect &position__, bool redraw)
+void panel::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 }

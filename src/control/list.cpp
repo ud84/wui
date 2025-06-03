@@ -55,7 +55,7 @@ list::~list()
     }
 }
 
-void list::draw(graphic &gr, const rect &)
+void list::draw(graphic &gr, rect )
 {
     if (!showed_ || position_.is_null())
     {
@@ -409,7 +409,7 @@ void list::receive_control_events(const event &ev)
     }
 }
 
-void list::set_position(const rect &position__, bool redraw)
+void list::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 

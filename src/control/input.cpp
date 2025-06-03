@@ -76,7 +76,7 @@ int32_t get_text_width(graphic &gr, std::string text, size_t text_length, const 
     return text_rect.right;
 }
 
-void input::draw(graphic &gr, const rect &)
+void input::draw(graphic &gr, rect )
 {
     if (!showed_ || position_.width() == 0 || position_.height() == 0 || position_.width() <= input_horizontal_indent * 2)
     {
@@ -650,7 +650,7 @@ void input::receive_plain_events(const event &ev)
     }
 }
 
-void input::set_position(const rect &position__, bool redraw)
+void input::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 }

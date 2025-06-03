@@ -131,7 +131,7 @@ bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, error 
 #endif
 
 void update_control_position(rect &control_position,
-    const rect &new_control_position,
+    rect new_control_position,
     bool redraw,
     std::weak_ptr<window> parent)
 {
@@ -171,7 +171,7 @@ void line_up_left_right(rect &pos, int32_t width, int32_t space)
     pos.right = pos.left + width;
 }
 
-rect get_control_position(const rect &control_position, std::weak_ptr<window> parent)
+rect get_control_position(rect control_position, std::weak_ptr<window> parent)
 {
     auto out_pos = control_position;
 
@@ -184,7 +184,7 @@ rect get_control_position(const rect &control_position, std::weak_ptr<window> pa
     return out_pos;
 }
 
-rect get_popup_position(std::weak_ptr<window> parent, const rect &base_position, const rect &popup_control_position, int32_t indent)
+rect get_popup_position(std::weak_ptr<window> parent, rect base_position, rect popup_control_position, int32_t indent)
 {
     auto parent_ = parent.lock();
     if (!parent_)

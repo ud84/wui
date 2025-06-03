@@ -57,7 +57,7 @@ scroll::~scroll()
     }
 }
 
-void scroll::draw(graphic &gr, const rect &)
+void scroll::draw(graphic &gr, rect )
 {
     if (!showed_ || position_.is_null())
     {
@@ -95,7 +95,7 @@ void scroll::draw(graphic &gr, const rect &)
     gr.draw_rect(slider_rect, theme_color(tcn, scrollbar_state_ == scrollbar_state::full ? tv_slider_acive : tv_slider, theme_));
 }
 
-void scroll::set_position(const rect &position__, bool redraw)
+void scroll::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 

@@ -44,7 +44,7 @@ progress::~progress()
     }
 }
 
-void progress::draw(graphic &gr, const rect &)
+void progress::draw(graphic &gr, rect )
 {
     if (!showed_)
     {
@@ -83,7 +83,7 @@ void progress::draw(graphic &gr, const rect &)
     }
 }
 
-void progress::set_position(const rect &position__, bool redraw)
+void progress::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 }

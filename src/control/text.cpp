@@ -45,7 +45,7 @@ text::~text()
     }
 }
 
-void text::draw(graphic &gr, const rect &)
+void text::draw(graphic &gr, rect )
 {
     if (!showed_)
     {
@@ -119,7 +119,7 @@ void text::draw(graphic &gr, const rect &)
     }
 }
 
-void text::set_position(const rect &position__, bool redraw)
+void text::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 }

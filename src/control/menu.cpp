@@ -103,11 +103,11 @@ menu::~menu()
     }
 }
 
-void menu::draw(graphic &gr, const rect &)
+void menu::draw(graphic &gr, rect )
 {
 }
 
-void menu::set_position(const rect &position__, bool redraw)
+void menu::set_position(rect position__, bool redraw)
 {
     list_->set_position(position__, redraw);
 }
@@ -456,7 +456,7 @@ void menu::draw_arrow_down(graphic &gr, rect pos, bool expanded)
     }
 }
 
-void menu::draw_list_item(graphic &gr, int32_t n_item, const rect &item_rect, list::item_state state)
+void menu::draw_list_item(graphic &gr, int32_t n_item, rect item_rect, list::item_state state)
 {
     auto item = get_item(items, n_item);
     if (!item)

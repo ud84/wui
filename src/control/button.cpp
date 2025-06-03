@@ -156,7 +156,7 @@ button::~button()
     }
 }
 
-void button::draw(graphic &gr, const rect &)
+void button::draw(graphic &gr, rect )
 {
     if (!showed_)
     {
@@ -429,7 +429,7 @@ void button::receive_event(const event &ev)
     }
 }
 
-void button::set_position(const rect &position__, bool redraw)
+void button::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
 }
