@@ -65,10 +65,7 @@ public:
 #elif __linux__
     xcb_drawable_t drawable();
 
-    /// workarounds on linux
-    void start_cairo_device();
-    void end_cairo_device();
-
+    /// workaround on linux
     void draw_surface(_cairo_surface &surface, rect position);
 #endif
 

@@ -151,6 +151,8 @@ bool graphic::init(rect max_size_, color background_color_)
 
 void graphic::release()
 {
+    pc.release();
+    
 #ifdef _WIN32
     DeleteObject(mem_bitmap);
     mem_bitmap = 0;
@@ -171,8 +173,6 @@ void graphic::release()
         mem_pixmap = 0;
     }
 #endif
-
-    pc.release();
 }
 
 void graphic::set_background_color(color background_color_)
@@ -193,7 +193,7 @@ void graphic::clear(rect position)
     RECT filling_rect = { position.left, position.top, position.right, position.bottom };
     FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
 #elif __linux__
-    if (!mem_pixmap)
+    if (!mem_pixmap || !surface)
     {
         return;
     }
@@ -378,6 +378,11 @@ void graphic::draw_rect(rect position, color fill_color)
         std::swap(pos.top, pos.bottom);
     }
 
+    if (!surface)
+    {
+        return;
+    }
+
     auto cr = cairo_create(surface);
 
     cairo_set_source_rgba(cr, static_cast<double>(wui::get_red(fill_color)) / 255,
@@ -404,6 +409,11 @@ void graphic::draw_rect(rect position, color border_color, color fill_color, uin
 
     SelectObject(mem_dc, old_pen);
 #elif __linux__
+
+    if (!surface)
+    {
+        return;
+    }
 
     auto cr = cairo_create(surface);
 
@@ -585,26 +595,13 @@ xcb_drawable_t graphic::drawable()
 }
 
 /// workarounds
-void graphic::start_cairo_device()
-{
-    if (!device)
-    {
-        device = cairo_device_reference(cairo_surface_get_device(surface));
-    }
-}
-
-void graphic::end_cairo_device()
-{
-    if (device)
-    {
-        cairo_device_finish(device);
-        cairo_device_destroy(device);
-        device = nullptr;
-    }
-}
-
 void graphic::draw_surface(cairo_surface_t &surface_, rect position__)
 {
+    if (!surface)
+    {
+        return;
+    }
+    
     auto cr = cairo_create(surface);
 
     auto surface_width = cairo_image_surface_get_width(&surface_);

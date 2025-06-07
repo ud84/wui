@@ -1,8 +1,9 @@
-# Unreleased
+# 1.2.250607
 1. Implemented symbols limits and numberic content checking in input (I-32)
 2. Improved truncate_line() tool (I-34)
 3. Cleanup and resolve PVS warns (I-42)
 4. Replaced 'const wui::rect&' to 'wui::rect'. Interface changed! (I-42.2)
+5. Implemented one thread per many independent windows message handling on Linux. The behavior of ports under windows and linux is completely identical! (I-46)
 
 # 1.1.250510
 1. Added udev handler to send device change events on Linux (I-20)

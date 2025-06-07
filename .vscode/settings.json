@@ -60,6 +60,13 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "list": "cpp",
-        "source_location": "cpp"
+        "source_location": "cpp",
+        "bitset": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "regex": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp"
     }
 }
