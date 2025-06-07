@@ -17,6 +17,8 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <gdiplus.h>
+#elif __linux__
+#include <wui/window/listener.h>
 #endif
 
 #include <memory>
@@ -35,14 +37,23 @@ static std::shared_ptr<i_framework> instance = nullptr;
 void init()
 {
 #ifdef _WIN32
-        Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-        ULONG_PTR gdiplusToken;
-        Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 #elif __linux__
-        if (setlocale(LC_ALL, "") == NULL)
-        {
-            std::cerr << "warning: could not set default locale" << std::endl;
-        }
+    if (setlocale(LC_ALL, "") == NULL)
+    {
+        std::cerr << "warning: could not set default locale" << std::endl;
+    }
+    auto ok = get_listener().init();
+    if (!ok)
+    {
+        // todo
+
+        //error err;
+        //err.type = error_type::system_error;
+        //err.component = "framework::init get_listener().start()";
+    }
 #endif
 }
 

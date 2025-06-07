@@ -170,7 +170,6 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_wm_name(), utf8_string(), net_active_window(), net_wm_state_fullscreen(), net_wm_state_maximized_vert(), net_wm_state_maximized_horz(), net_wm_moveresize(),
     prev_button_click(0),
     started(false),
-    thread(),
     udev_handler_(),
     key_modifier(0)
 #endif
@@ -197,7 +196,6 @@ window::~window()
     }
 #elif __linux__
     send_destroy_event();
-    if (thread.joinable()) thread.join();
 #endif
 }
 
@@ -1731,22 +1729,17 @@ bool window::init(std::string_view caption_, rect position__, window_style style
 
 #elif __linux__
 
-    context_.display = XOpenDisplay(NULL);
+    context_ = get_listener().context();
     if (!context_.display)
     {
         err.type = error_type::system_error;
         err.component = "window::init()";
-        err.message = "window can't open make the connection to X server";
+        err.message = "window can't open the connection to X server";
         
         return false;
     }
 
-    XSetEventQueueOwner(context_.display, XCBOwnsEventQueue);
-    context_.connection = XGetXCBConnection(context_.display);
-
     init_atoms();
-
-    context_.screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
 
     if (position_.left == -1)
     {
@@ -1827,14 +1820,12 @@ bool window::init(std::string_view caption_, rect position__, window_style style
     xcb_flush(context_.connection);
 
     send_internal(internal_event_type::size_changed, position_.width(), position_.height());
-
+    
     graphic_.init(get_screen_size(context_), theme_color(tcn, tv_background, theme_));
-    graphic_.start_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
-
+    
     started = true;
     
-    if (thread.joinable()) thread.join();
-    thread = std::thread(std::bind(&window::process_events, this));
+    get_listener().add_window(context_.wnd, shared_from_this());
 
     send_internal(internal_event_type::window_created, 0, 0);
 #endif
@@ -2577,364 +2568,347 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
 #elif __linux__
 
-void window::process_events()
+void window::process_events(xcb_generic_event_t &e)
 {
-    xcb_generic_event_t *e = nullptr;
-    while (started && (e = xcb_wait_for_event(context_.connection)))
+    switch (e.response_type & ~0x80)
     {
-        switch (e->response_type & ~0x80)
+        case XCB_EXPOSE:
         {
-            case XCB_EXPOSE:
+            auto expose = *(xcb_expose_event_t*)&e;
+
+            const rect paint_rect{ expose.x, expose.y, expose.x + expose.width, expose.y + expose.height };
+
+            if (expose.pad0 != 0)
             {
-                auto expose = (*(xcb_expose_event_t*)e);
-
-                const rect paint_rect{ expose.x, expose.y, expose.x + expose.width, expose.y + expose.height };
-
-                if (expose.pad0 != 0)
-                {
-                    graphic_.clear(paint_rect);
-                }
-
-                if (flag_is_set(window_style_, window_style::title_showed) && parent_.lock() == nullptr)
-                {
-                    auto caption_font = theme_font(tcn, tv_caption_font, theme_);
-
-                    auto caption_rect = graphic_.measure_text(caption, caption_font);
-                    caption_rect.move(10, 5);
-
-                    if (caption_rect.in(paint_rect))
-                    {
-                        graphic_.draw_rect(caption_rect, theme_color(tcn, tv_background, theme_));
-                        graphic_.draw_text(caption_rect,
-                            caption,
-                            theme_color(tcn, tv_text, theme_),
-                            caption_font);
-                    }
-                }
-
-                draw_border(graphic_);
-
-                std::vector<std::shared_ptr<i_control>> topmost_controls;
-
-                for (auto &control : controls)
-                {
-                    if (control->position().in(paint_rect))
-                    {
-                        if (!control->topmost())
-                        {
-                            control->draw(graphic_, paint_rect);
-                        }
-                        else
-                        {
-                            topmost_controls.emplace_back(control);
-                        }
-                    }
-                }
-
-                for (auto &control : topmost_controls)
-                {
-                    control->draw(graphic_, paint_rect);
-                }
-
-                graphic_.flush(paint_rect);
+                graphic_.clear(paint_rect);
             }
-            break;
-            case XCB_MOTION_NOTIFY:
+
+            if (flag_is_set(window_style_, window_style::title_showed) && parent_.lock() == nullptr)
             {
-                auto *ev = (xcb_motion_notify_event_t *)e;
+                auto caption_font = theme_font(tcn, tv_caption_font, theme_);
 
-                int16_t x_mouse = ev->event_x;
-                int16_t y_mouse = ev->event_y;
+                auto caption_rect = graphic_.measure_text(caption, caption_font);
+                caption_rect.move(10, 5);
 
-                static bool cursor_size_view = false;
-
-                auto ws = get_window_size(context_);
-
-                if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
+                if (caption_rect.in(paint_rect))
                 {
-                    if ((x_mouse > ws.width() - 5 && y_mouse > ws.height() - 5) ||
-                        (x_mouse < 5 && y_mouse < 5))
+                    graphic_.draw_rect(caption_rect, theme_color(tcn, tv_background, theme_));
+                    graphic_.draw_text(caption_rect,
+                        caption,
+                        theme_color(tcn, tv_text, theme_),
+                        caption_font);
+                }
+            }
+
+            draw_border(graphic_);
+
+            std::vector<std::shared_ptr<i_control>> topmost_controls;
+
+            for (auto &control : controls)
+            {
+                if (control->position().in(paint_rect))
+                {
+                    if (!control->topmost())
                     {
-                        set_cursor(context_, cursor::size_nwse);
-                        cursor_size_view = true;
+                        control->draw(graphic_, paint_rect);
                     }
-                    else if ((x_mouse > ws.width() - 5 && y_mouse < 5) ||
-                        (x_mouse < 5 && y_mouse > ws.height() - 5))
+                    else
                     {
-                        set_cursor(context_, cursor::size_nesw);
-                        cursor_size_view = true;
-                    }
-                    else if (x_mouse > ws.width() - 5 || x_mouse < 5)
-                    {
-                        set_cursor(context_, cursor::size_we);
-                        cursor_size_view = true;
-                    }
-                    else if (y_mouse > ws.height() - 5 || y_mouse < 5)
-                    {
-                        set_cursor(context_, cursor::size_ns);
-                        cursor_size_view = true;
-                    }
-                    else if (cursor_size_view &&
-                        x_mouse > 5 && x_mouse < ws.width() - 5 &&
-                        y_mouse > 5 && y_mouse < ws.height() - 5)
-                    {
-                        set_cursor(context_, cursor::default_);
-                        cursor_size_view = false;
+                        topmost_controls.emplace_back(control);
                     }
                 }
+            }
 
-                if (moving_mode_ != moving_mode::none)
+            for (auto &control : topmost_controls)
+            {
+                control->draw(graphic_, paint_rect);
+            }
+
+            graphic_.flush(paint_rect);
+        }
+        break;
+        case XCB_MOTION_NOTIFY:
+        {
+            auto *ev = (xcb_motion_notify_event_t*)&e;
+
+            int16_t x_mouse = ev->event_x;
+            int16_t y_mouse = ev->event_y;
+
+            static bool cursor_size_view = false;
+
+            auto ws = get_window_size(context_);
+
+            if (flag_is_set(window_style_, window_style::resizable) && window_state_ == window_state::normal)
+            {
+                if ((x_mouse > ws.width() - 5 && y_mouse > ws.height() - 5) ||
+                    (x_mouse < 5 && y_mouse < 5))
                 {
-                    int32_t wm_moveresize_dir = 0,
-                        x_pos = ev->root_x,
-                        y_pos = ev->root_y;
+                    set_cursor(context_, cursor::size_nwse);
+                    cursor_size_view = true;
+                }
+                else if ((x_mouse > ws.width() - 5 && y_mouse < 5) ||
+                    (x_mouse < 5 && y_mouse > ws.height() - 5))
+                {
+                    set_cursor(context_, cursor::size_nesw);
+                    cursor_size_view = true;
+                }
+                else if (x_mouse > ws.width() - 5 || x_mouse < 5)
+                {
+                    set_cursor(context_, cursor::size_we);
+                    cursor_size_view = true;
+                }
+                else if (y_mouse > ws.height() - 5 || y_mouse < 5)
+                {
+                    set_cursor(context_, cursor::size_ns);
+                    cursor_size_view = true;
+                }
+                else if (cursor_size_view &&
+                    x_mouse > 5 && x_mouse < ws.width() - 5 &&
+                    y_mouse > 5 && y_mouse < ws.height() - 5)
+                {
+                    set_cursor(context_, cursor::default_);
+                    cursor_size_view = false;
+                }
+            }
 
-                    switch (moving_mode_)
-                    {
-                        case moving_mode::move:
-                            x_pos = ev->root_x - x_click;
-                            y_pos = ev->root_y - y_click;
+            if (moving_mode_ != moving_mode::none)
+            {
+                int32_t wm_moveresize_dir = 0,
+                    x_pos = ev->root_x,
+                    y_pos = ev->root_y;
 
-                            wm_moveresize_dir = 8; // _NET_WM_MOVERESIZE_MOVE
-                        break;
-                        case moving_mode::size_we_left:
-                            wm_moveresize_dir = 7; // _NET_WM_MOVERESIZE_SIZE_LEFT
-                        break;
-                        case moving_mode::size_we_right:
-                            wm_moveresize_dir = 3; // _NET_WM_MOVERESIZE_SIZE_RIGHT
-                        break;
-                        case moving_mode::size_ns_top:
-                            wm_moveresize_dir = 1; // _NET_WM_MOVERESIZE_SIZE_TOP
-                        break;
-                        case moving_mode::size_ns_bottom:
-                            wm_moveresize_dir = 5; // _NET_WM_MOVERESIZE_SIZE_BOTTOM
-                        break;
-                        case moving_mode::size_nesw_top:
-                            wm_moveresize_dir = 2; // _NET_WM_MOVERESIZE_SIZE_TOPRIGHT
-                        break;
-                        case moving_mode::size_nwse_bottom:
-                            wm_moveresize_dir = 4; // _NET_WM_MOVERESIZE_SIZE_BOTTOMRIGHT
-                        break;
-                        case moving_mode::size_nwse_top:
-                            wm_moveresize_dir = 0; // _NET_WM_MOVERESIZE_SIZE_TOPLEFT
-                        break;
-                        case moving_mode::size_nesw_bottom:
-                            wm_moveresize_dir = 6; // _NET_WM_MOVERESIZE_SIZE_BOTTOMLEFT
-                        break;
-                    }
+                switch (moving_mode_)
+                {
+                    case moving_mode::move:
+                        x_pos = ev->root_x - x_click;
+                        y_pos = ev->root_y - y_click;
 
-                    xcb_client_message_event_t event = { 0 };
+                        wm_moveresize_dir = 8; // _NET_WM_MOVERESIZE_MOVE
+                    break;
+                    case moving_mode::size_we_left:
+                        wm_moveresize_dir = 7; // _NET_WM_MOVERESIZE_SIZE_LEFT
+                    break;
+                    case moving_mode::size_we_right:
+                        wm_moveresize_dir = 3; // _NET_WM_MOVERESIZE_SIZE_RIGHT
+                    break;
+                    case moving_mode::size_ns_top:
+                        wm_moveresize_dir = 1; // _NET_WM_MOVERESIZE_SIZE_TOP
+                    break;
+                    case moving_mode::size_ns_bottom:
+                        wm_moveresize_dir = 5; // _NET_WM_MOVERESIZE_SIZE_BOTTOM
+                    break;
+                    case moving_mode::size_nesw_top:
+                        wm_moveresize_dir = 2; // _NET_WM_MOVERESIZE_SIZE_TOPRIGHT
+                    break;
+                    case moving_mode::size_nwse_bottom:
+                        wm_moveresize_dir = 4; // _NET_WM_MOVERESIZE_SIZE_BOTTOMRIGHT
+                    break;
+                    case moving_mode::size_nwse_top:
+                        wm_moveresize_dir = 0; // _NET_WM_MOVERESIZE_SIZE_TOPLEFT
+                    break;
+                    case moving_mode::size_nesw_bottom:
+                        wm_moveresize_dir = 6; // _NET_WM_MOVERESIZE_SIZE_BOTTOMLEFT
+                    break;
+                }
+
+                xcb_client_message_event_t event = { 0 };
                     
-                    event.window = context_.wnd;
-                    event.response_type = XCB_CLIENT_MESSAGE;
-                    event.type = net_wm_moveresize;
-                    event.format = 32;
-                    event.data.data32[0] = ev->root_x;
-                    event.data.data32[1] = ev->root_y;
-                    event.data.data32[2] = wm_moveresize_dir;
-                    event.data.data32[3] = XCB_BUTTON_INDEX_1;
+                event.window = context_.wnd;
+                event.response_type = XCB_CLIENT_MESSAGE;
+                event.type = net_wm_moveresize;
+                event.format = 32;
+                event.data.data32[0] = ev->root_x;
+                event.data.data32[1] = ev->root_y;
+                event.data.data32[2] = wm_moveresize_dir;
+                event.data.data32[3] = XCB_BUTTON_INDEX_1;
                     
-                    xcb_ungrab_pointer(context_.connection, XCB_CURRENT_TIME);
-                    xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
-                    xcb_flush(context_.connection);
+                xcb_ungrab_pointer(context_.connection, XCB_CURRENT_TIME);
+                xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
+                xcb_flush(context_.connection);
 
-                    moving_mode_ = moving_mode::none;
-                }
-                else
-                {
-                    send_mouse_event({ mouse_event_type::move, x_mouse, y_mouse });
-                }
-            }
-            break;
-            case XCB_BUTTON_PRESS:
-            {
-                auto *ev = (xcb_button_press_event_t *)e;
-                if (ev->detail == 1)
-                {
-                    if (ev->time - prev_button_click > 200)
-                    {
-                        x_click = ev->event_x;
-                        y_click = ev->event_y;
-
-                        auto ws = get_window_size(context_);
-
-                        send_mouse_event({ mouse_event_type::left_down, x_click, y_click });
-
-                        if (window_state_ == window_state::normal)
-                        {
-                            if (flag_is_set(window_style_, window_style::moving) &&
-                                !check_control_here(x_click, y_click))
-                            {
-                                moving_mode_ = moving_mode::move;
-                            }
-
-                            if (flag_is_set(window_style_, window_style::resizable))
-                            {
-                                if (x_click > ws.width() - 5 && y_click > ws.height() - 5)
-                                {
-                                    moving_mode_ = moving_mode::size_nwse_bottom;
-                                }
-                                else if (x_click < 5 && y_click < 5)
-                                {
-                                    moving_mode_ = moving_mode::size_nwse_top;
-                                }
-                                else if (x_click > ws.width() - 5 && y_click < 5)
-                                {
-                                    moving_mode_ = moving_mode::size_nesw_top;
-                                }
-                                else if (x_click < 5 && y_click > ws.height() - 5)
-                                {
-                                    moving_mode_ = moving_mode::size_nesw_bottom;
-                                }
-                                else if (x_click > ws.width() - 5)
-                                {
-                                    moving_mode_ = moving_mode::size_we_right;
-                                }
-                                else if (x_click < 5)
-                                {
-                                    moving_mode_ = moving_mode::size_we_left;
-                                }
-                                else if (y_click > ws.height() - 5)
-                                {
-                                    moving_mode_ = moving_mode::size_ns_bottom;
-                                }
-                                else if (y_click < 5)
-                                {
-                                    moving_mode_ = moving_mode::size_ns_top;
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (ev->detail == 3)
-                {
-                    send_mouse_event({ mouse_event_type::right_down, ev->event_x, ev->event_y });
-                }
-                else if (ev->detail == 4)
-                {
-                    send_mouse_event({ mouse_event_type::wheel, ev->event_x, ev->event_y, 1 });
-                }
-                else if (ev->detail == 5)
-                {
-                    send_mouse_event({ mouse_event_type::wheel, ev->event_x, ev->event_y, -1 });
-                }
-            }
-            break;
-            case XCB_BUTTON_RELEASE:
-            {
                 moving_mode_ = moving_mode::none;
-
-                auto *ev = (xcb_button_press_event_t *)e;
-                if (ev->detail == 1)
+            }
+            else
+            {
+                send_mouse_event({ mouse_event_type::move, x_mouse, y_mouse });
+            }
+        }
+        break;
+        case XCB_BUTTON_PRESS:
+        {
+            auto *ev = (xcb_button_press_event_t*)&e;
+            if (ev->detail == 1)
+            {
+                if (ev->time - prev_button_click > 200)
                 {
-                    send_mouse_event({ ev->time - prev_button_click > 300 ? mouse_event_type::left_up : mouse_event_type::left_double, ev->event_x, ev->event_y });
+                    x_click = ev->event_x;
+                    y_click = ev->event_y;
 
-                    prev_button_click = ev->time;
-                }
-                else if (ev->detail == 3)
-                {
-                    send_mouse_event({ mouse_event_type::right_up, ev->event_x, ev->event_y });
+                    auto ws = get_window_size(context_);
+
+                    send_mouse_event({ mouse_event_type::left_down, x_click, y_click });
+
+                    if (window_state_ == window_state::normal)
+                    {
+                        if (flag_is_set(window_style_, window_style::moving) &&
+                            !check_control_here(x_click, y_click))
+                        {
+                            moving_mode_ = moving_mode::move;
+                        }
+
+                        if (flag_is_set(window_style_, window_style::resizable))
+                        {
+                            if (x_click > ws.width() - 5 && y_click > ws.height() - 5)
+                            {
+                                moving_mode_ = moving_mode::size_nwse_bottom;
+                            }
+                            else if (x_click < 5 && y_click < 5)
+                            {
+                                moving_mode_ = moving_mode::size_nwse_top;
+                            }
+                            else if (x_click > ws.width() - 5 && y_click < 5)
+                            {
+                                moving_mode_ = moving_mode::size_nesw_top;
+                            }
+                            else if (x_click < 5 && y_click > ws.height() - 5)
+                            {
+                                moving_mode_ = moving_mode::size_nesw_bottom;
+                            }
+                            else if (x_click > ws.width() - 5)
+                            {
+                                moving_mode_ = moving_mode::size_we_right;
+                            }
+                            else if (x_click < 5)
+                            {
+                                moving_mode_ = moving_mode::size_we_left;
+                            }
+                            else if (y_click > ws.height() - 5)
+                            {
+                                moving_mode_ = moving_mode::size_ns_bottom;
+                            }
+                            else if (y_click < 5)
+                            {
+                                moving_mode_ = moving_mode::size_ns_top;
+                            }
+                        }
+                    }
                 }
             }
-            break;
-            case XCB_LEAVE_NOTIFY:
-            	send_mouse_event({ mouse_event_type::leave });
-            break;
-            case XCB_KEY_PRESS:
+            else if (ev->detail == 3)
             {
-                auto ev_ = *(xcb_key_press_event_t *)e;
+                send_mouse_event({ mouse_event_type::right_down, ev->event_x, ev->event_y });
+            }
+            else if (ev->detail == 4)
+            {
+                send_mouse_event({ mouse_event_type::wheel, ev->event_x, ev->event_y, 1 });
+            }
+            else if (ev->detail == 5)
+            {
+                send_mouse_event({ mouse_event_type::wheel, ev->event_x, ev->event_y, -1 });
+            }
+        }
+        break;
+        case XCB_BUTTON_RELEASE:
+        {
+            moving_mode_ = moving_mode::none;
 
-                if (ev_.detail == vk_tab)
-                {
-                    change_focus();
-                }
-                else if (ev_.detail == vk_return || ev_.detail == vk_rreturn)
-                {
-                    execute_focused();
-                }
-                else if (ev_.detail == vk_esc ||
-                    ev_.detail == vk_back ||
-                    ev_.detail == vk_del ||
-                    ev_.detail == vk_end ||
-                    ev_.detail == vk_nend ||
-                    ev_.detail == vk_home ||
-                    ev_.detail == vk_nhome ||
-                    ev_.detail == vk_page_up ||
-                    ev_.detail == vk_npage_up ||
-                    ev_.detail == vk_page_down ||
-                    ev_.detail == vk_npage_down ||
-                    ev_.detail == vk_left ||
-                    ev_.detail == vk_nleft ||
-                    ev_.detail == vk_right ||
-                    ev_.detail == vk_nright ||
-                    ev_.detail == vk_up ||
-                    ev_.detail == vk_nup ||
-                    ev_.detail == vk_down ||
-                    ev_.detail == vk_ndown)
-                {
-                    XKeyboardState st;
-                    XGetKeyboardControl(context_.display, &st);
+            auto *ev = (xcb_button_release_event_t*)&e;
+            if (ev->detail == 1)
+            {
+                send_mouse_event({ ev->time - prev_button_click > 300 ? mouse_event_type::left_up : mouse_event_type::left_double, ev->event_x, ev->event_y });
+
+                prev_button_click = ev->time;
+            }
+            else if (ev->detail == 3)
+            {
+                send_mouse_event({ mouse_event_type::right_up, ev->event_x, ev->event_y });
+            }
+        }
+        break;
+        case XCB_LEAVE_NOTIFY:
+            send_mouse_event({ mouse_event_type::leave });
+        break;
+        case XCB_KEY_PRESS:
+        {
+            auto ev_ = *(xcb_key_press_event_t*)&e;
+
+            if (ev_.detail == vk_tab)
+            {
+                change_focus();
+            }
+            else if (ev_.detail == vk_return || ev_.detail == vk_rreturn)
+            {
+                execute_focused();
+            }
+            else if (ev_.detail == vk_esc ||
+                ev_.detail == vk_back ||
+                ev_.detail == vk_del ||
+                ev_.detail == vk_end ||
+                ev_.detail == vk_nend ||
+                ev_.detail == vk_home ||
+                ev_.detail == vk_nhome ||
+                ev_.detail == vk_page_up ||
+                ev_.detail == vk_npage_up ||
+                ev_.detail == vk_page_down ||
+                ev_.detail == vk_npage_down ||
+                ev_.detail == vk_left ||
+                ev_.detail == vk_nleft ||
+                ev_.detail == vk_right ||
+                ev_.detail == vk_nright ||
+                ev_.detail == vk_up ||
+                ev_.detail == vk_nup ||
+                ev_.detail == vk_down ||
+                ev_.detail == vk_ndown)
+            {
+                XKeyboardState st;
+                XGetKeyboardControl(context_.display, &st);
                 
-                    if (st.led_mask & 2 &&
-                        (
-                            ev_.detail == vk_nend ||
-                            ev_.detail == vk_ndown ||
-                            ev_.detail == vk_npage_down ||
-                            ev_.detail == vk_nright ||
-                            ev_.detail == vk_nleft ||
-                            ev_.detail == vk_nhome ||
-                            ev_.detail == vk_nup ||
-                            ev_.detail == vk_npage_up
-                        )
+                if (st.led_mask & 2 &&
+                    (
+                        ev_.detail == vk_nend ||
+                        ev_.detail == vk_ndown ||
+                        ev_.detail == vk_npage_down ||
+                        ev_.detail == vk_nright ||
+                        ev_.detail == vk_nleft ||
+                        ev_.detail == vk_nhome ||
+                        ev_.detail == vk_nup ||
+                        ev_.detail == vk_npage_up
                     )
-                    {
-                        event ev;
-                        ev.type = event_type::keyboard;
-                        ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, key_modifier, 0 };
-                        ev.keyboard_event_.key_size = 1;
-
-                        switch (ev_.detail)
-                        {
-                            case vk_nend:
-                                ev.keyboard_event_.key[0] = '1';
-                            break;
-                            case vk_ndown:
-                                ev.keyboard_event_.key[0] = '2';
-                            break;
-                            case vk_npage_down:
-                                ev.keyboard_event_.key[0] = '3';
-                            break;
-                            case vk_nleft:
-                                ev.keyboard_event_.key[0] = '4';
-                            break;
-                            case vk_nright:
-                                ev.keyboard_event_.key[0] = '6';
-                            break;
-                            case vk_nhome:
-                                ev.keyboard_event_.key[0] = '7';
-                            break;
-                            case vk_nup:
-                                ev.keyboard_event_.key[0] = '8';
-                            break;
-                            case vk_npage_up:
-                                ev.keyboard_event_.key[0] = '9';
-                            break;
-                            default: break;
-                        }
-
-                        auto control = get_focused();
-                        if (control)
-                        {
-                            send_event_to_control(control, ev);
-                        }
-                        send_event_to_plains(ev);
-                        
-                        continue;
-                    }
+                )
+                {
                     event ev;
                     ev.type = event_type::keyboard;
-                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, key_modifier, 0 };
-                    ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
+                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, key_modifier, 0 };
+                    ev.keyboard_event_.key_size = 1;
+
+                    switch (ev_.detail)
+                    {
+                        case vk_nend:
+                            ev.keyboard_event_.key[0] = '1';
+                        break;
+                        case vk_ndown:
+                            ev.keyboard_event_.key[0] = '2';
+                        break;
+                        case vk_npage_down:
+                            ev.keyboard_event_.key[0] = '3';
+                        break;
+                        case vk_nleft:
+                            ev.keyboard_event_.key[0] = '4';
+                        break;
+                        case vk_nright:
+                            ev.keyboard_event_.key[0] = '6';
+                        break;
+                        case vk_nhome:
+                            ev.keyboard_event_.key[0] = '7';
+                        break;
+                        case vk_nup:
+                            ev.keyboard_event_.key[0] = '8';
+                        break;
+                        case vk_npage_up:
+                            ev.keyboard_event_.key[0] = '9';
+                        break;
+                        default: break;
+                    }
 
                     auto control = get_focused();
                     if (control)
@@ -2942,56 +2916,12 @@ void window::process_events()
                         send_event_to_control(control, ev);
                     }
                     send_event_to_plains(ev);
+                        
+                    return;
                 }
-                else if (ev_.detail == vk_lshift ||
-                    ev_.detail == vk_rshift ||
-                    ev_.detail == vk_capital ||
-                    ev_.detail == vk_alt ||
-                    ev_.detail == vk_insert)
-                {
-                    key_modifier = ev_.detail;
-                }
-                else
-                {
-                    event ev;
-                    ev.type = event_type::keyboard;
-                    ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, key_modifier, 0 };
-
-                    XKeyPressedEvent keyev;
-                    keyev.display = context_.display;
-                    keyev.keycode = ev_.detail;
-                    keyev.state = ev_.state;
-
-                    ev.keyboard_event_.key_size = static_cast<uint8_t>(XLookupString(&keyev, ev.keyboard_event_.key, sizeof(ev.keyboard_event_.key), nullptr, nullptr));
-                    if (ev.keyboard_event_.key_size)
-                    {
-                        auto control = get_focused();
-                        if (control)
-                        {
-                            send_event_to_control(control, ev);
-                        }
-                        send_event_to_plains(ev);
-                    }
-                }
-            }
-            break;
-            case XCB_KEY_RELEASE:
-            {
-                auto ev_ = *(xcb_key_press_event_t *)e;
-
-                if (ev_.detail == vk_lshift ||
-                    ev_.detail == vk_rshift ||
-                    ev_.detail == vk_capital ||
-                    ev_.detail == vk_alt ||
-                    ev_.detail == vk_insert ||
-                    ev_.detail == vk_numlock)
-                {
-                    key_modifier = 0;
-                }
-
                 event ev;
                 ev.type = event_type::keyboard;
-                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, key_modifier, 0 };
+                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, key_modifier, 0 };
                 ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
 
                 auto control = get_focused();
@@ -3001,108 +2931,164 @@ void window::process_events()
                 }
                 send_event_to_plains(ev);
             }
-            break;
-            case XCB_CONFIGURE_NOTIFY:
+            else if (ev_.detail == vk_lshift ||
+                ev_.detail == vk_rshift ||
+                ev_.detail == vk_capital ||
+                ev_.detail == vk_alt ||
+                ev_.detail == vk_insert)
             {
-                auto ev = (*(xcb_configure_notify_event_t*)e);
+                key_modifier = ev_.detail;
+            }
+            else
+            {
+                event ev;
+                ev.type = event_type::keyboard;
+                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, key_modifier, 0 };
 
-                auto old_position = position_;
+                XKeyPressedEvent keyev;
+                keyev.display = context_.display;
+                keyev.keycode = ev_.detail;
+                keyev.state = ev_.state;
 
-                if (ev.width > 0 && ev.height > 0)
+                ev.keyboard_event_.key_size = static_cast<uint8_t>(XLookupString(&keyev, ev.keyboard_event_.key, sizeof(ev.keyboard_event_.key), nullptr, nullptr));
+                if (ev.keyboard_event_.key_size)
                 {
-                    position_ = { ev.x, ev.y, ev.x + ev.width, ev.y + ev.height };
-
-                    if (ev.width != old_position.width())
+                    auto control = get_focused();
+                    if (control)
                     {
-                        update_buttons();
+                        send_event_to_control(control, ev);
                     }
-
-                    if (ev.width != old_position.width() || ev.height != old_position.height())
-                    {
-                        graphic_.clear({ 0, 0, ev.width, ev.height });
-                    }
-
-                    if (window_state_ == window_state::maximized)
-                    {
-                        send_internal(internal_event_type::window_expanded, ev.width, ev.height);
-                        continue;
-                    }
-
-                    if (ev.width != old_position.width() || ev.height != old_position.height())
-                    {
-                        send_internal(internal_event_type::size_changed, ev.width, ev.height);
-                    }
-                    else
-                    {
-                        send_internal(internal_event_type::position_changed, ev.x, ev.y);
-                    }
+                    send_event_to_plains(ev);
                 }
             }
-            break;
-            case XCB_PROPERTY_NOTIFY:
+        }
+        break;
+        case XCB_KEY_RELEASE:
+        {
+            auto ev_ = *(xcb_key_release_event_t*)&e;
+
+            if (ev_.detail == vk_lshift ||
+                ev_.detail == vk_rshift ||
+                ev_.detail == vk_capital ||
+                ev_.detail == vk_alt ||
+                ev_.detail == vk_insert ||
+                ev_.detail == vk_numlock)
             {
-                auto ev = (*(xcb_property_notify_event_t*)e);
-
-                if (ev.atom == net_wm_state)
-                {
-                    auto get_prop_cookie = xcb_get_property (context_.connection,
-                        0,
-                        context_.wnd,
-                        ev.atom,
-                        XCB_GET_PROPERTY_TYPE_ANY,
-                        0,
-                        1);
-
-                    auto property_reply = xcb_get_property_reply(context_.connection, get_prop_cookie, nullptr);
-
-                    if (property_reply->type == XCB_ATOM_ATOM && xcb_get_property_value_length(property_reply) > 0)
-                    {
-                        auto val = (xcb_atom_t*)xcb_get_property_value(property_reply);
-
-                        if (*val == net_wm_state_focused && window_state_ == window_state::minimized)
-                        {
-                            window_state_ = prev_window_state_;
-                        }
-
-                        free(property_reply);
-                    }
-                }
+                key_modifier = 0;
             }
-            break;
-            case XCB_CLIENT_MESSAGE:
-                if ((*(xcb_client_message_event_t*)e).data.data32[0] != wm_delete_msg)
+
+            event ev;
+            ev.type = event_type::keyboard;
+            ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, key_modifier, 0 };
+            ev.keyboard_event_.key[0] = static_cast<uint8_t>(ev_.detail);
+
+            auto control = get_focused();
+            if (control)
+            {
+                send_event_to_control(control, ev);
+            }
+            send_event_to_plains(ev);
+        }
+        break;
+        case XCB_CONFIGURE_NOTIFY:
+        {
+            auto ev = (*(xcb_configure_notify_event_t*)&e);
+
+            auto old_position = position_;
+
+            if (ev.width > 0 && ev.height > 0)
+            {
+                position_ = { ev.x, ev.y, ev.x + ev.width, ev.y + ev.height };
+
+                if (ev.width != old_position.width())
                 {
-                    send_internal(internal_event_type::user_emitted, static_cast<int32_t>((*(xcb_client_message_event_t*)e).data.data32[1]), static_cast<int32_t>((*(xcb_client_message_event_t*)e).data.data32[2]));
+                    update_buttons();
+                }
+
+                if (ev.width != old_position.width() || ev.height != old_position.height())
+                {
+                    graphic_.clear({ 0, 0, ev.width, ev.height });
+                }
+
+                if (window_state_ == window_state::maximized)
+                {
+                    send_internal(internal_event_type::window_expanded, ev.width, ev.height);
+                    return;
+                }
+
+                if (ev.width != old_position.width() || ev.height != old_position.height())
+                {
+                    send_internal(internal_event_type::size_changed, ev.width, ev.height);
                 }
                 else
                 {
-                    graphic_.end_cairo_device(); /// this workaround is needed to prevent destruction in the depths of the cairo
-                    graphic_.release();
-
-                    xcb_destroy_window(context_.connection, context_.wnd);
-                    XCloseDisplay(context_.display);
-
-                    started = false;
-
-                    auto transient_window_ = get_transient_window();
-                    if (transient_window_)
-                    {
-                        transient_window_->enable();
-                    }
-
-                    if (close_callback)
-                    {
-                        close_callback();
-                    }
-
-                    context_.wnd = 0;
-                    context_.screen = nullptr;
-                    context_.connection = nullptr;
-                    context_.display = nullptr;
+                    send_internal(internal_event_type::position_changed, ev.x, ev.y);
                 }
-            break;
+            }
         }
-        free(e);
+        break;
+        case XCB_PROPERTY_NOTIFY:
+        {
+            auto ev = (*(xcb_property_notify_event_t*)&e);
+
+            if (ev.atom == net_wm_state)
+            {
+                auto get_prop_cookie = xcb_get_property (context_.connection,
+                    0,
+                    context_.wnd,
+                    ev.atom,
+                    XCB_GET_PROPERTY_TYPE_ANY,
+                    0,
+                    1);
+
+                auto property_reply = xcb_get_property_reply(context_.connection, get_prop_cookie, nullptr);
+
+                if (property_reply->type == XCB_ATOM_ATOM && xcb_get_property_value_length(property_reply) > 0)
+                {
+                    auto val = (xcb_atom_t*)xcb_get_property_value(property_reply);
+
+                    if (*val == net_wm_state_focused && window_state_ == window_state::minimized)
+                    {
+                        window_state_ = prev_window_state_;
+                    }
+
+                    free(property_reply);
+                }
+            }
+        }
+        break;
+        case XCB_CLIENT_MESSAGE:
+            if ((*(xcb_client_message_event_t*)&e).data.data32[0] != wm_delete_msg)
+            {
+                send_internal(internal_event_type::user_emitted, static_cast<int32_t>((*(xcb_client_message_event_t*)&e).data.data32[1]), static_cast<int32_t>((*(xcb_client_message_event_t*)&e).data.data32[2]));
+            }
+            else
+            {
+                graphic_.release();
+
+                xcb_unmap_window(context_.connection, context_.wnd);
+                xcb_destroy_window(context_.connection, context_.wnd);
+                get_listener().delete_window(context_.wnd);
+                
+                started = false;
+
+                auto transient_window_ = get_transient_window();
+                if (transient_window_)
+                {
+                    transient_window_->enable();
+                }
+
+                if (close_callback)
+                {
+                    close_callback();
+                }
+
+                context_.wnd = 0;
+                context_.screen = nullptr;
+                context_.connection = nullptr;
+                context_.display = nullptr;
+            }
+        break;
     }
 }
 

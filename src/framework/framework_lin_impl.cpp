@@ -34,6 +34,7 @@ void framework_lin_impl::run()
 
         return;
     }
+    
     started_ = true;
 
     while (started_)

@@ -227,6 +227,11 @@ xcb_gcontext_t primitive_container::get_gc(color color_)
 
 _cairo *primitive_container::get_font(font font_, _cairo_surface *surface)
 {
+    if (!surface)
+    {
+        return nullptr;
+    }
+
     auto it = fonts.find({ {font_.name, font_.size }, font_.decorations_ });
     if (it != fonts.end())
     {

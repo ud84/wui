@@ -18,7 +18,9 @@
 #include <vector>
 #include <memory>
 
-#include <thread>
+#ifdef __linux__
+#include <wui/window/listener.h>
+#endif
 
 namespace wui
 {
@@ -42,6 +44,7 @@ enum class window_control
 
 class button;
 class udev_handler;
+class listener;
 
 class window : public i_window, public i_control, public std::enable_shared_from_this<window>
 {
@@ -252,13 +255,12 @@ private:
     time_t prev_button_click;
 
     bool started;
-    std::thread thread;
 
     std::unique_ptr<udev_handler> udev_handler_;
     
     uint8_t key_modifier;
 
-    void process_events();
+    void process_events(xcb_generic_event_t &e);
 
     void init_atoms();
 
@@ -296,6 +298,7 @@ private:
 
     void send_internal(internal_event_type type, int32_t x, int32_t y);
 
+    friend listener;
 };
 
 }

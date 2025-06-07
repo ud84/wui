@@ -27,7 +27,7 @@ struct locale_params
         return type == lv.type;
     }
 
-    inline bool operator==(const locale_type &lt)
+    inline bool operator==(locale_type lt)
     {
         return type == lt;
     }
