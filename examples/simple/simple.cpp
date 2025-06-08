@@ -129,7 +129,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, []() {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         input(std::make_shared<wui::input>("", wui::input_view::password)),
-        messageBox(std::make_shared<wui::message>(window, true)),
+        messageBox(std::make_shared<wui::message>(parentWindow_, true)),
         dialog(std::make_shared<wui::window>()),
         creationButton(),
         plugged(false)
