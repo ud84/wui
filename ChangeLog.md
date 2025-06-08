@@ -1,3 +1,6 @@
+# Unrealsed
+1. Improved window's tool buttons and frame draw (I-48)
+
 # 1.2.250607
 1. Implemented symbols limits and numberic content checking in input (I-32)
 2. Improved truncate_line() tool (I-34)
