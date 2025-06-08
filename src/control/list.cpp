@@ -34,7 +34,6 @@ list::list(std::string_view theme_control_name_, std::shared_ptr<i_theme> theme_
     item_count(0), selected_item_(0), active_item_(-1),
     title_height(-1),
     scroll_area(0),
-    prev_selected_item(-1),
     vert_scroll(std::make_shared<scroll>(0, 0, orientation::vertical, std::bind(&list::on_scroll, this, std::placeholders::_1, std::placeholders::_2), scroll::tc, theme__)),
     draw_callback(),
     item_height_callback(),
@@ -569,11 +568,7 @@ void list::set_mode(list_mode mode_)
 
 void list::select_item(int32_t n_item)
 {
-    prev_selected_item = selected_item_;
-
     selected_item_ = n_item;
-
-    make_selected_visible();
 
     redraw();
 
@@ -609,11 +604,6 @@ int32_t list::get_item_height(int32_t n_item) const
 
 void list::set_item_count(int32_t count)
 {
-    if (item_count > count)
-    {
-        vert_scroll->set_scroll_pos(0);
-    }
-
     item_count = count;
 
     update_scroll_area();
@@ -624,6 +614,28 @@ void list::set_item_count(int32_t count)
 int32_t list::get_item_count() const
 {
     return item_count;
+}
+
+void list::make_selected_visible()
+{
+    auto area = position_.height();
+    if (area <= 0)
+    {
+        return;
+    }
+
+    auto scroll_pos = vert_scroll->get_scroll_pos();
+    
+    auto selected_top = get_item_top(selected_item_);
+    auto selected_bottom = selected_top + get_item_height(selected_item_);
+
+    auto visible_top = scroll_pos,
+         visible_bottom = scroll_pos + area;
+        
+    if (selected_top < visible_top || selected_bottom > visible_bottom)
+    {
+        vert_scroll->set_scroll_pos(selected_top);
+    }
 }
 
 void list::scroll_to_start()
@@ -917,32 +929,8 @@ void list::update_active_item(int32_t y)
     }
 }
 
-void list::make_selected_visible()
-{
-    auto selected_item_top = get_item_top(selected_item_);
-    auto selected_item_bottom = selected_item_top + get_item_height(selected_item_);
-    auto scroll_pos = vert_scroll->get_scroll_pos();
-
-    if (position_.height() <= 0 || position_.height() > selected_item_bottom || position_.height() - scroll_pos >= selected_item_top)
-    {
-        return;
-    }
-
-    if (selected_item_top < scroll_pos || selected_item_bottom > scroll_pos) 
-    {
-        auto prev_selected_item_top = get_item_top(prev_selected_item);
-        vert_scroll->set_scroll_pos(selected_item_top > prev_selected_item_top ? prev_selected_item_top : selected_item_top);
-    }
-}
-
 void list::update_scroll_area()
 {
-    bool scrolled_down = false;
-    if (scroll_area != 0 && vert_scroll->get_scroll_pos() == scroll_area)
-    {
-        scrolled_down = true;
-    }
-
     scroll_area = title_height + get_item_top(item_count - 1) + get_item_height(item_count - 1) - position_.height();
     if (scroll_area < 0)
     {
@@ -952,11 +940,6 @@ void list::update_scroll_area()
     vert_scroll->set_area(scroll_area);
 
     if (vert_scroll->get_scroll_pos() > scroll_area)
-    {
-        vert_scroll->set_scroll_pos(scroll_area);
-    }
-
-    if (scrolled_down)
     {
         vert_scroll->set_scroll_pos(scroll_area);
     }

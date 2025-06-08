@@ -42,6 +42,12 @@ std::shared_ptr<wui::i_theme> MakeRedButtonTheme()
     return redButtonTheme;
 }
 
+struct Item
+{
+    int id;
+    bool expanded;
+};
+
 struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 {
     std::weak_ptr<wui::window> parentWindow;
@@ -140,7 +146,18 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
         list->set_draw_callback(std::bind(&PluggedWindow::DrawListItem, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
-        list->set_item_click_callback([this](wui::list::click_button btn, int32_t item, int32_t x, int32_t y) { if (btn == wui::list::click_button::right) popupMenu->show_on_point(x, y); });
+        list->set_item_click_callback([this](wui::list::click_button btn, int32_t item, int32_t x, int32_t y) {
+            if (btn == wui::list::click_button::right)
+                popupMenu->show_on_point(x, y);
+            else
+            {
+                static int count = list->get_item_count();
+                if (item % 2 == 0)
+                    list->set_item_count(count + 2);
+                else
+                    list->set_item_count(count - 2);
+            }
+        });
 
         list->update_columns({ { 30, "##" }, { 100, "Name" }, { 100, "Role" } });
         
@@ -198,7 +215,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 }
                 else if (e.internal_event_.type == wui::internal_event_type::user_emitted)
                 {
-                    int32_t x = e.internal_event_.x, y = e.internal_event_.y;
+                    /*int32_t x = e.internal_event_.x, y = e.internal_event_.y;
 
                     messageBox->show("user emitted event received, x: " + std::to_string(x) + ", y: " + std::to_string(y),
                         "user emitted event", wui::message_icon::information, wui::message_button::yes_no, [this](wui::message_result result) {
@@ -207,7 +224,8 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                                 dialog->set_transient_for(window);
                                 dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, []() {});
                             }
-                        });
+                        });*/
+                    list->make_selected_visible();
                 }
             break;
             case wui::event_type::system:

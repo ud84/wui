@@ -87,6 +87,7 @@ public:
     void set_item_count(int32_t count);
     int32_t get_item_count() const;
 
+    void make_selected_visible();
     void scroll_to_start();
     void scroll_to_end();
 
@@ -151,8 +152,6 @@ private:
 
     int32_t scroll_area;
 
-    int32_t prev_selected_item;
-
     std::shared_ptr<scroll> vert_scroll;
 
     std::function<void(graphic&, int32_t, rect, item_state)> draw_callback;
@@ -180,8 +179,6 @@ private:
 
     void update_selected_item(int32_t y);
     void update_active_item(int32_t y);
-
-    void make_selected_visible();
 
     void update_scroll_area();
 };
