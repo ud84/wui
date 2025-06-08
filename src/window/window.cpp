@@ -1443,16 +1443,17 @@ void window::update_buttons()
 	auto border_height = flag_is_set(window_style_, window_style::border_top) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
     auto border_width = flag_is_set(window_style_, window_style::border_right) ? theme_dimension(tcn, tv_border_width, theme_) : 0;
 
-    auto btn_size = 28;
-    auto left = position_.width() - btn_size - border_width;
+    auto btn_width = 42;
+    auto btn_height = 28;
+    auto left = position_.width() - btn_width - border_width;
     auto top = border_height;
 
     if (flag_is_set(window_style_, window_style::close_button))
     {
-        close_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
+        close_button->set_position({ left, top, left + btn_width + border_width, top + btn_height }, false);
         close_button->show();
 
-        left -= btn_size;
+        left -= btn_width;
     }
     else
     {
@@ -1461,10 +1462,10 @@ void window::update_buttons()
 
     if (flag_is_set(window_style_, window_style::expand_button) || flag_is_set(window_style_, window_style::minimize_button))
     {
-        expand_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
+        expand_button->set_position({ left, top, left + btn_width, top + btn_height }, false);
         expand_button->show();
 
-        left -= btn_size;
+        left -= btn_width;
 
         if (flag_is_set(window_style_, window_style::expand_button))
         {
@@ -1482,10 +1483,10 @@ void window::update_buttons()
 
     if (flag_is_set(window_style_, window_style::minimize_button))
     {
-        minimize_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
+        minimize_button->set_position({ left, top, left + btn_width, top + btn_height }, false);
         minimize_button->show();
 
-        left -= btn_size;
+        left -= btn_width;
     }
     else
     {
@@ -1494,10 +1495,10 @@ void window::update_buttons()
 
     if (flag_is_set(window_style_, window_style::pin_button))
     {
-        pin_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
+        pin_button->set_position({ left, top, left + btn_width, top + btn_height }, false);
         pin_button->show();
 
-        left -= btn_size;
+        left -= btn_width;
     }
     else
     {
@@ -1506,10 +1507,10 @@ void window::update_buttons()
 
     if (flag_is_set(window_style_, window_style::switch_theme_button))
     {
-        switch_theme_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
+        switch_theme_button->set_position({ left, top, left + btn_width, top + btn_height }, false);
         switch_theme_button->show();
 
-        left -= btn_size;
+        left -= btn_width;
     }
     else
     {
@@ -1518,10 +1519,10 @@ void window::update_buttons()
 
 	if (flag_is_set(window_style_, window_style::switch_lang_button))
 	{
-		switch_lang_button->set_position({ left, top, left + btn_size, top + btn_size }, false);
+		switch_lang_button->set_position({ left, top, left + btn_width, top + btn_height }, false);
 		switch_lang_button->show();
 
-		left -= btn_size;
+		left -= btn_width;
 	}
 	else
 	{
@@ -1533,6 +1534,8 @@ void window::draw_border(graphic &gr)
 {
     auto c = theme_color(tcn, tv_border, theme_);
     auto x = theme_dimension(tcn, tv_border_width, theme_);
+    
+    int32_t k = x < 2 ? 0 : x / 2;
 
     int32_t l = 0, t = 0, w = 0, h = 0;
 
@@ -1544,7 +1547,6 @@ void window::draw_border(graphic &gr)
         t = pos.top;
         w = pos.right - x;
         h = pos.bottom - x;
-
     }
     else
     {
@@ -1554,19 +1556,41 @@ void window::draw_border(graphic &gr)
 
     if (flag_is_set(window_style_, window_style::border_left))
     {
-        gr.draw_line({ l, t, l, h }, c, x);
+        gr.draw_line({ l + k, t, l + k, h }, c, x);
     }
     if (flag_is_set(window_style_, window_style::border_top))
     {
-        gr.draw_line({ l, t, w, t }, c, x);
+        gr.draw_line({ l, t + k, w, t + k }, c, x);
     }
     if (flag_is_set(window_style_, window_style::border_right))
     {
-        gr.draw_line({ w, t, w, h }, c, x);
+        gr.draw_line({ w + k, t, w + k, h }, c, x);
     }
     if (flag_is_set(window_style_, window_style::border_bottom))
     {
-        gr.draw_line({ l, h, w, h }, c, x);
+        gr.draw_line({ l, h + k, w, h + k }, c, x);
+    }
+}
+
+void window::draw_caption(graphic& gr, rect paint_rect)
+{
+    if (flag_is_set(window_style_, window_style::title_showed) && !parent_.lock())
+    {
+        auto caption_font = theme_font(tcn, tv_caption_font, theme_);
+
+        auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+
+        auto caption_rect = gr.measure_text(caption, caption_font);
+        caption_rect.move(border_width + 5, border_width + 5);
+
+        if (caption_rect.in(paint_rect))
+        {
+            gr.draw_rect(caption_rect, theme_color(tcn, tv_background, theme_));
+            gr.draw_text(caption_rect,
+                caption,
+                theme_color(tcn, tv_text, theme_),
+                caption_font);
+        }
     }
 }
 
@@ -2104,25 +2128,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->graphic_.clear(paint_rect);
             }
-            if (flag_is_set(wnd->window_style_, window_style::title_showed) && !wnd->parent_.lock())
-            {
-                auto caption_font = theme_font(wnd->tcn, tv_caption_font, wnd->theme_);
-
-                auto caption_rect = wnd->graphic_.measure_text(wnd->caption, caption_font);
-                caption_rect.move(5, 5);
-
-                if (caption_rect.in(paint_rect))
-                {
-                    wnd->graphic_.draw_rect(caption_rect, theme_color(wnd->tcn, tv_background, wnd->theme_));
-                    wnd->graphic_.draw_text(caption_rect,
-                        wnd->caption,
-                        theme_color(wnd->tcn, tv_text, wnd->theme_),
-                        caption_font);
-                }
-            }
-
-            wnd->draw_border(wnd->graphic_);
-
+            
             std::vector<std::shared_ptr<i_control>> topmost_controls;
 
             for (auto &control : wnd->controls)
@@ -2144,6 +2150,10 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 control->draw(wnd->graphic_, paint_rect);
             }
+
+            wnd->draw_border(wnd->graphic_);
+
+            wnd->draw_caption(wnd->graphic_, paint_rect);
 
             wnd->graphic_.flush(paint_rect);
 

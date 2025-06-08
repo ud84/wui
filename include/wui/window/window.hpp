@@ -295,6 +295,7 @@ private:
     void update_buttons();
 
     void draw_border(graphic &gr);
+    void draw_caption(graphic& gr, rect paint_rect);
 
     void send_internal(internal_event_type type, int32_t x, int32_t y);
 
