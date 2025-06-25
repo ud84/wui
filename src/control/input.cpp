@@ -26,6 +26,12 @@
 
 #include <regex>
 #include <cctype>
+#include <iostream>
+#include <sstream>
+#include <string>
+
+#undef min
+#undef max
 
 namespace wui
 {
@@ -46,12 +52,19 @@ input::input(std::string_view text__, input_view input_view__, input_content inp
     my_control_sid(), my_plain_sid(),
     timer_(std::bind(&input::redraw_cursor, this)),
     menu_(std::make_shared<menu>(menu::tc, theme_)),
+    vert_scroll(std::make_shared<scroll>(0, 0, orientation::vertical, std::bind(&input::on_vert_scroll, this, std::placeholders::_1, std::placeholders::_2), scroll::tc, theme__)),
+    hor_scroll(std::make_shared<scroll>(0, 0, orientation::horizontal, std::bind(&input::on_hor_scroll, this, std::placeholders::_1, std::placeholders::_2), scroll::tc, theme__)),
+    scroll_offset_x(0), scroll_offset_y(0),
     showed_(true), enabled_(true), topmost_(false),
     focused_(false),
     cursor_visible(false),
     selecting(false),
     left_shift(0)
 {
+    if (input_view_ == input_view::multiline) {
+        set_text_multiline(text__);
+        reset_multiline_state();
+    }
     menu_->set_items({
             { 0, menu_item_state::normal, locale(tc, cl_cut).data(), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); } },
             { 1, menu_item_state::normal, locale(tc, cl_copy).data(), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); } },
@@ -70,10 +83,64 @@ input::~input()
 
 int32_t get_text_width(graphic &gr, std::string text, size_t text_length, const font &font_)
 {
+    if (text.empty() || text_length == 0) return 0;
     text.resize(text_length);
     auto text_rect = gr.measure_text(text, font_);
-
     return text_rect.right;
+}
+
+// Auxiliary function: comparing cursor positions (row, col)
+inline bool cursor_less(size_t row1, size_t col1, size_t row2, size_t col2) {
+    return row1 < row2 || (row1 == row2 && col1 < col2);
+}
+
+// Auxiliary function: get the number of characters in a UTF-8 string
+static size_t utf8_length(const std::string& s) {
+    return utf8::distance(s.begin(), s.end());
+}
+
+// Auxiliary function: get an iterator per character by position (character index)
+static std::string::iterator utf8_iter_at(std::string& s, size_t char_pos) {
+    auto it = s.begin();
+    utf8::advance(it, char_pos, s.end());
+    return it;
+}
+
+static std::string::const_iterator utf8_iter_at(const std::string& s, size_t char_pos) {
+    auto it = s.begin();
+    utf8::advance(it, char_pos, s.end());
+    return it;
+}
+
+// Auxiliary functions for working with byte indexes (as in single-line mode)
+static size_t get_byte_pos_for_char_pos(const std::string& s, size_t char_pos) {
+    if (s.empty()) return 0;
+    
+    auto it = s.begin();
+    size_t actual_chars = utf8::distance(s.begin(), s.end());
+    if (char_pos >= actual_chars) {
+        return s.size(); // Возвращаем конец строки
+    }
+    
+    utf8::advance(it, char_pos, s.end());
+    return std::distance(s.begin(), it);
+}
+static size_t get_char_pos_for_byte_pos(const std::string& s, size_t byte_pos) {
+    if (s.empty()) return 0;
+    if (byte_pos >= s.size()) {
+        return utf8::distance(s.begin(), s.end());
+    }
+    return utf8::distance(s.begin(), s.begin() + byte_pos);
+}
+
+// Auxiliary function for checking the validity of UTF-8 in multiline
+static bool check_count_valid_multiline(const std::string& line, size_t count) {
+    if (count == 0 || line.empty())
+        return true;
+    if (count > line.size())
+        return false;
+    auto end_it = utf8::find_invalid(line.begin(), line.begin() + count);
+    return end_it == line.begin() + count;
 }
 
 void input::draw(graphic &gr, rect )
@@ -102,74 +169,134 @@ void input::draw(graphic &gr, rect )
 #endif
     }
 
-    /// Create memory dc for text and selection bar
-    auto full_text_width = get_text_width(gr, text_, text_.size(), font_) + 2;
-    auto text_height = font_.size;
+    if (input_view_ == input_view::multiline) {
+        int line_height = font_.size;
+        auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+        auto content_width = control_pos.width() - border_width * 2;
+        auto content_height = control_pos.height() - border_width * 2;
+        bool show_vert_scroll = vert_scroll->showed();
+        bool show_hor_scroll = hor_scroll->showed();
+        int vert_scroll_size = vert_scroll->focused() ? 14 : 4;
+        int hor_scroll_size = hor_scroll->focused() ? 14 : 4;
+        if (show_vert_scroll) content_width -= vert_scroll_size;
+        if (show_hor_scroll) content_height -= hor_scroll_size;
 
-    system_context ctx = { 0 };
-    auto parent__ = parent_.lock();
-    if (parent__)
-    {
-#ifdef _WIN32
-        ctx = parent__->context();
-#elif __linux__
-        ctx = { parent__->context().display, parent__->context().connection, parent__->context().screen, gr.drawable() };
-#endif
-}
-    graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, full_text_width, text_height }, theme_color(tcn, tv_background, theme_));
+        // Offscreen text buffer
+        if (!mem_gr_) init_mem_graphic();
+        if (!mem_gr_) return;
+        mem_gr_->clear({ 0, 0, position().width(), position().height() });
 
-    /// Draw the selection bar
-    if (select_start_position != select_end_position)
-    {
-        auto start_coordinate = get_text_width(mem_gr, text_, select_start_position, font_);
-        auto end_coordinate = get_text_width(mem_gr, text_, select_end_position, font_);
-
-        mem_gr.draw_rect({ start_coordinate, 0, end_coordinate, text_height }, theme_color(tcn, tv_selection, theme_));
-    }
-
-    /// Draw the text
-    if (input_view_ != input_view::password)
-    {
-        mem_gr.draw_text({ 0 }, text_, theme_color(tcn, tv_text, theme_), font_);
-    }
-    else
-    {
-        std::string text__;
-        for (auto i = 0; i != text_.size(); ++i)
-        {
-            if (check_count_valid(i))
-            {
-                text__.append("●");
+        // We start from the scroll position
+        int y = - (scroll_offset_y % line_height);
+        size_t start_line = scroll_offset_y / line_height;
+        int visible_bottom = content_height;
+        for (size_t i = start_line; i < lines_.size(); ++i) {
+            int actual_y = y + static_cast<int>(i - start_line) * line_height;
+            if (actual_y >= visible_bottom) break;
+            // Highlighting the selection
+            bool has_sel = false;
+            size_t sel_start = 0, sel_end = 0;
+            if (!(select_start_row == select_end_row && select_start_col == select_end_col)) {
+                size_t srow = select_start_row, scol = select_start_col, erow = select_end_row, ecol = select_end_col;
+                if (cursor_less(erow, ecol, srow, scol)) std::swap(srow, erow), std::swap(scol, ecol);
+                if (i > srow && i < erow) {
+                    has_sel = true; sel_start = 0; sel_end = utf8::distance(lines_[i].begin(), lines_[i].end());
+                } else if (i == srow && i == erow && scol != ecol) {
+                    has_sel = true; sel_start = scol; sel_end = ecol;
+                    if (sel_start > sel_end) std::swap(sel_start, sel_end);
+                } else if (i == srow && i < erow) {
+                    has_sel = true; sel_start = scol; sel_end = utf8::distance(lines_[i].begin(), lines_[i].end());
+                } else if (i == erow && i > srow) {
+                    has_sel = true; sel_start = 0; sel_end = ecol;
+                }
+            }
+            if (has_sel && sel_start < sel_end && static_cast<size_t>(sel_end) <= utf8::distance(lines_[i].begin(), lines_[i].end())) {
+                size_t start_byte = get_byte_pos_for_char_pos(lines_[i], sel_start);
+                size_t end_byte = get_byte_pos_for_char_pos(lines_[i], sel_end);
+                int x1 = mem_gr_->measure_text(lines_[i].substr(0, start_byte), font_).right - scroll_offset_x;
+                int x2 = mem_gr_->measure_text(lines_[i].substr(0, end_byte), font_).right - scroll_offset_x;
+                mem_gr_->draw_rect({input_horizontal_indent + x1, actual_y, input_horizontal_indent + x2, actual_y + line_height}, theme_color(tcn, tv_selection, theme_));
+            }
+            mem_gr_->draw_text({input_horizontal_indent - scroll_offset_x, actual_y}, lines_[i], theme_color(tcn, tv_text, theme_), font_);
+            // Cursor
+            if (cursor_visible && i == cursor_row) {
+                size_t max_col = utf8::distance(lines_[i].begin(), lines_[i].end());
+                size_t safe_cursor_col = std::min(cursor_col, max_col);
+                size_t cursor_byte = get_byte_pos_for_char_pos(lines_[i], safe_cursor_col);
+                int cursor_x = mem_gr_->measure_text(lines_[i].substr(0, cursor_byte), font_).right - scroll_offset_x;
+                mem_gr_->draw_line({input_horizontal_indent + cursor_x, actual_y, input_horizontal_indent + cursor_x, actual_y + line_height}, theme_color(tcn, tv_cursor, theme_));
             }
         }
-        mem_gr.draw_text({ 0 }, text__, theme_color(tcn, tv_text, theme_), font_);
-    }
-            
-    /// Draw the cursor
-    if (cursor_visible)
-    {
-        auto cursor_coordinate = get_text_width(mem_gr, text_, cursor_position, font_);
-        mem_gr.draw_line({ cursor_coordinate, 0, cursor_coordinate, text_height }, theme_color(tcn, tv_cursor, theme_));
+        // Copying the offscreen buffer to the parent context
+        gr.draw_graphic({control_pos.left + border_width, control_pos.top + border_width, control_pos.left + border_width + content_width, control_pos.top + border_width + content_height}, *mem_gr_, 0, 0);
+        // Rendering scrollbars
+        if (show_vert_scroll) {
+            vert_scroll->draw(gr, {});
+        }
+        if (show_hor_scroll) {
+            hor_scroll->draw(gr, {});
+        }
+    } else {
+        /// Create memory dc for text and selection bar
+        auto full_text_width = get_text_width(gr, text_, text_.size(), font_) + 2;
+        auto text_height = font_.size;
 
-        while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
+        if (!mem_gr_) init_mem_graphic();
+        if (!mem_gr_) return;
+        mem_gr_->clear({ 0, 0, position().width(), position().height() });
+
+        /// Draw the selection bar
+        if (select_start_position != select_end_position)
         {
-            left_shift += 10;
+            auto start_coordinate = get_text_width(*mem_gr_, text_, select_start_position, font_);
+            auto end_coordinate = get_text_width(*mem_gr_, text_, select_end_position, font_);
+
+            mem_gr_->draw_rect({ start_coordinate, 0, end_coordinate, text_height }, theme_color(tcn, tv_selection, theme_));
         }
 
-        while (left_shift > cursor_coordinate)
+        /// Draw the text
+        if (input_view_ != input_view::password)
         {
-            left_shift -= 10;
+            mem_gr_->draw_text({ 0 }, text_, theme_color(tcn, tv_text, theme_), font_);
         }
-    }
+        else
+        {
+            std::string text__;
+            for (auto i = 0; i != text_.size(); ++i)
+            {
+                if (check_count_valid(i))
+                {
+                    text__.append("*");
+                }
+            }
+            mem_gr_->draw_text({ 0 }, text__, theme_color(tcn, tv_text, theme_), font_);
+        }
+                
+        /// Draw the cursor
+        if (cursor_visible)
+        {
+            auto cursor_coordinate = get_text_width(*mem_gr_, text_, cursor_position, font_);
+            mem_gr_->draw_line({ cursor_coordinate, 0, cursor_coordinate, text_height }, theme_color(tcn, tv_cursor, theme_));
 
-    int32_t input_vertical_indent = position_.height() > text_height ? (position_.height() - text_height) / 2 : 0;
-    
-    gr.draw_graphic({ control_pos.left + input_horizontal_indent,
-            control_pos.top + input_vertical_indent,
-            control_pos.width() - input_horizontal_indent * 2,
-            control_pos.height() - input_vertical_indent * 2 },
-        mem_gr, left_shift, 0);
+            while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
+            {
+                left_shift += 10;
+            }
+
+            while (left_shift > cursor_coordinate)
+            {
+                left_shift -= 10;
+            }
+        }
+
+        int32_t input_vertical_indent = position_.height() > text_height ? (position_.height() - text_height) / 2 : 0;
+        
+        gr.draw_graphic({ control_pos.left + input_horizontal_indent,
+                control_pos.top + input_vertical_indent,
+                control_pos.width() - input_horizontal_indent * 2,
+                control_pos.height() - input_vertical_indent * 2 },
+            *mem_gr_, left_shift, 0);
+    }
 }
 
 size_t input::calculate_mouse_cursor_position(int32_t x)
@@ -181,14 +308,8 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
 
     x -= position().left + input_horizontal_indent - left_shift;
 
-    system_context ctx = { 0 };
-    auto parent__ = parent_.lock();
-    if (parent__)
-    {
-        ctx = parent__->context();
-    }
-    graphic mem_gr(ctx);
-    mem_gr.init(position_, 0);
+    if (!mem_gr_) init_mem_graphic();
+    if (!mem_gr_) return 0;
 
     auto font_ = theme_font(tcn, tv_font, theme_);
     if (input_view_ == input_view::password)
@@ -208,7 +329,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
 
         if (check_count_valid(count))
         {
-            text_width = get_text_width(mem_gr, text_, count, font_);
+            text_width = get_text_width(*mem_gr_, text_, count, font_);
         }
     }
 
@@ -292,6 +413,7 @@ void input::select_current_word(int32_t x)
     }
 
     redraw();
+    scroll_to_cursor();
 }
 
 void input::select_all()
@@ -300,10 +422,14 @@ void input::select_all()
     select_end_position = text_.size();;
 
     redraw();
+    scroll_to_cursor();
 }
 
 bool input::check_count_valid(size_t count)
 {
+    if (count == 0 || text_.empty())
+        return true;
+
     auto end_it = utf8::find_invalid(text_.begin(), text_.begin() + count);
     return end_it == text_.begin() + count;
 }
@@ -331,11 +457,109 @@ bool is_number(std::string_view s)
     return s.find_first_not_of("-,.0123456789") != std::string::npos;
 }
 
+// Auxiliary function for multiline
+std::pair<size_t, size_t> input::calculate_mouse_cursor_position_multiline(int x, int y)
+{
+    if (!mem_gr_) init_mem_graphic();
+    if (!mem_gr_) return {0, 0};
+
+    auto control_pos = position();
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
+    int line_height = font_.size;
+    
+    // We take into account scrolling and borders
+    int rel_y = y - control_pos.top - border_width + scroll_offset_y;
+    size_t row = std::min((size_t)(rel_y / line_height), lines_.size() - 1);
+    
+    int rel_x = x - control_pos.left - border_width - input_horizontal_indent + scroll_offset_x;
+    
+    // We use character positions to measure text
+    size_t char_count = utf8::distance(lines_[row].begin(), lines_[row].end());
+    size_t col = 0;
+    
+    for (; col <= char_count; ++col)
+    {
+        size_t byte_pos = get_byte_pos_for_char_pos(lines_[row], col);
+        int w = mem_gr_->measure_text(lines_[row].substr(0, byte_pos), font_).right;
+        if (w > rel_x) break;
+    }
+    
+    if (col > 0) {
+        --col;
+    }
+    if (col >= char_count) {
+        col = char_count;
+    }
+
+    return {row, col};
+}
+
 void input::receive_control_events(const event &ev)
 {
     if (!showed_ || !enabled_)
     {
         return;
+    }
+
+    // Scrollbar event handling for multiline
+    if (input_view_ == input_view::multiline) {
+        if (ev.type == event_type::mouse && (ev.mouse_event_.type == mouse_event_type::move || ev.mouse_event_.type == mouse_event_type::enter)) {
+            auto parent__ = parent_.lock();
+            if (parent__) {
+                if (vert_scroll->position().in(ev.mouse_event_.x, ev.mouse_event_.y) || hor_scroll->position().in(ev.mouse_event_.x, ev.mouse_event_.y)) {
+                    set_cursor(parent__->context(), cursor::default_);
+                } else {
+                    set_cursor(parent__->context(), cursor::ibeam);
+                }
+            }
+            // Enter/leave emulation for scrollbars
+            bool vert_hover = vert_scroll->position().in(ev.mouse_event_.x, ev.mouse_event_.y);
+            bool hor_hover = hor_scroll->position().in(ev.mouse_event_.x, ev.mouse_event_.y);
+            static bool prev_vert_hover = false;
+            static bool prev_hor_hover = false;
+            if (vert_hover && !prev_vert_hover) {
+                event enter_ev = ev;
+                enter_ev.mouse_event_.type = mouse_event_type::enter;
+                vert_scroll->receive_control_events(enter_ev);
+            } else if (!vert_hover && prev_vert_hover) {
+                event leave_ev = ev;
+                leave_ev.mouse_event_.type = mouse_event_type::leave;
+                vert_scroll->receive_control_events(leave_ev);
+            }
+            if (hor_hover && !prev_hor_hover) {
+                event enter_ev = ev;
+                enter_ev.mouse_event_.type = mouse_event_type::enter;
+                hor_scroll->receive_control_events(enter_ev);
+            } else if (!hor_hover && prev_hor_hover) {
+                event leave_ev = ev;
+                leave_ev.mouse_event_.type = mouse_event_type::leave;
+                hor_scroll->receive_control_events(leave_ev);
+            }
+            prev_vert_hover = vert_hover;
+            prev_hor_hover = hor_hover;
+        }
+        // Checking whether the cursor is above the scrollbars for mouse events
+        if (vert_scroll->position().in(ev.mouse_event_.x, ev.mouse_event_.y)) {
+            vert_scroll->receive_control_events(ev);
+            return;
+        }
+        if (hor_scroll->position().in(ev.mouse_event_.x, ev.mouse_event_.y)) {
+            hor_scroll->receive_control_events(ev);
+            return;
+        }
+        if (ev.type == event_type::mouse && ev.mouse_event_.type == mouse_event_type::left_down) {
+            auto [row, col] = calculate_mouse_cursor_position_multiline(ev.mouse_event_.x, ev.mouse_event_.y);
+            cursor_row = row;
+            cursor_col = col;
+            selecting = true;
+            select_start_row = cursor_row;
+            select_start_col = cursor_col;
+            select_end_row = cursor_row;
+            select_end_col = cursor_col;
+            redraw();
+            scroll_to_cursor();
+        }
     }
 
     if (ev.type == event_type::mouse)
@@ -375,43 +599,85 @@ void input::receive_control_events(const event &ev)
             }
             break;
             case mouse_event_type::left_down:
-                cursor_position = calculate_mouse_cursor_position(ev.mouse_event_.x);
-
-                selecting = true;
-                select_start_position = cursor_position;
-                select_end_position = select_start_position;
-
-                redraw();
-            break;
+                if (input_view_ == input_view::multiline) {
+                    auto [row, col] = calculate_mouse_cursor_position_multiline(ev.mouse_event_.x, ev.mouse_event_.y);
+                    cursor_row = row;
+                    cursor_col = col;
+                    selecting = true;
+                    select_start_row = cursor_row;
+                    select_start_col = cursor_col;
+                    select_end_row = cursor_row;
+                    select_end_col = cursor_col;
+                    redraw();
+                    scroll_to_cursor();
+                } else {
+                    cursor_position = calculate_mouse_cursor_position(ev.mouse_event_.x);
+                    selecting = true;
+                    select_start_position = cursor_position;
+                    select_end_position = select_start_position;
+                    redraw();
+                    scroll_to_cursor();
+                }
+                break;
             case mouse_event_type::left_up:
                 selecting = false;
                 menu_->hide();
             break;
             case mouse_event_type::right_up:
-                menu_->update_item({ 0, select_start_position != select_end_position && input_view_ != input_view::readonly && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_cut).data(), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); parent_.lock()->set_focused(shared_from_this()); } });
-                menu_->update_item({ 1, select_start_position != select_end_position && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_copy).data(), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); parent_.lock()->set_focused(shared_from_this()); } });
-                menu_->update_item({ 2, input_view_ != input_view::readonly ? menu_item_state::normal : menu_item_state::disabled,
-                    locale(tc, cl_paste).data(), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); parent_.lock()->set_focused(shared_from_this()); } });
+                if (input_view_ == input_view::multiline) {
+                    bool has_selection = !(select_start_row == select_end_row && select_start_col == select_end_col);
+                    menu_->update_item({ 0, has_selection && input_view_ != input_view::readonly && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
+                        locale(tc, cl_cut).data(), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut_multiline(); parent_.lock()->set_focused(shared_from_this()); } });
+                    menu_->update_item({ 1, has_selection && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
+                        locale(tc, cl_copy).data(), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy_multiline(); parent_.lock()->set_focused(shared_from_this()); } });
+                    menu_->update_item({ 2, input_view_ != input_view::readonly ? menu_item_state::normal : menu_item_state::disabled,
+                        locale(tc, cl_paste).data(), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste_multiline(); parent_.lock()->set_focused(shared_from_this()); } });
+                } else {
+                    menu_->update_item({ 0, select_start_position != select_end_position && input_view_ != input_view::readonly && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
+                        locale(tc, cl_cut).data(), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); parent_.lock()->set_focused(shared_from_this()); } });
+                    menu_->update_item({ 1, select_start_position != select_end_position && input_view_ != input_view::password ? menu_item_state::normal : menu_item_state::disabled,
+                        locale(tc, cl_copy).data(), "Ctrl+C", nullptr, {}, [this](int32_t i) { buffer_copy(); parent_.lock()->set_focused(shared_from_this()); } });
+                    menu_->update_item({ 2, input_view_ != input_view::readonly ? menu_item_state::normal : menu_item_state::disabled,
+                        locale(tc, cl_paste).data(), "Ctrl+V", nullptr, {}, [this](int32_t i) { buffer_paste(); parent_.lock()->set_focused(shared_from_this()); } });
+                }
 
-                menu_->show_on_control(shared_from_this(), 0, ev.mouse_event_.x);
+                menu_->show_on_control(shared_from_this(), 0, ev.mouse_event_.x, ev.mouse_event_.y);
             break;
             case mouse_event_type::move:
-                if (selecting)
-                {    
+                if (selecting && input_view_ == input_view::multiline) {
+                    auto [row, col] = calculate_mouse_cursor_position_multiline(ev.mouse_event_.x, ev.mouse_event_.y);
+                    cursor_row = row;
+                    cursor_col = col;
+                    select_end_row = row;
+                    select_end_col = col;
+                    redraw();
+                    scroll_to_cursor();
+                } else if (selecting) {
                     auto measured_cursor_position = calculate_mouse_cursor_position(ev.mouse_event_.x);
                     if (cursor_position != measured_cursor_position)
                     {
                         cursor_position = measured_cursor_position;
                         select_end_position = cursor_position;
-
                         redraw();
+                        scroll_to_cursor();
                     }
                 }
             break;
             case mouse_event_type::left_double:
-                select_current_word(ev.mouse_event_.x);
+                if (input_view_ == input_view::multiline) {
+                    select_current_word_multiline(ev.mouse_event_.x, ev.mouse_event_.y);
+                } else {
+                    select_current_word(ev.mouse_event_.x);
+                }
+            break;
+            case mouse_event_type::wheel:
+                if (input_view_ == input_view::multiline) {
+                    if (ev.mouse_event_.wheel_delta > 0) {
+                        vert_scroll->scroll_up();
+                    } else {
+                        vert_scroll->scroll_down();
+                    }
+                }
             break;
             default: break;
         }
@@ -423,124 +689,346 @@ void input::receive_control_events(const event &ev)
             case keyboard_event_type::down:
                 timer_.stop();
                 cursor_visible = true;
-                switch (ev.keyboard_event_.key[0])
-                {
-                    case vk_left: case vk_nleft:
-                        if (ev.keyboard_event_.key[0] == vk_nleft && ev.keyboard_event_.modifier == vk_numlock)
-                        {
-                            return;
-                        }
-                        if (cursor_position > 0)
-                        {
-                            auto prev_position = cursor_position;
-
-                            move_cursor_left();
-
-                            update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
-                                ev.keyboard_event_.modifier == vk_rshift,
-                                prev_position,
-                                cursor_position);
+                if (input_view_ == input_view::multiline) {
+                    bool shift = (ev.keyboard_event_.modifier == vk_lshift || ev.keyboard_event_.modifier == vk_rshift);
+                    switch (ev.keyboard_event_.key[0]) {
+                        case vk_left:
+                            if (shift) {
+                                size_t old_row = cursor_row, old_col = cursor_col;
+                                if (cursor_col > 0) {
+                                    --cursor_col;
+                                    while (!check_count_valid_multiline(lines_[cursor_row], cursor_col) && cursor_col > 0) --cursor_col;
+                                } else if (cursor_row > 0) {
+                                    --cursor_row;
+                                    cursor_col = lines_[cursor_row].size();
+                                }
+                                select_end_row = cursor_row; select_end_col = cursor_col;
+                                if (!selecting) { select_start_row = old_row; select_start_col = old_col; selecting = true; }
+                            } else {
+                                if (cursor_col > 0) {
+                                    --cursor_col;
+                                    while (!check_count_valid_multiline(lines_[cursor_row], cursor_col) && cursor_col > 0) --cursor_col;
+                                } else if (cursor_row > 0) {
+                                    --cursor_row;
+                                    cursor_col = lines_[cursor_row].size();
+                                }
+                                selecting = false; select_start_row = select_start_col = select_end_row = select_end_col = 0;
+                            }
                             redraw();
-                        }
-                    break;
-                    case vk_right: case vk_nright:
-                        if (ev.keyboard_event_.key[0] == vk_nright && ev.keyboard_event_.modifier == vk_numlock)
-                        {
-                            return;
-                        }
-                        if (cursor_position < text_.size())
-                        {
-                            auto prev_position = cursor_position;
-
-                            move_cursor_right();
-
-                            update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
-                                ev.keyboard_event_.modifier == vk_rshift,
-                                prev_position,
-                                cursor_position);
+                            scroll_to_cursor();
+                            break;
+                        case vk_right:
+                            if (shift) {
+                                size_t old_row = cursor_row, old_col = cursor_col;
+                                if (cursor_col < lines_[cursor_row].size()) {
+                                    ++cursor_col;
+                                    while (!check_count_valid_multiline(lines_[cursor_row], cursor_col) && cursor_col < lines_[cursor_row].size()) ++cursor_col;
+                                } else if (cursor_row + 1 < lines_.size()) {
+                                    ++cursor_row;
+                                    cursor_col = 0;
+                                }
+                                select_end_row = cursor_row; select_end_col = cursor_col;
+                                if (!selecting) { select_start_row = old_row; select_start_col = old_col; selecting = true; }
+                            } else {
+                                if (cursor_col < lines_[cursor_row].size()) {
+                                    ++cursor_col;
+                                    while (!check_count_valid_multiline(lines_[cursor_row], cursor_col) && cursor_col < lines_[cursor_row].size()) ++cursor_col;
+                                } else if (cursor_row + 1 < lines_.size()) {
+                                    ++cursor_row;
+                                    cursor_col = 0;
+                                }
+                                selecting = false; select_start_row = select_start_col = select_end_row = select_end_col = 0;
+                            }
                             redraw();
-                        }
-                    break;
-                    case vk_home: case vk_nhome:
-                        if (ev.keyboard_event_.key[0] == vk_nhome && ev.keyboard_event_.modifier == vk_numlock)
-                        {
-                            return;
-                        }
-                        update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
-                            ev.keyboard_event_.modifier == vk_rshift,
-                            cursor_position, 0);
-                        cursor_position = 0;
-                        redraw();
-                    break;
-                    case vk_end: case vk_nend:
-                        if (ev.keyboard_event_.key[0] == vk_nend && ev.keyboard_event_.modifier == vk_numlock)
-                        {
-                            return;
-                        }
-                        if (!text_.empty())
-                        {
-                            update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
-                                ev.keyboard_event_.modifier == vk_rshift,
-                                cursor_position,
-                                text_.size());
-
-                            cursor_position = text_.size();
-
+                            scroll_to_cursor();
+                            break;
+                        case vk_up:
+                            if (shift) {
+                                size_t old_row = cursor_row, old_col = cursor_col;
+                                if (cursor_row > 0) { --cursor_row; cursor_col = std::min(cursor_col, lines_[cursor_row].size()); }
+                                select_end_row = cursor_row; select_end_col = cursor_col;
+                                if (!selecting) { select_start_row = old_row; select_start_col = old_col; selecting = true; }
+                            } else {
+                                if (cursor_row > 0) { --cursor_row; cursor_col = std::min(cursor_col, lines_[cursor_row].size()); }
+                                selecting = false; select_start_row = select_start_col = select_end_row = select_end_col = 0;
+                            }
                             redraw();
-                        }
-                    break;
-                    case vk_back:
-                        if (input_view_ != input_view::readonly)
+                            scroll_to_cursor();
+                            break;
+                        case vk_down:
+                            if (shift) {
+                                size_t old_row = cursor_row, old_col = cursor_col;
+                                if (cursor_row + 1 < lines_.size()) { ++cursor_row; cursor_col = std::min(cursor_col, lines_[cursor_row].size()); }
+                                select_end_row = cursor_row; select_end_col = cursor_col;
+                                if (!selecting) { select_start_row = old_row; select_start_col = old_col; selecting = true; }
+                            } else {
+                                if (cursor_row + 1 < lines_.size()) { ++cursor_row; cursor_col = std::min(cursor_col, lines_[cursor_row].size()); }
+                                selecting = false; select_start_row = select_start_col = select_end_row = select_end_col = 0;
+                            }
+                            redraw();
+                            scroll_to_cursor();
+                            break;
+                        case vk_home:
+                            if (shift) {
+                                size_t old_row = cursor_row, old_col = cursor_col;
+                                cursor_col = 0;
+                                select_end_row = cursor_row; select_end_col = cursor_col;
+                                if (!selecting) { select_start_row = old_row; select_start_col = old_col; selecting = true; }
+                            } else {
+                                cursor_col = 0;
+                                selecting = false; select_start_row = select_start_col = select_end_row = select_end_col = 0;
+                            }
+                            redraw();
+                            scroll_to_cursor();
+                            break;
+                        case vk_end:
+                            if (shift) {
+                                size_t old_row = cursor_row, old_col = cursor_col;
+                                // We use a symbolic position for the selection to work correctly
+                                cursor_col = utf8::distance(lines_[cursor_row].begin(), lines_[cursor_row].end());
+                                select_end_row = cursor_row; select_end_col = cursor_col;
+                                if (!selecting) { select_start_row = old_row; select_start_col = old_col; selecting = true; }
+                            } else {
+                                cursor_col = utf8::distance(lines_[cursor_row].begin(), lines_[cursor_row].end());
+                                selecting = false; select_start_row = select_start_col = select_end_row = select_end_col = 0;
+                            }
+                            redraw();
+                            scroll_to_cursor();
+                            break;
+                        case vk_back:
+                            if (clear_selected_text_multiline()) {
+                                update_scroll_areas();
+                                scroll_to_cursor();
+                                redraw();
+                                if (change_callback) change_callback(text_multiline());
+                                break;
+                            }
+                            if (cursor_col > 0) {
+                                auto prev_position = cursor_col;
+                                --cursor_col;
+                                while (!check_count_valid_multiline(lines_[cursor_row], cursor_col) && cursor_col > 0) --cursor_col;
+                                // We get byte positions for correct deletion of UTF-8 characters
+                                size_t prev_byte = get_byte_pos_for_char_pos(lines_[cursor_row], prev_position);
+                                size_t curr_byte = get_byte_pos_for_char_pos(lines_[cursor_row], cursor_col);
+                                lines_[cursor_row].erase(curr_byte, prev_byte - curr_byte);
+                            } else if (cursor_row > 0) {
+                                --cursor_row;
+                                cursor_col = lines_[cursor_row].size();
+                                lines_[cursor_row] += lines_[cursor_row + 1];
+                                lines_.erase(lines_.begin() + cursor_row + 1);
+                            }
+                            update_scroll_areas();
+                            scroll_to_cursor();
+                            redraw();
+                            if (change_callback) change_callback(text_multiline());
+                            break;
+                        case vk_del:
                         {
-                            if (!clear_selected_text() && cursor_position > 0)
+                            if (clear_selected_text_multiline()) {
+                                update_scroll_areas();
+                                scroll_to_cursor();
+                                redraw();
+                                if (change_callback) change_callback(text_multiline());
+                                break;
+                            }
+                            if (cursor_col < lines_[cursor_row].size()) {
+                                size_t char_count = 1;
+                                while (!check_count_valid_multiline(lines_[cursor_row], cursor_col + char_count) && cursor_col + char_count < lines_[cursor_row].size()) {
+                                    ++char_count;
+                                }
+                                // We get byte positions for correct deletion of UTF-8 characters
+                                size_t start_byte = get_byte_pos_for_char_pos(lines_[cursor_row], cursor_col);
+                                size_t end_byte = get_byte_pos_for_char_pos(lines_[cursor_row], cursor_col + char_count);
+                                lines_[cursor_row].erase(start_byte, end_byte - start_byte);
+                            } else if (cursor_row + 1 < lines_.size()) {
+                                lines_[cursor_row] += lines_[cursor_row + 1];
+                                lines_.erase(lines_.begin() + cursor_row + 1);
+                            }
+                            update_scroll_areas();
+                            scroll_to_cursor();
+                            redraw();
+                            if (change_callback) change_callback(text_multiline());
+                        }
+                            break;
+                        case vk_return: case vk_rreturn: {
+                            // We get byte positions for correct operation with UTF-8
+                            size_t cursor_byte = get_byte_pos_for_char_pos(lines_[cursor_row], cursor_col);
+                            std::string new_line = lines_[cursor_row].substr(cursor_byte);
+                            lines_[cursor_row].erase(cursor_byte);
+                            lines_.insert(lines_.begin() + cursor_row + 1, new_line);
+                            ++cursor_row;
+                            cursor_col = 0;
+                            update_scroll_areas();
+                            scroll_to_cursor();
+                            redraw();
+                            if (change_callback) change_callback(text_multiline());
+                            break;
+                        }
+                        case vk_page_up: case vk_npage_up:
+                            if (cursor_row > 0) {
+                                auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+                                auto font_ = theme_font(tcn, tv_font, theme_);
+                                int line_height = font_.size;
+                                int content_height = position().height() - border_width * 2;
+                                int vert_scroll_size = vert_scroll->focused() ? 14 : 4;
+                                int hor_scroll_size = hor_scroll->focused() ? 14 : 4;
+                                if (vert_scroll->showed()) content_height -= vert_scroll_size;
+                                if (hor_scroll->showed()) content_height -= hor_scroll_size;
+                                int visible_lines = std::max(1, content_height / line_height);
+                                size_t new_row = cursor_row > (size_t)visible_lines ? cursor_row - visible_lines : 0;
+                                cursor_row = new_row;
+                                cursor_col = std::min(cursor_col, lines_[cursor_row].size());
+                                selecting = false; select_start_row = select_start_col = select_end_row = select_end_col = 0;
+                                redraw();
+                                scroll_to_cursor();
+                            }
+                            break;
+                        case vk_page_down: case vk_npage_down:
+                            if (cursor_row + 1 < lines_.size()) {
+                                auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+                                auto font_ = theme_font(tcn, tv_font, theme_);
+                                int line_height = font_.size;
+                                int content_height = position().height() - border_width * 2;
+                                int vert_scroll_size = vert_scroll->focused() ? 14 : 4;
+                                int hor_scroll_size = hor_scroll->focused() ? 14 : 4;
+                                if (vert_scroll->showed()) content_height -= vert_scroll_size;
+                                if (hor_scroll->showed()) content_height -= hor_scroll_size;
+                                int visible_lines = std::max(1, content_height / line_height);
+                                size_t new_row = std::min(cursor_row + visible_lines, lines_.size() - 1);
+                                cursor_row = new_row;
+                                cursor_col = std::min(cursor_col, lines_[cursor_row].size());
+                                selecting = false; select_start_row = select_start_col = select_end_row = select_end_col = 0;
+                                redraw();
+                                scroll_to_cursor();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    switch (ev.keyboard_event_.key[0])
+                    {
+                        case vk_left: case vk_nleft:
+                            if (ev.keyboard_event_.key[0] == vk_nleft && ev.keyboard_event_.modifier == vk_numlock)
+                            {
+                                return;
+                            }
+                            if (cursor_position > 0)
                             {
                                 auto prev_position = cursor_position;
 
                                 move_cursor_left();
 
-                                text_.erase(cursor_position, prev_position - cursor_position);
+                                update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
+                                    ev.keyboard_event_.modifier == vk_rshift,
+                                    prev_position,
+                                    cursor_position);
+                                redraw();
+                                scroll_to_cursor();
                             }
-                            
+                        break;
+                        case vk_right: case vk_nright:
+                            if (ev.keyboard_event_.key[0] == vk_nright && ev.keyboard_event_.modifier == vk_numlock)
+                            {
+                                return;
+                            }
+                            if (cursor_position < text_.size())
+                            {
+                                auto prev_position = cursor_position;
+
+                                move_cursor_right();
+
+                                update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
+                                    ev.keyboard_event_.modifier == vk_rshift,
+                                    prev_position,
+                                    cursor_position);
+                                redraw();
+                                scroll_to_cursor();
+                            }
+                        break;
+                        case vk_home: case vk_nhome:
+                            if (ev.keyboard_event_.key[0] == vk_nhome && ev.keyboard_event_.modifier == vk_numlock)
+                            {
+                                return;
+                            }
+                            update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
+                                ev.keyboard_event_.modifier == vk_rshift,
+                                cursor_position, 0);
+                            cursor_position = 0;
                             redraw();
-
-                            if (change_callback)
+                            scroll_to_cursor();
+                        break;
+                        case vk_end: case vk_nend:
+                            if (ev.keyboard_event_.key[0] == vk_nend && ev.keyboard_event_.modifier == vk_numlock)
                             {
-                                change_callback(text_);
+                                return;
                             }
-                        }
-                    break;
-                    case vk_del:
-                        if (input_view_ != input_view::readonly && !text_.empty())
-                        {
-                            if (!clear_selected_text())
+                            if (!text_.empty())
                             {
-                                if (text_.size() == cursor_position)
+                                update_select_positions(ev.keyboard_event_.modifier == vk_lshift ||
+                                    ev.keyboard_event_.modifier == vk_rshift,
+                                    cursor_position,
+                                    text_.size());
+
+                                cursor_position = text_.size();
+
+                                redraw();
+                                scroll_to_cursor();
+                            }
+                        break;
+                        case vk_back:
+                            if (input_view_ != input_view::readonly)
+                            {
+                                if (!clear_selected_text() && cursor_position > 0)
                                 {
-                                    return;
-                                }
+                                    auto prev_position = cursor_position;
 
-                                size_t char_count = 1;
-                                while (!check_count_valid(cursor_position + char_count))
+                                    move_cursor_left();
+
+                                    text_.erase(cursor_position, prev_position - cursor_position);
+                                }
+                                
+                                redraw();
+
+                                if (change_callback)
                                 {
-                                    ++char_count;
+                                    change_callback(text_);
                                 }
-                                text_.erase(cursor_position, char_count);
                             }
-                            
-                            redraw();
-
-                            if (change_callback)
+                        break;
+                        case vk_del:
+                            if (input_view_ != input_view::readonly && !text_.empty())
                             {
-                                change_callback(text_);
+                                if (!clear_selected_text())
+                                {
+                                    if (text_.size() == cursor_position)
+                                    {
+                                        return;
+                                    }
+
+                                    size_t char_count = 1;
+                                    while (!check_count_valid(cursor_position + char_count))
+                                    {
+                                        ++char_count;
+                                    }
+                                    text_.erase(cursor_position, char_count);
+                                }
+                                
+                                redraw();
+
+                                if (change_callback)
+                                {
+                                    change_callback(text_);
+                                }
                             }
-                        }
-                    break;
-                    case vk_return: case vk_rreturn:
-                        if (return_callback)
-                        {
-                            return_callback();
-                        }
-                    break;
+                        break;
+                        case vk_return: case vk_rreturn:
+                            if (return_callback)
+                            {
+                                return_callback();
+                            }
+                        break;
+                    }
                 }
             break;
             case keyboard_event_type::up:
@@ -554,22 +1042,37 @@ void input::receive_control_events(const event &ev)
             case keyboard_event_type::key:
                 if (ev.keyboard_event_.key[0] == 0x3)       // ctrl + c
                 {
-                    return buffer_copy();
+                    if (input_view_ == input_view::multiline) {
+                        return buffer_copy_multiline();
+                    } else {
+                        return buffer_copy();
+                    }
                 }
                 else if (ev.keyboard_event_.key[0] == 0x18) // ctrl + x
                 {
-                    return buffer_cut();
+                    if (input_view_ == input_view::multiline) {
+                        return buffer_cut_multiline();
+                    } else {
+                        return buffer_cut();
+                    }
                 }
                 else if (ev.keyboard_event_.key[0] == 0x16) // ctrl + v
                 {
-                    if (input_view_ != input_view::readonly)
-                    {
-                        return buffer_paste();
+                    if (input_view_ != input_view::readonly) {
+                        if (input_view_ == input_view::multiline) {
+                            return buffer_paste_multiline();
+                        } else {
+                            return buffer_paste();
+                        }
                     }
                 }
                 else if (ev.keyboard_event_.key[0] == 0x1)  // ctrl + a
                 {
-                    return select_all();
+                    if (input_view_ == input_view::multiline) {
+                        return select_all_multiline();
+                    } else {
+                        return select_all();
+                    }
                 }
                 else if (ev.keyboard_event_.key[0] == 0x7f) // ctrl + backspace
                 {
@@ -597,6 +1100,32 @@ void input::receive_control_events(const event &ev)
                 {
                     return;
                 }
+
+                if (input_view_ == input_view::multiline)
+                {
+                    if (clear_selected_text_multiline())
+                    {
+                        redraw();
+                        if (change_callback)
+                        {
+                            change_callback(text_multiline());
+                        }
+                    }
+                    if (lines_[cursor_row].size() < (size_t)symbols_limit)
+                    {
+                        size_t insert_byte = get_byte_pos_for_char_pos(lines_[cursor_row], cursor_col);
+                        lines_[cursor_row].insert(insert_byte, ev.keyboard_event_.key, ev.keyboard_event_.key_size);
+                        cursor_col = get_char_pos_for_byte_pos(lines_[cursor_row], insert_byte + ev.keyboard_event_.key_size);
+                        update_scroll_areas();
+                        scroll_to_cursor();
+                        redraw();
+                        if (change_callback)
+                        {
+                            change_callback(text_multiline());
+                        }
+                    }
+                    return;
+                }
                 
                 clear_selected_text();
 
@@ -605,6 +1134,7 @@ void input::receive_control_events(const event &ev)
                 cursor_position += ev.keyboard_event_.key_size;
 
                 redraw();
+                scroll_to_cursor();
 
                 if (change_callback)
                 {
@@ -653,6 +1183,19 @@ void input::receive_plain_events(const event &ev)
 void input::set_position(rect position__, bool redraw)
 {
     update_control_position(position_, position__, showed_ && redraw, parent_);
+    if (input_view_ == input_view::multiline) {
+        auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+        vert_scroll->set_position({ position_.right - 14 - border_width,
+            position_.top + border_width,
+            position_.right - border_width,
+            position_.bottom - border_width });
+        hor_scroll->set_position({ position_.left + border_width,
+            position_.bottom - 14 - border_width,
+            position_.right - border_width,
+            position_.bottom - border_width });
+        update_scroll_areas();
+    }
+    reset_mem_graphic();
 }
 
 rect input::position() const
@@ -667,8 +1210,12 @@ void input::set_parent(std::shared_ptr<window> window_)
         wui::flags_map<wui::event_type>(3, wui::event_type::internal, wui::event_type::mouse, wui::event_type::keyboard),
         shared_from_this());
     my_plain_sid = window_->subscribe(std::bind(&input::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
-
     window_->add_control(menu_, { 0 });
+    if (input_view_ == input_view::multiline) {
+        window_->add_control(vert_scroll, { 0 });
+        window_->add_control(hor_scroll, { 0 });
+    }
+    reset_mem_graphic();
 }
 
 std::weak_ptr<window> input::parent() const
@@ -681,10 +1228,16 @@ void input::clear_parent()
     auto parent__ = parent_.lock();
     if (parent__)
     {
+        parent__->remove_control(menu_);
+        if (input_view_ == input_view::multiline) {
+            parent__->remove_control(vert_scroll);
+            parent__->remove_control(hor_scroll);
+        }
         parent__->unsubscribe(my_control_sid);
         parent__->unsubscribe(my_plain_sid);
     }
     parent_.reset();
+    reset_mem_graphic();
 }
 
 void input::set_topmost(bool yes)
@@ -716,18 +1269,13 @@ void input::update_theme_control_name(std::string_view theme_control_name)
 {
     tcn = theme_control_name;
     update_theme(theme_);
+    reset_mem_graphic();
 }
 
 void input::update_theme(std::shared_ptr<i_theme> theme__)
 {
-    if (theme_ && !theme__)
-    {
-        return;
-    }
     theme_ = theme__;
-
-    menu_->update_theme(theme_);
-    redraw();
+    reset_mem_graphic();
 }
 
 void input::show()
@@ -770,25 +1318,40 @@ bool input::enabled() const
 
 void input::set_text(std::string_view text__)
 {
-    text_ = text__;
-    cursor_position = 0;
-
+    if (input_view_ == input_view::multiline) {
+        set_text_multiline(text__);
+        reset_multiline_state();
+    } else {
+        text_ = text__;
+        cursor_position = 0;
+    }
     redraw();
-
-    if (change_callback)
-    {
-        change_callback(text_);
+    if (change_callback) {
+        if (input_view_ == input_view::multiline)
+            change_callback(text_multiline());
+        else
+            change_callback(text_);
     }
 }
 
 std::string input::text() const
 {
-    return text_;
+    if (input_view_ == input_view::multiline)
+        return text_multiline();
+    else
+        return text_;
 }
 
 void input::set_input_view(input_view input_view__)
 {
     input_view_ = input_view__;
+    if (input_view_ == input_view::multiline) {
+        set_text_multiline(text_);
+        reset_multiline_state();
+    } else {
+        text_ = text_multiline();
+        cursor_position = 0;
+    }
 }
 
 void input::set_input_content(input_content input_content__)
@@ -898,11 +1461,453 @@ void input::buffer_paste()
     cursor_position += paste_string.size();
 
     redraw();
+    scroll_to_cursor();
 
     if (change_callback)
     {
         change_callback(text_);
     }
+}
+
+void input::set_text_multiline(std::string_view text) {
+    lines_.clear();
+    if (text.empty()) {
+        lines_.push_back("");
+        cursor_row = 0;
+        cursor_col = 0;
+        reset_mem_graphic();
+        return;
+    }
+    std::istringstream iss;
+    iss.str(text.data());
+    std::string line;
+    while (std::getline(iss, line)) {
+        lines_.push_back(line);
+    }
+    if (lines_.empty()) {
+        lines_.push_back("");
+    }
+    cursor_row = 0;
+    cursor_col = 0;
+    update_scroll_areas();
+    reset_mem_graphic();
+}
+
+std::string input::text_multiline() const
+{
+    std::ostringstream oss;
+    for (size_t i = 0; i < lines_.size(); ++i) {
+        oss << lines_[i];
+        if (i + 1 < lines_.size()) oss << '\n';
+    }
+    return oss.str();
+}
+
+void input::reset_multiline_state()
+{
+    cursor_row = cursor_col = 0;
+    select_start_row = select_start_col = select_end_row = select_end_col = 0;
+    reset_mem_graphic();
+}
+
+// Deleting selected text in multiline
+bool input::clear_selected_text_multiline()
+{
+    if (select_start_row == select_end_row && select_start_col == select_end_col)
+        return false;
+    size_t srow = select_start_row, scol = select_start_col, erow = select_end_row, ecol = select_end_col;
+    if (cursor_less(erow, ecol, srow, scol)) std::swap(srow, erow), std::swap(scol, ecol);
+    if (srow == erow) {
+        // We get byte positions for correct deletion of UTF-8 characters
+        size_t start_byte = get_byte_pos_for_char_pos(lines_[srow], scol);
+        size_t end_byte = get_byte_pos_for_char_pos(lines_[srow], ecol);
+        lines_[srow].erase(start_byte, end_byte - start_byte);
+        cursor_row = srow;
+        cursor_col = scol;
+    } else {
+        // The first line
+        size_t start_byte = get_byte_pos_for_char_pos(lines_[srow], scol);
+        lines_[srow].erase(start_byte);
+        
+        // The last line
+        size_t end_byte = get_byte_pos_for_char_pos(lines_[erow], ecol);
+        lines_[erow].erase(0, end_byte);
+        
+        // Combining the lines
+        lines_[srow] += lines_[erow];
+        lines_.erase(lines_.begin() + srow + 1, lines_.begin() + erow + 1);
+        cursor_row = srow;
+        cursor_col = scol;
+    }
+    select_start_row = select_start_col = select_end_row = select_end_col = 0;
+    selecting = false;
+    return true;
+}
+
+// Auxiliary functions for multiline
+void input::select_all_multiline() {
+    if (lines_.empty()) return;
+    select_start_row = 0;
+    select_start_col = 0;
+    select_end_row = lines_.size() - 1;
+    select_end_col = lines_[select_end_row].size();
+    redraw();
+    scroll_to_cursor();
+}
+
+void input::select_current_word_multiline(int x, int y) {
+    auto [row, col] = calculate_mouse_cursor_position_multiline(x, y);
+    cursor_row = row;
+    cursor_col = col;
+    
+    auto& line = lines_[row];
+    select_start_row = select_end_row = row;
+    select_start_col = select_end_col = col;
+    
+    // We are looking for the beginning of a word (using character positions)
+    while (select_start_col > 0) {
+        auto prev_char_pos = select_start_col - 1;
+        auto prev_byte_pos = get_byte_pos_for_char_pos(line, prev_char_pos);
+        if (prev_byte_pos < line.size() && line[prev_byte_pos] == ' ') {
+            break;
+        }
+        select_start_col = prev_char_pos;
+    }
+    
+    // Looking for the end of a word (using character positions)
+    while (select_end_col < lines_[row].size()) {
+        auto next_byte_pos = get_byte_pos_for_char_pos(line, select_end_col);
+        if (next_byte_pos < line.size() && line[next_byte_pos] == ' ') {
+            break;
+        }
+        select_end_col++;
+    }
+    
+    selecting = true;
+    redraw();
+    scroll_to_cursor();
+}
+
+// Clipboard functions for multiline
+void input::buffer_copy_multiline() {
+    if (!parent_.lock() || (select_start_row == select_end_row && select_start_col == select_end_col) || input_view_ == input_view::password) {
+        return;
+    }
+
+    size_t srow = select_start_row, scol = select_start_col, erow = select_end_row, ecol = select_end_col;
+    if (cursor_less(erow, ecol, srow, scol)) std::swap(srow, erow), std::swap(scol, ecol);
+
+    std::ostringstream oss;
+    if (srow == erow) {
+        // We get byte positions for correct copying of UTF-8 characters
+        size_t start_byte = get_byte_pos_for_char_pos(lines_[srow], scol);
+        size_t end_byte = get_byte_pos_for_char_pos(lines_[srow], ecol);
+        oss << lines_[srow].substr(start_byte, end_byte - start_byte);
+    } else {
+        // The first line
+        size_t start_byte = get_byte_pos_for_char_pos(lines_[srow], scol);
+        oss << lines_[srow].substr(start_byte);
+        
+        // Middle lines
+        for (size_t i = srow + 1; i < erow; ++i) {
+            oss << '\n' << lines_[i];
+        }
+        
+        // The last line
+        if (erow > srow) {
+            size_t end_byte = get_byte_pos_for_char_pos(lines_[erow], ecol);
+            oss << '\n' << lines_[erow].substr(0, end_byte);
+        }
+    }
+
+    clipboard_put(oss.str(), parent_.lock()->context());
+}
+
+void input::buffer_cut_multiline() {
+    if ((select_start_row == select_end_row && select_start_col == select_end_col) || input_view_ == input_view::readonly) {
+        return;
+    }
+
+    buffer_copy_multiline();
+    clear_selected_text_multiline();
+    redraw();
+
+    if (change_callback) {
+        change_callback(text_multiline());
+    }
+}
+
+void input::buffer_paste_multiline() {
+    if (!parent_.lock() || input_view_ == input_view::readonly || !is_text_in_clipboard(parent_.lock()->context())) {
+        return;
+    }
+
+    // We check that cursor_row does not exceed the boundaries
+    if (lines_.empty()) {
+        lines_.push_back("");
+        cursor_row = 0;
+        cursor_col = 0;
+    } else if (cursor_row >= lines_.size()) {
+        cursor_row = lines_.size() - 1;
+        cursor_col = lines_[cursor_row].size();
+    }
+
+    clear_selected_text_multiline();
+
+    auto paste_string = clipboard_get_text(parent_.lock()->context());
+    
+    // Splitting the inserted text into lines
+    std::istringstream iss(paste_string);
+    std::vector<std::string> paste_lines;
+    std::string line;
+    while (std::getline(iss, line)) {
+        paste_lines.push_back(line);
+    }
+    if (paste_lines.empty()) paste_lines.push_back("");
+
+    // Checking the character limit
+    size_t total_chars = 0;
+    for (const auto& l : lines_) total_chars += utf8::distance(l.begin(), l.end());
+    for (const auto& l : paste_lines) total_chars += utf8::distance(l.begin(), l.end());
+    
+    if (total_chars > (size_t)symbols_limit) {
+        return; // We do not insert it if the limit is exceeded.
+    }
+
+    if (paste_lines.size() == 1) {
+        size_t insert_byte = get_byte_pos_for_char_pos(lines_[cursor_row], cursor_col);
+        lines_[cursor_row].insert(insert_byte, paste_lines[0]);
+        cursor_col = get_char_pos_for_byte_pos(lines_[cursor_row], insert_byte + paste_lines[0].size());
+    } else {
+        // We insert several lines
+        size_t insert_byte = get_byte_pos_for_char_pos(lines_[cursor_row], cursor_col);
+        std::string tail = lines_[cursor_row].substr(insert_byte);
+        lines_[cursor_row].erase(insert_byte);
+        lines_[cursor_row] += paste_lines[0];
+        std::vector<std::string> new_lines;
+        new_lines.reserve(paste_lines.size() - 1);
+        for (size_t i = 1; i < paste_lines.size() - 1; ++i) {
+            new_lines.push_back(paste_lines[i]);
+        }
+        if (paste_lines.size() > 1) {
+            new_lines.push_back(paste_lines.back() + tail);
+        }
+        lines_.insert(lines_.begin() + cursor_row + 1, new_lines.begin(), new_lines.end());
+        cursor_row += paste_lines.size() - 1;
+        // Cursor at the end of the inserted block
+        cursor_col = get_char_pos_for_byte_pos(lines_[cursor_row], paste_lines.back().size());
+    }
+
+    update_scroll_areas();
+    scroll_to_cursor();
+    redraw();
+    if (change_callback) {
+        change_callback(text_multiline());
+    }
+}
+
+// Methods for working with scrolling
+void input::update_scroll_areas() {
+    if (input_view_ != input_view::multiline) {
+        return;
+    }
+
+    auto control_pos = position();
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
+    int line_height = font_.size;
+    int vert_scroll_size = vert_scroll->focused() ? 14 : 4;
+    int hor_scroll_size = hor_scroll->focused() ? 14 : 4;
+
+    // Creating a graphical context for measuring text
+    if (!mem_gr_) init_mem_graphic();
+    if (!mem_gr_) return;
+    
+    // 1. We calculate the maximum line width
+    int max_width = 0;
+    for (const auto& line : lines_) {
+        auto text_width = get_text_width(*mem_gr_, line, line.size(), font_);
+        max_width = std::max(max_width, text_width);
+    }
+    max_width += input_horizontal_indent * 2;
+
+    // 2. We calculate the size of the text area
+    int content_width = control_pos.width() - border_width * 2;
+    int content_height = control_pos.height() - border_width * 2;
+
+    // 3. First we count the vertical scrollbar
+    int total_height = static_cast<int>(lines_.size()) * line_height;
+    int vert_area = std::max(0, total_height - content_height - 4);
+    vert_scroll->set_area(vert_area);
+    bool need_vert_scroll = total_height > content_height;
+    if (need_vert_scroll) content_width -= vert_scroll_size;
+
+    // 4. Now we are counting the horizontal scrollbar
+    int hor_area = std::max(0, max_width - content_width - 4);
+    hor_scroll->set_area(hor_area);
+    bool need_hor_scroll = max_width > content_width;
+    if (need_hor_scroll) content_height -= hor_scroll_size;
+
+    // 5. If you need a vertical scroll after the horizontal scroll appears, we recalculate it.
+    if (need_hor_scroll) {
+        vert_area = std::max(0, total_height - content_height);
+        vert_scroll->set_area(vert_area);
+    }
+
+    update_scroll_visibility();
+}
+
+void input::on_vert_scroll(scroll_state ss, int32_t v) {
+    scroll_offset_y = v;
+    redraw();
+}
+
+void input::on_hor_scroll(scroll_state ss, int32_t v) {
+    scroll_offset_x = v;
+    redraw();
+}
+
+void input::update_scroll_visibility() {
+    if (input_view_ != input_view::multiline) {
+        return;
+    }
+
+    auto control_pos = position();
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
+
+    // Creating a graphical context for measuring text
+    if (!mem_gr_) init_mem_graphic();
+    if (!mem_gr_) return;
+
+    int line_height = font_.size;
+    int total_height = static_cast<int>(lines_.size()) * line_height;
+    int content_height = control_pos.height() - border_width * 2;
+
+    // Calculating the maximum row width
+    int max_width = 0;
+    for (const auto& line : lines_) {
+        auto text_width = get_text_width(*mem_gr_, line, line.size(), font_);
+        max_width = std::max(max_width, text_width);
+    }
+    max_width += input_horizontal_indent * 2;
+    int content_width = control_pos.width() - border_width * 2;
+
+    // Showing/hiding the vertical scroll
+    bool need_vert_scroll = total_height > content_height;
+    if (need_vert_scroll != vert_scroll->showed()) {
+        if (need_vert_scroll) {
+            vert_scroll->show();
+        } else {
+            vert_scroll->hide();
+        }
+    }
+
+    // Showing/hiding the horizontal scroll
+    bool need_hor_scroll = max_width > content_width;
+    if (need_hor_scroll != hor_scroll->showed()) {
+        if (need_hor_scroll) {
+            hor_scroll->show();
+        } else {
+            hor_scroll->hide();
+        }
+    }
+}
+
+void input::scroll_to_cursor() {
+    if (input_view_ != input_view::multiline) {
+        return;
+    }
+    if (lines_.empty() || cursor_row >= lines_.size()) {
+        return;
+    }
+    const auto& line = lines_[cursor_row];
+    auto control_pos = position();
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+    auto font_ = theme_font(tcn, tv_font, theme_);
+    int line_height = font_.size;
+    int content_height = control_pos.height() - border_width * 2;
+    // We take into account the place for scrollbars
+    bool show_vert_scroll = vert_scroll->showed();
+    bool show_hor_scroll = hor_scroll->showed();
+    int vert_scroll_size = vert_scroll->focused() ? 14 : 4;
+    int hor_scroll_size = hor_scroll->focused() ? 14 : 4;
+    if (show_vert_scroll) content_height -= vert_scroll_size;
+    int content_width = control_pos.width() - border_width * 2;
+    if (show_vert_scroll) content_width -= vert_scroll_size;
+    int visible_left = scroll_offset_x;
+    int visible_right = visible_left + content_width - 1;
+    const int cursor_extra = 8;
+
+    // Calculating the cursor position in pixels
+    int cursor_y = static_cast<int>(cursor_row) * line_height;
+    int cursor_x = 0;
+    // Calculating the horizontal cursor position
+    size_t max_col = line.empty() ? 0 : utf8::distance(line.begin(), line.end());
+    size_t safe_cursor_col = std::min(cursor_col, max_col);
+    size_t cursor_byte = line.empty() ? 0 : get_byte_pos_for_char_pos(line, safe_cursor_col);
+    
+    if (!mem_gr_) init_mem_graphic();
+    if (!mem_gr_) return;
+    cursor_x = mem_gr_->measure_text(line.substr(0, cursor_byte), font_).right;
+    int line_width = mem_gr_->measure_text(line, font_).right;
+    
+    if (safe_cursor_col == max_col) {
+        int new_scroll = std::max(0, line_width + cursor_extra - content_width);
+        hor_scroll->set_scroll_pos(new_scroll);
+    } else {
+        if (cursor_x < visible_left) {
+            hor_scroll->set_scroll_pos(cursor_x);
+        } else if (cursor_x + cursor_extra > visible_right) {
+            hor_scroll->set_scroll_pos(cursor_x - content_width + cursor_extra);
+        }
+    }
+    
+    // Checking if you need to scroll vertically.
+    int visible_top = scroll_offset_y;
+    int visible_bottom = visible_top + content_height;
+    int total_height = static_cast<int>(lines_.size()) * line_height;
+    int max_scroll = std::max(0, total_height - content_height);
+    
+    if (cursor_row == lines_.size() - 1) {
+        vert_scroll->set_scroll_pos(max_scroll);
+    } else if (cursor_y < visible_top) {
+        vert_scroll->set_scroll_pos(cursor_y);
+    } else if (cursor_y + line_height > visible_bottom) {
+        int new_scroll = cursor_y + line_height - content_height;
+        if (new_scroll < 0) new_scroll = 0;
+        if (new_scroll > max_scroll) new_scroll = max_scroll;
+        vert_scroll->set_scroll_pos(new_scroll);
+    }
+}
+
+void input::init_mem_graphic() {
+    auto parent__ = parent_.lock();
+    if (!parent__) {
+        mem_gr_.reset();
+        return;
+    }
+    system_context ctx = parent__->context();
+    auto control_pos = position();
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+    auto content_width = control_pos.width() - border_width * 2;
+    auto content_height = control_pos.height() - border_width * 2;
+    bool show_vert_scroll = vert_scroll && vert_scroll->showed();
+    bool show_hor_scroll = hor_scroll && hor_scroll->showed();
+    int vert_scroll_size = vert_scroll && vert_scroll->focused() ? 14 : 4;
+    int hor_scroll_size = hor_scroll && hor_scroll->focused() ? 14 : 4;
+    if (show_vert_scroll) content_width -= vert_scroll_size;
+    if (show_hor_scroll) content_height -= hor_scroll_size;
+    if (content_width <= 0 || content_height <= 0) {
+        mem_gr_.reset();
+        return;
+    }
+    mem_gr_ = std::make_unique<graphic>(ctx);
+    mem_gr_->init({0, 0, content_width, content_height}, theme_color(tcn, tv_background, theme_));
+}
+
+void input::reset_mem_graphic() {
+    mem_gr_.reset();
 }
 
 }

@@ -16,10 +16,12 @@
 #include <wui/common/color.hpp>
 #include <wui/system/timer.hpp>
 #include <wui/control/menu.hpp>
+#include <wui/control/scroll.hpp>
 
 #include <string>
 #include <functional>
 #include <memory>
+#include <vector>
 
 namespace wui
 {
@@ -115,8 +117,20 @@ private:
     input_content input_content_;
     int32_t symbols_limit;
 
+    // Для singleline
     std::string text_;
-    
+    // Для multiline
+    std::vector<std::string> lines_;
+    size_t cursor_row = 0, cursor_col = 0;
+    // Выделение для multiline
+    size_t select_start_row = 0, select_start_col = 0, select_end_row = 0, select_end_col = 0;
+
+    // Scroll компоненты для multiline
+    std::shared_ptr<scroll> vert_scroll;
+    std::shared_ptr<scroll> hor_scroll;
+    int32_t scroll_offset_x = 0;
+    int32_t scroll_offset_y = 0;
+
     std::function<void(const std::string&)> change_callback;
     std::function<void()> return_callback;
 
@@ -139,6 +153,10 @@ private:
     bool selecting;
 
     int32_t left_shift;
+
+    std::unique_ptr<graphic> mem_gr_;
+    void init_mem_graphic();
+    void reset_mem_graphic();
 
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);
@@ -165,6 +183,30 @@ private:
     void buffer_copy();
     void buffer_cut();
     void buffer_paste();
+
+    // Методы для работы с multiline
+    void set_text_multiline(std::string_view text);
+    std::string text_multiline() const;
+    void reset_multiline_state();
+
+    // Выделение и курсор
+    bool clear_selected_text_multiline();
+    std::pair<size_t, size_t> calculate_mouse_cursor_position_multiline(int x, int y);
+    
+    // Выделение всего текста и слова
+    void select_all_multiline();
+    void select_current_word_multiline(int x, int y);
+    // Буфер обмена для multiline
+    void buffer_copy_multiline();
+    void buffer_cut_multiline();
+    void buffer_paste_multiline();
+
+    // Методы для работы со скроллингом
+    void update_scroll_areas();
+    void on_vert_scroll(scroll_state ss, int32_t v);
+    void on_hor_scroll(scroll_state ss, int32_t v);
+    void update_scroll_visibility();
+    void scroll_to_cursor();
 };
 
 }
