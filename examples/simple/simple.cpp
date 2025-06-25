@@ -430,6 +430,16 @@ int main(int argc, char *argv[])
     });
     t.detach();*/
 
+    auto memo = std::make_shared<wui::input>("Многострочный редактор\n\n"
+        "Мы вынуждены отталкиваться от того, что дальнейшее развитие различных \n"
+        "форм деятельности выявляет срочную потребность вывода текущих активов.\n"
+        "Сложно сказать, почему элементы политического процесса набирают популярность\n"
+        "среди определенных слоев населения, а значит, должны быть объединены в целые кластеры себе подобных.\n\n"
+        "Но акционеры крупнейших компаний лишь добавляют фракционных разногласий и заблокированы в рамках\n"
+        "своих собственных рациональных ограничений.", wui::input_view::multiline);
+    memo->set_symbols_limit(-1);
+    window->add_control(memo, { 320, 400, 890, 500 });
+
     auto dialog = std::make_shared<wui::window>();
 
     auto messageBox = std::make_shared<wui::message>(dialog);
@@ -531,6 +541,7 @@ int main(int argc, char *argv[])
             text0->set_position({ 320, 180, w - 10, 240 }, false);
             nameInput->set_position({ 320, 250, w - 10, 275 }, false);
             someSelect->set_position({ 320, 300, w - 10, 325 }, false);
+            memo->set_position({ 320, 400, w - 10, h - 60 }, false);
             okButton->set_position({ w - 250, h - 55, w - 150, h - 20 }, false);
             cancelButton->set_position({ w - 120, h - 55, w - 20, h - 20 }, false);
         }
@@ -559,7 +570,7 @@ int main(int argc, char *argv[])
         }
     });
 
-    window->set_default_push_control(okButton);
+    //window->set_default_push_control(okButton);
 
     window->init("Hello from WUI!", { -1, -1, 900, 600 },
         wui::flags_map<wui::window_style>(3, wui::window_style::frame, wui::window_style::switch_theme_button, wui::window_style::border_all),
