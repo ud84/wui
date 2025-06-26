@@ -117,15 +117,17 @@ private:
     input_content input_content_;
     int32_t symbols_limit;
 
-    // Для singleline
+    // For singleline
     std::string text_;
-    // Для multiline
+
+    // For multiline
     std::vector<std::string> lines_;
     size_t cursor_row = 0, cursor_col = 0;
-    // Выделение для multiline
+    
+    // Selection multiline
     size_t select_start_row = 0, select_start_col = 0, select_end_row = 0, select_end_col = 0;
 
-    // Scroll компоненты для multiline
+    // Scrollbarss for multiline
     std::shared_ptr<scroll> vert_scroll;
     std::shared_ptr<scroll> hor_scroll;
     int32_t scroll_offset_x = 0;
@@ -184,24 +186,25 @@ private:
     void buffer_cut();
     void buffer_paste();
 
-    // Методы для работы с multiline
+    // Multiline helpers
     void set_text_multiline(std::string_view text);
     std::string text_multiline() const;
     void reset_multiline_state();
 
-    // Выделение и курсор
+    // Selections and cursor
     bool clear_selected_text_multiline();
     std::pair<size_t, size_t> calculate_mouse_cursor_position_multiline(int x, int y);
     
-    // Выделение всего текста и слова
+    // Selection helper
     void select_all_multiline();
     void select_current_word_multiline(int x, int y);
-    // Буфер обмена для multiline
+    
+    // Clipboard for multiline
     void buffer_copy_multiline();
     void buffer_cut_multiline();
     void buffer_paste_multiline();
 
-    // Методы для работы со скроллингом
+    // Scrolling methods
     void update_scroll_areas();
     void on_vert_scroll(scroll_state ss, int32_t v);
     void on_hor_scroll(scroll_state ss, int32_t v);

@@ -36,7 +36,8 @@
 namespace wui
 {
 
-static const int32_t input_horizontal_indent = 5;
+static const int32_t INPUT_HORIZONTAL_INDENT = 5;
+static const int32_t SCROLL_SIZE = 14;
 
 input::input(std::string_view text__, input_view input_view__, input_content input_content__, int32_t symbols_limit_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : input_view_(input_view__),
@@ -90,62 +91,85 @@ int32_t get_text_width(graphic &gr, std::string text, size_t text_length, const 
 }
 
 // Auxiliary function: comparing cursor positions (row, col)
-inline bool cursor_less(size_t row1, size_t col1, size_t row2, size_t col2) {
+inline bool cursor_less(size_t row1, size_t col1, size_t row2, size_t col2)
+{
     return row1 < row2 || (row1 == row2 && col1 < col2);
 }
 
 // Auxiliary function: get the number of characters in a UTF-8 string
-static size_t utf8_length(const std::string& s) {
+static size_t utf8_length(const std::string& s)
+{
     return utf8::distance(s.begin(), s.end());
 }
 
 // Auxiliary function: get an iterator per character by position (character index)
-static std::string::iterator utf8_iter_at(std::string& s, size_t char_pos) {
+static std::string::iterator utf8_iter_at(std::string& s, size_t char_pos)
+{
     auto it = s.begin();
     utf8::advance(it, char_pos, s.end());
     return it;
 }
 
-static std::string::const_iterator utf8_iter_at(const std::string& s, size_t char_pos) {
+static std::string::const_iterator utf8_iter_at(const std::string& s, size_t char_pos)
+{
     auto it = s.begin();
     utf8::advance(it, char_pos, s.end());
     return it;
 }
 
 // Auxiliary functions for working with byte indexes (as in single-line mode)
-static size_t get_byte_pos_for_char_pos(const std::string& s, size_t char_pos) {
-    if (s.empty()) return 0;
+static size_t get_byte_pos_for_char_pos(const std::string& s, size_t char_pos)
+{
+    if (s.empty())
+    {
+        return 0;
+    }
     
     auto it = s.begin();
     size_t actual_chars = utf8::distance(s.begin(), s.end());
-    if (char_pos >= actual_chars) {
-        return s.size(); // Возвращаем конец строки
+    if (char_pos >= actual_chars)
+    {
+        return s.size(); // Returning the end of the string
     }
     
     utf8::advance(it, char_pos, s.end());
     return std::distance(s.begin(), it);
 }
-static size_t get_char_pos_for_byte_pos(const std::string& s, size_t byte_pos) {
-    if (s.empty()) return 0;
-    if (byte_pos >= s.size()) {
+static size_t get_char_pos_for_byte_pos(const std::string& s, size_t byte_pos)
+{
+    if (s.empty()) 
+    { 
+        return 0;
+    }
+    
+    if (byte_pos >= s.size())
+    {
         return utf8::distance(s.begin(), s.end());
     }
+    
     return utf8::distance(s.begin(), s.begin() + byte_pos);
 }
 
 // Auxiliary function for checking the validity of UTF-8 in multiline
-static bool check_count_valid_multiline(const std::string& line, size_t count) {
+static bool check_count_valid_multiline(const std::string& line, size_t count)
+{
     if (count == 0 || line.empty())
+    {
         return true;
+    }
+
     if (count > line.size())
+    {
         return false;
+    }
+
     auto end_it = utf8::find_invalid(line.begin(), line.begin() + count);
     return end_it == line.begin() + count;
 }
 
 void input::draw(graphic &gr, rect )
 {
-    if (!showed_ || position_.width() == 0 || position_.height() == 0 || position_.width() <= input_horizontal_indent * 2)
+    if (!showed_ || position_.width() == 0 || position_.height() == 0 || position_.width() <= INPUT_HORIZONTAL_INDENT * 2)
     {
         return;
     }
@@ -169,18 +193,13 @@ void input::draw(graphic &gr, rect )
 #endif
     }
 
-    if (input_view_ == input_view::multiline) {
+    if (input_view_ == input_view::multiline)
+    {
         int line_height = font_.size;
         auto border_width = theme_dimension(tcn, tv_border_width, theme_);
-        auto content_width = control_pos.width() - border_width * 2;
-        auto content_height = control_pos.height() - border_width * 2;
-        bool show_vert_scroll = vert_scroll->showed();
-        bool show_hor_scroll = hor_scroll->showed();
-        int vert_scroll_size = vert_scroll->focused() ? 14 : 4;
-        int hor_scroll_size = hor_scroll->focused() ? 14 : 4;
-        if (show_vert_scroll) content_width -= vert_scroll_size;
-        if (show_hor_scroll) content_height -= hor_scroll_size;
-
+        auto content_width = control_pos.width() - border_width * 2 - SCROLL_SIZE;
+        auto content_height = control_pos.height() - border_width * 2 - SCROLL_SIZE;
+                
         // Offscreen text buffer
         if (!mem_gr_) init_mem_graphic();
         if (!mem_gr_) return;
@@ -190,53 +209,71 @@ void input::draw(graphic &gr, rect )
         int y = - (scroll_offset_y % line_height);
         size_t start_line = scroll_offset_y / line_height;
         int visible_bottom = content_height;
-        for (size_t i = start_line; i < lines_.size(); ++i) {
+        for (size_t i = start_line; i < lines_.size(); ++i)
+        {
             int actual_y = y + static_cast<int>(i - start_line) * line_height;
             if (actual_y >= visible_bottom) break;
+
             // Highlighting the selection
             bool has_sel = false;
             size_t sel_start = 0, sel_end = 0;
-            if (!(select_start_row == select_end_row && select_start_col == select_end_col)) {
+            if (!(select_start_row == select_end_row && select_start_col == select_end_col))
+            {
                 size_t srow = select_start_row, scol = select_start_col, erow = select_end_row, ecol = select_end_col;
-                if (cursor_less(erow, ecol, srow, scol)) std::swap(srow, erow), std::swap(scol, ecol);
-                if (i > srow && i < erow) {
+                if (cursor_less(erow, ecol, srow, scol)) { std::swap(srow, erow), std::swap(scol, ecol); }
+                if (i > srow && i < erow)
+                {
                     has_sel = true; sel_start = 0; sel_end = utf8::distance(lines_[i].begin(), lines_[i].end());
-                } else if (i == srow && i == erow && scol != ecol) {
+                }
+                else if (i == srow && i == erow && scol != ecol)
+                {
                     has_sel = true; sel_start = scol; sel_end = ecol;
                     if (sel_start > sel_end) std::swap(sel_start, sel_end);
-                } else if (i == srow && i < erow) {
+                }
+                else if (i == srow && i < erow)
+                {
                     has_sel = true; sel_start = scol; sel_end = utf8::distance(lines_[i].begin(), lines_[i].end());
-                } else if (i == erow && i > srow) {
+                }
+                else if (i == erow && i > srow)
+                {
                     has_sel = true; sel_start = 0; sel_end = ecol;
                 }
             }
-            if (has_sel && sel_start < sel_end && static_cast<size_t>(sel_end) <= utf8::distance(lines_[i].begin(), lines_[i].end())) {
+            if (has_sel && sel_start < sel_end && static_cast<size_t>(sel_end) <= utf8::distance(lines_[i].begin(), lines_[i].end()))
+            {
                 size_t start_byte = get_byte_pos_for_char_pos(lines_[i], sel_start);
                 size_t end_byte = get_byte_pos_for_char_pos(lines_[i], sel_end);
                 int x1 = mem_gr_->measure_text(lines_[i].substr(0, start_byte), font_).right - scroll_offset_x;
                 int x2 = mem_gr_->measure_text(lines_[i].substr(0, end_byte), font_).right - scroll_offset_x;
-                mem_gr_->draw_rect({input_horizontal_indent + x1, actual_y, input_horizontal_indent + x2, actual_y + line_height}, theme_color(tcn, tv_selection, theme_));
+                mem_gr_->draw_rect({ INPUT_HORIZONTAL_INDENT + x1, actual_y, INPUT_HORIZONTAL_INDENT + x2, actual_y + line_height }, theme_color(tcn, tv_selection, theme_));
             }
-            mem_gr_->draw_text({input_horizontal_indent - scroll_offset_x, actual_y}, lines_[i], theme_color(tcn, tv_text, theme_), font_);
+            mem_gr_->draw_text({ INPUT_HORIZONTAL_INDENT - scroll_offset_x, actual_y}, lines_[i], theme_color(tcn, tv_text, theme_), font_);
+            
             // Cursor
-            if (cursor_visible && i == cursor_row) {
+            if (cursor_visible && i == cursor_row)
+            {
                 size_t max_col = utf8::distance(lines_[i].begin(), lines_[i].end());
                 size_t safe_cursor_col = std::min(cursor_col, max_col);
                 size_t cursor_byte = get_byte_pos_for_char_pos(lines_[i], safe_cursor_col);
                 int cursor_x = mem_gr_->measure_text(lines_[i].substr(0, cursor_byte), font_).right - scroll_offset_x;
-                mem_gr_->draw_line({input_horizontal_indent + cursor_x, actual_y, input_horizontal_indent + cursor_x, actual_y + line_height}, theme_color(tcn, tv_cursor, theme_));
+                mem_gr_->draw_line({ INPUT_HORIZONTAL_INDENT + cursor_x, actual_y, INPUT_HORIZONTAL_INDENT + cursor_x, actual_y + line_height }, theme_color(tcn, tv_cursor, theme_));
             }
         }
         // Copying the offscreen buffer to the parent context
         gr.draw_graphic({control_pos.left + border_width, control_pos.top + border_width, control_pos.left + border_width + content_width, control_pos.top + border_width + content_height}, *mem_gr_, 0, 0);
+        
         // Rendering scrollbars
-        if (show_vert_scroll) {
+        if (vert_scroll->showed())
+        {
             vert_scroll->draw(gr, {});
         }
-        if (show_hor_scroll) {
+        if (hor_scroll->showed())
+        {
             hor_scroll->draw(gr, {});
         }
-    } else {
+    }
+    else
+    {
         /// Create memory dc for text and selection bar
         auto full_text_width = get_text_width(gr, text_, text_.size(), font_) + 2;
         auto text_height = font_.size;
@@ -278,7 +315,7 @@ void input::draw(graphic &gr, rect )
             auto cursor_coordinate = get_text_width(*mem_gr_, text_, cursor_position, font_);
             mem_gr_->draw_line({ cursor_coordinate, 0, cursor_coordinate, text_height }, theme_color(tcn, tv_cursor, theme_));
 
-            while (cursor_coordinate - left_shift >= position_.width() - input_horizontal_indent * 2)
+            while (cursor_coordinate - left_shift >= position_.width() - INPUT_HORIZONTAL_INDENT * 2)
             {
                 left_shift += 10;
             }
@@ -291,9 +328,9 @@ void input::draw(graphic &gr, rect )
 
         int32_t input_vertical_indent = position_.height() > text_height ? (position_.height() - text_height) / 2 : 0;
         
-        gr.draw_graphic({ control_pos.left + input_horizontal_indent,
+        gr.draw_graphic({ control_pos.left + INPUT_HORIZONTAL_INDENT,
                 control_pos.top + input_vertical_indent,
-                control_pos.width() - input_horizontal_indent * 2,
+                control_pos.width() - INPUT_HORIZONTAL_INDENT * 2,
                 control_pos.height() - input_vertical_indent * 2 },
             *mem_gr_, left_shift, 0);
     }
@@ -306,7 +343,7 @@ size_t input::calculate_mouse_cursor_position(int32_t x)
         return 0;
     }
 
-    x -= position().left + input_horizontal_indent - left_shift;
+    x -= position().left + INPUT_HORIZONTAL_INDENT - left_shift;
 
     if (!mem_gr_) init_mem_graphic();
     if (!mem_gr_) return 0;
@@ -472,7 +509,7 @@ std::pair<size_t, size_t> input::calculate_mouse_cursor_position_multiline(int x
     int rel_y = y - control_pos.top - border_width + scroll_offset_y;
     size_t row = std::min((size_t)(rel_y / line_height), lines_.size() - 1);
     
-    int rel_x = x - control_pos.left - border_width - input_horizontal_indent + scroll_offset_x;
+    int rel_x = x - control_pos.left - border_width - INPUT_HORIZONTAL_INDENT + scroll_offset_x;
     
     // We use character positions to measure text
     size_t char_count = utf8::distance(lines_[row].begin(), lines_[row].end());
@@ -869,11 +906,9 @@ void input::receive_control_events(const event &ev)
                                 auto border_width = theme_dimension(tcn, tv_border_width, theme_);
                                 auto font_ = theme_font(tcn, tv_font, theme_);
                                 int line_height = font_.size;
-                                int content_height = position().height() - border_width * 2;
-                                int vert_scroll_size = vert_scroll->focused() ? 14 : 4;
-                                int hor_scroll_size = hor_scroll->focused() ? 14 : 4;
-                                if (vert_scroll->showed()) content_height -= vert_scroll_size;
-                                if (hor_scroll->showed()) content_height -= hor_scroll_size;
+                                
+                                int content_height = position().height() - border_width * 2 - SCROLL_SIZE;
+
                                 int visible_lines = std::max(1, content_height / line_height);
                                 size_t new_row = cursor_row > (size_t)visible_lines ? cursor_row - visible_lines : 0;
                                 cursor_row = new_row;
@@ -888,11 +923,7 @@ void input::receive_control_events(const event &ev)
                                 auto border_width = theme_dimension(tcn, tv_border_width, theme_);
                                 auto font_ = theme_font(tcn, tv_font, theme_);
                                 int line_height = font_.size;
-                                int content_height = position().height() - border_width * 2;
-                                int vert_scroll_size = vert_scroll->focused() ? 14 : 4;
-                                int hor_scroll_size = hor_scroll->focused() ? 14 : 4;
-                                if (vert_scroll->showed()) content_height -= vert_scroll_size;
-                                if (hor_scroll->showed()) content_height -= hor_scroll_size;
+                                int content_height = position().height() - border_width * 2 - SCROLL_SIZE;
                                 int visible_lines = std::max(1, content_height / line_height);
                                 size_t new_row = std::min(cursor_row + visible_lines, lines_.size() - 1);
                                 cursor_row = new_row;
@@ -1550,7 +1581,7 @@ void input::select_all_multiline() {
     select_start_row = 0;
     select_start_col = 0;
     select_end_row = lines_.size() - 1;
-    select_end_col = lines_[select_end_row].size();
+    select_end_col = utf8::distance(lines_[select_end_row].begin(), lines_[select_end_row].end());
     redraw();
     scroll_to_cursor();
 }
@@ -1707,7 +1738,8 @@ void input::buffer_paste_multiline() {
 }
 
 // Methods for working with scrolling
-void input::update_scroll_areas() {
+void input::update_scroll_areas()
+{
     if (input_view_ != input_view::multiline) {
         return;
     }
@@ -1716,9 +1748,7 @@ void input::update_scroll_areas() {
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
     auto font_ = theme_font(tcn, tv_font, theme_);
     int line_height = font_.size;
-    int vert_scroll_size = vert_scroll->focused() ? 14 : 4;
-    int hor_scroll_size = hor_scroll->focused() ? 14 : 4;
-
+    
     // Creating a graphical context for measuring text
     if (!mem_gr_) init_mem_graphic();
     if (!mem_gr_) return;
@@ -1729,25 +1759,23 @@ void input::update_scroll_areas() {
         auto text_width = get_text_width(*mem_gr_, line, line.size(), font_);
         max_width = std::max(max_width, text_width);
     }
-    max_width += input_horizontal_indent * 2;
+    max_width += INPUT_HORIZONTAL_INDENT * 2;
 
     // 2. We calculate the size of the text area
-    int content_width = control_pos.width() - border_width * 2;
-    int content_height = control_pos.height() - border_width * 2;
+    int content_width = control_pos.width() - border_width * 2 - SCROLL_SIZE;
+    int content_height = control_pos.height() - border_width * 2 - SCROLL_SIZE;
 
     // 3. First we count the vertical scrollbar
     int total_height = static_cast<int>(lines_.size()) * line_height;
     int vert_area = std::max(0, total_height - content_height - 4);
     vert_scroll->set_area(vert_area);
     bool need_vert_scroll = total_height > content_height;
-    if (need_vert_scroll) content_width -= vert_scroll_size;
-
+    
     // 4. Now we are counting the horizontal scrollbar
     int hor_area = std::max(0, max_width - content_width - 4);
     hor_scroll->set_area(hor_area);
     bool need_hor_scroll = max_width > content_width;
-    if (need_hor_scroll) content_height -= hor_scroll_size;
-
+    
     // 5. If you need a vertical scroll after the horizontal scroll appears, we recalculate it.
     if (need_hor_scroll) {
         vert_area = std::max(0, total_height - content_height);
@@ -1790,7 +1818,7 @@ void input::update_scroll_visibility() {
         auto text_width = get_text_width(*mem_gr_, line, line.size(), font_);
         max_width = std::max(max_width, text_width);
     }
-    max_width += input_horizontal_indent * 2;
+    max_width += INPUT_HORIZONTAL_INDENT * 2;
     int content_width = control_pos.width() - border_width * 2;
 
     // Showing/hiding the vertical scroll
@@ -1814,27 +1842,31 @@ void input::update_scroll_visibility() {
     }
 }
 
-void input::scroll_to_cursor() {
-    if (input_view_ != input_view::multiline) {
+void input::scroll_to_cursor()
+{
+    if (input_view_ != input_view::multiline)
+    {
         return;
     }
-    if (lines_.empty() || cursor_row >= lines_.size()) {
+    if (lines_.empty() || cursor_row >= lines_.size())
+    {
         return;
     }
+
     const auto& line = lines_[cursor_row];
+    
     auto control_pos = position();
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
     auto font_ = theme_font(tcn, tv_font, theme_);
     int line_height = font_.size;
-    int content_height = control_pos.height() - border_width * 2;
+    
+    int content_height = control_pos.height() - border_width * 2 - SCROLL_SIZE;
+    int content_width = control_pos.width() - border_width * 2 - SCROLL_SIZE;
+    
     // We take into account the place for scrollbars
     bool show_vert_scroll = vert_scroll->showed();
     bool show_hor_scroll = hor_scroll->showed();
-    int vert_scroll_size = vert_scroll->focused() ? 14 : 4;
-    int hor_scroll_size = hor_scroll->focused() ? 14 : 4;
-    if (show_vert_scroll) content_height -= vert_scroll_size;
-    int content_width = control_pos.width() - border_width * 2;
-    if (show_vert_scroll) content_width -= vert_scroll_size;
+
     int visible_left = scroll_offset_x;
     int visible_right = visible_left + content_width - 1;
     const int cursor_extra = 8;
@@ -1881,24 +1913,28 @@ void input::scroll_to_cursor() {
     }
 }
 
-void input::init_mem_graphic() {
+void input::init_mem_graphic()
+{
     auto parent__ = parent_.lock();
-    if (!parent__) {
+    if (!parent__)
+    {
         mem_gr_.reset();
         return;
     }
+
     system_context ctx = parent__->context();
+    
     auto control_pos = position();
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
-    auto content_width = control_pos.width() - border_width * 2;
-    auto content_height = control_pos.height() - border_width * 2;
+    
+    auto content_width = control_pos.width() - border_width * 2 - SCROLL_SIZE;
+    auto content_height = control_pos.height() - border_width * 2 - SCROLL_SIZE;
+    
     bool show_vert_scroll = vert_scroll && vert_scroll->showed();
     bool show_hor_scroll = hor_scroll && hor_scroll->showed();
-    int vert_scroll_size = vert_scroll && vert_scroll->focused() ? 14 : 4;
-    int hor_scroll_size = hor_scroll && hor_scroll->focused() ? 14 : 4;
-    if (show_vert_scroll) content_width -= vert_scroll_size;
-    if (show_hor_scroll) content_height -= hor_scroll_size;
-    if (content_width <= 0 || content_height <= 0) {
+    
+    if (content_width <= 0 || content_height <= 0)
+    {
         mem_gr_.reset();
         return;
     }
@@ -1906,7 +1942,8 @@ void input::init_mem_graphic() {
     mem_gr_->init({0, 0, content_width, content_height}, theme_color(tcn, tv_background, theme_));
 }
 
-void input::reset_mem_graphic() {
+void input::reset_mem_graphic()
+{
     mem_gr_.reset();
 }
 
