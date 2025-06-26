@@ -176,13 +176,6 @@ void input::draw(graphic &gr, rect )
 
     auto control_pos = position();
 
-    /// Draw the frame
-    gr.draw_rect(control_pos,
-        !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
-        theme_color(tcn, tv_background, theme_),
-        theme_dimension(tcn, tv_border_width, theme_),
-        theme_dimension(tcn, tv_round, theme_));
-
     auto font_ = theme_font(tcn, tv_font, theme_);
     if (input_view_ == input_view::password)
     {
@@ -193,18 +186,26 @@ void input::draw(graphic &gr, rect )
 #endif
     }
 
+    /// Draw the frame
+    gr.draw_rect(control_pos,
+        !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
+        theme_color(tcn, tv_background, theme_),
+        theme_dimension(tcn, tv_border_width, theme_),
+        theme_dimension(tcn, tv_round, theme_));
+
+    // Offscreen text buffer
+    if (!mem_gr_) init_mem_graphic();
+    if (!mem_gr_) return;
+    mem_gr_->clear({ 0, 0, position().width(), position().height() });
+
+    int line_height = font_.size;
+
     if (input_view_ == input_view::multiline)
-    {
-        int line_height = font_.size;
+    {   
         auto border_width = theme_dimension(tcn, tv_border_width, theme_);
         auto content_width = control_pos.width() - border_width * 2 - SCROLL_SIZE;
         auto content_height = control_pos.height() - border_width * 2 - SCROLL_SIZE;
-                
-        // Offscreen text buffer
-        if (!mem_gr_) init_mem_graphic();
-        if (!mem_gr_) return;
-        mem_gr_->clear({ 0, 0, position().width(), position().height() });
-
+        
         // We start from the scroll position
         int y = - (scroll_offset_y % line_height);
         size_t start_line = scroll_offset_y / line_height;
@@ -260,7 +261,11 @@ void input::draw(graphic &gr, rect )
             }
         }
         // Copying the offscreen buffer to the parent context
-        gr.draw_graphic({control_pos.left + border_width, control_pos.top + border_width, control_pos.left + border_width + content_width, control_pos.top + border_width + content_height}, *mem_gr_, 0, 0);
+        gr.draw_graphic({ control_pos.left + border_width,
+            control_pos.top + border_width,
+            control_pos.left + border_width + content_width,
+            control_pos.top + border_width + content_height },
+            *mem_gr_, 0, 0);
         
         // Rendering scrollbars
         if (vert_scroll->showed())
@@ -276,11 +281,6 @@ void input::draw(graphic &gr, rect )
     {
         /// Create memory dc for text and selection bar
         auto full_text_width = get_text_width(gr, text_, text_.size(), font_) + 2;
-        auto text_height = font_.size;
-
-        if (!mem_gr_) init_mem_graphic();
-        if (!mem_gr_) return;
-        mem_gr_->clear({ 0, 0, position().width(), position().height() });
 
         /// Draw the selection bar
         if (select_start_position != select_end_position)
@@ -288,7 +288,7 @@ void input::draw(graphic &gr, rect )
             auto start_coordinate = get_text_width(*mem_gr_, text_, select_start_position, font_);
             auto end_coordinate = get_text_width(*mem_gr_, text_, select_end_position, font_);
 
-            mem_gr_->draw_rect({ start_coordinate, 0, end_coordinate, text_height }, theme_color(tcn, tv_selection, theme_));
+            mem_gr_->draw_rect({ start_coordinate, 0, end_coordinate, line_height }, theme_color(tcn, tv_selection, theme_));
         }
 
         /// Draw the text
@@ -313,7 +313,7 @@ void input::draw(graphic &gr, rect )
         if (cursor_visible)
         {
             auto cursor_coordinate = get_text_width(*mem_gr_, text_, cursor_position, font_);
-            mem_gr_->draw_line({ cursor_coordinate, 0, cursor_coordinate, text_height }, theme_color(tcn, tv_cursor, theme_));
+            mem_gr_->draw_line({ cursor_coordinate, 0, cursor_coordinate, line_height }, theme_color(tcn, tv_cursor, theme_));
 
             while (cursor_coordinate - left_shift >= position_.width() - INPUT_HORIZONTAL_INDENT * 2)
             {
@@ -326,7 +326,7 @@ void input::draw(graphic &gr, rect )
             }
         }
 
-        int32_t input_vertical_indent = position_.height() > text_height ? (position_.height() - text_height) / 2 : 0;
+        int32_t input_vertical_indent = position_.height() > line_height ? (position_.height() - line_height) / 2 : 0;
         
         gr.draw_graphic({ control_pos.left + INPUT_HORIZONTAL_INDENT,
                 control_pos.top + input_vertical_indent,
@@ -1928,10 +1928,7 @@ void input::init_mem_graphic()
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
     
     auto content_width = control_pos.width() - border_width * 2 - SCROLL_SIZE;
-    auto content_height = control_pos.height() - border_width * 2 - SCROLL_SIZE;
-    
-    bool show_vert_scroll = vert_scroll && vert_scroll->showed();
-    bool show_hor_scroll = hor_scroll && hor_scroll->showed();
+    auto content_height = control_pos.height() - border_width * 2;
     
     if (content_width <= 0 || content_height <= 0)
     {
