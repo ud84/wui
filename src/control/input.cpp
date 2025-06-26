@@ -1810,7 +1810,7 @@ void input::update_scroll_visibility() {
 
     int line_height = font_.size;
     int total_height = static_cast<int>(lines_.size()) * line_height;
-    int content_height = control_pos.height() - border_width * 2;
+    int content_height = control_pos.height() - border_width * 2 - SCROLL_SIZE;
 
     // Calculating the maximum row width
     int max_width = 0;
@@ -1819,7 +1819,7 @@ void input::update_scroll_visibility() {
         max_width = std::max(max_width, text_width);
     }
     max_width += INPUT_HORIZONTAL_INDENT * 2;
-    int content_width = control_pos.width() - border_width * 2;
+    int content_width = control_pos.width() - border_width * 2 - SCROLL_SIZE;
 
     // Showing/hiding the vertical scroll
     bool need_vert_scroll = total_height > content_height;
