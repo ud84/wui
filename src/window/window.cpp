@@ -1197,7 +1197,7 @@ void window::send_mouse_event(const mouse_event &ev)
 
     if (active_control && !active_control->position().in(ev.x, ev.y))
     {
-        mouse_event me{ mouse_event_type::leave };
+        mouse_event me{ mouse_event_type::leave, ev.x, ev.y };
         send_event_to_control(active_control, { event_type::mouse, me });
 
         active_control.reset();
@@ -1221,7 +1221,7 @@ void window::send_mouse_event(const mouse_event &ev)
         {
             if (active_control)
             {
-                mouse_event me{ mouse_event_type::leave };
+                mouse_event me{ mouse_event_type::leave, ev_.x, ev_.y };
                 send_event_to_control(active_control, { event_type::mouse, me });
             }
 
