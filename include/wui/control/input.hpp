@@ -155,10 +155,6 @@ private:
     bool selecting;
 
     int32_t left_shift;
-
-    std::unique_ptr<graphic> mem_gr_;
-    void init_mem_graphic();
-    void reset_mem_graphic();
     
     // Cache for maximum line width to avoid expensive recalculations
     int cached_max_width_ = -1;

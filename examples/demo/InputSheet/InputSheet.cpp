@@ -19,7 +19,7 @@
 InputSheet::InputSheet()
     : parentWindow_(),
     inputText(std::make_shared<wui::text>("", wui::hori_alignment::left, wui::vert_alignment::top, "h1_text")),
-    input0(std::make_shared<wui::input>())
+    input0(std::make_shared<wui::input>("Type some text here", wui::input_view::multiline))
 {
     input0->set_change_callback([this](std::string_view v) { inputText->set_text(v); });
     input0->set_return_callback([this]() { inputText->set_text("You pressed Enter"); });
@@ -58,5 +58,5 @@ void InputSheet::End()
 void InputSheet::UpdateSize(int32_t width, int32_t height)
 {
     inputText->set_position({ 10, 100, width - 10, height - 240 });
-    input0->set_position({ 10, height - 200, width - 10, height - 170 });
+    input0->set_position({ 10, height - 200, width - 10, height - 10 });
 }

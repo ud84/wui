@@ -2842,15 +2842,7 @@ void window::process_events(xcb_generic_event_t &e)
         {
             auto ev_ = *(xcb_key_press_event_t*)&e;
 
-            if (ev_.detail == vk_tab)
-            {
-                change_focus();
-            }
-            else if (ev_.detail == vk_return || ev_.detail == vk_rreturn)
-            {
-                execute_focused();
-            }
-            else if (ev_.detail == vk_esc ||
+            if (ev_.detail == vk_esc ||
                 ev_.detail == vk_back ||
                 ev_.detail == vk_del ||
                 ev_.detail == vk_end ||
@@ -2868,8 +2860,19 @@ void window::process_events(xcb_generic_event_t &e)
                 ev_.detail == vk_up ||
                 ev_.detail == vk_nup ||
                 ev_.detail == vk_down ||
-                ev_.detail == vk_ndown)
+                ev_.detail == vk_ndown ||
+                ev_.detail == vk_tab ||
+                ev_.detail == vk_return || ev_.detail == vk_rreturn)
             {
+                if (ev_.detail == vk_tab)
+                {
+                    change_focus(); return;
+                }
+                else if (ev_.detail == vk_return || ev_.detail == vk_rreturn)
+                {
+                    execute_focused();
+                }
+
                 XKeyboardState st;
                 XGetKeyboardControl(context_.display, &st);
                 
@@ -2926,7 +2929,7 @@ void window::process_events(xcb_generic_event_t &e)
                         send_event_to_control(control, ev);
                     }
                     send_event_to_plains(ev);
-                        
+
                     return;
                 }
                 event ev;
