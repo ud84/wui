@@ -1,8 +1,9 @@
-# Unreleased
+# 1.2.250918
 1. Improved window's tool buttons and frame draw (I-48)
 2. List not change the position of the selected item when new items are added (I-50)
 3. Fix window cross on dark mode (I-52)
 4. Implemented multiline editor (I-29)
+5. Improve editors (TSKW24-1)
 
 # 1.2.250607
 1. Implemented symbols limits and numberic content checking in input (I-32)

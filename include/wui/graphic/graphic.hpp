@@ -38,6 +38,8 @@ public:
     bool init(rect max_size, color background_color);
     void release();
 
+    rect max_size() const;
+
     void set_background_color(color background_color);
 
     void clear(rect position);
@@ -76,7 +78,7 @@ private:
 
     primitive_container pc;
 
-    rect max_size;
+    rect max_size_;
 
     color background_color;
 

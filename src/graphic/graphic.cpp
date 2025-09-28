@@ -47,7 +47,7 @@ namespace wui
 graphic::graphic(system_context &context__)
     : context_(context__),
       pc(context_),
-      max_size(),
+      max_size_(),
       background_color(0)
 #ifdef _WIN32
     , mem_dc(0),
@@ -66,9 +66,9 @@ graphic::~graphic()
     release();
 }
 
-bool graphic::init(rect max_size_, color background_color_)
+bool graphic::init(rect max_size__, color background_color_)
 {
-    max_size = max_size_;
+    max_size_ = max_size__;
     background_color = background_color_;
 
 #ifdef _WIN32
@@ -85,7 +85,7 @@ bool graphic::init(rect max_size_, color background_color_)
 
     mem_dc = CreateCompatibleDC(wnd_dc);
 
-    mem_bitmap = CreateCompatibleBitmap(wnd_dc, max_size.width(), max_size.height());
+    mem_bitmap = CreateCompatibleBitmap(wnd_dc, max_size_.width(), max_size_.height());
     if (!mem_bitmap)
     {
         err.type = error_type::no_handle;
@@ -101,7 +101,7 @@ bool graphic::init(rect max_size_, color background_color_)
 
     SetMapMode(mem_dc, MM_TEXT);
 
-    RECT filling_rect = { 0, 0, max_size.width(), max_size.height() };
+    RECT filling_rect = { 0, 0, max_size_.width(), max_size_.height() };
     FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
 
     ReleaseDC(context_.hwnd, wnd_dc);
@@ -120,8 +120,8 @@ bool graphic::init(rect max_size_, color background_color_)
         context_.screen->root_depth,
         mem_pixmap,
         context_.wnd,
-        max_size.width(),
-        max_size.height());
+        max_size_.width(),
+        max_size_.height());
     if (!check_cookie(pixmap_create_cookie, context_.connection, err, "graphic::init() xcb_create_pixmap"))
     {
         err.type = error_type::no_handle;
@@ -131,7 +131,7 @@ bool graphic::init(rect max_size_, color background_color_)
         return false;
     }
 
-    surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, default_visual_type(context_), max_size.width(), max_size.height());
+    surface = cairo_xcb_surface_create(context_.connection, mem_pixmap, default_visual_type(context_), max_size_.width(), max_size_.height());
     if (!surface)
     {
         err.type = error_type::no_handle;
@@ -175,11 +175,16 @@ void graphic::release()
 #endif
 }
 
+rect graphic::max_size() const
+{
+    return max_size_;
+}
+
 void graphic::set_background_color(color background_color_)
 {
     background_color = background_color_;
 
-    clear({ 0, 0, max_size.width(), max_size.height() });
+    clear({ 0, 0, max_size_.width(), max_size_.height() });
 }
 
 void graphic::clear(rect position)
@@ -308,13 +313,9 @@ rect graphic::measure_text(std::string_view text_, const font &font__)
     }
 
     cairo_text_extents_t extents;
+    cairo_text_extents(cr, text_.data(), &extents);
 
-    std::string text__(text_.begin(), text_.end());
-    std::replace(text__.begin(), text__.end(), ' ', 't');
-
-    cairo_text_extents(cr, text__.c_str(), &extents);
-
-    return { 0, 0, static_cast<int32_t>(ceil(extents.width)), static_cast<int32_t>(ceil(extents.height)) };
+    return { 0, 0, static_cast<int32_t>(ceil(extents.width)) + 1, static_cast<int32_t>(ceil(extents.height)) };
 #endif
 }
 
