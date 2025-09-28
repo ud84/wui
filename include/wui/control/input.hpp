@@ -155,10 +155,18 @@ private:
     bool selecting;
 
     int32_t left_shift;
-
-    std::unique_ptr<graphic> mem_gr_;
-    void init_mem_graphic();
-    void reset_mem_graphic();
+    
+    // Cache for maximum line width to avoid expensive recalculations
+    int cached_max_width_ = -1;
+    bool max_width_dirty_ = true;
+    
+    // Auto-scroll timer for mouse selection
+    std::shared_ptr<timer> auto_scroll_timer_;
+    bool auto_scroll_active_ = false;
+    bool auto_scroll_up_ = false; // true for up, false for down
+    void start_auto_scroll(bool up = false);
+    void stop_auto_scroll();
+    void on_auto_scroll();
 
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);
@@ -210,6 +218,10 @@ private:
     void on_hor_scroll(scroll_state ss, int32_t v);
     void update_scroll_visibility();
     void scroll_to_cursor();
+    
+    // Cache management for performance
+    int get_max_line_width();
+    void invalidate_max_width_cache();
 };
 
 }
