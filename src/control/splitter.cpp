@@ -109,28 +109,55 @@ void splitter::receive_plain_events(const event &ev)
         case mouse_event_type::move:
         if (active)
         {
-            if ((margin_min != -1 && ev.mouse_event_.x <= margin_min) ||
-                (margin_max != -1 && ev.mouse_event_.x >= margin_max))
-            {
-                return;
-            }
-
             auto pos = position_;
 
             if (orientation == splitter_orientation::vertical)
             {
                 pos.put(ev.mouse_event_.x, pos.top);
+
+                auto parent__ = parent_.lock();
+                if (parent__ && parent__->parent().lock())
+                {
+                    auto pp = parent__->position();
+                    pos.left -= pp.left;
+                    pos.right -= pp.left;
+                }
             }
             else if (orientation == splitter_orientation::horizontal)
             {
                 pos.put(pos.left, ev.mouse_event_.y);
+                
+                auto parent__ = parent_.lock();
+                if (parent__ && parent__->parent().lock())
+                {
+                    auto pp = parent__->position();
+                    pos.top -= pp.top;
+                    pos.bottom -= pp.top;
+                }
+            }
+
+            if (orientation == splitter_orientation::vertical)
+            {
+                if ((margin_min != -1 && pos.left <= margin_min) ||
+                    (margin_max != -1 && pos.left >= margin_max))
+                {
+                    return;
+                }
+            }
+            else if (orientation == splitter_orientation::horizontal)
+            {
+                if ((margin_min != -1 && pos.top <= margin_min) ||
+                    (margin_max != -1 && pos.top >= margin_max))
+                {
+                    return;
+                }
             }
 
             set_position(pos, true);
 
             if (callback)
             {
-                callback(ev.mouse_event_.x, ev.mouse_event_.y);
+                callback(pos.left, pos.top);
             }
         }
         break;
