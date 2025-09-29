@@ -57,12 +57,15 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     std::shared_ptr<wui::menu> popupMenu;
     std::shared_ptr<wui::panel> panel;
     std::shared_ptr<wui::button> button1, button2, button3;
+    std::shared_ptr<wui::splitter> splitter;
     std::shared_ptr<wui::input> input;
     std::shared_ptr<wui::message> messageBox;
     std::shared_ptr<wui::window> dialog;
     std::weak_ptr<wui::button> creationButton;
 
     bool plugged;
+
+    int splitterPos;
 
     void Plug()
     {
@@ -104,6 +107,18 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         : parentWindow(parentWindow_),
         window(std::make_shared<wui::window>()),
         list(std::make_shared<wui::list>()),
+        splitter(std::make_shared<wui::splitter>(wui::splitter_orientation::horizontal, [this](int32_t x, int32_t y) {
+            splitterPos = y;
+            
+            auto p = window->position(); auto h = p.height(), w = p.width();
+            
+            list->set_position({ 10, 30, w - 10, y - 5 }, true);
+            panel->set_position({0, y, w, h}, false);
+            button1->set_position({ 10, y, 30, y - 10 }, false);
+            button2->set_position({ 40, y, 60, y - 10 }, false);
+            button3->set_position({ 70, y, 90, y - 10 }, false);
+            input->set_position({ 100, y, w - 10, h - 10 }, false);
+            })),
         popupMenu(std::make_shared<wui::menu>()),
         panel(std::make_shared<wui::panel>()),
 		button1(std::make_shared<wui::button>("Button 1", [this]() {
@@ -134,11 +149,12 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             
             dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, []() {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
-        input(std::make_shared<wui::input>("", wui::input_view::password)),
+        input(std::make_shared<wui::input>("", wui::input_view::multiline)),
         messageBox(std::make_shared<wui::message>(parentWindow_, true)),
         dialog(std::make_shared<wui::window>()),
         creationButton(),
-        plugged(false)
+        plugged(false),
+        splitterPos(50)
     {
         button1->disable_focusing();
         button2->disable_focusing();
@@ -174,6 +190,8 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         window->add_control(popupMenu, { 0 });
 
         window->add_control(list, { 0 });
+        window->add_control(splitter, { 0 });
+
         window->add_control(panel, { 0 });
         window->add_control(button1, { 0 });
         window->add_control(button2, { 0 });
@@ -206,12 +224,15 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 {
                     int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                    list->set_position({ 10, 30, w - 10, h - 40 }, false);
-                    panel->set_position({ 0, h - 35, w, h }, false);
-                    button1->set_position({ 10, h - 30, 30, h - 10 }, false);
-                    button2->set_position({ 40, h - 30, 60, h - 10 }, false);
-                    button3->set_position({ 70, h - 30, 90, h - 10 }, false);
-                    input->set_position({ 100, h - 30, w - 10, h - 10 }, false);
+                    list->set_position({ 10, 30, w - 10, splitterPos - 5 }, false);
+                    splitter->set_position({ 10, splitterPos - 5, w - 10, splitterPos }, false);
+                    splitter->set_margins(50, h - 50);
+
+                    panel->set_position({ 0, splitterPos, w, h }, false);
+                    button1->set_position({ 10, splitterPos, 30, splitterPos - 10 }, false);
+                    button2->set_position({ 40, splitterPos, 60, splitterPos - 10 }, false);
+                    button3->set_position({ 70, splitterPos, 90, splitterPos - 10 }, false);
+                    input->set_position({ 100, splitterPos, w - 10, h - 10 }, false);
                 }
                 else if (e.internal_event_.type == wui::internal_event_type::user_emitted)
                 {
