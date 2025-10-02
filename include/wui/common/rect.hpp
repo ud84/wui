@@ -73,6 +73,14 @@ struct rect
         left = x;
         top = y;
     }
+
+    inline void widen(int32_t val)
+    {
+        left -= val;
+        top -= val;
+        right += val;
+        bottom += val;
+    }
 };
 
 }

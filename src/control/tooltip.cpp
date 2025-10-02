@@ -146,7 +146,9 @@ void tooltip::hide()
     auto parent__ = parent_.lock();
     if (parent__)
     {
-        parent__->redraw(position(), true);
+        auto pos = position();
+        pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+        parent__->redraw(pos, true);
     }
 }
 
@@ -241,7 +243,9 @@ void tooltip::redraw()
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position());
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+            parent__->redraw(pos);
         }
     }
 }

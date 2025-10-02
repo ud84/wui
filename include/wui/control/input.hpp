@@ -103,6 +103,7 @@ public:
     static constexpr const char *tv_cursor = "cursor";
     static constexpr const char *tv_border = "border";
     static constexpr const char *tv_border_width = "border_width";
+    static constexpr const char *tv_hover_border = "hover_border";
     static constexpr const char *tv_focused_border = "focused_border";
     static constexpr const char *tv_round = "round";
     static constexpr const char *tv_font = "font";
@@ -117,9 +118,6 @@ private:
     input_content input_content_;
     int32_t symbols_limit;
 
-    // For singleline
-    std::string text_;
-
     // For multiline
     std::vector<std::string> lines_;
     size_t cursor_row = 0, cursor_col = 0;
@@ -127,7 +125,7 @@ private:
     // Selection multiline
     size_t select_start_row = 0, select_start_col = 0, select_end_row = 0, select_end_col = 0;
 
-    // Scrollbarss for multiline
+    // Scrollbars for multiline
     std::shared_ptr<scroll> vert_scroll;
     std::shared_ptr<scroll> hor_scroll;
     int32_t scroll_offset_x = 0;
@@ -140,8 +138,7 @@ private:
     std::shared_ptr<i_theme> theme_;
 
     rect position_;
-    size_t cursor_position, select_start_position, select_end_position;
-    
+        
     std::weak_ptr<window> parent_;
     std::string my_control_sid, my_plain_sid;
 
@@ -150,21 +147,22 @@ private:
     std::shared_ptr<menu> menu_;
 
     bool showed_, enabled_, topmost_;
-    bool focused_;
+    bool active, focused_;
     bool cursor_visible;
     bool selecting;
 
-    int32_t left_shift;
-    
     // Cache for maximum line width to avoid expensive recalculations
     int cached_max_width_ = -1;
     bool max_width_dirty_ = true;
     
     // Auto-scroll timer for mouse selection
+    enum class auto_scroll_type {
+        idle = 0, left, right, up, down
+    };
     std::shared_ptr<timer> auto_scroll_timer_;
-    bool auto_scroll_active_ = false;
-    bool auto_scroll_up_ = false; // true for up, false for down
+    auto_scroll_type auto_scroll_type_ = auto_scroll_type::idle;
     void start_auto_scroll(bool up = false);
+    void start_auto_hscroll(bool left = false);
     void stop_auto_scroll();
     void on_auto_scroll();
 
@@ -175,42 +173,22 @@ private:
 
     void redraw_cursor();
 
-    void update_select_positions(bool shift_pressed, size_t start_position, size_t end_position);
-
-    bool clear_selected_text(); /// returns true if selection is not empty
-
-    void select_current_word(int32_t x);
-
-    void select_all();
-
-    bool check_count_valid(size_t count);
-
-    void move_cursor_left();
-    void move_cursor_right();
-
-    size_t calculate_mouse_cursor_position(int32_t x);
-
-    void buffer_copy();
-    void buffer_cut();
-    void buffer_paste();
-
     // Multiline helpers
-    void set_text_multiline(std::string_view text);
-    std::string text_multiline() const;
+    void update_lines(std::string_view text);
     void reset_multiline_state();
 
     // Selections and cursor
-    bool clear_selected_text_multiline();
-    std::pair<size_t, size_t> calculate_mouse_cursor_position_multiline(int x, int y);
+    bool clear_selected_text(); /// returns true if selection is not empty
+    std::pair<size_t, size_t> calculate_mouse_cursor_position(int x, int y);
     
     // Selection helper
-    void select_all_multiline();
-    void select_current_word_multiline(int x, int y);
+    void select_all();
+    void select_current_word(int x, int y);
     
     // Clipboard for multiline
-    void buffer_copy_multiline();
-    void buffer_cut_multiline();
-    void buffer_paste_multiline();
+    void buffer_copy();
+    void buffer_cut();
+    void buffer_paste();
 
     // Scrolling methods
     void update_scroll_areas();

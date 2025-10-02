@@ -53,34 +53,39 @@ void progress::draw(graphic &gr, rect )
 
     auto control_pos = position();
 
-    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
-
     gr.draw_rect(control_pos,
-        theme_color(tcn, tv_border, theme_),
+        0,
         theme_color(tcn, tv_background, theme_),
-        border_width,
+        0,
         0);
 
-    double total = orientation_ == orientation::horizontal ? control_pos.width() - border_width * 2 : control_pos.height() - border_width * 2;
+    double total = orientation_ == orientation::horizontal ? control_pos.width() : control_pos.height();
 
     double meter_pos = (total * static_cast<double>(value)) / static_cast<double>(to - from);
 
     if (orientation_ == orientation::horizontal)
     {
-        gr.draw_rect({ control_pos.left + border_width,
-                control_pos.top + border_width,
-                control_pos.left + border_width + static_cast<int32_t>(meter_pos),
-                control_pos.bottom - border_width },
+        gr.draw_rect({ control_pos.left,
+                control_pos.top,
+                control_pos.left + static_cast<int32_t>(meter_pos),
+                control_pos.bottom },
             theme_color(tc, tv_meter, theme_));
     }
     else if (orientation_ == orientation::vertical)
     {
-        gr.draw_rect({ control_pos.left + border_width,
-                control_pos.bottom - border_width,
-                control_pos.right - border_width,
-                control_pos.bottom - border_width - static_cast<int32_t>(meter_pos) },
+        gr.draw_rect({ control_pos.left,
+                control_pos.bottom,
+                control_pos.right,
+                control_pos.bottom - static_cast<int32_t>(meter_pos) },
             theme_color(tc, tv_meter, theme_));
     }
+
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+    gr.draw_rect(control_pos,
+        theme_color(tcn, tv_border, theme_),
+        make_color(0, 0, 0, 255),
+        border_width,
+        theme_dimension(tcn, tv_round, theme_));
 }
 
 void progress::set_position(rect position__, bool redraw)
@@ -162,7 +167,9 @@ void progress::hide()
     auto parent__ = parent_.lock();
     if (parent__)
     {
-        parent__->redraw(position(), true);
+        auto pos = position();
+        pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+        parent__->redraw(pos, true);
     }
 }
 
@@ -206,7 +213,9 @@ void progress::redraw()
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position());
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+            parent__->redraw(pos);
         }
     }
 }

@@ -287,7 +287,9 @@ void button::draw(graphic &gr, rect )
 
     if (button_view_ != button_view::anchor && button_view_ != button_view::switcher && button_view_ != button_view::radio && button_view_ != button_view::sheet)
     {
-        auto border_color = !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_);
+        auto border_color = focused_
+            ? theme_color(tcn, tv_focused_border, theme_)
+            : (!active ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_hover_border, theme_));
 
         auto fill_color = enabled_ ? (active || turned_ ? theme_color(tcn, tv_active, theme_) : theme_color(tcn, tv_calm, theme_)) : theme_color(tcn, tv_disabled, theme_);
 
@@ -537,11 +539,14 @@ void button::show()
 
 void button::hide()
 {
-    if (showed_)
+    showed_ = false;
+    tooltip_->hide();
+    auto parent__ = parent_.lock();
+    if (parent__)
     {
-        showed_ = false;
-        tooltip_->hide();
-        redraw();
+        auto pos = position();
+        pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+        parent__->redraw(pos, true);
     }
 }
 
@@ -677,7 +682,9 @@ void button::redraw()
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position(), true);
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+            parent__->redraw(pos);
         }
     }
 }

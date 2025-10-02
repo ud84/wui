@@ -84,7 +84,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             parentWindow.lock()->remove_control(window);
 
         Init();
-		
+        
         plugged = !plugged;
     }
 
@@ -112,16 +112,18 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             
             auto p = window->position(); auto h = p.height(), w = p.width();
             
-            list->set_position({ 10, 30, w - 10, y - 5 }, true);
-            panel->set_position({0, y, w, h}, false);
-            button1->set_position({ 10, y, 30, y - 10 }, false);
-            button2->set_position({ 40, y, 60, y - 10 }, false);
-            button3->set_position({ 70, y, 90, y - 10 }, false);
-            input->set_position({ 100, y, w - 10, h - 10 }, false);
+            list->set_position({ 10, 30, w - 10, y - 2 }, true);
+            panel->set_position({0, y + 10, w - 20, h}, false);
+            button1->set_position({ 10, y + 15, 30, y + 35 }, false);
+            button2->set_position({ 40, y + 15, 60, y + 35 }, false);
+            button3->set_position({ 70, y + 15, 90, y + 35 }, false);
+            input->set_position({ 100, y + 15, w - 30, h - 10 }, false);
+
+            window->redraw({ 0, y, p.right, p.bottom }, true);
             })),
         popupMenu(std::make_shared<wui::menu>()),
         panel(std::make_shared<wui::panel>()),
-		button1(std::make_shared<wui::button>("Button 1", [this]() {
+        button1(std::make_shared<wui::button>("Button 1", [this]() {
             messageBox->show("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took\na galley of type and scrambled it to make a type specimen book.",
                 "hello world", wui::message_icon::information, wui::message_button::ok, [](wui::message_result) {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
@@ -154,7 +156,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         dialog(std::make_shared<wui::window>()),
         creationButton(),
         plugged(false),
-        splitterPos(50)
+        splitterPos(450)
     {
         button1->disable_focusing();
         button2->disable_focusing();
@@ -224,15 +226,15 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 {
                     int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                    list->set_position({ 10, 30, w - 10, splitterPos - 5 }, false);
-                    splitter->set_position({ 10, splitterPos - 5, w - 10, splitterPos }, false);
+                    list->set_position({ 10, 30, w - 10, splitterPos - 2 }, false);
+                    splitter->set_position({ 0, splitterPos, w, splitterPos + 8 }, false);
                     splitter->set_margins(50, h - 50);
 
-                    panel->set_position({ 0, splitterPos, w, h }, false);
-                    button1->set_position({ 10, splitterPos, 30, splitterPos - 10 }, false);
-                    button2->set_position({ 40, splitterPos, 60, splitterPos - 10 }, false);
-                    button3->set_position({ 70, splitterPos, 90, splitterPos - 10 }, false);
-                    input->set_position({ 100, splitterPos, w - 10, h - 10 }, false);
+                    panel->set_position({ 0, splitterPos + 10, w - 20, h }, false);
+                    button1->set_position({ 10, splitterPos + 15, 30, splitterPos + 35 }, false);
+                    button2->set_position({ 40, splitterPos + 15, 60, splitterPos + 35 }, false);
+                    button3->set_position({ 70, splitterPos + 15, 90, splitterPos + 35 }, false);
+                    input->set_position({ 100, splitterPos + 15, w - 30, h - 10 }, false);
                 }
                 else if (e.internal_event_.type == wui::internal_event_type::user_emitted)
                 {
@@ -403,15 +405,6 @@ int main(int argc, char *argv[])
 
     window->add_control(createPluggedButton, { 320, 50, 340, 75 });
 
-    auto vertSplitter = std::make_shared<wui::splitter>(wui::splitter_orientation::vertical, [&pluggedWindow](int32_t x, int32_t y) {
-        if (pluggedWindow->plugged)
-        {
-            auto pos = pluggedWindow->window->position();
-            pluggedWindow->window->set_position({ 0, pos.top, x, pos.bottom }, true);
-        }
-    });
-    window->add_control(vertSplitter, { 0 });
-
     //auto text0 = std::make_shared<wui::text>("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
     auto text0 = std::make_shared<wui::text>("Высокий уровень вовлечения представителей целевой аудитории является четким доказательством простого факта: граница обучения кадров создаёт предпосылки для новых предложений. Однозначно, непосредственные участники технического прогресса, превозмогая сложившуюся непростую экономическую ситуацию, превращены в посмешище, хотя само их существование приносит несомненную пользу обществу. А ещё базовые сценарии поведения пользователей, превозмогая сложившуюся непростую экономическую ситуацию, ограничены исключительно образом.");
     window->add_control(text0, { 320, 180, 890, 240 });
@@ -459,7 +452,7 @@ int main(int argc, char *argv[])
         "Но акционеры крупнейших компаний лишь добавляют фракционных разногласий и заблокированы в рамках\n"
         "своих собственных рациональных ограничений.", wui::input_view::multiline);
     memo->set_symbols_limit(-1);
-    window->add_control(memo, { 320, 400, 890, 500 });
+    window->add_control(memo, { 320, 400, 890, 500 });  
 
     auto dialog = std::make_shared<wui::window>();
 
@@ -521,7 +514,7 @@ int main(int argc, char *argv[])
     window->add_control(darkThemeButton, { 320, 350, 440, 375 });
 
     darkThemeButton->turn(true);
-	
+    
     auto whiteThemeButton = std::make_shared<wui::button>("Set the light theme",
         [&window, &pluggedWindow, &dialog, &cancelButton]() {
         auto current_theme = "light";
@@ -546,6 +539,39 @@ int main(int argc, char *argv[])
 
     window->set_min_size(100, 100);
 
+    auto vertSplitter = std::make_shared<wui::splitter>(wui::splitter_orientation::vertical, [&](int32_t x, int32_t y) {
+        if (pluggedWindow->plugged)
+        {
+            auto pos = pluggedWindow->window->position();
+            pluggedWindow->window->set_position({ 0, pos.top, x, pos.bottom }, true);
+        }
+
+        auto pos = createPluggedButton->position();
+        createPluggedButton->set_position({ x + 20, pos.top, x + 100, pos.bottom }, false);
+
+        pos = text0->position();
+        text0->set_position({ x + 20, pos.top, pos.right, pos.bottom }, false);
+
+        pos = nameInput->position();
+        nameInput->set_position({ x + 20, pos.top, x + 200, pos.bottom }, false);
+
+        pos = someSelect->position();
+        someSelect->set_position({ x + 20, pos.top, pos.right, pos.bottom }, false);
+
+        pos = memo->position();
+        memo->set_position({ x + 20, pos.top, pos.right, pos.bottom }, false);
+
+        pos = darkThemeButton->position();
+        darkThemeButton->set_position({ x + 20, pos.top, pos.width() + x, pos.bottom }, false);
+
+        pos = accountImage->position();
+        accountImage->set_position({ x + 20, pos.top, x + 84, pos.bottom }, false);
+
+        pos = horizProgressBar->position();
+        horizProgressBar->set_position({ x + 100, pos.top, pos.right, pos.bottom }, false);
+    });
+    window->add_control(vertSplitter, { 0 });
+
     auto sid = window->subscribe([&](const wui::event &e) {
         if (e.internal_event_.type == wui::internal_event_type::size_changed)
         {
@@ -557,6 +583,8 @@ int main(int argc, char *argv[])
                 pluggedWindow->window->set_position({ 0, 30, pos.width(), h }, false);
                 vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h }, false);
             }
+
+            vertSplitter->set_margins(100, w - 100);
 
             menuButton->set_position({ w - 42, 50, w - 10, 82 }, false);
             text0->set_position({ 320, 180, w - 10, 240 }, false);
