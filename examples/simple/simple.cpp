@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
         }
 
         auto pos = createPluggedButton->position();
-        createPluggedButton->set_position({ x + 20, pos.top, x + 100, pos.bottom }, false);
+        createPluggedButton->set_position({ x + 20, pos.top, x + 100, pos.bottom }, true);
 
         pos = text0->position();
         text0->set_position({ x + 20, pos.top, pos.right, pos.bottom }, false);
@@ -569,6 +569,8 @@ int main(int argc, char *argv[])
 
         pos = horizProgressBar->position();
         horizProgressBar->set_position({ x + 100, pos.top, pos.right, pos.bottom }, false);
+
+        window->redraw({0, 0, window->position().width(), window->position().height()}, true);
     });
     window->add_control(vertSplitter, { 0 });
 
