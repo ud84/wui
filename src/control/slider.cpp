@@ -351,7 +351,9 @@ void slider::hide()
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position(), true);
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_slider_height, theme_));
+            parent__->redraw(pos, true);
         }
     }
 }
@@ -411,7 +413,9 @@ void slider::redraw(bool clear)
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position(), clear);
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_slider_height, theme_));
+            parent__->redraw(pos, clear);
         }
     }
 }

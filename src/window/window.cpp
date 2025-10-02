@@ -231,6 +231,7 @@ void window::remove_control(std::shared_ptr<i_control> control)
     
     auto clear_pos = control->position();
     control->clear_parent();
+    clear_pos.widen(theme_dimension(tcn, tv_border_width, theme_));
     redraw(clear_pos, true);
 }
 
@@ -360,7 +361,7 @@ void window::draw(graphic &gr, rect paint_rect)
 
     auto window_pos = position();
 
-    gr.draw_rect(window_pos, 
+    gr.draw_rect(window_pos,
         theme_color(tcn, tv_background, theme_),
         theme_color(tcn, tv_background, theme_),
         theme_dimension(tcn, tv_border_width, theme_),
@@ -755,7 +756,9 @@ void window::hide()
             control->hide();
         }
 
-        parent__->redraw(position(), true);
+        auto pos = position();
+        pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+        parent__->redraw(pos, true);
     }
 }
 
