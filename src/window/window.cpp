@@ -580,7 +580,7 @@ void window::set_position(rect position__, bool redraw_)
                 old_position.right > position_.right ? old_position.right : position_.right,
                 old_position.bottom > position_.bottom ? old_position.bottom : position_.bottom
             };
-            parent__->redraw(update_field, true);
+            parent__->redraw(update_field, false);
         }
     }
 }

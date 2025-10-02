@@ -138,7 +138,7 @@ void update_control_position(rect &control_position,
     auto prev_position = control_position;
     control_position = new_control_position;
 
-    if (redraw)
+    /*if (redraw)
     {
         auto parent_ = parent.lock();
         if (parent_)
@@ -156,7 +156,7 @@ void update_control_position(rect &control_position,
             }
             parent_->redraw(new_position);
         }
-    }
+    }*/
 }
 
 void line_up_top_bottom(rect &pos, int32_t height, int32_t space)

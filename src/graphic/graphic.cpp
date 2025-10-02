@@ -495,11 +495,6 @@ void graphic::draw_rect(rect position, color border_color, color fill_color, uin
     }
     else
     {
-        l += border_width;
-        t += border_width;
-        width -= border_width * 2;
-        height -= border_width * 2;
-        
         double radius = rnd;
         double degrees = M_PI / 180.0;
         
