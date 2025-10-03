@@ -39,6 +39,10 @@ xcb_visualtype_t *default_visual_type(wui::system_context &context_)
     return nullptr;
 }
 
+#elif _WIN32
+
+#include <gdiplus.h>
+
 #endif
 
 namespace wui
@@ -397,18 +401,72 @@ void graphic::draw_rect(rect position, color fill_color)
 #endif
 }
 
+#ifdef _WIN32
+void DrawRoundBox(HDC dc,
+    rect pos,
+    int  radius_,
+    int  borderWidth,
+    COLORREF background,
+    COLORREF border)
+{
+    Gdiplus::Graphics g(dc);
+    g.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+
+    // Mkae the path
+    Gdiplus::GraphicsPath path;
+    int radius = radius_ > 0 ? radius_ : 0;
+
+    if (radius)
+    {
+        path.AddArc(pos.left, pos.top, radius * 2, radius * 2, 180, 90);
+        path.AddArc(pos.right - radius * 2, pos.top, radius * 2, radius * 2, 270, 90);
+        path.AddArc(pos.right - radius * 2, pos.bottom - radius * 2, radius * 2, radius * 2, 0, 90);
+        path.AddArc(pos.left, pos.bottom - radius * 2, radius * 2, radius * 2, 90, 90);
+        path.CloseFigure();
+    }
+    else
+    {
+        Gdiplus::Point p[] = {
+            { pos.left,  pos.top },
+            { pos.right, pos.top },
+            { pos.right, pos.bottom },
+            { pos.left,  pos.bottom }
+        };
+        path.AddLines(p, 4);
+        path.CloseFigure();
+    }
+
+    // Fill (only if the color is set)
+    if (background != make_color(0, 0, 0, 255))
+    {
+        Gdiplus::Color fill(255,
+            GetRValue(background),
+            GetGValue(background),
+            GetBValue(background));
+
+        Gdiplus::SolidBrush br(fill);
+        g.FillPath(&br, &path);
+    }
+
+    // Border outline
+    if (borderWidth > 0 && border != make_color(0, 0, 0, 255))
+    {
+        Gdiplus::Pen pen(
+            Gdiplus::Color(255,
+                GetRValue(border),
+                GetGValue(border),
+                GetBValue(border)),
+            1.0f * borderWidth);
+
+        g.DrawPath(&pen, &path);
+    }
+}
+#endif
+
 void graphic::draw_rect(rect position, color border_color, color fill_color, uint32_t border_width, uint32_t rnd)
 {
 #ifdef _WIN32
-    auto old_pen = (HPEN)SelectObject(mem_dc, pc.get_pen(border_width != 0 ? PS_SOLID : PS_NULL, border_width, border_color));
-
-    auto old_brush = (HBRUSH)SelectObject(mem_dc, pc.get_brush(fill_color));
-
-    RoundRect(mem_dc, position.left, position.top, position.right, position.bottom, rnd, rnd);
-
-    SelectObject(mem_dc, old_brush);
-
-    SelectObject(mem_dc, old_pen);
+    DrawRoundBox(mem_dc, position, rnd, border_width, fill_color, border_color);
 #elif __linux__
 
     if (!surface)
@@ -437,11 +495,6 @@ void graphic::draw_rect(rect position, color border_color, color fill_color, uin
     }
     else
     {
-        l += border_width;
-        t += border_width;
-        width -= border_width * 2;
-        height -= border_width * 2;
-        
         double radius = rnd;
         double degrees = M_PI / 180.0;
         

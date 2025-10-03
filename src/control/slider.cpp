@@ -253,9 +253,9 @@ void slider::receive_plain_events(const event &ev)
     }
 }
 
-void slider::set_position(rect position__, bool redraw)
+void slider::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 
     calc_consts();
 }
@@ -351,7 +351,9 @@ void slider::hide()
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position(), true);
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_slider_height, theme_));
+            parent__->redraw(pos, true);
         }
     }
 }
@@ -411,7 +413,9 @@ void slider::redraw(bool clear)
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position(), clear);
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_slider_height, theme_));
+            parent__->redraw(pos, clear);
         }
     }
 }

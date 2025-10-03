@@ -36,12 +36,6 @@ enum class cursor
 
 void set_cursor(system_context &context, cursor cursor_);
 
-/// This function should be used when changing the position of a control (inside the set_position() of the control)
-void update_control_position(rect &control_position,
-    rect new_control_position,
-    bool redraw,
-    std::weak_ptr<window> parent);
-
 /// This function helps to place controls on the window from top to bottom
 void line_up_top_bottom(rect &pos, int32_t height, int32_t space);
 

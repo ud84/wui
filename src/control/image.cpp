@@ -232,9 +232,9 @@ void image::draw(graphic &gr_, rect )
 #endif
 }
 
-void image::set_position(rect position__, bool redraw)
+void image::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 }
 
 rect image::position() const

@@ -62,9 +62,9 @@ void tooltip::draw(graphic &gr, rect )
     gr.draw_text(text_position, text, theme_color(tcn, tv_text, theme_), font_);
 }
 
-void tooltip::set_position(rect position__, bool redraw)
+void tooltip::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 }
 
 rect tooltip::position() const
@@ -146,7 +146,9 @@ void tooltip::hide()
     auto parent__ = parent_.lock();
     if (parent__)
     {
-        parent__->redraw(position(), true);
+        auto pos = position();
+        pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+        parent__->redraw(pos, true);
     }
 }
 
@@ -221,7 +223,7 @@ void tooltip::update_size()
 
     position__.move(old_position.left, old_position.top);
 
-    set_position(position__, true);
+    set_position(position__);
 }
 
 void tooltip::show_on_control(i_control &control, int32_t indent)
@@ -230,7 +232,7 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
 
     auto pos = get_popup_position(parent_, control.position(), position_, indent);
     
-    set_position(pos, false);
+    set_position(pos);
     show();
 }
 
@@ -241,7 +243,9 @@ void tooltip::redraw()
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position());
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+            parent__->redraw(pos);
         }
     }
 }

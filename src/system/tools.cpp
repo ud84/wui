@@ -130,35 +130,6 @@ bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, error 
 
 #endif
 
-void update_control_position(rect &control_position,
-    rect new_control_position,
-    bool redraw,
-    std::weak_ptr<window> parent)
-{
-    auto prev_position = control_position;
-    control_position = new_control_position;
-
-    if (redraw)
-    {
-        auto parent_ = parent.lock();
-        if (parent_)
-        {
-            if (parent_->parent().lock() != nullptr)
-            {
-                prev_position.move(parent_->position().left, parent_->position().top);
-            }
-            parent_->redraw(prev_position, true);
-
-            auto new_position = control_position;
-            if (parent_->parent().lock() != nullptr)
-            {
-                new_position.move(parent_->position().left, parent_->position().top);
-            }
-            parent_->redraw(new_position);
-        }
-    }
-}
-
 void line_up_top_bottom(rect &pos, int32_t height, int32_t space)
 {
     pos.top = pos.bottom + space;

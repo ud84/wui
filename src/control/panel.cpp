@@ -62,9 +62,9 @@ void panel::draw(graphic &gr, rect )
     }
 }
 
-void panel::set_position(rect position__, bool redraw)
+void panel::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 }
 
 rect panel::position() const
