@@ -74,9 +74,13 @@ void select::draw(graphic &gr, rect )
     auto control_pos = position();
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
 
+    auto border_color = focused_
+        ? theme_color(tcn, tv_focused_border, theme_)
+        : (!active ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_hover_border, theme_));
+
     /// Draw the frame
     gr.draw_rect(control_pos,
-        !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
+        border_color,
         theme_color(tcn, tv_background, theme_),
         border_width,
         theme_dimension(tcn, tv_round, theme_));
@@ -148,8 +152,8 @@ void select::show_list()
 {
     list_->set_position({ position_.left, position_.top, position_.right, position_.top + item_height_ * static_cast<int32_t>(items_.size()) });
     auto pos = get_popup_position(parent_, position(), list_->position(), 0);
-
-    list_->set_position(pos, true);
+    
+    list_->set_position(pos);
     list_->show();
     
     auto parent__ = parent_.lock();
@@ -157,6 +161,8 @@ void select::show_list()
     {
         parent__->set_focused(list_);
     }
+
+    focused_ = true;
 }
 
 void select::receive_control_events(const event &ev)
@@ -295,9 +301,9 @@ void select::update_list_theme()
     list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tcn, tv_round, theme_));
 }
 
-void select::set_position(rect position__, bool redraw)
+void select::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 }
 
 rect select::position() const
@@ -398,7 +404,9 @@ void select::hide()
     auto parent__ = parent_.lock();
     if (parent__)
     {
-        parent__->redraw(position(), true);
+        auto pos = position();
+        pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+        parent__->redraw(pos, true);
     }
 }
 
@@ -519,7 +527,9 @@ void select::redraw()
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position());
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+            parent__->redraw(pos);
         }
     }
 }

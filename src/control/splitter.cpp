@@ -153,7 +153,7 @@ void splitter::receive_plain_events(const event &ev)
                 }
             }
 
-            set_position(pos, true);
+            set_position(pos);
 
             if (callback)
             {
@@ -180,9 +180,9 @@ void splitter::receive_plain_events(const event &ev)
     }
 }
 
-void splitter::set_position(rect position__, bool redraw)
+void splitter::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw && !no_redraw, parent_);
+    position_ = position__;
 }
 
 rect splitter::position() const
