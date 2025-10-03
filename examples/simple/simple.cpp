@@ -100,6 +100,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             [this]() {
             if (creationButton.lock())
                 creationButton.lock()->enable();
+            plugged = false;
         });
     }
 
@@ -108,16 +109,18 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         window(std::make_shared<wui::window>()),
         list(std::make_shared<wui::list>()),
         splitter(std::make_shared<wui::splitter>(wui::splitter_orientation::horizontal, [this](int32_t x, int32_t y) {
-            splitterPos = y;
-            
             auto p = window->position(); auto h = p.height(), w = p.width();
+
+            splitterPos = h - y;
             
-            list->set_position({ 10, 30, w - 10, y - 5 }, true);
-            panel->set_position({0, y, w, h}, false);
-            button1->set_position({ 10, y, 30, y - 10 }, false);
-            button2->set_position({ 40, y, 60, y - 10 }, false);
-            button3->set_position({ 70, y, 90, y - 10 }, false);
-            input->set_position({ 100, y, w - 10, h - 10 }, false);
+            list->set_position({ 10, 30, w - 10, y - 10 });
+            panel->set_position({0, y, w, h});
+            button1->set_position({ 10, y + 5, 30, y + 25 });
+            button2->set_position({ 40, y + 5, 60, y + 25 });
+            button3->set_position({ 70, y + 5, 90, y + 25 });
+            input->set_position({ 100, y + 5, w - 10, h - 10 });
+
+            window->redraw({0, y, p.right, p.bottom});
             })),
         popupMenu(std::make_shared<wui::menu>()),
         panel(std::make_shared<wui::panel>()),
@@ -224,15 +227,19 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 {
                     int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                    list->set_position({ 10, 30, w - 10, splitterPos - 5 }, false);
-                    splitter->set_position({ 10, splitterPos - 5, w - 10, splitterPos }, false);
+                    auto wp = window->position();
+
+                    auto y = wp.height() - splitterPos;
+
+                    list->set_position({ 10, 30, w - 10, y - 10 });
+                    splitter->set_position({ 10, y - 8, w - 10, y - 2 });
                     splitter->set_margins(50, h - 50);
 
-                    panel->set_position({ 0, splitterPos, w, h }, false);
-                    button1->set_position({ 10, splitterPos, 30, splitterPos - 10 }, false);
-                    button2->set_position({ 40, splitterPos, 60, splitterPos - 10 }, false);
-                    button3->set_position({ 70, splitterPos, 90, splitterPos - 10 }, false);
-                    input->set_position({ 100, splitterPos, w - 10, h - 10 }, false);
+                    panel->set_position({ 0, y, w, h });
+                    button1->set_position({ 10, y + 5, 30, y + 25 });
+                    button2->set_position({ 40, y + 5, 60, y + 25 });
+                    button3->set_position({ 70, y + 5, 90, y + 25 });
+                    input->set_position({ 100, y + 5, w - 10, h - 10 });
                 }
                 else if (e.internal_event_.type == wui::internal_event_type::user_emitted)
                 {
@@ -403,15 +410,6 @@ int main(int argc, char *argv[])
 
     window->add_control(createPluggedButton, { 320, 50, 340, 75 });
 
-    auto vertSplitter = std::make_shared<wui::splitter>(wui::splitter_orientation::vertical, [&pluggedWindow](int32_t x, int32_t y) {
-        if (pluggedWindow->plugged)
-        {
-            auto pos = pluggedWindow->window->position();
-            pluggedWindow->window->set_position({ 0, pos.top, x, pos.bottom }, true);
-        }
-    });
-    window->add_control(vertSplitter, { 0 });
-
     //auto text0 = std::make_shared<wui::text>("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
     auto text0 = std::make_shared<wui::text>("Высокий уровень вовлечения представителей целевой аудитории является четким доказательством простого факта: граница обучения кадров создаёт предпосылки для новых предложений. Однозначно, непосредственные участники технического прогресса, превозмогая сложившуюся непростую экономическую ситуацию, превращены в посмешище, хотя само их существование приносит несомненную пользу обществу. А ещё базовые сценарии поведения пользователей, превозмогая сложившуюся непростую экономическую ситуацию, ограничены исключительно образом.");
     window->add_control(text0, { 320, 180, 890, 240 });
@@ -546,25 +544,79 @@ int main(int argc, char *argv[])
 
     window->set_min_size(100, 100);
 
+    auto vertSplitter = std::make_shared<wui::splitter>(wui::splitter_orientation::vertical, [&](int32_t x, int32_t y) {
+        if (pluggedWindow->plugged)
+        {
+            auto pos = pluggedWindow->window->position();
+            pluggedWindow->window->set_position({ 0, pos.top, x, pos.bottom });
+        }
+
+        auto pos = createPluggedButton->position();
+        createPluggedButton->set_position({ x + 20, pos.top, x + 180, pos.bottom });
+
+        pos = horizProgressBar->position();
+        horizProgressBar->set_position({ x + 100, pos.top, pos.right, pos.bottom });
+
+        pos = accountImage->position();
+        accountImage->set_position({ x + 20, pos.top, x + 20 + 64, pos.bottom });
+
+        pos = text0->position();
+        text0->set_position({ x + 20, pos.top, pos.right, pos.bottom });
+
+        pos = nameInput->position();
+        nameInput->set_position({ x + 20, pos.top, x + 200, pos.bottom });
+
+        pos = someSelect->position();
+        someSelect->set_position({ x + 20, pos.top, pos.right, pos.bottom });
+
+        pos = darkThemeButton->position();
+        darkThemeButton->set_position({ x + 20, pos.top, x + 200, pos.bottom });
+
+        pos = whiteThemeButton->position();
+        whiteThemeButton->set_position({ x + 250, pos.top, x + 430, pos.bottom });
+
+        pos = memo->position();
+        memo->set_position({ x + 20, pos.top, pos.right, pos.bottom });
+
+        pos = horizProgressBar->position();
+        horizProgressBar->set_position({x + 100, pos.top, x + 250, pos.bottom});
+
+        pos = horizSlider->position();
+        horizSlider->set_position({ x + 120, pos.top, x + 230, pos.bottom });
+            
+        pos = vertSlider->position();
+        vertSlider->set_position({ x + 280, pos.top, x + 310, pos.bottom });
+
+        pos = vertProgressBar->position();
+        vertProgressBar->set_position({ x + 320, pos.top, x + 350, pos.bottom });
+        
+        auto wp = window->position();
+        window->redraw({ pluggedWindow->plugged ? x : 0, 0, wp.right, wp.bottom });
+        });
+    window->add_control(vertSplitter, { 0 });
+
     auto sid = window->subscribe([&](const wui::event &e) {
-        if (e.internal_event_.type == wui::internal_event_type::size_changed)
+        if (e.internal_event_.type == wui::internal_event_type::size_changed ||
+            e.internal_event_.type == wui::internal_event_type::window_expanded)
         {
             int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
             if (pluggedWindow->plugged)
             {
                 auto pos = pluggedWindow->window->position();
-                pluggedWindow->window->set_position({ 0, 30, pos.width(), h }, false);
-                vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h }, false);
+                pluggedWindow->window->set_position({ 0, 30, pos.width(), h });
+                vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h });
             }
 
-            menuButton->set_position({ w - 42, 50, w - 10, 82 }, false);
-            text0->set_position({ 320, 180, w - 10, 240 }, false);
-            nameInput->set_position({ 320, 250, w - 10, 275 }, false);
-            someSelect->set_position({ 320, 300, w - 10, 325 }, false);
-            memo->set_position({ 320, 400, w - 10, h - 60 }, false);
-            okButton->set_position({ w - 250, h - 55, w - 150, h - 20 }, false);
-            cancelButton->set_position({ w - 120, h - 55, w - 20, h - 20 }, false);
+            vertSplitter->set_margins(130, w - 100);
+
+            menuButton->set_position({ w - 42, 50, w - 10, 82 });
+            text0->set_position({ 320, 180, w - 10, 240 });
+            nameInput->set_position({ 320, 250, w - 10, 275 });
+            someSelect->set_position({ 320, 300, w - 10, 325 });
+            memo->set_position({ 320, 400, w - 10, h - 60 });
+            okButton->set_position({ w - 250, h - 55, w - 150, h - 20 });
+            cancelButton->set_position({ w - 120, h - 55, w - 20, h - 20 });
         }
     }, wui::event_type::internal);
 

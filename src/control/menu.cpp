@@ -107,9 +107,9 @@ void menu::draw(graphic &gr, rect )
 {
 }
 
-void menu::set_position(rect position__, bool redraw)
+void menu::set_position(rect position__)
 {
-    list_->set_position(position__, redraw);
+    list_->set_position(position__);
 }
 
 rect menu::position() const
@@ -425,7 +425,7 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
 
     auto pos = get_popup_position(parent_, base_pos, position_, indent);
 
-    list_->set_position(pos, true);
+    list_->set_position(pos);
     list_->show();
     
     auto parent__ = parent_.lock();

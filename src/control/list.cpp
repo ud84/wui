@@ -63,8 +63,6 @@ void list::draw(graphic &gr, rect )
 
     auto control_pos = position();
 
-    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
-
     /// Create memory dc for inner content   
     system_context ctx = { 0 };
     auto parent__ = parent_.lock();
@@ -78,7 +76,7 @@ void list::draw(graphic &gr, rect )
     }
 
     graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, position_.width() - border_width * 2, position_.height() - border_width * 2 }, theme_color(tcn, tv_background, theme_));
+    mem_gr.init({ 0, 0, position_.width(), position_.height() }, theme_color(tcn, tv_background, theme_));
 
     calc_title_height(mem_gr);
 
@@ -86,10 +84,10 @@ void list::draw(graphic &gr, rect )
 
     draw_titles(mem_gr);
 
-    gr.draw_graphic({control_pos.left + border_width,
-            control_pos.top + border_width,
-            control_pos.width() - border_width,
-            control_pos.height() - border_width },
+    gr.draw_graphic({control_pos.left,
+            control_pos.top,
+            control_pos.width(),
+            control_pos.height() },
         mem_gr, 0, 0);
 
     if ((mouse_on_control || focused_) && has_scrollbar())
@@ -97,8 +95,13 @@ void list::draw(graphic &gr, rect )
         vert_scroll->draw(gr, {});
     }
 
+    auto border_color = focused_
+        ? theme_color(tcn, tv_focused_border, theme_)
+        : (!mouse_on_control ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_hover_border, theme_));
+
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
     gr.draw_rect(control_pos,
-        !focused_ ? theme_color(tcn, tv_border, theme_) : theme_color(tcn, tv_focused_border, theme_),
+        border_color,
         make_color(0, 0, 0, 255), //{ theme_color(tcn, tv_background, theme_), 0 },
         border_width,
         theme_dimension(tcn, tv_round, theme_));
@@ -117,17 +120,13 @@ void list::receive_control_events(const event &ev)
         {
             if (vert_scroll->position().in(ev.mouse_event_.x, ev.mouse_event_.y))
             {
+                event sev = ev;
                 if (!mouse_on_slider)
                 {
                     mouse_on_slider = true;
-
-                    event sev = ev;
                     sev.mouse_event_.type = wui::mouse_event_type::enter;
-
-                    return vert_scroll->receive_control_events(sev);
                 }
-
-                return vert_scroll->receive_control_events(ev);
+                vert_scroll->receive_control_events(sev);
             }
             else
             {
@@ -138,7 +137,7 @@ void list::receive_control_events(const event &ev)
                     event sev = ev;
                     sev.mouse_event_.type = wui::mouse_event_type::leave;
 
-                    return vert_scroll->receive_control_events(sev);
+                    vert_scroll->receive_control_events(sev);
                 }
             }
         }
@@ -151,6 +150,7 @@ void list::receive_control_events(const event &ev)
                     vert_scroll->show();
                 }
                 mouse_on_control = true;
+                redraw();
             break;
             case mouse_event_type::leave:
                 mouse_on_control = false;
@@ -408,11 +408,11 @@ void list::receive_control_events(const event &ev)
     }
 }
 
-void list::set_position(rect position__, bool redraw)
+void list::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 
-    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_) / 2;
 
     vert_scroll->set_position({ position_.right - 14 - border_width,
         position_.top + border_width,
@@ -522,7 +522,9 @@ void list::hide()
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position(), true);
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+            parent__->redraw(pos, true);
         }
     }
 }
@@ -720,7 +722,9 @@ void list::redraw()
         auto parent__ = parent_.lock();
         if (parent__)
         {
-            parent__->redraw(position());
+            auto pos = position();
+            pos.widen(theme_dimension(tcn, tv_border_width, theme_));
+            parent__->redraw(pos);
         }
     }
 }
@@ -820,18 +824,16 @@ void list::draw_items(graphic &gr_)
         last_item = item_count;
     }
 
-    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
-
-    int32_t top_ = border_width + title_height - scroll_pos,
-        left = border_width,
-        right = position_.width() - border_width;
+    int32_t top_ = title_height - scroll_pos,
+        left = 0,
+        right = position_.width();
 
     for (auto item = first_item; item != last_item; ++item)
     {
         auto item_height = get_item_height(item);
         auto top = get_item_top(item) + top_;
 
-        rect item_rect = { left, top, right, top + item_height - border_width };
+        rect item_rect = { left, top, right, top + item_height };
 
         item_state state = item_state::normal;
 
@@ -855,11 +857,9 @@ bool list::has_scrollbar()
 
 void list::update_selected_item(int32_t y)
 {
-    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
-
     auto scroll_pos = vert_scroll->get_scroll_pos();
 
-    auto pos = (y - position().top - title_height - border_width) + scroll_pos;
+    auto pos = (y - position().top - title_height) + scroll_pos;
 
     int32_t item = -1, item_start = 0, item_end = 0;
     while (item != item_count)
@@ -898,11 +898,9 @@ void list::update_active_item(int32_t y)
 {
     int32_t prev_active_item_ = active_item_;
 
-    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
-
     auto scroll_pos = vert_scroll->get_scroll_pos();
 
-    auto pos = (y - position().top - title_height - border_width) + scroll_pos;
+    auto pos = (y - position().top - title_height) + scroll_pos;
 
     active_item_ = -1;
 

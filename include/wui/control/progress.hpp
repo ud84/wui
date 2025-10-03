@@ -30,7 +30,7 @@ public:
 
     virtual void draw(graphic &gr, rect );
 
-    virtual void set_position(rect position, bool redraw = true);
+    virtual void set_position(rect position);
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);
@@ -70,6 +70,7 @@ public:
     static constexpr const char *tv_border_width = "border_width";
     static constexpr const char *tv_background = "background";
     static constexpr const char *tv_meter = "meter";
+    static constexpr const char* tv_round = "round";
 
 private:
     std::string tcn;
