@@ -40,7 +40,7 @@ public:
 
     virtual void draw(graphic &gr, rect );
 
-    virtual void set_position(rect position, bool redraw = true);
+    virtual void set_position(rect position);
     virtual std::weak_ptr<window> parent() const;
     virtual rect position() const;
 

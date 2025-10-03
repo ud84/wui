@@ -850,9 +850,9 @@ void input::receive_plain_events(const event &ev)
     }
 }
 
-void input::set_position(rect position__, bool redraw)
+void input::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
     if (input_view_ == input_view::multiline) {
         auto border_width = theme_dimension(tcn, tv_border_width, theme_) / 2;
         vert_scroll->set_position({ position_.right - 14 - border_width,

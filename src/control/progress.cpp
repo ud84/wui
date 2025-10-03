@@ -88,9 +88,9 @@ void progress::draw(graphic &gr, rect )
         theme_dimension(tcn, tv_round, theme_));
 }
 
-void progress::set_position(rect position__, bool redraw)
+void progress::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 }
 
 rect progress::position() const

@@ -153,7 +153,7 @@ void select::show_list()
     list_->set_position({ position_.left, position_.top, position_.right, position_.top + item_height_ * static_cast<int32_t>(items_.size()) });
     auto pos = get_popup_position(parent_, position(), list_->position(), 0);
     
-    list_->set_position(pos, true);
+    list_->set_position(pos);
     list_->show();
     
     auto parent__ = parent_.lock();
@@ -301,9 +301,9 @@ void select::update_list_theme()
     list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tcn, tv_round, theme_));
 }
 
-void select::set_position(rect position__, bool redraw)
+void select::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 }
 
 rect select::position() const

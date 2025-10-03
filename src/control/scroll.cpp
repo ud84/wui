@@ -95,9 +95,9 @@ void scroll::draw(graphic &gr, rect )
     gr.draw_rect(slider_rect, theme_color(tcn, scrollbar_state_ == scrollbar_state::full ? tv_slider_acive : tv_slider, theme_));
 }
 
-void scroll::set_position(rect position__, bool redraw)
+void scroll::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 
     calc_scroll_interval();
 }

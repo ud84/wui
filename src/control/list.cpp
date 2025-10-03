@@ -408,9 +408,9 @@ void list::receive_control_events(const event &ev)
     }
 }
 
-void list::set_position(rect position__, bool redraw)
+void list::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 
     auto border_width = theme_dimension(tcn, tv_border_width, theme_) / 2;
 

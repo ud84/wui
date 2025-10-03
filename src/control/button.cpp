@@ -301,8 +301,7 @@ void button::draw(graphic &gr, rect )
         image_->set_position( { image_left,
             image_top,
             image_left + (button_view_ != button_view::switcher && button_view_ != button_view::radio ? image_size : image_->width()),
-            image_top + (button_view_ != button_view::switcher  && button_view_ != button_view::radio ? image_size : image_->height()) },
-            false );
+            image_top + (button_view_ != button_view::switcher  && button_view_ != button_view::radio ? image_size : image_->height()) });
         image_->draw(gr, { 0 });
     }
 
@@ -431,9 +430,9 @@ void button::receive_event(const event &ev)
     }
 }
 
-void button::set_position(rect position__, bool redraw)
+void button::set_position(rect position__)
 {
-    update_control_position(position_, position__, showed_ && redraw, parent_);
+    position_ = position__;
 }
 
 rect button::position() const

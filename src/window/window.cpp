@@ -204,7 +204,7 @@ void window::add_control(std::shared_ptr<i_control> control, rect control_positi
     if (std::find(controls.begin(), controls.end(), control) == controls.end())
     {
         control->set_parent(shared_from_this());
-        control->set_position(control_position, false);
+        control->set_position(control_position);
         controls.emplace_back(control);
 
         redraw(control->position());
@@ -493,7 +493,7 @@ void window::receive_plain_events(const event &ev)
 
             auto new_position = position_;
             new_position.put(left, top);
-            set_position(new_position, false);
+            set_position(new_position);
         }
 
         return;
@@ -502,7 +502,7 @@ void window::receive_plain_events(const event &ev)
     send_event_to_plains(ev);
 }
 
-void window::set_position(rect position__, bool redraw_)
+void window::set_position(rect position__)
 {
     auto old_position = position_;
     auto position___ = position__;
@@ -572,7 +572,7 @@ void window::set_position(rect position__, bool redraw_)
         }
         skip_draw_ = false;
 
-        if (showed_ && redraw_)
+        if (showed_)
         {
             rect update_field {
                 old_position.left < position_.left ? old_position.left : position_.left,
@@ -980,7 +980,7 @@ void window::normal()
 
     if (!normal_position.is_null())
     {
-        set_position(normal_position, false);
+        set_position(normal_position);
     }
 
     expand_button->set_image(theme_image(ti_expand, theme_));
@@ -1453,7 +1453,7 @@ void window::update_buttons()
 
     if (flag_is_set(window_style_, window_style::close_button))
     {
-        close_button->set_position({ left, top, left + btn_width + border_width, top + btn_height }, false);
+        close_button->set_position({ left, top, left + btn_width + border_width, top + btn_height });
         close_button->show();
 
         left -= btn_width;
@@ -1465,7 +1465,7 @@ void window::update_buttons()
 
     if (flag_is_set(window_style_, window_style::expand_button) || flag_is_set(window_style_, window_style::minimize_button))
     {
-        expand_button->set_position({ left, top, left + btn_width, top + btn_height }, false);
+        expand_button->set_position({ left, top, left + btn_width, top + btn_height });
         expand_button->show();
 
         left -= btn_width;
@@ -1486,7 +1486,7 @@ void window::update_buttons()
 
     if (flag_is_set(window_style_, window_style::minimize_button))
     {
-        minimize_button->set_position({ left, top, left + btn_width, top + btn_height }, false);
+        minimize_button->set_position({ left, top, left + btn_width, top + btn_height });
         minimize_button->show();
 
         left -= btn_width;
@@ -1498,7 +1498,7 @@ void window::update_buttons()
 
     if (flag_is_set(window_style_, window_style::pin_button))
     {
-        pin_button->set_position({ left, top, left + btn_width, top + btn_height }, false);
+        pin_button->set_position({ left, top, left + btn_width, top + btn_height });
         pin_button->show();
 
         left -= btn_width;
@@ -1510,7 +1510,7 @@ void window::update_buttons()
 
     if (flag_is_set(window_style_, window_style::switch_theme_button))
     {
-        switch_theme_button->set_position({ left, top, left + btn_width, top + btn_height }, false);
+        switch_theme_button->set_position({ left, top, left + btn_width, top + btn_height });
         switch_theme_button->show();
 
         left -= btn_width;
@@ -1522,7 +1522,7 @@ void window::update_buttons()
 
 	if (flag_is_set(window_style_, window_style::switch_lang_button))
 	{
-		switch_lang_button->set_position({ left, top, left + btn_width, top + btn_height }, false);
+		switch_lang_button->set_position({ left, top, left + btn_width, top + btn_height });
 		switch_lang_button->show();
 
 		left -= btn_width;

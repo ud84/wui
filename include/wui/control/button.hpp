@@ -54,7 +54,7 @@ public:
     /// i_control impl
     virtual void draw(graphic &gr, rect );
 
-    virtual void set_position(rect position, bool redraw = true);
+    virtual void set_position(rect position);
     virtual rect position() const;
 
     virtual void set_parent(std::shared_ptr<window> window_);

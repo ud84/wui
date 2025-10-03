@@ -112,12 +112,12 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             
             auto p = window->position(); auto h = p.height(), w = p.width();
             
-            list->set_position({ 10, 30, w - 10, y - 2 }, true);
-            panel->set_position({0, y + 10, w - 20, h}, false);
-            button1->set_position({ 10, y + 15, 30, y + 35 }, false);
-            button2->set_position({ 40, y + 15, 60, y + 35 }, false);
-            button3->set_position({ 70, y + 15, 90, y + 35 }, false);
-            input->set_position({ 100, y + 15, w - 30, h - 10 }, false);
+            list->set_position({ 10, 30, w - 10, y - 2 });
+            panel->set_position({0, y + 10, w - 20, h});
+            button1->set_position({ 10, y + 15, 30, y + 35 });
+            button2->set_position({ 40, y + 15, 60, y + 35 });
+            button3->set_position({ 70, y + 15, 90, y + 35 });
+            input->set_position({ 100, y + 15, w - 30, h - 10 });
 
             window->redraw({ 0, y, p.right, p.bottom }, true);
             })),
@@ -226,15 +226,15 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 {
                     int32_t w = e.internal_event_.x, h = e.internal_event_.y;
 
-                    list->set_position({ 10, 30, w - 10, splitterPos - 2 }, false);
-                    splitter->set_position({ 0, splitterPos, w, splitterPos + 8 }, false);
+                    list->set_position({ 10, 30, w - 10, splitterPos - 2 });
+                    splitter->set_position({ 0, splitterPos, w, splitterPos + 8 });
                     splitter->set_margins(50, h - 50);
 
-                    panel->set_position({ 0, splitterPos + 10, w - 20, h }, false);
-                    button1->set_position({ 10, splitterPos + 15, 30, splitterPos + 35 }, false);
-                    button2->set_position({ 40, splitterPos + 15, 60, splitterPos + 35 }, false);
-                    button3->set_position({ 70, splitterPos + 15, 90, splitterPos + 35 }, false);
-                    input->set_position({ 100, splitterPos + 15, w - 30, h - 10 }, false);
+                    panel->set_position({ 0, splitterPos + 10, w - 20, h });
+                    button1->set_position({ 10, splitterPos + 15, 30, splitterPos + 35 });
+                    button2->set_position({ 40, splitterPos + 15, 60, splitterPos + 35 });
+                    button3->set_position({ 70, splitterPos + 15, 90, splitterPos + 35 });
+                    input->set_position({ 100, splitterPos + 15, w - 30, h - 10 });
                 }
                 else if (e.internal_event_.type == wui::internal_event_type::user_emitted)
                 {
@@ -543,32 +543,32 @@ int main(int argc, char *argv[])
         if (pluggedWindow->plugged)
         {
             auto pos = pluggedWindow->window->position();
-            pluggedWindow->window->set_position({ 0, pos.top, x, pos.bottom }, true);
+            pluggedWindow->window->set_position({ 0, pos.top, x, pos.bottom });
         }
 
         auto pos = createPluggedButton->position();
-        createPluggedButton->set_position({ x + 20, pos.top, x + 100, pos.bottom }, true);
+        createPluggedButton->set_position({ x + 20, pos.top, x + 100, pos.bottom });
 
         pos = text0->position();
-        text0->set_position({ x + 20, pos.top, pos.right, pos.bottom }, false);
+        text0->set_position({ x + 20, pos.top, pos.right, pos.bottom });
 
         pos = nameInput->position();
-        nameInput->set_position({ x + 20, pos.top, x + 200, pos.bottom }, false);
+        nameInput->set_position({ x + 20, pos.top, x + 200, pos.bottom });
 
         pos = someSelect->position();
-        someSelect->set_position({ x + 20, pos.top, pos.right, pos.bottom }, false);
+        someSelect->set_position({ x + 20, pos.top, pos.right, pos.bottom });
 
         pos = memo->position();
-        memo->set_position({ x + 20, pos.top, pos.right, pos.bottom }, false);
+        memo->set_position({ x + 20, pos.top, pos.right, pos.bottom });
 
         pos = darkThemeButton->position();
-        darkThemeButton->set_position({ x + 20, pos.top, pos.width() + x, pos.bottom }, false);
+        darkThemeButton->set_position({ x + 20, pos.top, pos.width() + x, pos.bottom });
 
         pos = accountImage->position();
-        accountImage->set_position({ x + 20, pos.top, x + 84, pos.bottom }, false);
+        accountImage->set_position({ x + 20, pos.top, x + 84, pos.bottom });
 
         pos = horizProgressBar->position();
-        horizProgressBar->set_position({ x + 100, pos.top, pos.right, pos.bottom }, false);
+        horizProgressBar->set_position({ x + 100, pos.top, pos.right, pos.bottom });
 
         window->redraw({0, 0, window->position().width(), window->position().height()}, true);
     });
@@ -582,19 +582,19 @@ int main(int argc, char *argv[])
             if (pluggedWindow->plugged)
             {
                 auto pos = pluggedWindow->window->position();
-                pluggedWindow->window->set_position({ 0, 30, pos.width(), h }, false);
-                vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h }, false);
+                pluggedWindow->window->set_position({ 0, 30, pos.width(), h });
+                vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h });
             }
 
             vertSplitter->set_margins(100, w - 100);
 
-            menuButton->set_position({ w - 42, 50, w - 10, 82 }, false);
-            text0->set_position({ 320, 180, w - 10, 240 }, false);
-            nameInput->set_position({ 320, 250, w - 10, 275 }, false);
-            someSelect->set_position({ 320, 300, w - 10, 325 }, false);
-            memo->set_position({ 320, 400, w - 10, h - 60 }, false);
-            okButton->set_position({ w - 250, h - 55, w - 150, h - 20 }, false);
-            cancelButton->set_position({ w - 120, h - 55, w - 20, h - 20 }, false);
+            menuButton->set_position({ w - 42, 50, w - 10, 82 });
+            text0->set_position({ 320, 180, w - 10, 240 });
+            nameInput->set_position({ 320, 250, w - 10, 275 });
+            someSelect->set_position({ 320, 300, w - 10, 325 });
+            memo->set_position({ 320, 400, w - 10, h - 60 });
+            okButton->set_position({ w - 250, h - 55, w - 150, h - 20 });
+            cancelButton->set_position({ w - 120, h - 55, w - 20, h - 20 });
         }
     }, wui::event_type::internal);
 
