@@ -1,5 +1,6 @@
-# Unreleased
+# 1.3.251004
 1. Splitter behavior improves (TSKW24-2)
+2. Robust input, set_position without redraw, hover borders. Interface changed (TSKW24-3)
 
 # 1.2.250918
 1. Improved window's tool buttons and frame draw (I-48)
