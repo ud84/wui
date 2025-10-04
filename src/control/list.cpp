@@ -764,9 +764,7 @@ void list::calc_title_height(graphic &gr_)
             return;
         }
 
-        auto text_dimensions = gr_.measure_text("Qq", font);
-
-        title_height = text_dimensions.width() + text_indent * 2;
+        title_height = font.size + text_indent * 2;
     }
 }
 

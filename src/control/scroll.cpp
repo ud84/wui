@@ -351,7 +351,7 @@ void scroll::receive_control_events(const event& ev)
             {
                 if (slider_scrolling)
                 {
-                    return move_slider(orientation_ == orientation::vertical ? ev.mouse_event_.y : ev.mouse_event_.x);
+                    move_slider(orientation_ == orientation::vertical ? ev.mouse_event_.y : ev.mouse_event_.x);
                 }
             }
             break;
@@ -395,14 +395,14 @@ void scroll::receive_plain_events(const event& ev)
 
 void scroll::redraw(bool clear)
 {
-    if (showed_)
+    /*if (showed_)
     {
         auto parent__ = parent_.lock();
         if (parent__)
         {
             parent__->redraw(position(), clear);
         }
-    }
+    }*/
 }
 
 void scroll::draw_arrow_up(graphic& gr, rect button_pos)

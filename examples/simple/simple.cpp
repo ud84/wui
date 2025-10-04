@@ -120,7 +120,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             button3->set_position({ 70, y + 15, 90, y + 35 });
             input->set_position({ 100, y + 15, w - 10, h - 10 });
 
-            window->redraw({0, y, p.right, p.bottom});
+            window->redraw({0, y, p.right, p.bottom}, true);
             })),
         popupMenu(std::make_shared<wui::menu>()),
         panel(std::make_shared<wui::panel>()),
@@ -199,7 +199,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         window->add_control(button1, { 0 });
         window->add_control(button2, { 0 });
         window->add_control(button3, { 0 });
-        window->add_control(input, { 0 });
+        //window->add_control(input, { 0 });
 
         window->set_control_callback([this](wui::window_control control, std::string &tooltip_text, bool continue_) {
             if (control != wui::window_control::pin)
@@ -302,10 +302,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         auto textColor = wui::theme_color(wui::input::tc, wui::input::tv_text);
         auto font = wui::theme_font(wui::list::tc, wui::list::tv_font);
         
-        auto textHeight = gr.measure_text("Qq", font).height();
         auto textRect = itemRect;
         
-        textRect.move(20, (itemRect.height() - textHeight) / 2);
+        textRect.move(20, (itemRect.height() - font.size) / 2);
         gr.draw_text(textRect, "Item " + std::to_string(nItem), textColor, font);
     }
 };
@@ -552,7 +551,7 @@ int main(int argc, char *argv[])
         }
 
         auto pos = createPluggedButton->position();
-        createPluggedButton->set_position({ x + 20, pos.top, x + 180, pos.bottom });
+        createPluggedButton->set_position({ x + 20, pos.top, x + 250, pos.bottom });
 
         pos = horizProgressBar->position();
         horizProgressBar->set_position({ x + 100, pos.top, pos.right, pos.bottom });
@@ -591,7 +590,7 @@ int main(int argc, char *argv[])
         vertProgressBar->set_position({ x + 320, pos.top, x + 350, pos.bottom });
         
         auto wp = window->position();
-        window->redraw({ pluggedWindow->plugged ? x : 0, 0, wp.right, wp.bottom });
+        window->redraw({ pluggedWindow->plugged ? x : 0, 0, wp.right, wp.bottom }, true);
         });
     window->add_control(vertSplitter, { 0 });
 

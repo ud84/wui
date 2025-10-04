@@ -392,7 +392,7 @@ void menu::update_size()
 
     position_ = { 0, 0, max_text_width, height };
 
-    size_updated = true;
+    //size_updated = true;
 }
 
 void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, int32_t x_, int32_t y_)
@@ -489,7 +489,7 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, rect item_rect, list::ite
     auto text_color = item->state != menu_item_state::disabled ? theme_color(tcn, tv_text) : theme_color(tcn, tv_disabled_text);
     auto font = theme_font(tcn, tv_font);
 
-    auto text_height = gr.measure_text("Qq", font).height();
+    auto text_height = font.size;
     
     gr.draw_text({ item_rect.left + item_rect.height() + item_rect.height() * item->level, item_rect.top + (item_rect.height() - text_height) / 2 }, item->text, text_color, font);
 
