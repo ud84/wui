@@ -65,7 +65,7 @@ void text::draw(graphic &gr, rect )
         lines.push_back(line);
     }
 
-    auto line_height = gr.measure_text("Qq,`", font_).height();
+    auto line_height = font_.size;
 
     auto control_pos = position();
 
@@ -85,7 +85,7 @@ void text::draw(graphic &gr, rect )
 
     for (auto &line : lines)
     {
-        truncate_line(line, gr, font_, control_pos.width());
+        //truncate_line(line, gr, font_, control_pos.width());
 
         int32_t left = control_pos.left;
 

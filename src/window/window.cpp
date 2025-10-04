@@ -572,7 +572,7 @@ void window::set_position(rect position__)
         }
         skip_draw_ = false;
 
-        if (showed_)
+        /*if (showed_)
         {
             rect update_field {
                 old_position.left < position_.left ? old_position.left : position_.left,
@@ -581,7 +581,7 @@ void window::set_position(rect position__)
                 old_position.bottom > position_.bottom ? old_position.bottom : position_.bottom
             };
             parent__->redraw(update_field, false);
-        }
+        }*/
     }
 }
 

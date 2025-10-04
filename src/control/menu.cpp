@@ -335,7 +335,7 @@ void menu::update_size()
     {
         return;
     }
-
+    
     system_context ctx = { 0 };
     auto parent__ = parent_.lock();
     if (parent__)
@@ -402,6 +402,7 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
     x = x_;
     y = y_;
 
+    rect prev_pos = list_->position();
     update_size();
 
     auto base_pos = control ? control->position() : rect{ 0 };
@@ -432,6 +433,12 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
     if (parent__)
     {
         parent__->set_focused(list_);
+        rect redraw_pos = { std::min(prev_pos.left, pos.left),
+            std::min(prev_pos.top, pos.top),
+            std::max(prev_pos.right, pos.right),
+            std::max(prev_pos.bottom, pos.bottom) };
+        redraw_pos.widen(theme_dimension(tcn, tv_border_width));
+        parent__->redraw(redraw_pos, true);
     }
 }
 
@@ -489,7 +496,7 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, rect item_rect, list::ite
     auto text_color = item->state != menu_item_state::disabled ? theme_color(tcn, tv_text) : theme_color(tcn, tv_disabled_text);
     auto font = theme_font(tcn, tv_font);
 
-    auto text_height = gr.measure_text("Qq", font).height();
+    auto text_height = font.size;
     
     gr.draw_text({ item_rect.left + item_rect.height() + item_rect.height() * item->level, item_rect.top + (item_rect.height() - text_height) / 2 }, item->text, text_color, font);
 

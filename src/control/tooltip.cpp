@@ -214,7 +214,7 @@ void tooltip::update_size()
 
     auto old_position = position_;
 
-    auto height = mem_gr.measure_text("`Qj,", font_).bottom;
+    auto height = font_.size;
     auto position__ = mem_gr.measure_text(text, font_);
 
     auto text_indent = theme_dimension(tcn, tv_text_indent, theme_);
