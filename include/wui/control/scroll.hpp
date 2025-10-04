@@ -139,8 +139,6 @@ private:
     static const int32_t tiny_scrollbar_size = 3;
     static const int32_t full_scrollbar_size = 14;
 
-    void redraw(bool clear = false);
-
     void draw_arrow_up(graphic& gr, rect button_pos);
     void draw_arrow_left(graphic& gr, rect button_pos);
     void draw_arrow_down(graphic& gr, rect button_pos);

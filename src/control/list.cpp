@@ -410,6 +410,7 @@ void list::receive_control_events(const event &ev)
 
 void list::set_position(rect position__)
 {
+    bool height_changed = position_.height() != position__.height();
     position_ = position__;
 
     auto border_width = theme_dimension(tcn, tv_border_width, theme_) / 2;
@@ -419,7 +420,7 @@ void list::set_position(rect position__)
         position_.right - border_width,
         position_.bottom - border_width });
 
-    update_scroll_area();
+    if (height_changed) update_scroll_area();
 }
 
 rect list::position() const

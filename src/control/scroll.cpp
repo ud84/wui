@@ -177,14 +177,11 @@ void scroll::update_theme(std::shared_ptr<i_theme> theme__)
         return;
     }
     theme_ = theme__;
-
-    redraw();
 }
 
 void scroll::show()
 {
     showed_ = true;
-    redraw();
 }
 
 void scroll::hide()
@@ -222,8 +219,6 @@ void scroll::set_area(int32_t area_)
     area = area_;
 
     calc_scroll_interval();
-
-    redraw();
 }
 
 void scroll::set_scroll_pos(int32_t scroll_pos_)
@@ -250,8 +245,6 @@ void scroll::set_scroll_pos(int32_t scroll_pos_)
             callback(scroll_state::moving, static_cast<int32_t>(scroll_pos));
         }
     }
-
-    redraw();
 
     prev_scroll_pos = scroll_pos;
 }
@@ -286,7 +279,6 @@ void scroll::receive_control_events(const event& ev)
                 if (!slider_scrolling)
                 {
                     scrollbar_state_ = scrollbar_state::tiny;
-                    redraw(true);
                 }
             break;
             case mouse_event_type::left_down:
@@ -386,23 +378,9 @@ void scroll::receive_plain_events(const event& ev)
                 end_work();
 
                 slider_scrolling = false;
-                
-                redraw();
             break;
         }
     }
-}
-
-void scroll::redraw(bool clear)
-{
-    /*if (showed_)
-    {
-        auto parent__ = parent_.lock();
-        if (parent__)
-        {
-            parent__->redraw(position(), clear);
-        }
-    }*/
 }
 
 void scroll::draw_arrow_up(graphic& gr, rect button_pos)
@@ -507,8 +485,6 @@ void scroll::move_slider(int32_t v)
         }
     }
 
-    redraw();
-
     prev_scroll_pos = scroll_pos;
 }
 
@@ -525,8 +501,6 @@ void scroll::scroll_up()
     {
         scroll_pos = 0;
     }
-
-    redraw();
 
     if (callback)
     {
@@ -552,8 +526,6 @@ void scroll::scroll_down()
         {
             scroll_pos = area;
         }
-
-        redraw();
     }
 
     if (callback)

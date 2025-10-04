@@ -335,7 +335,7 @@ void menu::update_size()
     {
         return;
     }
-
+    
     system_context ctx = { 0 };
     auto parent__ = parent_.lock();
     if (parent__)
@@ -392,7 +392,7 @@ void menu::update_size()
 
     position_ = { 0, 0, max_text_width, height };
 
-    //size_updated = true;
+    size_updated = true;
 }
 
 void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, int32_t x_, int32_t y_)
@@ -402,6 +402,7 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
     x = x_;
     y = y_;
 
+    rect prev_pos = list_->position();
     update_size();
 
     auto base_pos = control ? control->position() : rect{ 0 };
@@ -432,6 +433,12 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
     if (parent__)
     {
         parent__->set_focused(list_);
+        rect redraw_pos = { std::min(prev_pos.left, pos.left),
+            std::min(prev_pos.top, pos.top),
+            std::max(prev_pos.right, pos.right),
+            std::max(prev_pos.bottom, pos.bottom) };
+        redraw_pos.widen(theme_dimension(tcn, tv_border_width));
+        parent__->redraw(redraw_pos, true);
     }
 }
 
