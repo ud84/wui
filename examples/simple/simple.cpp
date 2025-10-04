@@ -113,12 +113,12 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
             splitterPos = h - y;
             
-            list->set_position({ 10, 30, w - 10, y - 10 });
-            panel->set_position({0, y, w, h});
-            button1->set_position({ 10, y + 5, 30, y + 25 });
-            button2->set_position({ 40, y + 5, 60, y + 25 });
-            button3->set_position({ 70, y + 5, 90, y + 25 });
-            input->set_position({ 100, y + 5, w - 10, h - 10 });
+            list->set_position({ 10, 30, w - 10, y - 2 });
+            panel->set_position({ 0, y + 10, w, h });
+            button1->set_position({ 10, y + 15, 30, y + 35 });
+            button2->set_position({ 40, y + 15, 60, y + 35 });
+            button3->set_position({ 70, y + 15, 90, y + 35 });
+            input->set_position({ 100, y + 15, w - 10, h - 10 });
 
             window->redraw({0, y, p.right, p.bottom});
             })),

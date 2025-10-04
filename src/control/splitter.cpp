@@ -40,17 +40,17 @@ splitter::~splitter()
     }
 }
 
-void splitter::draw(graphic &gr, rect )
+void splitter::draw(graphic& gr, rect)
 {
     if (!showed_)
     {
         return;
     }
-    
+
     gr.draw_rect(position(), theme_color(tcn, active ? tv_active : tv_calm, theme_));
 }
 
-void splitter::receive_control_events(const event &ev)
+void splitter::receive_control_events(const event& ev)
 {
     if (!showed_ || !enabled_)
     {
@@ -61,43 +61,43 @@ void splitter::receive_control_events(const event &ev)
     {
         switch (ev.mouse_event_.type)
         {
-            case mouse_event_type::enter:
+        case mouse_event_type::enter:
+        {
+            auto parent__ = parent_.lock();
+            if (parent__)
+            {
+                if (orientation == splitter_orientation::vertical)
+                {
+                    set_cursor(parent__->context(), cursor::size_we);
+                }
+                else if (orientation == splitter_orientation::horizontal)
+                {
+                    set_cursor(parent__->context(), cursor::size_ns);
+                }
+            }
+        }
+        break;
+        case mouse_event_type::leave:
+        {
+            if (!active)
             {
                 auto parent__ = parent_.lock();
                 if (parent__)
                 {
-                    if (orientation == splitter_orientation::vertical)
-                    {
-                        set_cursor(parent__->context(), cursor::size_we);
-                    }
-                    else if (orientation == splitter_orientation::horizontal)
-                    {
-                        set_cursor(parent__->context(), cursor::size_ns);
-                    }
+                    set_cursor(parent__->context(), cursor::default_);
                 }
             }
-            break;
-            case mouse_event_type::leave:
-            {
-                if (!active)
-                {
-                    auto parent__ = parent_.lock();
-                    if (parent__)
-                    {
-                        set_cursor(parent__->context(), cursor::default_);
-                    }
-                }
-            }
-            break;
-            case mouse_event_type::left_down:
-                active = true;
-                redraw();
+        }
+        break;
+        case mouse_event_type::left_down:
+            active = true;
+            redraw();
             break;
         }
     }
 }
 
-void splitter::receive_plain_events(const event &ev)
+void splitter::receive_plain_events(const event& ev)
 {
     if (!showed_ || !enabled_)
     {
@@ -106,7 +106,7 @@ void splitter::receive_plain_events(const event &ev)
 
     switch (ev.mouse_event_.type)
     {
-        case mouse_event_type::move:
+    case mouse_event_type::move:
         if (active)
         {
             auto pos = position_;
@@ -126,7 +126,7 @@ void splitter::receive_plain_events(const event &ev)
             else if (orientation == splitter_orientation::horizontal)
             {
                 pos.put(pos.left, ev.mouse_event_.y);
-                
+
                 auto parent__ = parent_.lock();
                 if (parent__ && parent__->parent().lock())
                 {
@@ -138,18 +138,24 @@ void splitter::receive_plain_events(const event &ev)
 
             if (orientation == splitter_orientation::vertical)
             {
-                if ((margin_min != -1 && pos.left <= margin_min) ||
-                    (margin_max != -1 && pos.left >= margin_max))
+                if (margin_min != -1 && pos.left <= margin_min)
                 {
-                    return;
+                    pos = { margin_min, pos.top, margin_min + pos.width(), pos.bottom };
+                }
+                else if (margin_max != -1 && pos.left >= margin_max)
+                {
+                    pos = { margin_max - pos.width(), pos.top, margin_max, pos.bottom };
                 }
             }
             else if (orientation == splitter_orientation::horizontal)
             {
-                if ((margin_min != -1 && pos.top <= margin_min) ||
-                    (margin_max != -1 && pos.top >= margin_max))
+                if (margin_min != -1 && pos.top <= margin_min)
                 {
-                    return;
+                    pos = { pos.left, margin_min, pos.right, margin_min + pos.height() };
+                }
+                else if (margin_max != -1 && pos.bottom >= margin_max)
+                {
+                    pos = { pos.left, margin_max - pos.height(), pos.right, margin_max };
                 }
             }
 
