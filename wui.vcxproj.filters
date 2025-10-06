@@ -255,6 +255,9 @@
     <ClInclude Include="include\wui\common\orientation.hpp">
       <Filter>Header Files\wui\common</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\common\dbgtrace.hpp">
+      <Filter>Header Files\wui\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">

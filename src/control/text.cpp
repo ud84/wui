@@ -1,10 +1,10 @@
 //
-// Copyright (c) 2021-2022 Anton Golovkov (udattsk at gmail dot com)
+// Copyright (c) 2021-2025 Anton Golovkov (udattsk at gmail dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/wui
+// Official repository: https://gitverse.ru/udattsk/wui
 //
 
 #include <wui/control/text.hpp>
@@ -65,7 +65,7 @@ void text::draw(graphic &gr, rect )
         lines.push_back(line);
     }
 
-    auto line_height = gr.measure_text("Qq,`", font_).height();
+    auto line_height = font_.size;
 
     auto control_pos = position();
 
@@ -85,7 +85,7 @@ void text::draw(graphic &gr, rect )
 
     for (auto &line : lines)
     {
-        truncate_line(line, gr, font_, control_pos.width());
+        //truncate_line(line, gr, font_, control_pos.width());
 
         int32_t left = control_pos.left;
 

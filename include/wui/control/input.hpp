@@ -1,10 +1,10 @@
 //
-// Copyright (c) 2021-2022 Anton Golovkov (udattsk at gmail dot com)
+// Copyright (c) 2021-2025 Anton Golovkov (udattsk at gmail dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/wui
+// Official repository: https://gitverse.ru/udattsk/wui
 //
 
 #pragma once
@@ -89,8 +89,10 @@ public:
     void set_input_content(input_content input_content_);
     void set_symbols_limit(int32_t symbols_limit);
 
-    void set_change_callback(std::function<void(const std::string&)> change_callback);
+    void set_change_callback(std::function<void()> change_callback);
     void set_return_callback(std::function<void()> return_callback);
+
+    const std::vector<std::string>& get_lines() const;
 
 public:
     /// Control name in theme
@@ -131,7 +133,7 @@ private:
     int32_t scroll_offset_x = 0;
     int32_t scroll_offset_y = 0;
 
-    std::function<void(const std::string&)> change_callback;
+    std::function<void()> change_callback;
     std::function<void()> return_callback;
 
     std::string tcn; /// control name in theme
@@ -175,7 +177,7 @@ private:
 
     // Multiline helpers
     void update_lines(std::string_view text);
-    void reset_multiline_state();
+    void reset_state();
 
     // Selections and cursor
     bool clear_selected_text(); /// returns true if selection is not empty
@@ -185,7 +187,7 @@ private:
     void select_all();
     void select_current_word(int x, int y);
     
-    // Clipboard for multiline
+    // Clipboard
     void buffer_copy();
     void buffer_cut();
     void buffer_paste();

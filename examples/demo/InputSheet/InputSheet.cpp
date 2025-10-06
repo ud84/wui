@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/wui
+// Official repository: https://gitverse.ru/udattsk/wui
 //
 
 #include <InputSheet/InputSheet.h>
@@ -21,7 +21,7 @@ InputSheet::InputSheet()
     inputText(std::make_shared<wui::text>("", wui::hori_alignment::left, wui::vert_alignment::top, "h1_text")),
     input0(std::make_shared<wui::input>("Type some text here", wui::input_view::multiline))
 {
-    input0->set_change_callback([this](std::string_view v) { inputText->set_text(v); });
+    input0->set_change_callback([this]() { inputText->set_text(input0->text()); });
     input0->set_return_callback([this]() { inputText->set_text("You pressed Enter"); });
 }
 

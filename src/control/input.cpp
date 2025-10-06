@@ -1,10 +1,10 @@
 //
-// Copyright (c) 2021-2022 Anton Golovkov (udattsk at gmail dot com)
+// Copyright (c) 2021-2025 Anton Golovkov (udattsk at gmail dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/wui
+// Official repository: https://gitverse.ru/udattsk/wui
 //
 
 #include <wui/control/input.hpp>
@@ -61,7 +61,7 @@ input::input(std::string_view text__, input_view input_view__, input_content inp
     auto_scroll_timer_(std::make_shared<timer>([this]() { on_auto_scroll(); }))
 {
     update_lines(text__);
-    reset_multiline_state();
+    reset_state();
     
     menu_->set_items({
             { 0, menu_item_state::normal, locale(tc, cl_cut).data(), "Ctrl+X", nullptr, {}, [this](int32_t i) { buffer_cut(); } },
@@ -216,7 +216,7 @@ void input::draw(graphic &gr, rect )
             int actual_y = y + static_cast<int>(i - start_line) * line_height;
             if (actual_y >= visible_bottom) break;
 
-            if (input_view_ != input_view::multiline)
+            if (count == 1)
             {
                 actual_y = position_.height() > line_height ? (position_.height() - line_height) / 2 : border_width;
             }
@@ -308,16 +308,17 @@ bool is_number(std::string_view s)
 // Auxiliary function for multiline
 std::pair<size_t, size_t> input::calculate_mouse_cursor_position(int x, int y)
 {
+    auto font_ = get_font();
+    int line_height = font_.size;
+
     auto parent__ = parent_.lock(); if (!parent__) return { 0, 0 };
     system_context ctx = parent__->context();
     graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, position_.width(), position_.height() }, theme_color(tcn, tv_background, theme_));
+    mem_gr.init({ 0, 0, position_.width(), line_height * 2 }, theme_color(tcn, tv_background, theme_));
 
     auto control_pos = position();
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
-    auto font_ = get_font();
-    int line_height = font_.size;
-    
+        
     // We take into account scrolling and borders
     int rel_y = y - control_pos.top + border_width + scroll_offset_y;
     size_t row = std::min((size_t)(rel_y / line_height), lines_.size() - 1);
@@ -649,7 +650,7 @@ void input::receive_control_events(const event &ev)
                                 update_scroll_areas();
                                 scroll_to_cursor();
                                 redraw();
-                                if (change_callback) change_callback(text());
+                                if (change_callback) change_callback();
                                 break;
                             }
                             if (cursor_col > 0) {
@@ -669,7 +670,7 @@ void input::receive_control_events(const event &ev)
                             update_scroll_areas();
                             scroll_to_cursor();
                             redraw();
-                            if (change_callback) change_callback(text());
+                            if (change_callback) change_callback();
                             break;
                         case vk_del:
                         {
@@ -677,7 +678,7 @@ void input::receive_control_events(const event &ev)
                                 update_scroll_areas();
                                 scroll_to_cursor();
                                 redraw();
-                                if (change_callback) change_callback(text());
+                                if (change_callback) change_callback();
                                 break;
                             }
                             if (cursor_col < lines_[cursor_row].size()) {
@@ -695,7 +696,7 @@ void input::receive_control_events(const event &ev)
                             update_scroll_areas();
                             scroll_to_cursor();
                             redraw();
-                            if (change_callback) change_callback(text());
+                            if (change_callback) change_callback();
                         }
                             break;
                         case vk_return: case vk_rreturn:
@@ -711,7 +712,7 @@ void input::receive_control_events(const event &ev)
                                 update_scroll_areas();
                                 scroll_to_cursor();
                                 redraw();
-                                if (change_callback) change_callback(text());    
+                                if (change_callback) change_callback();
                             }
                             break;
                         case vk_page_up: case vk_npage_up:
@@ -806,14 +807,15 @@ void input::receive_control_events(const event &ev)
                 if (clear_selected_text())
                 {
                     redraw();
-                    if (change_callback)
-                    {
-                        change_callback(text());
-                    }
+                    if (change_callback) change_callback();
                 }
                 
-                if (lines_[cursor_row].size() < (size_t)symbols_limit)
+                if (text().size() < (size_t)symbols_limit)
                 {
+                    if (ev.keyboard_event_.key[0] == 13 || ev.keyboard_event_.key[0] == 10)
+                    {
+                        return;
+                    }
                     size_t insert_byte = get_byte_pos_for_char_pos(lines_[cursor_row], cursor_col);
                     lines_[cursor_row].insert(insert_byte, ev.keyboard_event_.key, ev.keyboard_event_.key_size);
                     cursor_col += utf8::distance(ev.keyboard_event_.key, ev.keyboard_event_.key + ev.keyboard_event_.key_size);
@@ -821,10 +823,7 @@ void input::receive_control_events(const event &ev)
                     update_scroll_areas();
                     scroll_to_cursor();
                     redraw();
-                    if (change_callback)
-                    {
-                        change_callback(text());
-                    }
+                    if (change_callback) change_callback();
                 }    
             break;
         }
@@ -878,6 +877,7 @@ void input::set_position(rect position__)
             position_.right - border_width,
             position_.bottom - border_width });
         update_scroll_areas();
+        scroll_to_cursor();
     }
 }
 
@@ -1003,18 +1003,15 @@ bool input::enabled() const
 void input::set_text(std::string_view text__)
 {
     update_lines(text__);
-    reset_multiline_state();
+    reset_state();
     redraw();
-    if (change_callback)
-    {
-        change_callback(text());
-    }
+    if (change_callback) change_callback();
 }
 
 void input::set_input_view(input_view input_view__)
 {
     input_view_ = input_view__;
-    reset_multiline_state();
+    reset_state();
 }
 
 void input::set_input_content(input_content input_content__)
@@ -1027,7 +1024,7 @@ void input::set_symbols_limit(int32_t symbols_limit_)
     symbols_limit = symbols_limit_;
 }
 
-void input::set_change_callback(std::function<void(const std::string&)> change_callback_)
+void input::set_change_callback(std::function<void()> change_callback_)
 {
     change_callback = change_callback_;
 }
@@ -1035,6 +1032,11 @@ void input::set_change_callback(std::function<void(const std::string&)> change_c
 void input::set_return_callback(std::function<void()> return_callback_)
 {
     return_callback = return_callback_;
+}
+
+const std::vector<std::string>& input::get_lines() const
+{
+    return lines_;
 }
 
 void input::redraw()
@@ -1092,7 +1094,7 @@ std::string input::text() const
     return oss.str();
 }
 
-void input::reset_multiline_state()
+void input::reset_state()
 {
     cursor_row = cursor_col = 0;
     select_start_row = select_start_col = select_end_row = select_end_col = 0;
@@ -1221,9 +1223,7 @@ void input::buffer_cut() {
     clear_selected_text();
     redraw();
 
-    if (change_callback) {
-        change_callback(text());
-    }
+    if (change_callback) change_callback();
 }
 
 void input::buffer_paste() {
@@ -1291,9 +1291,7 @@ void input::buffer_paste() {
     update_scroll_areas();
     scroll_to_cursor();
     redraw();
-    if (change_callback) {
-        change_callback(text());
-    }
+    if (change_callback) change_callback();
 }
 
 // Methods for working with scrolling
@@ -1393,11 +1391,12 @@ int input::get_max_line_width()
         return cached_max_width_;
     }
     
+    auto font_ = get_font();
+
     auto parent__ = parent_.lock(); if (!parent__) return 0;
     system_context ctx = parent__->context(); graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, position_.width(), position_.height() }, 0 );
-
-    auto font_ = get_font();
+    mem_gr.init({ 0, 0, position_.width(), font_.size * 2 }, 0 );
+        
     int max_width = 0;
     
     for (const auto& line : lines_) {
@@ -1557,12 +1556,12 @@ void input::scroll_to_cursor()
     auto font_ = get_font();
     int line_height = font_.size;
     
-    int content_height = control_pos.height() - border_width * 2 - SCROLL_SIZE;
-    int content_width = control_pos.width() - border_width * 2 - SCROLL_SIZE;
-    
     // We take into account the place for scrollbars
     bool show_vert_scroll = vert_scroll->showed();
     bool show_hor_scroll = hor_scroll->showed();
+
+    int content_height = control_pos.height() - border_width * 2 - (show_hor_scroll ? SCROLL_SIZE : 0);
+    int content_width = control_pos.width() - border_width * 2 - (show_vert_scroll ? SCROLL_SIZE : 0);
 
     int visible_left = scroll_offset_x;
     int visible_right = visible_left + content_width - 1;
@@ -1580,7 +1579,7 @@ void input::scroll_to_cursor()
     if (!parent__) return;
     system_context ctx = parent__->context();
     graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, position_.width() - border_width * 2, position_.height() - border_width * 2 }, theme_color(tcn, tv_background, theme_));
+    mem_gr.init({ 0, 0, position_.width() - border_width * 2, font_.size * 2 }, 0);
 
     cursor_x = mem_gr.measure_text(line.substr(0, cursor_byte), font_).right;
     int line_width = mem_gr.measure_text(line, font_).right;

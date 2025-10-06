@@ -53,6 +53,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     std::weak_ptr<wui::window> parentWindow;
 
     std::shared_ptr<wui::window> window;
+    std::shared_ptr<wui::text> text1;
     std::shared_ptr<wui::list> list;
     std::shared_ptr<wui::menu> popupMenu;
     std::shared_ptr<wui::panel> panel;
@@ -104,24 +105,28 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         });
     }
 
+    void SplitterChange(int32_t x, int32_t y)
+    {
+        auto p = window->position(); auto h = p.height(), w = p.width();
+
+        splitterPos = h - y;
+
+        list->set_position({ 10, 50, w - 10, y - 2 });
+        panel->set_position({ 0, y + 10, w, h });
+        button1->set_position({ 10, y + 15, 30, y + 35 });
+        button2->set_position({ 40, y + 15, 60, y + 35 });
+        button3->set_position({ 70, y + 15, 90, y + 35 });
+        input->set_position({ 100, y + 15, w - 10, h - 10 });
+
+        window->redraw({ 0, 0, p.right, p.bottom }, true);
+    }
+
     PluggedWindow(std::shared_ptr<wui::window> &parentWindow_)
         : parentWindow(parentWindow_),
         window(std::make_shared<wui::window>()),
+        text1(std::make_shared<wui::text>("Some text")),
         list(std::make_shared<wui::list>()),
-        splitter(std::make_shared<wui::splitter>(wui::splitter_orientation::horizontal, [this](int32_t x, int32_t y) {
-            auto p = window->position(); auto h = p.height(), w = p.width();
-
-            splitterPos = h - y;
-            
-            list->set_position({ 10, 30, w - 10, y - 2 });
-            panel->set_position({ 0, y + 10, w, h });
-            button1->set_position({ 10, y + 15, 30, y + 35 });
-            button2->set_position({ 40, y + 15, 60, y + 35 });
-            button3->set_position({ 70, y + 15, 90, y + 35 });
-            input->set_position({ 100, y + 15, w - 10, h - 10 });
-
-            window->redraw({0, y, p.right, p.bottom});
-            })),
+        splitter(std::make_shared<wui::splitter>(wui::splitter_orientation::horizontal, [this](int32_t x, int32_t y) { SplitterChange(x, y); })),
         popupMenu(std::make_shared<wui::menu>()),
         panel(std::make_shared<wui::panel>()),
 		button1(std::make_shared<wui::button>("Button 1", [this]() {
@@ -190,7 +195,35 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             { 2, wui::menu_item_state::normal, "Another", "", nullptr, {}, [](int32_t i) {} }
             });
 
+        input->set_change_callback([this]() {
+            const auto constAdd = 30;
+            auto lines = input->get_lines().size();
+            auto font = wui::theme_font(wui::input::tc, wui::input::tv_font);
+
+            if (lines < 9)
+            {
+                auto wp = window->position();
+                int32_t inputTop = wp.height() - constAdd - (lines * font.size);
+                splitter->set_position({ 0, inputTop + 2, wp.right, inputTop + 8 });
+                SplitterChange(0, inputTop);
+            }
+            else
+            {
+                auto ip = input->position();
+                if (constAdd + lines * font.size > ip.height() && ip.height() < constAdd + 8 * font.size)
+                {
+                    if (lines > 8) lines = 8;
+                    auto wp = window->position();
+                    int32_t inputTop = wp.height() - constAdd - (lines * font.size);
+                    splitter->set_position({ 0, inputTop + 2, wp.right, inputTop + 8 });
+                    SplitterChange(0, inputTop);
+                }
+            }
+            });
+
         window->add_control(popupMenu, { 0 });
+
+        window->add_control(text1, { 0 });
 
         window->add_control(list, { 0 });
         window->add_control(splitter, { 0 });
@@ -231,7 +264,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
                     auto y = wp.height() - splitterPos;
 
-                    list->set_position({ 10, 30, w - 10, y - 10 });
+                    text1->set_position({ 10, 30, w - 10, 50 });
+
+                    list->set_position({ 10, 50, w - 10, y - 10 });
                     splitter->set_position({ 10, y - 8, w - 10, y - 2 });
                     splitter->set_margins(50, h - 50);
 
@@ -302,10 +337,9 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         auto textColor = wui::theme_color(wui::input::tc, wui::input::tv_text);
         auto font = wui::theme_font(wui::list::tc, wui::list::tv_font);
         
-        auto textHeight = gr.measure_text("Qq", font).height();
         auto textRect = itemRect;
         
-        textRect.move(20, (itemRect.height() - textHeight) / 2);
+        textRect.move(20, (itemRect.height() - font.size) / 2);
         gr.draw_text(textRect, "Item " + std::to_string(nItem), textColor, font);
     }
 };
@@ -465,11 +499,17 @@ int main(int argc, char *argv[])
 
     auto okButton = std::make_shared<wui::button>("OK", [&messageBox, &window, &dialog]()
     {
+        auto text1 = std::make_shared<wui::text>("Your name:");
+        dialog->add_control(text1, { 10, 35, 200, 55 });
+
         auto input1 = std::make_shared<wui::input>();
-        dialog->add_control(input1, { 10, 35, 200, 60 });
+        dialog->add_control(input1, { 10, 60, 200, 85 });
+
+        auto text2 = std::make_shared<wui::text>("Your Phone:");
+        dialog->add_control(text2, { 10, 100, 200, 120 });
 
         auto input2 = std::make_shared<wui::input>();
-        dialog->add_control(input2, { 10, 70, 200, 95 });
+        dialog->add_control(input2, { 10, 125, 200, 150 });
 
         auto select1 = std::make_shared<wui::select>();
 
@@ -479,7 +519,7 @@ int main(int argc, char *argv[])
 
         select1->set_items(items);
 
-        dialog->add_control(select1, { 10, 130, 200, 155 });
+        dialog->add_control(select1, { 10, 160, 200, 185 });
 
         dialog->add_control(list1, { 10, 245, 200, 400 });
 
@@ -552,7 +592,7 @@ int main(int argc, char *argv[])
         }
 
         auto pos = createPluggedButton->position();
-        createPluggedButton->set_position({ x + 20, pos.top, x + 180, pos.bottom });
+        createPluggedButton->set_position({ x + 20, pos.top, x + 250, pos.bottom });
 
         pos = horizProgressBar->position();
         horizProgressBar->set_position({ x + 100, pos.top, pos.right, pos.bottom });
@@ -591,7 +631,7 @@ int main(int argc, char *argv[])
         vertProgressBar->set_position({ x + 320, pos.top, x + 350, pos.bottom });
         
         auto wp = window->position();
-        window->redraw({ pluggedWindow->plugged ? x : 0, 0, wp.right, wp.bottom });
+        window->redraw({ 0, 0, wp.right, wp.bottom }, true);
         });
     window->add_control(vertSplitter, { 0 });
 
@@ -643,7 +683,7 @@ int main(int argc, char *argv[])
         }
     });
 
-    //window->set_default_push_control(okButton);
+    window->set_default_push_control(okButton);
 
     window->init("Hello from WUI!", { -1, -1, 900, 600 },
         wui::flags_map<wui::window_style>(3, wui::window_style::frame, wui::window_style::switch_theme_button, wui::window_style::border_all),
