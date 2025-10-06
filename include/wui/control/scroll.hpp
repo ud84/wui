@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/wui
+// Official repository: https://gitverse.ru/udattsk/wui
 //
 
 #pragma once
@@ -138,8 +138,6 @@ private:
 
     static const int32_t tiny_scrollbar_size = 3;
     static const int32_t full_scrollbar_size = 14;
-
-    void redraw(bool clear = false);
 
     void draw_arrow_up(graphic& gr, rect button_pos);
     void draw_arrow_left(graphic& gr, rect button_pos);
