@@ -1,10 +1,10 @@
 ﻿//
-// Copyright (c) 2021-2022 Anton Golovkov (udattsk at gmail dot com)
+// Copyright (c) 2021-2025 Anton Golovkov (udattsk at gmail dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/ud84/wui
+// Official repository: https://gitverse.ru/udattsk/wui
 //
 
 #include <wui/window/window.hpp>
@@ -572,7 +572,7 @@ void window::set_position(rect position__)
         }
         skip_draw_ = false;
 
-        if (showed_)
+        /*if (showed_)
         {
             rect update_field {
                 old_position.left < position_.left ? old_position.left : position_.left,
@@ -581,7 +581,7 @@ void window::set_position(rect position__)
                 old_position.bottom > position_.bottom ? old_position.bottom : position_.bottom
             };
             parent__->redraw(update_field, false);
-        }
+        }*/
     }
 }
 
@@ -2487,11 +2487,11 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             if (w_param == VK_TAB)
             {
-                wnd->change_focus();
+                wnd->change_focus(); return 0;
             }
-            else if (w_param == VK_RETURN)
+            else if (w_param == VK_RETURN && get_key_modifier() != vk_lcontrol && get_key_modifier() != vk_rcontrol)
             {
-                wnd->execute_focused();
+                wnd->execute_focused(); return 0;
             }
 
             event ev;
@@ -2871,9 +2871,10 @@ void window::process_events(xcb_generic_event_t &e)
                 {
                     change_focus(); return;
                 }
-                else if (ev_.detail == vk_return || ev_.detail == vk_rreturn)
+                else if ((ev_.detail == vk_return || ev_.detail == vk_rreturn) &&
+                    key_modifier != vk_lcontrol && key_modifier != vk_rcontrol)
                 {
-                    execute_focused();
+                    execute_focused(); return;
                 }
 
                 XKeyboardState st;
@@ -2951,7 +2952,9 @@ void window::process_events(xcb_generic_event_t &e)
                 ev_.detail == vk_rshift ||
                 ev_.detail == vk_capital ||
                 ev_.detail == vk_alt ||
-                ev_.detail == vk_insert)
+                ev_.detail == vk_insert ||
+                ev_.detail == vk_lcontrol ||
+                ev_.detail == vk_rcontrol)
             {
                 key_modifier = ev_.detail;
             }
@@ -2988,7 +2991,9 @@ void window::process_events(xcb_generic_event_t &e)
                 ev_.detail == vk_capital ||
                 ev_.detail == vk_alt ||
                 ev_.detail == vk_insert ||
-                ev_.detail == vk_numlock)
+                ev_.detail == vk_numlock ||
+                ev_.detail == vk_lcontrol ||
+                ev_.detail == vk_rcontrol)
             {
                 key_modifier = 0;
             }
