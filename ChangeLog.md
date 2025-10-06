@@ -1,5 +1,6 @@
 # 1.3.251006
 1. Performance improves, fixes (TSKW24-4)
+2. Fix input spaces on Linux (TSKW24-5)
 
 # 1.3.251004
 1. Splitter behavior improves (TSKW24-2)

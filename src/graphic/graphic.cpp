@@ -316,10 +316,13 @@ rect graphic::measure_text(std::string_view text_, const font &font__)
         return rect{ 0 };
     }
 
-    cairo_text_extents_t extents;
-    cairo_text_extents(cr, text_.data(), &extents);
+    cairo_text_extents_t dot_extents, extents;   // It's a workaround 'magic'
+    cairo_text_extents(cr, ".", &dot_extents);   // to work the spaces
+    std::string s; s.reserve(text_.size() + 2);  //
+    s = '.' + std::string(text_) + '.';          // =)
+    cairo_text_extents(cr, s.c_str(), &extents);
 
-    return { 0, 0, static_cast<int32_t>(ceil(extents.width)) + 1, static_cast<int32_t>(ceil(extents.height)) };
+    return { 0, 0, static_cast<int32_t>(ceil(extents.width - (dot_extents.width * 2))), static_cast<int32_t>(ceil(extents.height)) };
 #endif
 }
 
