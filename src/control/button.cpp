@@ -167,7 +167,7 @@ void button::draw(graphic &gr, rect )
 
     if (button_view_ != button_view::image && !caption.empty() && text_rect.width() == 0)
     {
-        text_rect = gr.measure_text(caption, font_);
+        text_rect = measure_text(caption, font_, &gr);
         text_rect.bottom += 2;
     }
 
@@ -682,7 +682,7 @@ void button::redraw()
         {
             auto pos = position();
             pos.widen(theme_dimension(tcn, tv_border_width, theme_));
-            parent__->redraw(pos);
+            parent__->redraw(pos, true);
         }
     }
 }

@@ -189,33 +189,12 @@ void tooltip::update_size()
         return;
     }
 
-    system_context ctx = { 0 };
-    auto parent__ = parent_.lock();
-    if (parent__)
-    {
-        ctx = parent__->context();
-#ifdef _WIN32
-        if (!ctx.hwnd)
-        {
-            return;
-        }
-#elif __linux__
-        if (!ctx.display)
-        {
-            return;
-        }
-#endif
-    }
-
-    graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, 1024, 500 }, 0);
-
     auto font_ = theme_font(tcn, tv_font, theme_);
 
     auto old_position = position_;
 
     auto height = font_.size;
-    auto position__ = mem_gr.measure_text(text, font_);
+    auto position__ = measure_text(text, font_);
 
     auto text_indent = theme_dimension(tcn, tv_text_indent, theme_);
     position__.right += text_indent * 2;

@@ -1,3 +1,6 @@
+# 1.3.251008
+1. Implemented new caching measure_text. Performance improvings and fixes. (TSKW24-6)
+
 # 1.3.251006
 1. Performance improves, fixes (TSKW24-4)
 2. Fix input spaces on Linux (TSKW24-5)

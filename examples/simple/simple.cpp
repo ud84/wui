@@ -196,7 +196,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             });
 
         input->set_change_callback([this]() {
-            const auto constAdd = 30;
+            const auto constAdd = 35;
             auto lines = input->get_lines().size();
             auto font = wui::theme_font(wui::input::tc, wui::input::tv_font);
 
@@ -657,6 +657,10 @@ int main(int argc, char *argv[])
             memo->set_position({ 320, 400, w - 10, h - 60 });
             okButton->set_position({ w - 250, h - 55, w - 150, h - 20 });
             cancelButton->set_position({ w - 120, h - 55, w - 20, h - 20 });
+        }
+        if (e.internal_event_.type == wui::internal_event_type::window_created)
+        {
+            wui::init_text_measurer(window->get_graphic());
         }
     }, wui::event_type::internal);
 

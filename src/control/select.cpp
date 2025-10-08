@@ -103,7 +103,7 @@ void select::draw(graphic &gr, rect )
 
     auto text = items_[list_->selected_item()].text;
 
-    auto text_size = gr.measure_text(text, font_);
+    auto text_size = measure_text(text, font_, &gr);
 
     truncate_line(text, gr, font_, control_pos.width() - control_pos.height());
 
@@ -559,7 +559,7 @@ void select::draw_list_item(graphic &gr, int32_t n_item, rect item_rect, list::i
 
     auto text = items_[n_item].text;
 
-    auto text_size = gr.measure_text(text, font);
+    auto text_size = measure_text(text, font, &gr);
 
     truncate_line(text, gr, font, item_rect.width() - item_rect.height());
 

@@ -13,14 +13,17 @@
 
 #include <boost/nowide/convert.hpp>
 
+#include <unordered_map>
+
 #ifdef __linux__
 #include <xcb/xcb_image.h>
 
 #include <cairo.h>
 #include <cairo-xcb.h>
-#include <cmath>
 
 #include <algorithm>
+#include <cmath>
+#include <memory>
 
 xcb_visualtype_t *default_visual_type(wui::system_context &context_)
 {
@@ -209,6 +212,8 @@ void graphic::clear(rect position)
 
     auto cr = cairo_create(surface);
 
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+
     cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(background_color)) / 255,
         static_cast<double>(wui::get_green(background_color)) / 255,
         static_cast<double>(wui::get_blue(background_color)) / 255);
@@ -288,6 +293,10 @@ void graphic::draw_line(rect position, color color_, uint32_t width)
 
 rect graphic::measure_text(std::string_view text_, const font &font__)
 {
+    if (text_.empty())
+    {
+        return {0, 0, 0, font__.size};
+    }
 #ifdef _WIN32
     auto old_font = (HFONT)SelectObject(mem_dc, pc.get_font(font__));
 
@@ -322,7 +331,9 @@ rect graphic::measure_text(std::string_view text_, const font &font__)
     s = '.' + std::string(text_) + '.';          // =)
     cairo_text_extents(cr, s.c_str(), &extents);
 
-    return { 0, 0, static_cast<int32_t>(ceil(extents.width - (dot_extents.width * 2))), static_cast<int32_t>(ceil(extents.height)) };
+    return { 0, 0, 
+        static_cast<int32_t>(ceil(extents.width - (dot_extents.width * 3))),
+        static_cast<int32_t>(ceil(extents.height)) };
 #endif
 }
 
@@ -392,6 +403,8 @@ void graphic::draw_rect(rect position, color fill_color)
     }
 
     auto cr = cairo_create(surface);
+
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
     cairo_set_source_rgba(cr, static_cast<double>(wui::get_red(fill_color)) / 255,
         static_cast<double>(wui::get_green(fill_color)) / 255,
@@ -478,6 +491,8 @@ void graphic::draw_rect(rect position, color border_color, color fill_color, uin
     }
 
     auto cr = cairo_create(surface);
+
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
     double l = position.left,
        t     = position.top,
@@ -661,6 +676,8 @@ void graphic::draw_surface(cairo_surface_t &surface_, rect position__)
     
     auto cr = cairo_create(surface);
 
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+
     auto surface_width = cairo_image_surface_get_width(&surface_);
     auto surface_height = cairo_image_surface_get_height(&surface_);
 
@@ -689,6 +706,52 @@ void graphic::draw_surface(cairo_surface_t &surface_, rect position__)
 error graphic::get_error() const
 {
     return err;
+}
+
+/// Text measurer //////////////////////////
+
+static graphic* tm_graphic;
+static std::unordered_map<std::string, std::pair<int32_t, int32_t>> tm_cache;
+
+void init_text_measurer(graphic &gr)
+{
+    tm_graphic = &gr;
+}
+
+size_t font_hash(const font &font_)
+{
+    std::hash<std::string> hasher;
+
+    return hasher(font_.name + std::to_string(font_.size));
+}
+
+rect measure_text(std::string_view text, const font &font_, graphic *gr)
+{
+    if (text.empty()) return { 0, 0, 0, font_.size };
+
+    std::hash<std::string> hasher;
+
+    // Compute the hash value
+    auto stringHash = hasher(std::string(text));
+    auto fontHash = font_hash(font_);
+    auto hash = std::to_string(stringHash) + "_" + std::to_string(fontHash);
+
+    // Find in cache if finded - return
+    auto it = tm_cache.find(hash);
+    if (it != tm_cache.end())
+    {
+        return { 0, 0, it->second.first, it->second.second };
+    }
+
+    if (!gr && !tm_graphic)
+    {
+        return { 0, 0, 0, font_.size };
+    }
+
+    // Measure and cache
+    auto pos = gr ? gr->measure_text(text, font_) : tm_graphic->measure_text(text, font_);
+    tm_cache[hash] = { pos.width(), pos.height() };
+    return pos;
 }
 
 }

@@ -15,6 +15,7 @@
 #include <wui/graphic/graphic.hpp>
 #include <wui/common/rect.hpp>
 
+#include <atomic>
 #include <vector>
 #include <memory>
 
@@ -135,6 +136,9 @@ public:
     /// Call this only after the window::init()
     void enable_device_change_handling(bool yes);
 
+    /// Direct link to window's graphic
+    graphic &get_graphic();
+
 public:
     /// Control name in theme / locale
     static constexpr const char *tc = "window";
@@ -179,7 +183,8 @@ private:
     std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
-    bool showed_, enabled_, skip_draw_;
+    bool showed_, enabled_;
+    std::atomic<bool> skip_draw_;
 
     size_t focused_index;
 

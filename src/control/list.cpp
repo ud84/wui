@@ -832,7 +832,7 @@ void list::draw_items(graphic &gr_)
         auto item_height = get_item_height(item);
         auto top = get_item_top(item) + top_;
 
-        rect item_rect = { left, top, right, top + item_height };
+        rect item_rect = { left, top, right - (has_scrollbar() ? 14 : 0), top + item_height };
 
         item_state state = item_state::normal;
 

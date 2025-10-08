@@ -296,8 +296,8 @@ void truncate_line(std::string& text,
         std::size_t cut = safe_utf8_cut(text, hi);
         if (cut == lo) { hi = std::min(hi * 2, n); continue; }
 
-        int32_t w = gr.measure_text(
-            std::string_view(text.data(), cut), f).width() + ell_w;
+        int32_t w = measure_text(
+            std::string_view(text.data(), cut), f, &gr).width() + ell_w;
         if (w > max_width) break;
 
         lo = cut;
@@ -311,8 +311,8 @@ void truncate_line(std::string& text,
         std::size_t cut = safe_utf8_cut(text, mid);
         if (cut == lo) { hi = lo + 1; break; }   // no progress
 
-        int32_t w = gr.measure_text(
-            std::string_view(text.data(), cut), f).width() + ell_w;
+        int32_t w = measure_text(
+            std::string_view(text.data(), cut), f, &gr).width() + ell_w;
         (w <= max_width) ? lo = cut : hi = cut;
     }
 
