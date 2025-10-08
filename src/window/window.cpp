@@ -144,7 +144,8 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     window_state_(window_state::normal), prev_window_state_(window_state_),
     tcn(theme_control_name),
     theme_(theme_),
-    showed_(true), enabled_(true), skip_draw_(false),
+    showed_(true), enabled_(true),
+    skip_draw_(false),
     focused_index(0),
     parent_(),
     my_control_sid(), my_plain_sid(),
@@ -475,6 +476,9 @@ void window::receive_control_events(const event &ev)
                 case internal_event_type::execute_focused:
                     execute_focused();
                 break;
+                case internal_event_type::window_created:
+                    send_event_to_plains(ev);
+                break;
             }
         break;
         default: break;
@@ -504,6 +508,8 @@ void window::receive_plain_events(const event &ev)
 
 void window::set_position(rect position__)
 {
+    if (position__.is_null()) return;
+
     auto old_position = position_;
     auto position___ = position__;
 
@@ -542,7 +548,6 @@ void window::set_position(rect position__)
 
         xcb_flush(context_.connection);
 #endif
-        redraw({ 0, 0, position___.width(), position___.height() }, true);
     }
 
     auto parent__ = parent_.lock();
@@ -571,17 +576,6 @@ void window::set_position(rect position__)
             update_buttons();
         }
         skip_draw_ = false;
-
-        /*if (showed_)
-        {
-            rect update_field {
-                old_position.left < position_.left ? old_position.left : position_.left,
-                old_position.top < position_.top ? old_position.top : position_.top,
-                old_position.right > position_.right ? old_position.right : position_.right,
-                old_position.bottom > position_.bottom ? old_position.bottom : position_.bottom
-            };
-            parent__->redraw(update_field, false);
-        }*/
     }
 }
 
@@ -1167,6 +1161,11 @@ void window::enable_device_change_handling(bool yes)
 #endif
 }
 
+graphic &window::get_graphic()
+{
+    return graphic_;
+}
+
 void window::send_event_to_control(const std::shared_ptr<i_control> &control_, const event &ev)
 {
     auto it = std::find_if(subscribers_.begin(), subscribers_.end(), [control_, ev](const event_subscriber &es) {
@@ -1583,7 +1582,7 @@ void window::draw_caption(graphic& gr, rect paint_rect)
 
         auto border_width = theme_dimension(tcn, tv_border_width, theme_);
 
-        auto caption_rect = gr.measure_text(caption, caption_font);
+        auto caption_rect = measure_text(caption, caption_font, &gr);
         caption_rect.move(border_width + 5, border_width + 5);
 
         if (caption_rect.in(paint_rect))
@@ -1853,8 +1852,6 @@ bool window::init(std::string_view caption_, rect position__, window_style style
     started = true;
     
     get_listener().add_window(context_.wnd, shared_from_this());
-
-    send_internal(internal_event_type::window_created, 0, 0);
 #endif
 
     return true;
@@ -2600,7 +2597,7 @@ void window::process_events(xcb_generic_event_t &e)
             {
                 auto caption_font = theme_font(tcn, tv_caption_font, theme_);
 
-                auto caption_rect = graphic_.measure_text(caption, caption_font);
+                auto caption_rect = measure_text(caption, caption_font, &graphic_);
                 caption_rect.move(10, 5);
 
                 if (caption_rect.in(paint_rect))

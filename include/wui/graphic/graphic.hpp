@@ -50,7 +50,7 @@ public:
 
     void draw_line(rect position, color color_, uint32_t width = 1);
 
-    rect measure_text(std::string_view text, const font &font_);
+    rect measure_text(std::string_view text_, const font &font__);
     void draw_text(rect position, std::string_view text, color color_, const font &font_);
 
     void draw_rect(rect position, color fill_color);
@@ -94,5 +94,8 @@ private:
 
     error err;
 };
+
+void init_text_measurer(graphic &gr);
+rect measure_text(std::string_view text, const font &font_, graphic *gr = nullptr);
 
 }

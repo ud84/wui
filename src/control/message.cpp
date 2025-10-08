@@ -259,16 +259,7 @@ rect message::get_text_size()
         ++lines_count;
     }
 
-#ifdef _WIN32
-    system_context ctx = { transient_window_->context().hwnd };
-#elif __linux__
-    system_context ctx = transient_window_->context();
-#endif
-
-    graphic mem_gr(ctx);
-    mem_gr.init(transient_window_->position(), 0);
-
-    auto text_size = mem_gr.measure_text(max_line, theme_font(text::tc, text::tv_font, theme_));
+    auto text_size = measure_text(max_line, theme_font(text::tc, text::tv_font, theme_));
 
     return { 0, 0, text_size.width(), static_cast<int32_t>(text_size.height() * 1.2 * lines_count) };
 }

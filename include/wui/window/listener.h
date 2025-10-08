@@ -20,6 +20,12 @@
 namespace wui
 {
 
+struct wnd
+{
+    std::shared_ptr<window> window_;
+    bool created = false;
+};
+
 class listener
 {
 public:
@@ -40,7 +46,7 @@ private:
     std::thread thread;
     system_context context_;
 
-    std::unordered_map<xcb_window_t, std::shared_ptr<window>> windows;
+    std::unordered_map<xcb_window_t, wnd> windows;
 
     error err;
 

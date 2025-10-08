@@ -80,11 +80,11 @@ input::~input()
     }
 }
 
-int32_t get_text_width(graphic &gr, std::string text, size_t text_length, const font &font_)
+int32_t get_text_width(std::string text, size_t text_length, const font &font_)
 {
     if (text.empty() || text_length == 0) return 0;
     text.resize(text_length);
-    auto text_rect = gr.measure_text(text, font_);
+    auto text_rect = measure_text(text, font_);
     return text_rect.right;
 }
 
@@ -250,8 +250,8 @@ void input::draw(graphic &gr, rect )
             {
                 size_t start_byte = get_byte_pos_for_char_pos(lines_[i], sel_start);
                 size_t end_byte = get_byte_pos_for_char_pos(lines_[i], sel_end);
-                int x1 = mem_gr.measure_text(lines_[i].substr(0, start_byte), font_).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
-                int x2 = mem_gr.measure_text(lines_[i].substr(0, end_byte), font_).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
+                int x1 = measure_text(lines_[i].substr(0, start_byte), font_, &mem_gr).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
+                int x2 = measure_text(lines_[i].substr(0, end_byte), font_, &mem_gr).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
                 mem_gr.draw_rect({ x1, actual_y, x2, actual_y + line_height }, theme_color(tcn, tv_selection, theme_));
             }
             if (input_view_ != input_view::password)
@@ -270,7 +270,7 @@ void input::draw(graphic &gr, rect )
                 size_t max_col = utf8::distance(lines_[i].begin(), lines_[i].end());
                 size_t safe_cursor_col = std::min(cursor_col, max_col);
                 size_t cursor_byte = get_byte_pos_for_char_pos(lines_[i], safe_cursor_col);
-                int cursor_x = mem_gr.measure_text(lines_[i].substr(0, cursor_byte), font_).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
+                int cursor_x = measure_text(lines_[i].substr(0, cursor_byte), font_, &mem_gr).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
                 mem_gr.draw_line({ cursor_x, actual_y, cursor_x, actual_y + line_height }, theme_color(tcn, tv_cursor, theme_));
             }
         }
@@ -311,11 +311,6 @@ std::pair<size_t, size_t> input::calculate_mouse_cursor_position(int x, int y)
     auto font_ = get_font();
     int line_height = font_.size;
 
-    auto parent__ = parent_.lock(); if (!parent__) return { 0, 0 };
-    system_context ctx = parent__->context();
-    graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, position_.width(), line_height * 2 }, theme_color(tcn, tv_background, theme_));
-
     auto control_pos = position();
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
         
@@ -332,7 +327,7 @@ std::pair<size_t, size_t> input::calculate_mouse_cursor_position(int x, int y)
     for (; col <= char_count; ++col)
     {
         size_t byte_pos = get_byte_pos_for_char_pos(lines_[row], col);
-        int w = mem_gr.measure_text(lines_[row].substr(0, byte_pos), font_).right;
+        int w = measure_text(lines_[row].substr(0, byte_pos), font_).right;
         if (w > rel_x) break;
     }
     
@@ -1393,14 +1388,10 @@ int input::get_max_line_width()
     
     auto font_ = get_font();
 
-    auto parent__ = parent_.lock(); if (!parent__) return 0;
-    system_context ctx = parent__->context(); graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, position_.width(), font_.size * 2 }, 0 );
-        
     int max_width = 0;
     
     for (const auto& line : lines_) {
-        auto text_width = get_text_width(mem_gr, line, line.size(), font_);
+        auto text_width = get_text_width(line, line.size(), font_);
         max_width = std::max(max_width, text_width);
     }
     
@@ -1575,14 +1566,8 @@ void input::scroll_to_cursor()
     size_t safe_cursor_col = std::min(cursor_col, max_col);
     size_t cursor_byte = line.empty() ? 0 : get_byte_pos_for_char_pos(line, safe_cursor_col);
     
-    auto parent__ = parent_.lock();
-    if (!parent__) return;
-    system_context ctx = parent__->context();
-    graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, position_.width() - border_width * 2, font_.size * 2 }, 0);
-
-    cursor_x = mem_gr.measure_text(line.substr(0, cursor_byte), font_).right;
-    int line_width = mem_gr.measure_text(line, font_).right;
+    cursor_x = measure_text(line.substr(0, cursor_byte), font_).right;
+    int line_width = measure_text(line, font_).right;
     
     if (safe_cursor_col == max_col)
     {
