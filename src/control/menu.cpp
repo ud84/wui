@@ -339,27 +339,6 @@ void menu::update_size()
         return;
     }
     
-    system_context ctx = { 0 };
-    auto parent__ = parent_.lock();
-    if (parent__)
-    {
-        ctx = parent__->context();
-#ifdef _WIN32
-        if (!ctx.hwnd)
-        {
-            return;
-        }
-#elif __linux__
-        if (!ctx.display)
-        {
-            return;
-        }
-#endif
-    }
-
-    graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, 1920, 1080 }, 0);
-
     auto font_ = theme_font(tcn, tv_font, theme_);
 
     max_text_width = 0, max_hotkey_width = 0;
@@ -373,8 +352,8 @@ void menu::update_size()
             continue;
         }
 
-        auto text_width = mem_gr.measure_text(item->text, font_).right;
-        auto hotkey_width = mem_gr.measure_text(item->hotkey, font_).right;
+        auto text_width = measure_text(item->text, font_).right;
+        auto hotkey_width = measure_text(item->hotkey, font_).right;
         if (hotkey_width != 0)
         {
             hotkey_width += item_height_;

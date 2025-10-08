@@ -27,7 +27,8 @@ namespace wui
     position_(),
     parent_(),
     my_control_sid(), my_plain_sid(),
-    showed_(true), enabled_(true), active(false), topmost_(false), no_redraw(false)
+    showed_(true), enabled_(true), active(false), topmost_(false),
+    prev_pos{0}
 {
 }
 
@@ -159,11 +160,14 @@ void splitter::receive_plain_events(const event& ev)
                 }
             }
 
+            if (pos == prev_pos) return;
+
             set_position(pos);
 
             if (callback)
             {
                 callback(pos.left, pos.top);
+                prev_pos = pos;
             }
         }
         break;
@@ -316,11 +320,6 @@ void splitter::set_margins(int32_t min_, int32_t max_)
 {
     margin_min = min_;
     margin_max = max_;
-}
-
-void splitter::set_no_redraw(bool yes)
-{
-    no_redraw = yes;
 }
 
 void splitter::redraw()

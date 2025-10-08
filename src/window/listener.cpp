@@ -32,7 +32,7 @@ void listener::add_window(xcb_window_t id, std::shared_ptr<window> window)
     auto w = windows.find(id);
     if (w == windows.end())
     {
-        windows[id] = std::move(window);
+        windows[id] = { std::move(window), false };
     }
 
     if (windows.size() == 1) // Starting on first window
@@ -128,7 +128,16 @@ void listener::process_events()
         auto wnd = windows.find(w);
         if (wnd != windows.end())
         {
-            wnd->second->process_events(*e);
+            auto &w = wnd->second;
+            if (!w.created)
+            {
+                w.created = true;
+                event ev;
+                ev.type = wui::event_type::internal;
+                ev.internal_event_.type = wui::internal_event_type::window_created;
+                w.window_->receive_control_events(ev);
+            }
+            w.window_->process_events(*e);
         }
 
         free(e);
