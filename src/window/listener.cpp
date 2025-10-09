@@ -34,11 +34,6 @@ void listener::add_window(xcb_window_t id, std::shared_ptr<window> window)
     {
         windows[id] = { std::move(window), false };
     }
-
-    if (windows.size() == 1) // Starting on first window
-    {
-        start();
-    }
 }
 
 void listener::delete_window(xcb_window_t id)
@@ -71,6 +66,8 @@ bool listener::init()
     context_.connection = XGetXCBConnection(context_.display);
 
     context_.screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
+
+    start();
 
     return true;
 }
