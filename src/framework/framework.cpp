@@ -52,7 +52,7 @@ void init()
 
         //error err;
         //err.type = error_type::system_error;
-        //err.component = "framework::init get_listener().start()";
+        //err.component = "framework::init get_listener().init()";
     }
 #endif
 }
