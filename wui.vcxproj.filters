@@ -388,5 +388,8 @@
     <None Include="res\light.json">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="README.en.md" />
+    <None Include="README.md" />
+    <None Include="README.ru.md" />
   </ItemGroup>
 </Project>
