@@ -137,6 +137,9 @@
     <ClCompile Include="src\window\window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="README.en.md" />
+    <None Include="README.md" />
+    <None Include="README.ru.md" />
     <None Include="res\dark.json" />
     <None Include="res\en_locale.json" />
     <None Include="res\ru_locale.json" />
