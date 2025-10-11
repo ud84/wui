@@ -203,9 +203,9 @@ image::~image()
     }
 }
 
-void image::draw(graphic &gr_, rect )
+void image::draw(graphic &gr_, rect r)
 {
-    if (!showed_)
+    if (!showed_ || !position().in(r))
     {
         return;
     }

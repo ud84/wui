@@ -47,9 +47,9 @@ slider::~slider()
     }
 }
 
-void slider::draw(graphic &gr, rect )
+void slider::draw(graphic &gr, rect r)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null() || !position().in(r))
     {
         return;
     }

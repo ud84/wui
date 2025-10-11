@@ -37,9 +37,9 @@ tooltip::~tooltip()
     }
 }
 
-void tooltip::draw(graphic &gr, rect )
+void tooltip::draw(graphic &gr, rect r)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null() || !position().in(r))
     {
         return;
     }

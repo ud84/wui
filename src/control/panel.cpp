@@ -47,9 +47,9 @@ panel::~panel()
     }
 }
 
-void panel::draw(graphic &gr, rect )
+void panel::draw(graphic &gr, rect r)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null() || !position().in(r))
     {
         return;
     }

@@ -106,7 +106,7 @@ menu::~menu()
     }
 }
 
-void menu::draw(graphic &gr, rect )
+void menu::draw(graphic &, rect )
 {
 }
 
