@@ -1689,6 +1689,8 @@ bool window::init(std::string_view caption_, rect position__, window_style style
     update_button_images();
     update_buttons();
 
+    /// Try to make the new window transient
+
     auto transient_window_ = get_transient_window();
     if (transient_window_)
     {
@@ -1747,6 +1749,14 @@ bool window::init(std::string_view caption_, rect position__, window_style style
         parent__->redraw(position());
 
         return true;
+    }
+
+    /// Create the physical window
+
+    parent_position_ = { 0 };
+    for (auto& c : controls)
+    {
+        c->set_parent_positon({ 0 });
     }
 
 #ifdef _WIN32
