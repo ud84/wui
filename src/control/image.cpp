@@ -150,7 +150,7 @@ namespace wui
 #ifdef _WIN32
 image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     file_name(),
@@ -164,7 +164,7 @@ image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
 
 image::image(std::string_view file_name_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     file_name(file_name_),
@@ -179,7 +179,7 @@ image::image(std::string_view file_name_, std::shared_ptr<i_theme> theme__)
 
 image::image(const std::vector<uint8_t> &data)
     : theme_(),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     file_name(),
@@ -239,7 +239,12 @@ void image::set_position(rect position__)
 
 rect image::position() const
 {
-    return get_control_position(position_, parent_);
+    return get_control_position(position_, parent_position_);
+}
+
+void image::set_parent_positon(rect position)
+{
+    parent_position_ = position;
 }
 
 void image::set_parent(std::shared_ptr<window> window)

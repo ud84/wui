@@ -76,7 +76,7 @@ menu::menu(std::string_view theme_control_name, std::shared_ptr<i_theme> theme__
     list_(std::make_shared<list>(list::tc, list_theme)),
     tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     my_subscriber_id(),
     activation_control(),
@@ -118,6 +118,11 @@ void menu::set_position(rect position__)
 rect menu::position() const
 {
     return list_->position();
+}
+
+void menu::set_parent_positon(rect position)
+{
+    list_->set_parent_positon(position);
 }
 
 void menu::set_parent(std::shared_ptr<window> window)

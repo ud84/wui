@@ -25,7 +25,7 @@ namespace wui
 list::list(std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     my_control_sid(),
     showed_(true), enabled_(true), focused_(false), mouse_on_control(false), mouse_on_slider(false),
@@ -425,7 +425,12 @@ void list::set_position(rect position__)
 
 rect list::position() const
 {
-    return get_control_position(position_, parent_);
+    return get_control_position(position_, parent_position_);
+}
+
+void list::set_parent_positon(rect position)
+{
+    parent_position_ = position;
 }
 
 void list::set_parent(std::shared_ptr<window> window)

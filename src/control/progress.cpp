@@ -25,7 +25,7 @@ namespace wui
 progress::progress(int32_t from_, int32_t to_, int32_t value_, orientation orientation__, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     from(from_),
@@ -95,7 +95,12 @@ void progress::set_position(rect position__)
 
 rect progress::position() const
 {
-    return get_control_position(position_, parent_);
+    return get_control_position(position_, parent_position_);
+}
+
+void progress::set_parent_positon(rect position)
+{
+    parent_position_ = position;
 }
 
 void progress::set_parent(std::shared_ptr<window> window)

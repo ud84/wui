@@ -28,7 +28,7 @@ text::text(std::string_view text__,
     std::shared_ptr<i_theme> theme_)
     : tcn(theme_control_name),
     theme_(theme_),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     text_(text__),
@@ -126,7 +126,12 @@ void text::set_position(rect position__)
 
 rect text::position() const
 {
-    return get_control_position(position_, parent_);
+    return get_control_position(position_, parent_position_);
+}
+
+void text::set_parent_positon(rect position)
+{
+    parent_position_ = position;
 }
 
 void text::set_parent(std::shared_ptr<window> window)

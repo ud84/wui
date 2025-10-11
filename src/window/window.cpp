@@ -138,13 +138,13 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     controls(),
     active_control(),
     caption(),
-    position_(), normal_position(),
+    position_{ 0 }, parent_position_{ 0 }, normal_position{ 0 },
     min_width(0), min_height(0),
     window_style_(window_style::frame),
     window_state_(window_state::normal), prev_window_state_(window_state_),
     tcn(theme_control_name),
     theme_(theme_),
-    showed_(true), enabled_(true),
+    showed_(true), enabled_(true), root_window_(false),
     skip_draw_(false),
     focused_index(0),
     parent_(),
@@ -206,6 +206,7 @@ void window::add_control(std::shared_ptr<i_control> control, rect control_positi
     {
         control->set_parent(shared_from_this());
         control->set_position(control_position);
+        control->set_parent_positon(is_physical_window() ? wui::rect{ 0 } : position());
         controls.emplace_back(control);
 
         redraw(control->position());
@@ -513,11 +514,7 @@ void window::set_position(rect position__)
     auto old_position = position_;
     auto position___ = position__;
 
-#ifdef _WIN32
-    if (context_.hwnd)
-#elif __linux__
-    if (context_.connection && context_.wnd)
-#endif
+    if (is_physical_window())
     {
         if (position___.left == -1)
         {
@@ -531,7 +528,7 @@ void window::set_position(rect position__)
         position_ = position___;
 
 #ifdef _WIN32
-    SetWindowPos(context_.hwnd, NULL, position___.left, position___.top, position___.width(), position___.height(), NULL);
+        SetWindowPos(context_.hwnd, NULL, position___.left, position___.top, position___.width(), position___.height(), NULL);
 #elif __linux__
         uint32_t values[] = { static_cast<uint32_t>(position___.left),
             static_cast<uint32_t>(position___.top),
@@ -548,40 +545,54 @@ void window::set_position(rect position__)
 
         xcb_flush(context_.connection);
 #endif
+
+        parent_position_ = { 0 };
     }
 
-    auto parent__ = parent_.lock();
-    if (parent__)
+    auto left = position___.left;
+    if (left == -1)
     {
-        auto parent_pos = parent__->position();
-
-        auto left = position___.left;
-        if (left == -1)
-        {
-            left = (parent_pos.width() - position___.width()) / 2;
-        }
-        auto top = position___.top;
-        if (top == -1)
-        {
-            top = (parent_pos.height() - position___.height()) / 2;
-        }
-
-        position_ = { left, top, left + position___.width(), top + position___.height() };
-
-        skip_draw_ = true;
-        send_internal(internal_event_type::size_changed, position_.width(), position_.height());
-
-        if (old_position.width() != position_.width())
-        {
-            update_buttons();
-        }
-        skip_draw_ = false;
+        left = (parent_position_.width() - position___.width()) / 2;
     }
+    auto top = position___.top;
+    if (top == -1)
+    {
+        top = (parent_position_.height() - position___.height()) / 2;
+    }
+
+    skip_draw_ = true;
+
+    position_ = { left, top, left + position___.width(), top + position___.height() };
+
+    for (auto& c : controls)
+    {
+        c->set_parent_positon(position());
+    }
+
+    send_internal(internal_event_type::size_changed, position_.width(), position_.height());
+
+    if (old_position.width() != position_.width())
+    {
+        update_buttons();
+    }
+    skip_draw_ = false;
 }
 
 rect window::position() const
 {
-    return get_control_position(position_, parent_);
+    return get_control_position(position_, parent_position_);
+}
+
+void window::set_parent_positon(rect position_)
+{
+    parent_position_ = position_;
+
+    bool physical_window = is_physical_window();
+
+    for (auto& c : controls)
+    {
+        c->set_parent_positon(physical_window ? wui::rect{ 0 } : position());
+    }
 }
 
 void window::set_parent(std::shared_ptr<window> window)
@@ -601,11 +612,16 @@ void window::set_parent(std::shared_ptr<window> window)
             send_destroy_event();
         }
 #endif
-
+        
         my_control_sid = window->subscribe(std::bind(&window::receive_control_events, this, std::placeholders::_1), event_type::all, shared_from_this());
         my_plain_sid = window->subscribe(std::bind(&window::receive_plain_events, this, std::placeholders::_1), event_type::all);
 
         pin_button->set_caption(locale(tcn, cl_unpin));
+
+        for (auto& c : controls)
+        {
+            c->set_parent_positon(position());
+        }
     }
 }
 
@@ -621,6 +637,12 @@ void window::clear_parent()
     {
         parent__->unsubscribe(my_control_sid);
         parent__->unsubscribe(my_plain_sid);
+    }
+
+    parent_position_ = { 0 };
+    for (auto& c : controls)
+    {
+        c->set_parent_positon({ 0 });
     }
 
     parent_.reset();
@@ -1164,6 +1186,20 @@ void window::enable_device_change_handling(bool yes)
 graphic &window::get_graphic()
 {
     return graphic_;
+}
+
+bool window::is_physical_window() const
+{
+#ifdef _WIN32
+    return root_window_ || (context_.hwnd != 0);
+#elif __linux__
+    return root_window_ || (context_.connection && context_.wnd);
+#endif
+}
+
+void window::set_root_window(bool yes)
+{
+    root_window_ = yes;
 }
 
 void window::send_event_to_control(const std::shared_ptr<i_control> &control_, const event &ev)

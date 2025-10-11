@@ -74,6 +74,8 @@ public:
     virtual void set_position(rect position);
     virtual rect position() const;
 
+    virtual void set_parent_positon(rect position);
+
     virtual void set_parent(std::shared_ptr<window> window_);
     virtual std::weak_ptr<window> parent() const;
     virtual void clear_parent();

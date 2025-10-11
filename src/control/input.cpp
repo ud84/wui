@@ -46,7 +46,7 @@ input::input(std::string_view text__, input_view input_view__, input_content inp
     change_callback(),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     my_control_sid(), my_plain_sid(),
     timer_(std::bind(&input::redraw_cursor, this)),
@@ -878,7 +878,12 @@ void input::set_position(rect position__)
 
 rect input::position() const
 {
-    return get_control_position(position_, parent_);
+    return get_control_position(position_, parent_position_);
+}
+
+void input::set_parent_positon(rect position)
+{
+    parent_position_ = position;
 }
 
 void input::set_parent(std::shared_ptr<window> window_)
