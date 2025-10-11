@@ -37,6 +37,8 @@ public:
     virtual void set_position(rect position);
     virtual rect position() const;
 
+    virtual void set_parent_positon(rect position);
+
     virtual void set_parent(std::shared_ptr<window> window_);
     virtual std::weak_ptr<window> parent() const;
     virtual void clear_parent();
@@ -136,7 +138,7 @@ private:
     std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
-    rect position_;
+    rect position_, parent_position_;
     
     std::weak_ptr<window> parent_;
     std::string my_control_sid;

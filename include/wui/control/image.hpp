@@ -44,6 +44,8 @@ public:
     virtual std::weak_ptr<window> parent() const;
     virtual rect position() const;
 
+    virtual void set_parent_positon(rect position);
+
     virtual void set_parent(std::shared_ptr<window> window_);
     virtual void clear_parent();
 
@@ -89,7 +91,7 @@ public:
 private:
     std::shared_ptr<i_theme> theme_;
 
-    rect position_;
+    rect position_, parent_position_;
 
     std::weak_ptr<window> parent_;
 

@@ -142,17 +142,10 @@ void line_up_left_right(rect &pos, int32_t width, int32_t space)
     pos.right = pos.left + width;
 }
 
-rect get_control_position(rect control_position, std::weak_ptr<window> parent)
+rect get_control_position(rect control_position, rect parent_position)
 {
-    auto out_pos = control_position;
-
-    auto parent_ = parent.lock();
-    if (parent_ && parent_->parent().lock())
-    {
-        out_pos.move(parent_->position().left, parent_->position().top);
-    }
-
-    return out_pos;
+    control_position.move(parent_position.left, parent_position.top);    
+    return control_position;
 }
 
 rect get_popup_position(std::weak_ptr<window> parent, rect base_position, rect popup_control_position, int32_t indent)

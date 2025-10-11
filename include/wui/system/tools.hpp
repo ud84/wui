@@ -43,7 +43,7 @@ void line_up_top_bottom(rect &pos, int32_t height, int32_t space);
 void line_up_left_right(rect &pos, int32_t width, int32_t space);
 
 /// This function returns the absolute position of the control on the physical window. Must be called inside the control's position() method
-rect get_control_position(rect control_position, std::weak_ptr<window> parent);
+rect get_control_position(rect control_position, rect parent_position);
 
 /// This function calculates the position of the popup item relative to base position
 rect get_popup_position(std::weak_ptr<window> parent, rect base_position, rect popup_control_position, int32_t indent);

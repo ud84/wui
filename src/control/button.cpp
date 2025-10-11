@@ -31,7 +31,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
@@ -68,7 +68,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
@@ -91,7 +91,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
@@ -113,7 +113,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
@@ -134,7 +134,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
@@ -156,9 +156,9 @@ button::~button()
     }
 }
 
-void button::draw(graphic &gr, rect )
+void button::draw(graphic &gr, rect)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }
@@ -436,7 +436,12 @@ void button::set_position(rect position__)
 
 rect button::position() const
 {
-    return get_control_position(position_, parent_);
+    return get_control_position(position_, parent_position_);
+}
+
+void button::set_parent_positon(rect position)
+{
+    parent_position_ = position;
 }
 
 void button::set_parent(std::shared_ptr<window> window_)

@@ -24,7 +24,7 @@ namespace wui
     margin_min(-1), margin_max(-1),
     tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+     position_{ 0 }, parent_position_{ 0 },
     parent_(),
     my_control_sid(), my_plain_sid(),
     showed_(true), enabled_(true), active(false), topmost_(false),
@@ -43,7 +43,7 @@ splitter::~splitter()
 
 void splitter::draw(graphic& gr, rect)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }
@@ -197,7 +197,12 @@ void splitter::set_position(rect position__)
 
 rect splitter::position() const
 {
-    return get_control_position(position_, parent_);
+    return get_control_position(position_, parent_position_);
+}
+
+void splitter::set_parent_positon(rect position)
+{
+    parent_position_ = position;
 }
 
 void splitter::set_parent(std::shared_ptr<window> window_)

@@ -28,7 +28,7 @@ slider::slider(int32_t from_, int32_t to_, int32_t value_, std::function<void(in
     change_callback(change_callback_),
     tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     my_control_sid(), my_plain_sid(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
@@ -47,9 +47,9 @@ slider::~slider()
     }
 }
 
-void slider::draw(graphic &gr, rect )
+void slider::draw(graphic &gr, rect)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }
@@ -262,7 +262,12 @@ void slider::set_position(rect position__)
 
 rect slider::position() const
 {
-    return get_control_position(position_, parent_);
+    return get_control_position(position_, parent_position_);
+}
+
+void slider::set_parent_positon(rect position)
+{
+    parent_position_ = position;
 }
 
 void slider::set_parent(std::shared_ptr<window> window_)

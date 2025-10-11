@@ -28,7 +28,7 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_,
     std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 }, parent_position_{ 0 },
     parent_(),
     showed_(true), enabled_(true), topmost_(false),
     area(area_),
@@ -57,7 +57,7 @@ scroll::~scroll()
     }
 }
 
-void scroll::draw(graphic &gr, rect )
+void scroll::draw(graphic &gr, rect)
 {
     if (!showed_ || position_.is_null())
     {
@@ -104,7 +104,12 @@ void scroll::set_position(rect position__)
 
 rect scroll::position() const
 {
-    return get_control_position(position_, parent_);
+    return get_control_position(position_, parent_position_);
+}
+
+void scroll::set_parent_positon(rect position)
+{
+    parent_position_ = position;
 }
 
 void scroll::set_parent(std::shared_ptr<window> window)
@@ -586,7 +591,7 @@ void scroll::calc_vert_scrollbar_params(rect* bar_rect, rect* up_button_rect, re
         SB_HEIGHT = full_scrollbar_size, SB_SILDER_MIN_HEIGHT = 5,
         SB_BUTTON_WIDTH = SB_WIDTH, SB_BUTTON_HEIGHT = SB_HEIGHT;
 
-    auto control_pos = get_control_position(position_, parent_);
+    auto control_pos = get_control_position(position_, parent_position_);
 
     double client_height = control_pos.height() - (SB_HEIGHT * 2);
 
@@ -652,7 +657,7 @@ void scroll::calc_hor_scrollbar_params(rect* bar_rect, rect* up_button_rect, rec
         SB_HEIGHT = scrollbar_height, SB_SILDER_MIN_WIDTH = 5,
         SB_BUTTON_WIDTH = SB_WIDTH, SB_BUTTON_HEIGHT = SB_WIDTH;
 
-    auto control_pos = get_control_position(position_, parent_);
+    auto control_pos = get_control_position(position_, parent_position_);
 
     double client_width = control_pos.width() - (SB_WIDTH * 2);
 
