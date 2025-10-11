@@ -2446,34 +2446,42 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                     if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
                     {
                         wnd->moving_mode_ = moving_mode::size_nwse_bottom;
+                        wnd->skip_draw_ = true;
                     }
                     else if (wnd->x_click < 5 && wnd->y_click < 5)
                     {
                         wnd->moving_mode_ = moving_mode::size_nwse_top;
+                        wnd->skip_draw_ = true;
                     }
                     else if (wnd->x_click > window_rect.right - window_rect.left - 5 && wnd->y_click < 5)
                     {
                         wnd->moving_mode_ = moving_mode::size_nesw_top;
+                        wnd->skip_draw_ = true;
                     }
                     else if (wnd->x_click < 5 && wnd->y_click > window_rect.bottom - window_rect.top - 5)
                     {
                         wnd->moving_mode_ = moving_mode::size_nesw_bottom;
+                        wnd->skip_draw_ = true;
                     }
                     else if (wnd->x_click > window_rect.right - window_rect.left - 5)
                     {
                         wnd->moving_mode_ = moving_mode::size_we_right;
+                        wnd->skip_draw_ = true;
                     }
                     else if (wnd->x_click < 5)
                     {
                         wnd->moving_mode_ = moving_mode::size_we_left;
+                        wnd->skip_draw_ = true;
                     }
                     else if (wnd->y_click > window_rect.bottom - window_rect.top - 5)
                     {
                         wnd->moving_mode_ = moving_mode::size_ns_bottom;
+                        wnd->skip_draw_ = true;
                     }
                     else if (wnd->y_click < 5)
                     {
                         wnd->moving_mode_ = moving_mode::size_ns_top;
+                        wnd->skip_draw_ = true;
                     }
                 }
             }
@@ -2486,6 +2494,8 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
             wnd->moving_mode_ = moving_mode::none;
+
+            wnd->skip_draw_ = false;
 
             wnd->send_mouse_event({ mouse_event_type::left_up, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param) });
         }
@@ -2509,6 +2519,8 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
             wnd->moving_mode_ = moving_mode::none;
+
+            wnd->skip_draw_ = false;
 
             wnd->send_mouse_event({ mouse_event_type::left_double, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param) });
         }
@@ -2767,27 +2779,35 @@ void window::process_events(xcb_generic_event_t &e)
                     break;
                     case moving_mode::size_we_left:
                         wm_moveresize_dir = 7; // _NET_WM_MOVERESIZE_SIZE_LEFT
+                        skip_draw_ = true;
                     break;
                     case moving_mode::size_we_right:
                         wm_moveresize_dir = 3; // _NET_WM_MOVERESIZE_SIZE_RIGHT
+                        skip_draw_ = true;
                     break;
                     case moving_mode::size_ns_top:
                         wm_moveresize_dir = 1; // _NET_WM_MOVERESIZE_SIZE_TOP
+                        skip_draw_ = true;
                     break;
                     case moving_mode::size_ns_bottom:
                         wm_moveresize_dir = 5; // _NET_WM_MOVERESIZE_SIZE_BOTTOM
+                        skip_draw_ = true;
                     break;
                     case moving_mode::size_nesw_top:
                         wm_moveresize_dir = 2; // _NET_WM_MOVERESIZE_SIZE_TOPRIGHT
+                        skip_draw_ = true;
                     break;
                     case moving_mode::size_nwse_bottom:
                         wm_moveresize_dir = 4; // _NET_WM_MOVERESIZE_SIZE_BOTTOMRIGHT
+                        skip_draw_ = true;
                     break;
                     case moving_mode::size_nwse_top:
                         wm_moveresize_dir = 0; // _NET_WM_MOVERESIZE_SIZE_TOPLEFT
+                        skip_draw_ = true;
                     break;
                     case moving_mode::size_nesw_bottom:
                         wm_moveresize_dir = 6; // _NET_WM_MOVERESIZE_SIZE_BOTTOMLEFT
+                        skip_draw_ = true;
                     break;
                 }
 
@@ -2807,6 +2827,8 @@ void window::process_events(xcb_generic_event_t &e)
                 xcb_flush(context_.connection);
 
                 moving_mode_ = moving_mode::none;
+
+                skip_draw_ = false;
             }
             else
             {
@@ -2891,6 +2913,8 @@ void window::process_events(xcb_generic_event_t &e)
         case XCB_BUTTON_RELEASE:
         {
             moving_mode_ = moving_mode::none;
+
+            skip_draw_ = false;
 
             auto *ev = (xcb_button_release_event_t*)&e;
             if (ev->detail == 1)
