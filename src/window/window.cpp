@@ -363,12 +363,30 @@ void window::draw(graphic &gr, rect paint_rect)
 
     auto window_pos = position();
 
+    auto border_color = theme_color(tcn, tv_border, theme_);
+    auto background_color = theme_color(tcn, tv_background, theme_);
+    auto border_width = theme_dimension(tcn, tv_border_width, theme_);
+    auto round = theme_dimension(tcn, tv_round, theme_);
+
+    if (!flag_is_set(window_style_, window_style::border_left) ||
+        !flag_is_set(window_style_, window_style::border_top) ||
+        !flag_is_set(window_style_, window_style::border_right) ||
+        !flag_is_set(window_style_, window_style::border_bottom))
+    {
+        border_color = background_color;
+    }
+
     gr.draw_rect(window_pos,
-        theme_color(tcn, tv_background, theme_),
-        theme_color(tcn, tv_background, theme_),
-        theme_dimension(tcn, tv_border_width, theme_),
-        theme_dimension(tcn, tv_round, theme_)
+        border_color,
+        background_color,
+        border_width,
+        round
     );
+
+    if (border_color == background_color)
+    {
+        draw_border(gr);
+    }
 
     if (flag_is_set(window_style_, window_style::title_showed))
     {
@@ -398,23 +416,6 @@ void window::draw(graphic &gr, rect paint_rect)
     for (auto &control : topmost_controls)
     {
         control->draw(gr, paint_rect);
-    }
-
-    if (flag_is_set(window_style_, window_style::border_left) &&
-        flag_is_set(window_style_, window_style::border_top) &&
-        flag_is_set(window_style_, window_style::border_right) &&
-        flag_is_set(window_style_, window_style::border_bottom))
-    {
-        gr.draw_rect(window_pos, 
-            theme_color(tcn, tv_border, theme_),
-            make_color(0, 0, 0, 255),
-            theme_dimension(tcn, tv_border_width, theme_),
-            theme_dimension(tcn, tv_round, theme_)
-        );
-    }
-    else
-    {
-        draw_border(gr);
     }
 }
 
