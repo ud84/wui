@@ -570,7 +570,7 @@ void window::set_position(rect position__)
     }
 
     send_internal(internal_event_type::size_changed, position_.width(), position_.height());
-
+    
     if (old_position.width() != position_.width())
     {
         update_buttons();
@@ -906,9 +906,11 @@ void window::expand()
 
     window_state_ = window_state::maximized;
     auto screenSize = wui::get_screen_size(context());
-    if (position().width() != screenSize.width() && position().height() != screenSize.height())
+    auto currentPos = position();
+    auto width = currentPos.width(), height = currentPos.height();
+    if (width != screenSize.width() && height != screenSize.height())
     {
-        normal_position = position();
+        normal_position = currentPos;
     }
 
 #ifdef _WIN32
@@ -996,7 +998,24 @@ void window::normal()
 
     if (!normal_position.is_null())
     {
-        set_position(normal_position);
+#ifdef _WIN32
+        SetWindowPos(context_.hwnd, NULL, normal_position.left, normal_position.top, normal_position.width(), normal_position.height(), NULL);
+#elif __linux__
+        uint32_t values[] = { static_cast<uint32_t>(normal_position.left),
+            static_cast<uint32_t>(normal_position.top),
+            static_cast<uint32_t>(normal_position.width()),
+            static_cast<uint32_t>(normal_position.height()) };
+
+        xcb_configure_window(context_.connection,
+            context_.wnd,
+            XCB_CONFIG_WINDOW_X |
+            XCB_CONFIG_WINDOW_Y |
+            XCB_CONFIG_WINDOW_WIDTH |
+            XCB_CONFIG_WINDOW_HEIGHT,
+            values);
+
+        xcb_flush(context_.connection);
+#endif
     }
 
     expand_button->set_image(theme_image(ti_expand, theme_));
@@ -2488,7 +2507,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->position_ = { wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height };
 
             wnd->update_buttons();
-
+            
             wnd->send_internal(wnd->window_state_ != window_state::maximized ? internal_event_type::size_changed : internal_event_type::window_expanded, width, height);
 
             RECT invalidatingRect = { 0, 0, width, height };
