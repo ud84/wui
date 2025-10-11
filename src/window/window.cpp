@@ -2827,8 +2827,6 @@ void window::process_events(xcb_generic_event_t &e)
                 xcb_flush(context_.connection);
 
                 moving_mode_ = moving_mode::none;
-
-                skip_draw_ = false;
             }
             else
             {
