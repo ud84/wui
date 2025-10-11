@@ -64,9 +64,9 @@ select::~select()
     }
 }
 
-void select::draw(graphic &gr, rect r)
+void select::draw(graphic &gr, rect)
 {
-    if (!showed_ || position_.is_null() || !position().in(r))
+    if (!showed_ || position_.is_null())
     {
         return;
     }

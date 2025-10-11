@@ -179,11 +179,9 @@ font input::get_font()
     return font_;
 }
 
-void input::draw(graphic &gr, rect r)
+void input::draw(graphic &gr, rect)
 {
-    if (!showed_ || 
-        position_.is_null() || 
-        !position().in(r))
+    if (!showed_ || position_.is_null())
     {
         return;
     }

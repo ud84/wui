@@ -44,9 +44,9 @@ progress::~progress()
     }
 }
 
-void progress::draw(graphic &gr, rect r)
+void progress::draw(graphic &gr, rect)
 {
-    if (!showed_ || position_.is_null() || !position().in(r))
+    if (!showed_ || position_.is_null())
     {
         return;
     }

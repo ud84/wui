@@ -203,9 +203,11 @@ image::~image()
     }
 }
 
-void image::draw(graphic &gr_, rect r)
+void image::draw(graphic &gr_, rect)
 {
-    if (!showed_ || !position().in(r))
+    auto control_pos = position();
+
+    if (!showed_ || control_pos.is_null())
     {
         return;
     }
@@ -214,8 +216,6 @@ void image::draw(graphic &gr_, rect r)
     if (img)
     {
         Gdiplus::Graphics gr(gr_.drawable());
-
-        auto control_pos = position();
 
         gr.DrawImage(
             img,
@@ -227,7 +227,7 @@ void image::draw(graphic &gr_, rect r)
 #elif __linux__
     if (img)
     {
-        gr_.draw_surface(*img, position());
+        gr_.draw_surface(*img, control_pos);
     }
 #endif
 }

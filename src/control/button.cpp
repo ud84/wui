@@ -156,9 +156,9 @@ button::~button()
     }
 }
 
-void button::draw(graphic &gr, rect r)
+void button::draw(graphic &gr, rect)
 {
-    if (!showed_ || position_.is_null() || !position().in(r))
+    if (!showed_ || position_.is_null())
     {
         return;
     }
