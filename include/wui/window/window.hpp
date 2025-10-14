@@ -139,6 +139,12 @@ public:
     /// Direct link to window's graphic
     graphic &get_graphic();
 
+    /// Get the type of window
+    bool is_physical_window() const;
+
+    /// Set this window always physical
+    void set_root_window(bool yes);
+
 public:
     /// Control name in theme / locale
     static constexpr const char *tc = "window";
@@ -175,7 +181,7 @@ private:
     std::shared_ptr<i_control> active_control;
 
     std::string caption;
-    rect position_, normal_position;
+    rect position_, parent_position_, normal_position;
     int32_t min_width, min_height;
     window_style window_style_;
     wui::window_state window_state_, prev_window_state_;
@@ -183,7 +189,7 @@ private:
     std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
-    bool showed_, enabled_;
+    bool showed_, enabled_, root_window_;
     std::atomic<bool> skip_draw_;
 
     size_t focused_index;
@@ -283,6 +289,8 @@ private:
 
     void send_event_to_control(const std::shared_ptr<i_control> &control, const event &ev);
     void send_event_to_plains(const event &ev);
+    void send_event_to_plains_and_control(const event& ev, const std::shared_ptr<i_control>& control);
+
     void send_mouse_event(const mouse_event &ev);
 
     bool check_control_here(int32_t x, int32_t y);

@@ -96,7 +96,7 @@ private:
     bool showed_, topmost_;
 
     std::string file_name;
-	
+    
 #ifdef _WIN32
     int32_t resource_index;
     Gdiplus::Image *img;

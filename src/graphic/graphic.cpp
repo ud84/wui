@@ -202,7 +202,9 @@ void graphic::clear(rect position)
         return;
     }
 
-    RECT filling_rect = { position.left, position.top, position.right, position.bottom };
+    RECT filling_rect = !position.is_null() ? 
+        RECT{ position.left, position.top, position.right, position.bottom } :
+        RECT{ 0, 0, max_size_.right, max_size_.bottom };
     FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
 #elif __linux__
     if (!mem_pixmap || !surface)
@@ -212,12 +214,13 @@ void graphic::clear(rect position)
 
     auto cr = cairo_create(surface);
 
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-
     cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(background_color)) / 255,
         static_cast<double>(wui::get_green(background_color)) / 255,
         static_cast<double>(wui::get_blue(background_color)) / 255);
-    cairo_rectangle(cr, position.left, position.top, position.width(), position.height());
+    if (!position.is_null())
+        cairo_rectangle(cr, position.left, position.top, position.width(), position.height());
+    else
+        cairo_rectangle(cr, 0, 0, max_size_.right, max_size_.bottom);
     cairo_fill(cr);
 
     cairo_destroy(cr);
@@ -404,12 +407,9 @@ void graphic::draw_rect(rect position, color fill_color)
 
     auto cr = cairo_create(surface);
 
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-
-    cairo_set_source_rgba(cr, static_cast<double>(wui::get_red(fill_color)) / 255,
+    cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(fill_color)) / 255,
         static_cast<double>(wui::get_green(fill_color)) / 255,
-        static_cast<double>(wui::get_blue(fill_color)) / 255,
-        static_cast<double>(wui::get_alpha(fill_color)) / 255);
+        static_cast<double>(wui::get_blue(fill_color)) / 255);
     cairo_rectangle(cr, pos.left, pos.top, pos.width(), pos.height());
     cairo_fill(cr);
 
@@ -492,8 +492,6 @@ void graphic::draw_rect(rect position, color border_color, color fill_color, uin
 
     auto cr = cairo_create(surface);
 
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-
     double l = position.left,
        t     = position.top,
        r     = position.right,
@@ -526,10 +524,9 @@ void graphic::draw_rect(rect position, color border_color, color fill_color, uin
 
     if (get_alpha(fill_color) != 0)
     {
-        cairo_set_source_rgba(cr, static_cast<double>(wui::get_red(fill_color)) / 255,
+        cairo_set_source_rgb(cr, static_cast<double>(wui::get_red(fill_color)) / 255,
             static_cast<double>(wui::get_green(fill_color)) / 255,
-            static_cast<double>(wui::get_blue(fill_color)) / 255,
-            static_cast<double>(wui::get_alpha(fill_color)) / 255);
+            static_cast<double>(wui::get_blue(fill_color)) / 255);
         cairo_fill_preserve (cr);
     }
 
@@ -675,8 +672,6 @@ void graphic::draw_surface(cairo_surface_t &surface_, rect position__)
     }
     
     auto cr = cairo_create(surface);
-
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
     auto surface_width = cairo_image_surface_get_width(&surface_);
     auto surface_height = cairo_image_surface_get_height(&surface_);

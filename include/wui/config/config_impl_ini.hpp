@@ -23,6 +23,7 @@ class config_impl_ini : public i_config
 {
 public:
     config_impl_ini(std::string_view file_name);
+    ~config_impl_ini();
 
     int32_t get_int(std::string_view section, std::string_view entry, int32_t default_);
     void set_int(std::string_view section, std::string_view entry, int32_t value);
@@ -64,6 +65,8 @@ private:
     std::map<std::pair<std::string, std::string>, value> values;
 
     error err;
+
+    bool changed;
 
     bool load_values();
     bool save_values();

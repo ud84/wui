@@ -25,7 +25,7 @@ class config_impl_reg : public i_config
 {
 public:
     config_impl_reg(std::string_view base_application_key, HKEY root = HKEY_CURRENT_USER);
-	virtual ~config_impl_reg();
+    virtual ~config_impl_reg();
 
     int32_t get_int(std::string_view section, std::string_view entry, int32_t default_);
     void set_int(std::string_view section, std::string_view entry, int32_t value);
@@ -43,8 +43,8 @@ public:
     virtual error get_error() const;
 
 private:
-	std::string base_application_key;
-	HKEY root;
+    std::string base_application_key;
+    HKEY root;
 };
 
 }

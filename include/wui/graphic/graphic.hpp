@@ -42,7 +42,7 @@ public:
 
     void set_background_color(color background_color);
 
-    void clear(rect position);
+    void clear(rect position = { 0 });
 
     void flush(rect updated_size);
 

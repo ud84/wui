@@ -64,7 +64,7 @@ public:
 public:
     /// Text's interface
     void set_text(std::string_view text);
-	std::string_view get_text() const;
+    std::string_view get_text() const;
 
     void set_alignment(hori_alignment hori_alignment_, vert_alignment vert_alignment_);
 
@@ -90,7 +90,7 @@ private:
 
     hori_alignment hori_alignment_;
     vert_alignment vert_alignment_;
-	
+    
     void redraw();
 };
 

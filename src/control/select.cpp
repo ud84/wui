@@ -34,7 +34,7 @@ select::select(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     change_callback(),
     tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     my_control_sid(), my_plain_sid(),
     list_theme(make_custom_theme()),
@@ -64,9 +64,9 @@ select::~select()
     }
 }
 
-void select::draw(graphic &gr, rect )
+void select::draw(graphic &gr, rect)
 {
-    if (!showed_ || position_.width() == 0 || position_.height() == 0)
+    if (!showed_ || position_.is_null())
     {
         return;
     }

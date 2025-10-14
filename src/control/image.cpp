@@ -150,7 +150,7 @@ namespace wui
 #ifdef _WIN32
 image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     file_name(),
@@ -164,7 +164,7 @@ image::image(int32_t resource_index_, std::shared_ptr<i_theme> theme__)
 
 image::image(std::string_view file_name_, std::shared_ptr<i_theme> theme__)
     : theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     file_name(file_name_),
@@ -179,7 +179,7 @@ image::image(std::string_view file_name_, std::shared_ptr<i_theme> theme__)
 
 image::image(const std::vector<uint8_t> &data)
     : theme_(),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     file_name(),
@@ -203,9 +203,11 @@ image::~image()
     }
 }
 
-void image::draw(graphic &gr_, rect )
+void image::draw(graphic &gr_, rect)
 {
-    if (!showed_)
+    auto control_pos = position();
+
+    if (!showed_ || control_pos.is_null())
     {
         return;
     }
@@ -214,8 +216,6 @@ void image::draw(graphic &gr_, rect )
     if (img)
     {
         Gdiplus::Graphics gr(gr_.drawable());
-
-        auto control_pos = position();
 
         gr.DrawImage(
             img,
@@ -227,7 +227,7 @@ void image::draw(graphic &gr_, rect )
 #elif __linux__
     if (img)
     {
-        gr_.draw_surface(*img, position());
+        gr_.draw_surface(*img, control_pos);
     }
 #endif
 }

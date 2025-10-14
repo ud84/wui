@@ -21,7 +21,7 @@ namespace wui
 panel::panel(std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     draw_callback()
@@ -31,7 +31,7 @@ panel::panel(std::string_view theme_control_name, std::shared_ptr<i_theme> theme
 panel::panel(std::function<void(graphic&)> draw_callback_, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     draw_callback(draw_callback_)
@@ -47,9 +47,9 @@ panel::~panel()
     }
 }
 
-void panel::draw(graphic &gr, rect )
+void panel::draw(graphic &gr, rect)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }

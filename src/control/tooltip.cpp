@@ -21,7 +21,7 @@ namespace wui
 tooltip::tooltip(std::string_view text_, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(false),
     text(text_)
@@ -37,9 +37,9 @@ tooltip::~tooltip()
     }
 }
 
-void tooltip::draw(graphic &gr, rect )
+void tooltip::draw(graphic &gr, rect)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }

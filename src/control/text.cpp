@@ -28,7 +28,7 @@ text::text(std::string_view text__,
     std::shared_ptr<i_theme> theme_)
     : tcn(theme_control_name),
     theme_(theme_),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     text_(text__),
@@ -45,9 +45,9 @@ text::~text()
     }
 }
 
-void text::draw(graphic &gr, rect )
+void text::draw(graphic &gr, rect)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }
@@ -228,7 +228,7 @@ void text::set_text(std::string_view text__)
 
 std::string_view text::get_text() const
 {
-	return text_;
+    return text_;
 }
 
 void text::set_alignment(hori_alignment hori_alignment__, vert_alignment vert_alignment__)

@@ -37,6 +37,8 @@ static std::shared_ptr<i_framework> instance = nullptr;
 void init()
 {
 #ifdef _WIN32
+    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
     Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
@@ -72,6 +74,10 @@ void run()
 #endif
 
     instance->run();
+
+#ifdef _WIN32
+    CoUninitialize();
+#endif
 }
 
 void stop()
