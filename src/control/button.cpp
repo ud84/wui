@@ -31,7 +31,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
@@ -68,7 +68,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
@@ -91,7 +91,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
@@ -113,7 +113,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
@@ -134,7 +134,7 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
@@ -156,9 +156,9 @@ button::~button()
     }
 }
 
-void button::draw(graphic &gr, rect )
+void button::draw(graphic &gr, rect)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }
@@ -194,7 +194,7 @@ void button::draw(graphic &gr, rect )
         break;
         case button_view::image:
             if (image_)
-	        {
+            {
                 if (image_size > position_.width())
                 {
                     position_.right = position_.left + image_size;
@@ -294,7 +294,7 @@ void button::draw(graphic &gr, rect )
 
         gr.draw_rect(control_pos, border_color, fill_color, theme_dimension(tcn, tv_border_width, theme_), theme_dimension(tcn, tv_round, theme_));
     }
-	
+    
     if (button_view_ != button_view::text && button_view_ != button_view::anchor && image_)
     {
         image_->set_position( { image_left,

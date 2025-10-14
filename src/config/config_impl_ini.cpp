@@ -24,9 +24,15 @@ namespace config
 config_impl_ini::config_impl_ini(std::string_view file_name_)
     : file_name(wui::real_path(file_name_)),
     values(),
-    err{}
+    err{},
+    changed(false)
 {
     load_values();
+}
+
+config_impl_ini::~config_impl_ini()
+{
+    if (changed) save_values();
 }
 
 int32_t config_impl_ini::get_int(std::string_view section, std::string_view entry, int32_t default_)
@@ -55,7 +61,7 @@ void config_impl_ini::set_int64(std::string_view section, std::string_view entry
     s.type = value_type::int64;
     s.int_val = value;
 
-    save_values();
+    changed = true;
 }
 
 std::string config_impl_ini::get_string(std::string_view section, std::string_view entry, std::string_view default_)
@@ -74,7 +80,7 @@ void config_impl_ini::set_string(std::string_view section, std::string_view entr
     s.type = value_type::string;
     s.str_val = value;
 
-    save_values();
+    changed = true;
 }
 
 void config_impl_ini::delete_value(std::string_view section, std::string_view entry)
@@ -85,7 +91,7 @@ void config_impl_ini::delete_value(std::string_view section, std::string_view en
         values.erase(s);
     }
 
-    save_values();
+    changed = true;
 }
 
 void config_impl_ini::delete_key(std::string_view section)
@@ -103,45 +109,45 @@ bool config_impl_ini::load_values()
     err.reset();
 
     std::ifstream f(std::filesystem::u8path(file_name), std::ios::in);
-	if (!f)
-	{
+    if (!f)
+    {
         err.type = error_type::file_not_found;
         err.component = "config_impl_ini::load_values()";
         err.message = "Error opening config file: " + file_name;
         
         return false;
-	}
+    }
 
     std::string section;
-	for (std::string line; std::getline(f, line); )
-	{
+    for (std::string line; std::getline(f, line); )
+    {
         auto comment_pos = line.find(";");
         auto beg_bracket = line.find("["), end_bracket = line.find("]");
         if (beg_bracket != std::string::npos && end_bracket != std::string::npos &&
             comment_pos > beg_bracket && comment_pos > end_bracket)
-		{
-			section = trim_copy(line.substr(beg_bracket + 1, end_bracket - 1));
-			continue;
-		}
+        {
+            section = trim_copy(line.substr(beg_bracket + 1, end_bracket - 1));
+            continue;
+        }
 
         auto eq_pos = line.find("=");		
         if (eq_pos != std::string::npos && eq_pos < comment_pos)
-		{
+        {
             std::string entry = trim_copy(line.substr(0, eq_pos));
             std::string value = trim_copy(line.substr(eq_pos + 1, comment_pos - eq_pos - 1));
 
             auto &v = values[{section, entry}];
-			v.type = value_type::string;
-			v.str_val = value;
+            v.type = value_type::string;
+            v.str_val = value;
 
             if (is_number(value))
             {
                 v.type = value_type::int64;
-				v.str_val = value;
+                v.str_val = value;
 
                 try
                 {
-					std::size_t pos{};
+                    std::size_t pos{};
                     v.int_val = std::stoll(value, &pos);
                 }
                 catch (std::invalid_argument const& ex)
@@ -185,14 +191,14 @@ bool config_impl_ini::save_values()
     err.reset();
 
     std::ofstream f(std::filesystem::u8path(file_name), std::ios::out | std::ios::trunc);
-	if (!f)
-	{
+    if (!f)
+    {
         err.type = error_type::file_not_found;
         err.component = "config_impl_ini::save_values()";
         err.message = "Error write to config file: " + file_name;
 
-		return false;
-	}
+        return false;
+    }
 
     std::string current_section;
     bool first_section = true;

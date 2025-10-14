@@ -25,13 +25,14 @@ namespace wui
 list::list(std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     my_control_sid(),
     showed_(true), enabled_(true), focused_(false), mouse_on_control(false), mouse_on_slider(false),
     columns_(),
     mode(list_mode::simple),
     item_count(0), selected_item_(0), active_item_(-1),
+    mem_gr(),
     title_height(-1),
     scroll_area(0),
     vert_scroll(std::make_shared<scroll>(0, 0, orientation::vertical, std::bind(&list::on_scroll, this, std::placeholders::_1, std::placeholders::_2), scroll::tc, theme__)),
@@ -54,7 +55,24 @@ list::~list()
     }
 }
 
-void list::draw(graphic &gr, rect )
+bool list::update_mem_gr()
+{
+    if (!mem_gr) return false;
+
+    auto width = position_.width(), height = position_.height();
+
+    auto current = mem_gr->max_size();
+
+    if (current.width() < width || current.height() < height)
+    {
+        mem_gr->release();
+        mem_gr->init({ 0, 0, width, height }, theme_color(tcn, tv_background, theme_));
+    }
+
+    return true;
+}
+
+void list::draw(graphic &gr, rect)
 {
     if (!showed_ || position_.is_null())
     {
@@ -63,32 +81,22 @@ void list::draw(graphic &gr, rect )
 
     auto control_pos = position();
 
-    /// Create memory dc for inner content   
-    system_context ctx = { 0 };
-    auto parent__ = parent_.lock();
-    if (parent__)
-    {
-#ifdef _WIN32
-        ctx = parent__->context();
-#elif __linux__
-        ctx = { parent__->context().display, parent__->context().connection, parent__->context().screen, gr.drawable() };
-#endif
-    }
+    bool ok = update_mem_gr();
+    if (!ok) return;
 
-    graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0, position_.width(), position_.height() }, theme_color(tcn, tv_background, theme_));
+    mem_gr->clear();
 
-    calc_title_height(mem_gr);
+    calc_title_height(*mem_gr);
 
-    draw_items(mem_gr);
+    draw_items(*mem_gr);
 
-    draw_titles(mem_gr);
+    draw_titles(*mem_gr);
 
-    gr.draw_graphic({control_pos.left,
+    gr.draw_graphic({ control_pos.left,
             control_pos.top,
             control_pos.width(),
             control_pos.height() },
-        mem_gr, 0, 0);
+        *mem_gr, 0, 0);
 
     if ((mouse_on_control || focused_) && has_scrollbar())
     {
@@ -124,20 +132,26 @@ void list::receive_control_events(const event &ev)
                 if (!mouse_on_slider)
                 {
                     mouse_on_slider = true;
+                    
                     sev.mouse_event_.type = wui::mouse_event_type::enter;
+                    vert_scroll->receive_control_events(sev);
+                                        
+                    return;
                 }
-                vert_scroll->receive_control_events(sev);
+                vert_scroll->receive_control_events(sev);                
+                return;
             }
             else
             {
                 if (mouse_on_slider)
                 {
                     mouse_on_slider = false;
-
+                    
                     event sev = ev;
                     sev.mouse_event_.type = wui::mouse_event_type::leave;
-
                     vert_scroll->receive_control_events(sev);
+
+                    redraw();
                 }
             }
         }
@@ -410,7 +424,9 @@ void list::receive_control_events(const event &ev)
 
 void list::set_position(rect position__)
 {
-    bool height_changed = position_.height() != position__.height();
+    auto height = position__.height();
+    bool height_changed = height != position_.height();
+    
     position_ = position__;
 
     auto border_width = theme_dimension(tcn, tv_border_width, theme_) / 2;
@@ -419,7 +435,7 @@ void list::set_position(rect position__)
         position_.top + border_width,
         position_.right - border_width,
         position_.bottom - border_width });
-
+        
     if (height_changed) update_scroll_area();
 }
 
@@ -437,6 +453,14 @@ void list::set_parent(std::shared_ptr<window> window)
         shared_from_this());
 
     window->add_control(vert_scroll, { 0 });
+
+    /// Create memory dc for inner content
+    if (mem_gr) mem_gr.reset();
+    auto parent__ = parent_.lock();
+    if (parent__)
+    {
+        mem_gr = std::make_unique<graphic>(parent__->context());
+    }
 }
 
 std::weak_ptr<window> list::parent() const
@@ -456,6 +480,8 @@ void list::clear_parent()
     }
 
     parent_.reset();
+
+    mem_gr.reset();
 }
 
 void list::set_topmost(bool yes)
@@ -497,7 +523,10 @@ void list::update_theme(std::shared_ptr<i_theme> theme__)
     }
     theme_ = theme__;
 
-    redraw();
+    if (mem_gr)
+    {
+        mem_gr->set_background_color(theme_color(tcn, tv_background, theme__));
+    }
 }
 
 void list::show()
@@ -832,7 +861,7 @@ void list::draw_items(graphic &gr_)
         auto item_height = get_item_height(item);
         auto top = get_item_top(item) + top_;
 
-        rect item_rect = { left, top, right - (has_scrollbar() ? 14 : 0), top + item_height };
+        rect item_rect = { left, top, right - (has_scrollbar() ? (vert_scroll->get_scroll_view() == scroll_view::full ? 14 : 3) : 0), top + item_height };
 
         item_state state = item_state::normal;
 

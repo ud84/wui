@@ -28,7 +28,7 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_,
     std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(true), enabled_(true), topmost_(false),
     area(area_),
@@ -41,7 +41,7 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_,
     worker(),
     worker_started(false),
     progress(0),
-    scrollbar_state_(scrollbar_state::tiny),
+    scroll_view_(scroll_view::tiny),
     slider_scrolling(false),
     slider_click_pos(0),
     title_height(0)
@@ -57,7 +57,7 @@ scroll::~scroll()
     }
 }
 
-void scroll::draw(graphic &gr, rect )
+void scroll::draw(graphic &gr, rect)
 {
     if (!showed_ || position_.is_null())
     {
@@ -75,7 +75,7 @@ void scroll::draw(graphic &gr, rect )
     gr.draw_rect(bar_rect, theme_color(tcn, tv_background, theme_));
 
     gr.draw_rect(up_button_rect, theme_color(tcn, tv_slider, theme_));
-    if (scrollbar_state_ == scrollbar_state::full)
+    if (scroll_view_ == scroll_view::full)
     {
         if (orientation_ == orientation::vertical)
             draw_arrow_up(gr, up_button_rect);
@@ -84,7 +84,7 @@ void scroll::draw(graphic &gr, rect )
     }
 
     gr.draw_rect(down_button_rect, theme_color(tcn, tv_slider, theme_));
-    if (scrollbar_state_ == scrollbar_state::full)
+    if (scroll_view_ == scroll_view::full)
     {
         if (orientation_ == orientation::vertical)
             draw_arrow_down(gr, down_button_rect);
@@ -92,7 +92,7 @@ void scroll::draw(graphic &gr, rect )
             draw_arrow_right(gr, down_button_rect);
     }
 
-    gr.draw_rect(slider_rect, theme_color(tcn, scrollbar_state_ == scrollbar_state::full ? tv_slider_acive : tv_slider, theme_));
+    gr.draw_rect(slider_rect, theme_color(tcn, scroll_view_ == scroll_view::full ? tv_slider_acive : tv_slider, theme_));
 }
 
 void scroll::set_position(rect position__)
@@ -267,9 +267,9 @@ void scroll::receive_control_events(const event& ev)
         {
             case mouse_event_type::enter:
             {
-                if (scrollbar_state_ != scrollbar_state::full)
+                if (scroll_view_ != scroll_view::full)
                 {
-                    scrollbar_state_ = scrollbar_state::full;
+                    scroll_view_ = scroll_view::full;
                     progress = 0;
                     start_work(worker_action::scrollbar_show);
                 }
@@ -278,7 +278,7 @@ void scroll::receive_control_events(const event& ev)
             case mouse_event_type::leave:
                 if (!slider_scrolling)
                 {
-                    scrollbar_state_ = scrollbar_state::tiny;
+                    scroll_view_ = scroll_view::tiny;
                 }
             break;
             case mouse_event_type::left_down:
@@ -378,9 +378,17 @@ void scroll::receive_plain_events(const event& ev)
                 end_work();
 
                 slider_scrolling = false;
+
+                scroll_view_ = scroll_view::tiny;
+                if (callback) callback(scroll_state::relaxed, static_cast<int32_t>(0));
             break;
         }
     }
+}
+
+scroll_view scroll::get_scroll_view() const
+{
+    return scroll_view_;
 }
 
 void scroll::draw_arrow_up(graphic& gr, rect button_pos)
@@ -569,11 +577,11 @@ void scroll::calc_scroll_interval()
 void scroll::calc_vert_scrollbar_params(rect* bar_rect, rect* up_button_rect, rect* down_button_rect, rect* slider_rect)
 {
     int32_t scrollbar_width = 0;
-    if (scrollbar_state_ == scrollbar_state::tiny)
+    if (scroll_view_ == scroll_view::tiny)
     {
         scrollbar_width = tiny_scrollbar_size;
     }
-    else if (scrollbar_state_ == scrollbar_state::full)
+    else if (scroll_view_ == scroll_view::full)
     {
         scrollbar_width = full_scrollbar_size;
     }
@@ -600,12 +608,12 @@ void scroll::calc_vert_scrollbar_params(rect* bar_rect, rect* up_button_rect, re
         *bar_rect = { control_pos.right - SB_WIDTH, control_pos.top, control_pos.right, control_pos.bottom };
     }
 
-    if (up_button_rect && scrollbar_state_ == scrollbar_state::full)
+    if (up_button_rect && scroll_view_ == scroll_view::full)
     {
         *up_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.top, control_pos.right, control_pos.top + SB_BUTTON_HEIGHT };
     }
 
-    if (down_button_rect && scrollbar_state_ == scrollbar_state::full)
+    if (down_button_rect && scroll_view_ == scroll_view::full)
     {
         *down_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.bottom - SB_BUTTON_HEIGHT, control_pos.right, control_pos.bottom };
     }
@@ -635,11 +643,11 @@ void scroll::calc_vert_scrollbar_params(rect* bar_rect, rect* up_button_rect, re
 void scroll::calc_hor_scrollbar_params(rect* bar_rect, rect* up_button_rect, rect* down_button_rect, rect* slider_rect)
 {
     int32_t scrollbar_height = 0;
-    if (scrollbar_state_ == scrollbar_state::tiny)
+    if (scroll_view_ == scroll_view::tiny)
     {
         scrollbar_height = tiny_scrollbar_size;
     }
-    else if (scrollbar_state_ == scrollbar_state::full)
+    else if (scroll_view_ == scroll_view::full)
     {
         scrollbar_height = full_scrollbar_size;
     }
@@ -666,12 +674,12 @@ void scroll::calc_hor_scrollbar_params(rect* bar_rect, rect* up_button_rect, rec
         *bar_rect = { control_pos.left, control_pos.bottom - scrollbar_height, control_pos.right, control_pos.bottom };
     }
 
-    if (up_button_rect && scrollbar_state_ == scrollbar_state::full)
+    if (up_button_rect && scroll_view_ == scroll_view::full)
     {
         *up_button_rect = { control_pos.left, control_pos.bottom - SB_BUTTON_HEIGHT, control_pos.left + SB_BUTTON_WIDTH, control_pos.bottom };
     }
 
-    if (down_button_rect && scrollbar_state_ == scrollbar_state::full)
+    if (down_button_rect && scroll_view_ == scroll_view::full)
     {
         *down_button_rect = { control_pos.right - SB_BUTTON_WIDTH, control_pos.bottom - SB_BUTTON_HEIGHT, control_pos.right, control_pos.bottom };
     }
@@ -742,6 +750,7 @@ void scroll::work()
             else
             {
                 worker_started = false;
+                if (callback) callback(scroll_state::activated, static_cast<int32_t>(0));
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(20));

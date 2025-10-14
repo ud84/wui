@@ -1,3 +1,10 @@
+# 1.3.251014
+1. TSKW24-6.1:
+- Input and list now use preallocated mem_gr.
+- Config save to file only in destructor
+- Improve scroll behavior
+- Excellent performance
+
 # 1.3.251008
 1. Implemented new caching measure_text. Performance improvings and fixes. (TSKW24-6)
 2. Fix sometimes crashes on Linux startings. (TSKW24-7)
