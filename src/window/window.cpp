@@ -18,6 +18,8 @@
 
 #include <wui/common/flag_helpers.hpp>
 
+#include <wui/common/dbgtrace.hpp>
+
 #include <wui/system/tools.hpp>
 #include <wui/system/wm_tools.hpp>
 
@@ -2296,7 +2298,6 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         int32_t width = window_rect.right - window_rect.left - x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top;
                         if (width < wnd->min_width) width = wnd->min_width;
-                        if (height < wnd->min_height) height = wnd->min_height;
 
                         SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
                     }
@@ -2306,7 +2307,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         int32_t width = x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top;
                         if (width < wnd->min_width) width = wnd->min_width;
-                        if (height < wnd->min_height) height = wnd->min_height;
+
                         SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
                     }
                     break;
@@ -2317,17 +2318,23 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = window_rect.right - window_rect.left;
                         int32_t height = window_rect.bottom - window_rect.top - y_mouse;
-                        if (width < wnd->min_width) width = wnd->min_width;
-                        if (height < wnd->min_height) height = wnd->min_height;
 
-                        SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                        if (height > wnd->min_height)
+                        {
+                            SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                        }
+                        else
+                        {
+                            height = wnd->min_height;
+                            int32_t top = window_rect.bottom - height;
+                            SetWindowPos(hwnd, NULL, window_rect.left, top, width, height, SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_ns_bottom:
                     {
                         int32_t width = window_rect.right - window_rect.left;
                         int32_t height = y_mouse;
-                        if (width < wnd->min_width) width = wnd->min_width;
                         if (height < wnd->min_height) height = wnd->min_height;
 
                         SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
@@ -2341,9 +2348,16 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         int32_t width = x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top - y_mouse;
                         if (width < wnd->min_width) width = wnd->min_width;
-                        if (height < wnd->min_height) height = wnd->min_height;
-
-                        SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                        if (height > wnd->min_height)
+                        {
+                            SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                        }
+                        else
+                        {
+                            height = wnd->min_height;
+                            int32_t top = window_rect.bottom - height;
+                            SetWindowPos(hwnd, NULL, window_rect.left, top, width, height, SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_nwse_bottom:
@@ -2363,9 +2377,31 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = window_rect.right - window_rect.left - x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top - y_mouse;
-                        if (width < wnd->min_width) width = wnd->min_width;
-                        if (height < wnd->min_height) height = wnd->min_height;
-                        SetWindowPos(hwnd, NULL, scr_mouse.x, scr_mouse.y, width, height, SWP_NOZORDER);
+                        
+                        if (height > wnd->min_height && width > wnd->min_width)
+                        {
+                            SetWindowPos(hwnd, NULL, scr_mouse.x, scr_mouse.y, width, height, SWP_NOZORDER);
+                        }
+                        else if (height <= wnd->min_height && width > wnd->min_width)
+                        {
+                            height = wnd->min_height;
+                            int32_t top = window_rect.bottom - height;
+                            SetWindowPos(hwnd, NULL, scr_mouse.x, top, width, height, SWP_NOZORDER);
+                        }
+                        else if (height > wnd->min_height && width <= wnd->min_width)
+                        {
+                            width = wnd->min_width;
+                            int32_t left = window_rect.right - width;
+                            SetWindowPos(hwnd, NULL, left, scr_mouse.y, width, height, SWP_NOZORDER);
+                        }
+                        else if (height <= wnd->min_height && width <= wnd->min_width)
+                        {
+                            height = wnd->min_height;
+                            int32_t top = window_rect.bottom - height;
+                            width = wnd->min_width;
+                            int32_t left = window_rect.right - width;
+                            SetWindowPos(hwnd, NULL, left, top, width, height, SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_nesw_bottom:
@@ -2375,9 +2411,18 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = window_rect.right - window_rect.left - x_mouse;
                         int32_t height = y_mouse;
-                        if (width < wnd->min_width) width = wnd->min_width;
+
                         if (height < wnd->min_height) height = wnd->min_height;
-                        SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                        if (width > wnd->min_width)
+                        {
+                            SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                        }
+                        else
+                        {
+                            width = wnd->min_width;
+                            int32_t left = window_rect.right - width;
+                            SetWindowPos(hwnd, NULL, left, window_rect.top, width, height, SWP_NOZORDER);
+                        }
                     }
                     break;
                 }
