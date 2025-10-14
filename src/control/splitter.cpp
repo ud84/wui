@@ -24,7 +24,7 @@ namespace wui
     margin_min(-1), margin_max(-1),
     tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+     position_{ 0 },
     parent_(),
     my_control_sid(), my_plain_sid(),
     showed_(true), enabled_(true), active(false), topmost_(false),
@@ -43,7 +43,7 @@ splitter::~splitter()
 
 void splitter::draw(graphic& gr, rect)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }

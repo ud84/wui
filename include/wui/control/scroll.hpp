@@ -25,9 +25,20 @@ namespace wui
 
 enum class scroll_state
 {
+    activated,
+    relaxed,
+
     up_end,
     down_end,
+
     moving
+};
+
+enum class scroll_view
+{
+    none,
+    tiny,
+    full
 };
 
 class scroll : public i_control, public std::enable_shared_from_this<scroll>
@@ -81,6 +92,8 @@ public:
     void receive_control_events(const event& ev);
     void receive_plain_events(const event& ev);
 
+    scroll_view get_scroll_view() const;
+
 public:
     /// Control name in theme
     static constexpr const char *tc = "scroll";
@@ -124,12 +137,7 @@ private:
 
     int32_t progress;
 
-    enum class scrollbar_state
-    {
-        tiny,
-        full
-    };
-    scrollbar_state scrollbar_state_;
+    scroll_view scroll_view_;
 
     bool slider_scrolling;
     int32_t slider_click_pos;

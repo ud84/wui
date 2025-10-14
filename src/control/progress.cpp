@@ -25,7 +25,7 @@ namespace wui
 progress::progress(int32_t from_, int32_t to_, int32_t value_, orientation orientation__, std::string_view theme_control_name, std::shared_ptr<i_theme> theme__)
     : tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     showed_(true), topmost_(false),
     from(from_),
@@ -44,9 +44,9 @@ progress::~progress()
     }
 }
 
-void progress::draw(graphic &gr, rect )
+void progress::draw(graphic &gr, rect)
 {
-    if (!showed_)
+    if (!showed_ || position_.is_null())
     {
         return;
     }

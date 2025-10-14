@@ -153,6 +153,8 @@ private:
     bool cursor_visible;
     bool selecting;
 
+    std::unique_ptr<graphic> mem_gr;
+
     // Cache for maximum line width to avoid expensive recalculations
     int cached_max_width_ = -1;
     bool max_width_dirty_ = true;
@@ -205,6 +207,8 @@ private:
 
     // Get font
     font get_font();
+
+    bool update_mem_gr();
 };
 
 }

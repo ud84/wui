@@ -147,7 +147,9 @@ private:
 
     list_mode mode;
 
-    std::atomic<int32_t> item_count, selected_item_, active_item_;
+    int32_t item_count, selected_item_, active_item_;
+
+    std::unique_ptr<graphic> mem_gr;
 
     int32_t title_height;
 
@@ -182,6 +184,8 @@ private:
     void update_active_item(int32_t y);
 
     void update_scroll_area();
+
+    bool update_mem_gr();
 };
 
 }

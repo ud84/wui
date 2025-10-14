@@ -62,7 +62,6 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
     std::shared_ptr<wui::input> input;
     std::shared_ptr<wui::message> messageBox;
     std::shared_ptr<wui::window> dialog;
-    std::weak_ptr<wui::button> creationButton;
 
     bool plugged;
 
@@ -89,18 +88,13 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         plugged = !plugged;
     }
 
-    void SetCreationButton(std::shared_ptr<wui::button> &creationButton_)
-    {
-        creationButton = creationButton_;
-    }
-
     void Init()
     {
         window->init("Child window plugged!", { 0 }, 
             static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::pinned) | static_cast<uint32_t>(wui::window_style::border_right)),
             [this]() {
-            if (creationButton.lock())
-                creationButton.lock()->enable();
+                if (parentWindow.lock())
+                    parentWindow.lock()->emit_event(5555, 0);
             plugged = false;
         });
     }
@@ -153,14 +147,13 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
             dialog->add_control(select1, { 10, 130, 200, 155 });
 
-            dialog->set_transient_for(window, false);
+            dialog->set_transient_for(window);
             
             dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, []() {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         input(std::make_shared<wui::input>("", wui::input_view::multiline)),
         messageBox(std::make_shared<wui::message>(parentWindow_, true)),
         dialog(std::make_shared<wui::window>()),
-        creationButton(),
         plugged(false),
         splitterPos(50)
     {
@@ -437,11 +430,9 @@ int main(int argc, char *argv[])
     createPluggedButton->set_callback([&window, &pluggedWindow, &createPluggedButton]() {
         pluggedWindow.reset();
         pluggedWindow = std::make_shared<PluggedWindow>(window);
-        pluggedWindow->SetCreationButton(createPluggedButton);
         createPluggedButton->disable(); });
     createPluggedButton->disable();
-    pluggedWindow->SetCreationButton(createPluggedButton);
-
+    
     window->add_control(createPluggedButton, { 320, 50, 340, 75 });
 
     //auto text0 = std::make_shared<wui::text>("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
@@ -483,13 +474,7 @@ int main(int argc, char *argv[])
     });
     t.detach();*/
 
-    auto memo = std::make_shared<wui::input>("Многострочный редактор\n\n"
-        "Мы вынуждены отталкиваться от того, что дальнейшее развитие различных \n"
-        "форм деятельности выявляет срочную потребность вывода текущих активов.\n"
-        "Сложно сказать, почему элементы политического процесса набирают популярность\n"
-        "среди определенных слоев населения, а значит, должны быть объединены в целые кластеры себе подобных.\n\n"
-        "Но акционеры крупнейших компаний лишь добавляют фракционных разногласий и заблокированы в рамках\n"
-        "своих собственных рациональных ограничений.", wui::input_view::multiline);
+    auto memo = std::make_shared<wui::input>("", wui::input_view::multiline);
     memo->set_symbols_limit(-1);
     window->add_control(memo, { 320, 400, 890, 500 });
 
@@ -644,8 +629,11 @@ int main(int argc, char *argv[])
             if (pluggedWindow->plugged)
             {
                 auto pos = pluggedWindow->window->position();
-                pluggedWindow->window->set_position({ 0, 30, pos.width(), h });
-                vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h });
+                if (pos.height() != h)
+                {
+                    pluggedWindow->window->set_position({ 0, 30, pos.width(), h });
+                    vertSplitter->set_position({ pos.width(), 30, pos.width() + 5, h });
+                }
             }
 
             vertSplitter->set_margins(130, w - 100);
@@ -658,9 +646,14 @@ int main(int argc, char *argv[])
             okButton->set_position({ w - 250, h - 55, w - 150, h - 20 });
             cancelButton->set_position({ w - 120, h - 55, w - 20, h - 20 });
         }
-        if (e.internal_event_.type == wui::internal_event_type::window_created)
+        else if (e.internal_event_.type == wui::internal_event_type::window_created)
         {
             wui::init_text_measurer(window->get_graphic());
+        }
+        else if (e.internal_event_.type == wui::internal_event_type::user_emitted)
+        {
+            if (e.internal_event_.x == 5555)
+                createPluggedButton->enable();
         }
     }, wui::event_type::internal);
 
@@ -696,6 +689,14 @@ int main(int argc, char *argv[])
         });
 
     window->enable_device_change_handling(true);
+
+    memo->set_text("Многострочный редактор\n\n"
+        "Мы вынуждены отталкиваться от того, что дальнейшее развитие различных \n"
+        "форм деятельности выявляет срочную потребность вывода текущих активов.\n"
+        "Сложно сказать, почему элементы политического процесса набирают популярность\n"
+        "среди определенных слоев населения, а значит, должны быть объединены в целые кластеры себе подобных.\n\n"
+        "Но акционеры крупнейших компаний лишь добавляют фракционных разногласий и заблокированы в рамках\n"
+        "своих собственных рациональных ограничений.");
 
     wui::framework::run();
 

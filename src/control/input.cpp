@@ -46,7 +46,7 @@ input::input(std::string_view text__, input_view input_view__, input_content inp
     change_callback(),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     my_control_sid(), my_plain_sid(),
     timer_(std::bind(&input::redraw_cursor, this)),
@@ -58,6 +58,7 @@ input::input(std::string_view text__, input_view input_view__, input_content inp
     active(false), focused_(false),
     cursor_visible(false),
     selecting(false),
+    mem_gr(),
     auto_scroll_timer_(std::make_shared<timer>([this]() { on_auto_scroll(); }))
 {
     update_lines(text__);
@@ -179,9 +180,26 @@ font input::get_font()
     return font_;
 }
 
-void input::draw(graphic &gr, rect )
+bool input::update_mem_gr()
 {
-    if (!showed_ || position_.width() == 0 || position_.height() == 0 || position_.width() <= INPUT_HORIZONTAL_INDENT * 2)
+    if (!mem_gr) return false;
+
+    auto width = position_.width(), height = position_.height();
+
+    auto current = mem_gr->max_size();
+
+    if (current.width() < width || current.height() < height)
+    {
+        mem_gr->release();
+        mem_gr->init({ 0, 0, width, height }, theme_color(tcn, tv_background, theme_));
+    }
+
+    return true;
+}
+
+void input::draw(graphic &gr, rect)
+{
+    if (!showed_ || position_.is_null())
     {
         return;
     }
@@ -196,13 +214,10 @@ void input::draw(graphic &gr, rect )
     auto content_width = control_pos.width() - (input_view_ == input_view::multiline ? SCROLL_SIZE : 0);
     auto content_height = control_pos.height() - (input_view_ == input_view::multiline ? SCROLL_SIZE : 0);
 
-    auto parent__ = parent_.lock(); if (!parent__) return;
-    system_context ctx = parent__->context();
-    graphic mem_gr(ctx);
-    mem_gr.init({ 0, 0,
-        position_.width(),
-        position_.height() },
-        theme_color(tcn, tv_background, theme_));
+    bool ok = update_mem_gr();
+    if (!ok) return;
+
+    mem_gr->clear();
 
     if (line_height > 0)
     {
@@ -250,18 +265,18 @@ void input::draw(graphic &gr, rect )
             {
                 size_t start_byte = get_byte_pos_for_char_pos(lines_[i], sel_start);
                 size_t end_byte = get_byte_pos_for_char_pos(lines_[i], sel_end);
-                int x1 = measure_text(lines_[i].substr(0, start_byte), font_, &mem_gr).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
-                int x2 = measure_text(lines_[i].substr(0, end_byte), font_, &mem_gr).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
-                mem_gr.draw_rect({ x1, actual_y, x2, actual_y + line_height }, theme_color(tcn, tv_selection, theme_));
+                int x1 = measure_text(lines_[i].substr(0, start_byte), font_, mem_gr.get()).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
+                int x2 = measure_text(lines_[i].substr(0, end_byte), font_, mem_gr.get()).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
+                mem_gr->draw_rect({ x1, actual_y, x2, actual_y + line_height }, theme_color(tcn, tv_selection, theme_));
             }
             if (input_view_ != input_view::password)
             {
-                mem_gr.draw_text({ INPUT_HORIZONTAL_INDENT - scroll_offset_x, actual_y }, lines_[i], theme_color(tcn, tv_text, theme_), font_);
+                mem_gr->draw_text({ INPUT_HORIZONTAL_INDENT - scroll_offset_x, actual_y }, lines_[i], theme_color(tcn, tv_text, theme_), font_);
             }
             else
             {
                 std::string str; str.resize(lines_[i].size(), '*');
-                mem_gr.draw_text({ INPUT_HORIZONTAL_INDENT - scroll_offset_x, actual_y }, str, theme_color(tcn, tv_text, theme_), font_);
+                mem_gr->draw_text({ INPUT_HORIZONTAL_INDENT - scroll_offset_x, actual_y }, str, theme_color(tcn, tv_text, theme_), font_);
             }
             
             // Cursor
@@ -270,16 +285,15 @@ void input::draw(graphic &gr, rect )
                 size_t max_col = utf8::distance(lines_[i].begin(), lines_[i].end());
                 size_t safe_cursor_col = std::min(cursor_col, max_col);
                 size_t cursor_byte = get_byte_pos_for_char_pos(lines_[i], safe_cursor_col);
-                int cursor_x = measure_text(lines_[i].substr(0, cursor_byte), font_, &mem_gr).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
-                mem_gr.draw_line({ cursor_x, actual_y, cursor_x, actual_y + line_height }, theme_color(tcn, tv_cursor, theme_));
+                int cursor_x = measure_text(lines_[i].substr(0, cursor_byte), font_, mem_gr.get()).right - scroll_offset_x + INPUT_HORIZONTAL_INDENT;
+                mem_gr->draw_line({ cursor_x, actual_y, cursor_x, actual_y + line_height }, theme_color(tcn, tv_cursor, theme_));
             }
         }
         // Copying the offscreen buffer to the parent context
         gr.draw_graphic({ control_pos.left,
             control_pos.top,
-            control_pos.left + content_width,
-            control_pos.top + content_height },
-            mem_gr, 0, 0);
+            control_pos.width(),
+            control_pos.height() }, *mem_gr, 0, 0);
         
         // Rendering scrollbars
         if (input_view_ == input_view::multiline)
@@ -895,6 +909,15 @@ void input::set_parent(std::shared_ptr<window> window_)
         window_->add_control(vert_scroll, { 0 });
         window_->add_control(hor_scroll, { 0 });
     }
+
+    /// Create memory dc for inner content
+    if (mem_gr) mem_gr.reset();
+    system_context ctx = { 0 };
+    auto parent__ = parent_.lock();
+    if (parent__)
+    {
+        mem_gr = std::make_unique<graphic>(parent__->context());
+    }
 }
 
 std::weak_ptr<window> input::parent() const
@@ -917,6 +940,8 @@ void input::clear_parent()
         parent__->unsubscribe(my_plain_sid);
     }
     parent_.reset();
+
+    mem_gr.reset();
 }
 
 void input::set_topmost(bool yes)
@@ -953,6 +978,10 @@ void input::update_theme_control_name(std::string_view theme_control_name)
 void input::update_theme(std::shared_ptr<i_theme> theme__)
 {
     theme_ = theme__;
+    if (mem_gr)
+    {
+        mem_gr->set_background_color(theme_color(tcn, tv_background, theme__));
+    }
 }
 
 void input::show()
@@ -1352,14 +1381,14 @@ void input::update_scroll_visibility() {
 
     int line_height = font_.size;
     int total_height = static_cast<int>(lines_.size()) * line_height;
-    int content_height = control_pos.height() - border_width * 2 - SCROLL_SIZE;
+    int content_height = control_pos.height() - border_width * 2;
 
     // Calculating the maximum row width (using cache)
     int max_width = get_max_line_width();
-    int content_width = control_pos.width() - border_width * 2 - SCROLL_SIZE;
+    int content_width = control_pos.width() - border_width * 2;
 
     // Showing/hiding the vertical scroll
-    bool need_vert_scroll = total_height > content_height;
+    bool need_vert_scroll = total_height > content_height && lines_.size() > 1;
     if (need_vert_scroll != vert_scroll->showed()) {
         if (need_vert_scroll) {
             vert_scroll->show();

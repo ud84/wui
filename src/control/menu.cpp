@@ -76,7 +76,7 @@ menu::menu(std::string_view theme_control_name, std::shared_ptr<i_theme> theme__
     list_(std::make_shared<list>(list::tc, list_theme)),
     tcn(theme_control_name),
     theme_(theme__),
-    position_(),
+    position_{ 0 },
     parent_(),
     my_subscriber_id(),
     activation_control(),
@@ -106,7 +106,7 @@ menu::~menu()
     }
 }
 
-void menu::draw(graphic &gr, rect )
+void menu::draw(graphic &, rect )
 {
 }
 
