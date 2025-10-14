@@ -2297,9 +2297,17 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = window_rect.right - window_rect.left - x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top;
-                        if (width < wnd->min_width) width = wnd->min_width;
-
-                        SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                        
+                        if (width > wnd->min_width)
+                        {
+                            SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                        }
+                        else
+                        {
+                            width = wnd->min_width;
+                            int32_t left = window_rect.right - width;
+                            SetWindowPos(hwnd, NULL, left, window_rect.top, width, height, SWP_NOZORDER);
+                        }
                     }
                     break;
                     case moving_mode::size_we_right:
