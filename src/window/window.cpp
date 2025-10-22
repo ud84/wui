@@ -1709,14 +1709,19 @@ bool window::init(std::string_view caption_, rect position__, window_style style
         }
         else
         {
-            auto transient_window_pos = transient_window_->position();
+            auto tw = transient_window_;
+            while (tw && !tw->is_physical_window())
+            {
+                tw = tw->parent().lock();
+            }
+            auto tw_pos = tw->position();
 
             int32_t left = 0, top = 0;
 
-            if (transient_window_pos.width() > 0 && transient_window_pos.height() > 0)
+            if (tw_pos.width() > 0 && tw_pos.height() > 0)
             {
-                left = transient_window_pos.left + ((transient_window_pos.width() - position_.width()) / 2);
-                top = transient_window_pos.top + ((transient_window_pos.height() - position_.height()) / 2);
+                left = tw_pos.left + ((tw_pos.width() - position_.width()) / 2);
+                top = tw_pos.top + ((tw_pos.height() - position_.height()) / 2);
             }
             else
             {
@@ -2161,6 +2166,8 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(reinterpret_cast<CREATESTRUCT*>(l_param)->lpCreateParams));
 
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+            wnd->context_.hwnd = hwnd;
 
             wnd->graphic_.init(get_screen_size(wnd->context_), theme_color(wnd->tcn, tv_background, wnd->theme_));
 
