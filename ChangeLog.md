@@ -1,3 +1,7 @@
+# Unreleased
+1. Fix the window context is missing in the window_created event on Windows (TSKW24-8)
+2. Fixed positioning the transient windows (TSKW24-8)
+
 # 1.3.251014
 1. TSKW24-6.1:
 - Input and list now use preallocated mem_gr.
