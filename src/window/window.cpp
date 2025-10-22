@@ -2162,6 +2162,8 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
             window* wnd = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
+            wnd->context_.hwnd = hwnd;
+
             wnd->graphic_.init(get_screen_size(wnd->context_), theme_color(wnd->tcn, tv_background, wnd->theme_));
 
             wnd->send_internal(internal_event_type::window_created, 0, 0);
