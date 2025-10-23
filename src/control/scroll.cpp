@@ -510,10 +510,13 @@ void scroll::scroll_up()
         scroll_pos = 0;
     }
 
-    if (callback)
+    if (callback && prev_scroll_pos != scroll_pos)
     {
-        callback(scroll_pos == 0 ? scroll_state::up_end : scroll_state::moving, static_cast<int32_t>(scroll_pos));
+        callback(scroll_pos == 0 ? scroll_state::up_end : scroll_state::moving,
+            static_cast<int32_t>(scroll_pos));
     }
+
+    prev_scroll_pos = scroll_pos;
 }
 
 void scroll::scroll_down()
@@ -530,16 +533,13 @@ void scroll::scroll_down()
     {
         scroll_pos += scroll_interval * 10;
         
-        if (scroll_pos > area)
-        {
-            scroll_pos = area;
-        }
+        if (scroll_pos > area) scroll_pos = area;
     }
 
-    if (callback)
+    if (callback && prev_scroll_pos != scroll_pos)
     {
-        callback((area - scroll_pos <= end && prev_scroll_pos != scroll_pos) ? 
-            scroll_state::down_end : scroll_state::moving, static_cast<int32_t>(scroll_pos));
+        callback(scroll_pos == area ? scroll_state::down_end : scroll_state::moving,
+            static_cast<int32_t>(scroll_pos));
     }
     
     prev_scroll_pos = scroll_pos;
