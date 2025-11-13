@@ -11,8 +11,7 @@
 
 #ifdef _WIN32
 #pragma warning(suppress: 4091)
-#include <Shlobj.h>
-#include <atlbase.h>
+#include <shobjidl.h>
 #endif
 
 namespace wui
@@ -21,23 +20,47 @@ namespace wui
 #ifdef _WIN32
 void hide_taskbar_icon(system_context &ctx)
 {
-    CComPtr<ITaskbarList> pBuilder;
-    HRESULT hr = pBuilder.CoCreateInstance(CLSID_TaskbarList);
-    if (SUCCEEDED(hr))
+    ITaskbarList* pTaskbar = nullptr;
+
+    HRESULT hr = CoCreateInstance(
+        CLSID_TaskbarList,
+        nullptr,
+        CLSCTX_INPROC_SERVER,
+        IID_ITaskbarList,
+        reinterpret_cast<void**>(&pTaskbar)
+    );
+
+    if (SUCCEEDED(hr) && pTaskbar)
     {
-        pBuilder->HrInit();
-        pBuilder->DeleteTab(ctx.hwnd);
+        hr = pTaskbar->HrInit();
+        if (SUCCEEDED(hr))
+        {
+            pTaskbar->DeleteTab(ctx.hwnd);
+        }
+        pTaskbar->Release();
     }
 }
 
 void show_taskbar_icon(system_context &ctx)
 {
-    CComPtr<ITaskbarList> pBuilder;
-    HRESULT hr = pBuilder.CoCreateInstance(CLSID_TaskbarList);
-    if (SUCCEEDED(hr))
+    ITaskbarList* pTaskbar = nullptr;
+
+    HRESULT hr = CoCreateInstance(
+        CLSID_TaskbarList,
+        nullptr,
+        CLSCTX_INPROC_SERVER,
+        IID_ITaskbarList,
+        reinterpret_cast<void**>(&pTaskbar)
+    );
+
+    if (SUCCEEDED(hr) && pTaskbar)
     {
-        pBuilder->HrInit();
-        pBuilder->AddTab(ctx.hwnd);
+        hr = pTaskbar->HrInit();
+        if (SUCCEEDED(hr))
+        {
+            pTaskbar->AddTab(ctx.hwnd);
+        }
+        pTaskbar->Release();
     }
 }
 

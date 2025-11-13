@@ -17,7 +17,7 @@ namespace about
 
 static constexpr const char * name = "libWUI";
 static constexpr const char * full_name = "Window User Interface Library";
-static constexpr const char * version = "1.3.251014";
+static constexpr const char * version = "1.3.251113";
 static constexpr const char * web = "https://libwui.org";
 static constexpr const char * authors = "IVS LLC, Anton Golovkov";
 static constexpr const char * official_repo = "https://gitverse.ru/udattsk/wui";
