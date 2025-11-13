@@ -796,7 +796,7 @@ void input::receive_control_events(const event &ev)
 
                 if (input_view_ == input_view::readonly ||
                     ev.keyboard_event_.key[0] == vk_tab ||
-                    text().size() >= symbols_limit)
+                    static_cast<int32_t>(text().size()) >= symbols_limit)
                 {
                     return;
                 }
