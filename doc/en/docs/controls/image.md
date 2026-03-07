@@ -1,44 +1,136 @@
 # Image
 
-image is needed to display icons in a uniform way, taking into account the visual theme. For example button uses image to draw icons on itself. image draws itself from a resource that matches the visual theme. 
+The `image` control displays images with support for visual themes.
 
-An example of using image:
-Create in the constructor of the class containing image
+## Quick Start
 
-    logoImage(new wui::image(IMG_LOGO))...
+```cpp
+#include <wui/control/image.hpp>
 
-IMG_LOGO is defined in the application's resourse.h as follows:
+// From file
+auto logo = std::make_shared<wui::image>("res/logo.png");
+window->add_control(logo, {10, 10, 100, 100});
 
-    #ifdef _WIN32
-    #define IMG_LOGO				  109
-    #else // _WIN32
-    static constexpr const char* IMG_LOGO = "logo.png";
-    #endif
+// From resource (Windows)
+#ifdef _WIN32
+auto icon = std::make_shared<wui::image>(IDI_LOGO);
+window->add_control(icon, {10, 10, 32, 32});
+#endif
 
-Thus, the image will be taken from an exe resource on Windows or from a file on other systems.
-The magic of changing the image when changing the theme is realized as follows. image has its own settings in theme:
+// From data
+std::vector<uint8_t> png_data = load_png_file("icon.png");
+auto img = std::make_shared<wui::image>(png_data);
+window->add_control(img, {50, 50, 64, 64});
+```
 
-## light.json:
+## API
 
-    {
-        "type": "image",
-        "resource": "IMAGES_LIGHT",
-        "path": "res/images/light"
-    }
+### Constructors
 
-## dark.json:
+```cpp
+// From resource (Windows)
+image(int32_t resource_index, std::shared_ptr<i_theme> theme_ = nullptr);
 
-    {
-        "type": "image",
-        "resource": "IMAGES_DARK",
-        "path": "res/images/dark"
-    }
+// From file
+image(std::string_view file_name, std::shared_ptr<i_theme> theme_ = nullptr);
 
-The path to the resource file is made up of the path specified in theme and the file name in image, which leads to automatic replacement of all application images when the theme is changed.
-On Windows it is worth mentioning how the rc file of the application is organized.
+// From data
+image(const std::vector<uint8_t> &data);
+```
 
-    IMG_LOGO IMAGES_DARK   "res\\images\\dark\\logo.png"
-    IMG_LOGO IMAGES_LIGHT  "res\\images\\light\\logo.png"
+### Methods
 
-Thus, replacing the IMAGES_DARK / IMAGES_LIGHT group causes a similar effect as with files, without having to change the resource ID.
+```cpp
+// Change image
+void change_image(int32_t resource_index);  // Windows
+void change_image(std::string_view file_name);
+void change_image(const std::vector<uint8_t> &data);
 
+// Size
+int32_t width() const;
+int32_t height() const;
+```
+
+## Working with Themes
+
+`image` automatically supports theme switching. Settings are stored in the theme:
+
+### light.json
+```json
+{
+  "type": "image",
+  "resource": "IMAGES_LIGHT",
+  "path": "res/images/light"
+}
+```
+
+### dark.json
+```json
+{
+  "type": "image",
+  "resource": "IMAGES_DARK",
+  "path": "res/images/dark"
+}
+```
+
+When the theme changes, images are automatically loaded from the corresponding directory or resource.
+
+## Examples
+
+### Application Logo
+
+```cpp
+// In window constructor
+logo_ = std::make_shared<wui::image>("res/logo.png");
+window->add_control(logo_, {10, 10, 128, 64});
+```
+
+### Icon from Resource (Windows)
+
+```cpp
+// resource.h
+#define IMG_LOGO  109
+#define IMG_SAVE  110
+
+// In rc file
+IMG_LOGO IMAGES_DARK   "res\\images\\dark\\logo.png"
+IMG_LOGO IMAGES_LIGHT  "res\\images\\light\\logo.png"
+
+// In code
+#ifdef _WIN32
+auto logo = std::make_shared<wui::image>(IMG_LOGO);
+#endif
+```
+
+### Dynamic Image Change
+
+```cpp
+auto status_icon = std::make_shared<wui::image>("res/online.png");
+window->add_control(status_icon, {10, 10, 16, 16});
+
+// When status changes
+if (is_online) {
+    status_icon->change_image("res/online.png");
+} else {
+    status_icon->change_image("res/offline.png");
+}
+```
+
+## Integration with Button
+
+Buttons use `image` internally to display icons:
+
+```cpp
+auto save_btn = std::make_shared<wui::button>(
+    "Save",
+    []() { save(); },
+    wui::button_view::image_right_text,
+    "res/save.png",
+    16
+);
+```
+
+## See Also
+
+- [Button](button.md) — uses image for icons
+- [Visual Themes](../base/theme.md)
