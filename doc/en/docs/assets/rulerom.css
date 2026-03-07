@@ -1,0 +1,431 @@
+/* Rule-ROM Federation — Sovereign Theme */
+/* Professional / Engineering Aesthetic */
+
+:root {
+    --rom-bg: #0a0a0f;
+    --rom-bg-secondary: #12121a;
+    --rom-bg-card: #1a1a25;
+    --rom-text: #e0e0e0;
+    --rom-text-muted: #8892a8;
+    --rom-accent: #00d9ff;
+    --rom-accent-dim: rgba(0, 217, 255, 0.1);
+    --rom-primary: #00d9ff;
+    --rom-primary-dim: rgba(0, 217, 255, 0.15);
+    --rom-warning: #ffb800;
+    --rom-danger: #ff4444;
+    --rom-border: #2a2a3a;
+    --rom-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+/* ================================
+   BASE OVERRIDES
+   ================================ */
+
+body {
+    background: linear-gradient(135deg, var(--rom-bg) 0%, #0f0f1a 50%, var(--rom-bg) 100%);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ================================
+   HERO UNIT
+   ================================ */
+
+.rom-hero {
+    background: linear-gradient(180deg, var(--rom-bg-secondary) 0%, var(--rom-bg) 100%);
+    border-bottom: 1px solid var(--rom-border);
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.rom-hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--rom-text);
+    margin-bottom: 0.5rem;
+}
+
+.rom-hero-subtitle {
+    font-size: 1rem;
+    color: var(--rom-text-muted);
+    letter-spacing: 0.05em;
+    font-weight: 400;
+}
+
+/* ================================
+   MISSION STATEMENT
+   ================================ */
+
+.rom-mission {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--rom-bg-card);
+    border: 1px solid var(--rom-border);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.rom-mission-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--rom-text);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.rom-mission-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--rom-text-muted);
+}
+
+/* ================================
+   ACTION BUTTONS
+   ================================ */
+
+.rom-btn-grid {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 2rem 0;
+}
+
+.rom-btn {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem 2.5rem;
+    background: var(--rom-bg-card);
+    color: var(--rom-text);
+    border: 1px solid var(--rom-border);
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 200px;
+}
+
+.rom-btn:hover {
+    border-color: var(--rom-primary);
+    background: var(--rom-primary-dim);
+    color: var(--rom-primary);
+    transform: translateY(-2px);
+}
+
+.rom-btn-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.rom-btn-label {
+    font-size: 0.7rem;
+    font-weight: 400;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+    font-family: var(--rom-mono);
+    letter-spacing: 0;
+}
+
+.rom-btn-primary {
+    border-color: var(--rom-primary);
+    background: var(--rom-primary-dim);
+    color: var(--rom-primary);
+}
+
+.rom-btn-primary:hover {
+    background: rgba(0, 217, 255, 0.2);
+}
+
+/* ================================
+   DOMAIN CARDS
+   ================================ */
+
+.rom-domains {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.rom-domain-item {
+    background: var(--rom-bg-card);
+    border: 1px solid var(--rom-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.rom-domain-item:hover {
+    border-color: var(--rom-primary);
+}
+
+.rom-domain-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.rom-domain-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--rom-text);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.rom-domain-desc {
+    font-size: 0.9rem;
+    color: var(--rom-text-muted);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.rom-domain-link {
+    display: inline-block;
+    color: var(--rom-primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    font-family: var(--rom-mono);
+}
+
+.rom-domain-link:hover {
+    text-decoration: underline;
+}
+
+/* ================================
+   INFRASTRUCTURE SECTION
+   ================================ */
+
+.rom-infra {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rom-border);
+}
+
+.rom-infra-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--rom-text);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* ================================
+   CONTACT SECTION
+   ================================ */
+
+.rom-contact {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: var(--rom-bg-card);
+    border: 1px solid var(--rom-border);
+    border-radius: 8px;
+}
+
+.rom-contact-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--rom-text);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.rom-contact-grid {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.rom-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--rom-bg-secondary);
+    border: 1px solid var(--rom-border);
+    border-radius: 6px;
+}
+
+.rom-contact-item a {
+    color: var(--rom-text);
+    text-decoration: none;
+    font-family: var(--rom-mono);
+    font-size: 0.9rem;
+}
+
+.rom-contact-item a:hover {
+    color: var(--rom-primary);
+}
+
+.rom-contact-icon {
+    font-size: 1.1rem;
+}
+
+/* ================================
+   FOOTER
+   ================================ */
+
+.rom-footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rom-border);
+    text-align: center;
+    color: var(--rom-text-muted);
+    font-size: 0.85rem;
+}
+
+.rom-footer-tagline {
+    font-size: 0.9rem;
+    color: var(--rom-text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.rom-footer a {
+    color: var(--rom-primary);
+    text-decoration: none;
+}
+
+.rom-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Language Switcher */
+.rom-lang-switcher {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+.rom-lang-btn {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    background: var(--rom-bg-card);
+    border: 1px solid var(--rom-border);
+    border-radius: 6px;
+    color: var(--rom-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.rom-lang-btn:hover {
+    border-color: var(--rom-primary);
+    background: var(--rom-primary-dim);
+    color: var(--rom-primary);
+    transform: translateY(-1px);
+}
+
+/* ================================
+   CODE BLOCKS OVERRIDE
+   ================================ */
+
+code, pre {
+    font-family: var(--rom-mono) !important;
+}
+
+/* ================================
+   MATERIAL MKDOCS SPECIFIC OVERRIDES
+   ================================ */
+
+.md-main__inner {
+    margin-top: 2rem;
+}
+
+.md-content {
+    background: transparent;
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+    color: var(--rom-text);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.md-typeset h1 {
+    border-bottom: 1px solid var(--rom-border);
+    padding-bottom: 0.5rem;
+}
+
+.md-typeset code {
+    background: var(--rom-bg-secondary);
+    border: 1px solid var(--rom-border);
+    color: var(--rom-accent);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.md-typeset pre {
+    background: var(--rom-bg-secondary);
+    border: 1px solid var(--rom-border);
+    border-radius: 6px;
+}
+
+.md-typeset pre code {
+    border: none;
+    padding: 1rem;
+}
+
+/* Admonition overrides */
+.md-typeset .admonition,
+.md-typeset details {
+    background: var(--rom-bg-card);
+    border: 1px solid var(--rom-border);
+    border-radius: 6px;
+}
+
+.md-typeset .admonition.abstract,
+.md-typeset details.abstract {
+    border-color: var(--rom-primary);
+}
+
+.md-typeset .admonition.abstract > .admonition-title,
+.md-typeset details.abstract > summary {
+    background: var(--rom-primary-dim);
+    color: var(--rom-primary);
+}
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+
+@media (max-width: 768px) {
+    .rom-hero-title {
+        font-size: 1.5rem;
+    }
+
+    .rom-hero {
+        padding: 2rem 1rem;
+    }
+
+    .rom-btn {
+        padding: 1rem 1.5rem;
+        font-size: 0.9rem;
+        min-width: auto;
+        width: 100%;
+    }
+
+    .rom-domains {
+        grid-template-columns: 1fr;
+    }
+
+    .rom-contact-grid {
+        flex-direction: column;
+    }
+}
