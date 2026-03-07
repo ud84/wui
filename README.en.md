@@ -21,13 +21,60 @@ The project is based on three key entities:
 - **Control** — a visual interface element (buttons, input fields, etc.)
 - **Graphic** — an interface for rendering, abstracting platform-dependent drawing methods
 
+### Flat Control Ownership Model
+
+WUI uses a flat control ownership model: all window controls are owned by a single parent object (usually a dialog class), which stores them in `std::shared_ptr`. When the parent is destroyed, all controls are automatically released.
+
+```cpp
+class DialingDialog {
+    std::shared_ptr<wui::window> window;
+    std::shared_ptr<wui::text> text;
+    std::shared_ptr<wui::image> image;
+    std::shared_ptr<wui::button> cancelButton;
+};
+```
+
+This approach provides:
+- Simple memory management without manual deletion
+- Predictable control lifecycle
+- No circular references
+- Safety through `std::shared_ptr`/`std::weak_ptr`
+
+[More about flat control ownership](doc/en/docs/base/ownership.md)
+
+### Flat Event Subscription Model
+
+WUI implements a **"flat subscription"** model: the window acts as a central event dispatcher, and any object can subscribe to the events it needs.
+
+```cpp
+// Subscribe to keyboard and system events
+std::string sub_id = window->subscribe(
+    [this](const wui::event& ev) {
+        if (ev.type == wui::event_type::keyboard) {
+            // Hotkey logic
+        }
+    },
+    wui::event_type::keyboard | wui::event_type::system
+);
+
+// Unsubscribe by ID
+window->unsubscribe(sub_id);
+```
+
+Advantages:
+- **Decoupling from hierarchy** — no need to inherit from controls to handle events
+- **Flexibility** — any object can subscribe to events of any control
+- **Lifetime management** — dynamic subscribe/unsubscribe via unique ID
+- **Performance** — subscribers stored in `std::vector` for cache locality
+
+[More about events](doc/en/docs/base/event.md)
+
 ## Documentation and Resources
 
 - Documentation: [https://libwui.org/doc](https://libwui.org/doc)
 - Website: [https://libwui.org](https://libwui.org)
-- Reddit community: [https://www.reddit.com/r/wui/](https://www.reddit.com/r/wui/)
 - Telegram chat: [https://t.me/libwui_chat](https://t.me/libwui_chat)
-- Email: info@libwui.org
+- Email: [info@libwui.org](mailto:info@libwui.org)
 
 ## Examples
 
@@ -36,4 +83,6 @@ The project is based on three key entities:
 
 ## Maintainer
 
-Intent Garden Org
+The project is supported by the independent laboratory of deterministic synthesis [🌿 Intent-Garden](https://intent-garden.org).
+
+🌿 [Intent-Garden](https://intent-garden.org) | 📜 [RuleROM](https://rulerom.com) | 🐉 [Decima8](https://decima8.org) | 🎨 [libwui](https://libwui.org)

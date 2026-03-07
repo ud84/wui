@@ -1886,7 +1886,7 @@ bool window::init(std::string_view caption_, rect position__, window_style style
         XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
         XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
         XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE    |
-        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE };
+        XCB_EVENT_MASK_STRUCTURE_NOTIFY /* | XCB_EVENT_MASK_PROPERTY_CHANGE*/ };
 
     auto window_cookie = xcb_create_window(context_.connection,
                       XCB_COPY_FROM_PARENT,
