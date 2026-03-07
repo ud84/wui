@@ -1,6 +1,22 @@
-site_name: WUI
+site_name: libWUI official 🏛️
+site_url: https://libwui.org
 
-theme: material
+theme:
+  name: material
+  palette:
+    scheme: slate
+  features:
+    - navigation.tabs
+    - navigation.sections
+  custom_dir: ../overrides
+
+extra_css:
+  - assets/rulerom.css
+
+extra:
+  analytics:
+    provider: yandex
+    property: 95291159
 
 nav:
   - Home: 'index.md'

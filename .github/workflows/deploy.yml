@@ -1,0 +1,43 @@
+name: Deploy Website to Yandex Cloud
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install mkdocs and dependencies
+        run: |
+          pip install mkdocs mkdocs-material
+
+      - name: Build English version
+        run: |
+          cd doc/en
+          mkdocs build --clean --site-dir ../site/doc
+
+      - name: Build Russian version
+        run: |
+          cd doc/ru
+          mkdocs build --clean --site-dir ../site/doc_ru
+
+      - name: Sync to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --endpoint-url=https://storage.yandexcloud.net
+        env:
+          AWS_S3_BUCKET: ${{ secrets.YC_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'ru-central1'
+          SOURCE_DIR: 'site'
