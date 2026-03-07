@@ -24,12 +24,12 @@ jobs:
       - name: Build English version
         run: |
           cd doc/en
-          mkdocs build --clean --site-dir ../site/doc
+          mkdocs build --clean --site-dir ../../site/doc
 
       - name: Build Russian version
         run: |
           cd doc/ru
-          mkdocs build --clean --site-dir ../site/doc_ru
+          mkdocs build --clean --site-dir ../../site/doc_ru
 
       - name: Sync to S3
         uses: jakejarvis/s3-sync-action@master
