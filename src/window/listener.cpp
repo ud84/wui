@@ -99,6 +99,7 @@ system_context const &listener::context() const
 void listener::process_events()
 {
     xcb_generic_event_t *e = nullptr;
+    xcb_flush(context_.connection);
     while (started && (e = xcb_wait_for_event(context_.connection)))
     {
         xcb_window_t w = e->pad[2];
