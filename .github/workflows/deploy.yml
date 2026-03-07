@@ -1,4 +1,4 @@
-name: Deploy Website to Yandex Cloud
+name: Deploy Website to Yandex Cloud v0.1
 
 on:
   push:
