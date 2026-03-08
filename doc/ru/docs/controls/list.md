@@ -226,4 +226,4 @@ window->add_control(variable_list, {10, 10, 300, 400});
 ## См. также
 
 - [Select](select.md) — выпадающий список
-- [Scroll](scroll.md) — прокрутка
+- [Визуальные темы](../base/theme.md)

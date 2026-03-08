@@ -21,6 +21,7 @@ extra:
 nav:
   - Главная: 'index.md'
   - Руководства:
+    - 🌟 Пошаговое руководство: 'article/onboarding.md'
     - Установка: 'howto/setup.md'
     - Hello world: 'howto/hello-world.md'
   - Справочник:
@@ -28,11 +29,12 @@ nav:
     - Базовые интерейсы: 'base/interfaces.md'
     - События: 'base/event.md'
     - Графика: 'base/graphic.md'
-    
+
     - Визуальные темы: 'base/theme.md'
     - Локали: 'base/locale.md'
     - Конфиг: 'base/config.md'
-    
+    - Плоская модель владения: 'base/ownership.md'
+
     - Главный цикл приложения: 'base/main-loop.md'
     - Ресурсы: 'base/resources.md'
     - Многопоточнось: 'base/multi-threading.md'

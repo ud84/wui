@@ -71,4 +71,4 @@ void set_column_click_callback(std::function<void(int32_t)> cb);
 ## See Also
 
 - [Select](select.md) — dropdown list
-- [Scroll](scroll.md) — scrollbar
+- [Visual Themes](../base/theme.md)
