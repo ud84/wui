@@ -1,16 +1,16 @@
 ## Intro
 
-It started almost two years ago in December, our main project (video messenger) was using WTL for Windows and GTKmm for Linux. There was no mac support. It was a huge hassle to lug around two identical clients that are supposed to do everything strictly the same. Of course, this never worked out. The thought of making one more native client for mac gave me a nervous tic....
+Work began in December 2021. Our main project (video messenger) was using WTL for Windows and GTKmm for Linux. There was no mac support. It was a huge hassle to lug around two identical clients that are supposed to do everything strictly the same. Of course, this never worked out. The thought of making one more native client for mac gave us a nervous tic....
 
-On a reasonable question - why it was not done on Qt at once I can only answer that it is connected with, so to say, gourmet preferences and, partly, with love to monolithic exe. And I didn't need anything but vinda at the start.
+On a reasonable question - why it was not done on Qt at once we can only answer that it is connected with, so to say, gourmet preferences and, partly, with love to monolithic exe. And we didn't need anything but vinda at the start.
 
 During six years of living with two code bases of the same thing, we slowly picked up lightweight UI libraries written at least in C++17 style.
 
-I must say that we actively use boost and love it as much as we can with all our souls...
+We must say that we actively use boost and love it as much as we can with all our souls...
 
-In 2021, apparently Google was not working well or the stars were aligned, but nothing worthwhile was found. All I could find were html projects based on rendering and wrapping over wxWidgets. Now we know about lvgl, yes... But in general, there are thousands of them.
+In 2021, apparently Google was not working well or the stars were aligned, but nothing worthwhile was found. All we could find were html projects based on rendering and wrapping over wxWidgets. Now we know about lvgl, yes... But in general, there are thousands of them.
 
-wxWidgets is not bad, but I wanted my own drawing, without boxes for buttons, input fields and lists, boost/bsd similar license, as concise as possible, and ideally working from Windows XP / CentOS 6 on standard GDI / X11 to Vulkan on modern machines.
+wxWidgets is not bad, but we wanted our own drawing, without boxes for buttons, input fields and lists, boost/bsd similar license, as concise as possible, and ideally working from Windows XP / CentOS 6 on standard GDI / X11 to Vulkan on modern machines.
 
 In the end, it was decided to make a minimal UI framework for this project, and immediately release it in Open Source under the boost license.
 
