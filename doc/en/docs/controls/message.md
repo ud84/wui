@@ -71,3 +71,4 @@ message_result get_result() const;
 
 - [Button](button.md)
 - [Image](image.md)
+- [Visual Themes](../base/theme.md)

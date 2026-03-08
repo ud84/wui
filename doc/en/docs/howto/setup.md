@@ -14,7 +14,7 @@ WUI applications that use the WUI depend on the following system libraries
 	pthread
 
 ## Receive and build on Linux
-    git clone https://github.com/ud84/wui
+    git clone https://github.com/intent-garden/wui
     cd wui
     cmake CMakeLists.txt
     make
@@ -24,7 +24,7 @@ WUI applications that use the WUI depend on the following system libraries
     ./simple
 
 ## Receive and build on Windows
-    git clone https://github.com/ud84/wui
+    git clone https://github.com/intent-garden/wui
   
 To build and work, Visual Studio is recommended at least 2017, it is better to use the latest version.
 4 types of build types are supported:

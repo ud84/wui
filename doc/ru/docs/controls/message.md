@@ -201,4 +201,4 @@ if (msg->get_result() == wui::message_result::yes) {
 
 - [Кнопка](button.md)
 - [Изображение](image.md)
-- [Текст](text.md)
+- [Визуальные темы](../base/theme.md)

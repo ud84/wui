@@ -411,7 +411,7 @@ As a basis for any project using WUI, a minimal application is offered, which, h
 This application is located in examples/hello_world and includes all necessary resource files. On Windows the application is assembled into a monolithic exe, on Linux/Mac it stores resources in the "res/" folder next to the executable. For real applications it is better to specify the paths "~/.app_name/res" or, if the application is installed from root, something like "/opt/app_name/res" .
 Shows the use of theme, locale and config, in an application that has two color schemes (dark and light), two languages and stores its configuration in the registry on Windows and ini file on Linux.
 
-[main.cpp](https://github.com/ud84/wui/blob/main/examples/hello_world/hw.cpp)
+[main.cpp](https://github.com/intent-garden/wui/blob/main/examples/hello_world/hw.cpp)
 
 The demo application shows the logo, displays a caption and provides an input field. When the button is clicked, a message box is displayed and the application is closed. It also shows tracking of the user closing the window and displaying a confirmation message.
 ![Hellow world 1](../img/hw0.png)
@@ -419,8 +419,8 @@ The demo application shows the logo, displays a caption and provides an input fi
 In the following screenshot, the theme is changed to light, the language to Russian and the "Nice to meet you" button is pressed
 ![Hellow world 2](../img/hw1.png)
 
-[MainFrame.h](https://github.com/ud84/wui/blob/main/examples/hello_world/MainFrame/MainFrame.h)
-[MainFrame.cpp](https://github.com/ud84/wui/blob/main/examples/hello_world/MainFrame/MainFrame.cpp)
+[MainFrame.h](https://github.com/intent-garden/wui/blob/main/examples/hello_world/MainFrame/MainFrame.h)
+[MainFrame.cpp](https://github.com/intent-garden/wui/blob/main/examples/hello_world/MainFrame/MainFrame.cpp)
 
 The window and controls are created in the MainFrame constructor. The application subscribes to events and adds controls to the window. Controls' callbacks are handled with the help of lambdas for the sake of brevity. 
 

@@ -14,7 +14,7 @@
 	pthread
 
 ## Получение и сборка на Linux
-    git clone https://github.com/ud84/wui
+    git clone https://github.com/intent-garden/wui
     cd wui
     cmake CMakeLists.txt
     make
@@ -24,7 +24,7 @@
     ./simple
 
 ## Получение и сборка на Windows
-    git clone https://github.com/ud84/wui
+    git clone https://github.com/intent-garden/wui
   
 Для сборки и работы рекомендуется Visual Studio не ниже 2017, лучше использовать последнюю версию.
 Поддерживается 4 вида сборки:

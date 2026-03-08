@@ -31,11 +31,12 @@ nav:
     - Events: 'base/event.md'
     - Graphics: 'base/graphic.md'
     - Basic Interfaces: 'base/interfaces.md'
-    
+
     - Visual Themes: 'base/theme.md'
     - Locales: 'base/locale.md'
     - Config: 'base/config.md'
-    
+    - Flat Control Ownership: 'base/ownership.md'
+
     - Main application loop: 'base/main-loop.md'
     - Resources: 'base/resources.md'
     - Multi-threading: 'base/multi-threading.md'

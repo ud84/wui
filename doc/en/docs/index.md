@@ -2,11 +2,15 @@
 
 WUI is a minimalistic C++17 cross-platform library for creating desktop GUI applications.
 
-## Quick Start
+---
+
+## 🌟 Quick Start
 
 * [Get, build and setup](howto/setup.md)
 * [Hello world application](howto/hello-world.md)
-* [Onboarding](article/onboarding.md)
+* **[Step-by-step Guide (Onboarding)](article/onboarding.md)** — complete guide to creating an application with WUI
+
+---
 
 ## Handbook
 

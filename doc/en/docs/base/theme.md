@@ -6,7 +6,7 @@ The subsystem is designed to display application controls in a single view and e
 The subsystem provides handy helpers for working with themes. These helpers operate with a singleton that 
 all application controls use by default. The subsystem allows you to load a theme from json, which can be stored on disk or be a Windows application resource.
 
-Example [json file](https://github.com/ud84/wui/blob/main/res/dark.json) containing visual parameters of the main controllers.
+Example [json file](https://github.com/intent-garden/wui/blob/main/res/dark.json) containing visual parameters of the main controllers.
 
 Although the application always has a default theme, you can create your own custom theme and specify any control to use it. In this case, the control will be displayed according to your theme.
 
