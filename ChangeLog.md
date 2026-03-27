@@ -1,3 +1,7 @@
+# 1.3.260327
+1. Merged fixes by S.K.
+2. Fix input behavior
+
 # 1.3.260215
 1. Changed maintainer to Intent Garden. Code cleanup. Input fix. (I-74)
 
