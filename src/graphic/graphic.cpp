@@ -158,7 +158,7 @@ bool graphic::init(rect max_size__, color background_color_)
 void graphic::release()
 {
     pc.release();
-    
+
 #ifdef _WIN32
     DeleteObject(mem_bitmap);
     mem_bitmap = 0;
@@ -201,7 +201,7 @@ void graphic::clear(rect position)
         return;
     }
 
-    RECT filling_rect = !position.is_null() ? 
+    RECT filling_rect = !position.is_null() ?
         RECT{ position.left, position.top, position.right, position.bottom } :
         RECT{ 0, 0, max_size_.right, max_size_.bottom };
     FillRect(mem_dc, &filling_rect, pc.get_brush(background_color));
@@ -242,9 +242,9 @@ void graphic::flush(rect updated_size)
             updated_size.left,
             updated_size.top,
             SRCCOPY);
+        ReleaseDC(context_.hwnd, wnd_dc);
     }
 
-    ReleaseDC(context_.hwnd, wnd_dc);
 #elif __linux__
     if (context_.wnd)
     {
@@ -304,7 +304,7 @@ rect graphic::measure_text(std::string_view text_, const font &font__)
 
     RECT text_rect = { 0 };
     auto wide_str = boost::nowide::widen(text_);
-    DrawTextW(mem_dc, wide_str.c_str(), static_cast<int32_t>(wide_str.size()), &text_rect, DT_CALCRECT);
+    DrawTextW(mem_dc, wide_str.c_str(), static_cast<int32_t>(wide_str.size()), &text_rect, DT_NOPREFIX|DT_CALCRECT);
 
     SelectObject(mem_dc, old_font);
 
@@ -333,7 +333,7 @@ rect graphic::measure_text(std::string_view text_, const font &font__)
     s = '.' + std::string(text_) + '.';          // =)
     cairo_text_extents(cr, s.c_str(), &extents);
 
-    return { 0, 0, 
+    return { 0, 0,
         static_cast<int32_t>(ceil(extents.width - (dot_extents.width * 3))),
         static_cast<int32_t>(ceil(extents.height)) };
 #endif
@@ -343,7 +343,7 @@ void graphic::draw_text(rect position, std::string_view text_, color color_, con
 {
 #ifdef _WIN32
     auto old_font = (HFONT)SelectObject(mem_dc, pc.get_font(font__));
-    
+
     SetTextColor(mem_dc, color_);
     SetBkMode(mem_dc, TRANSPARENT);
 
@@ -375,10 +375,10 @@ void graphic::draw_text(rect position, std::string_view text_, color color_, con
         static_cast<double>(wui::get_blue(color_)) / 255);
 
     cairo_move_to(cr, position.left, (double)position.top + font__.size * 5 / 6);
-    
+
     std::string text__(text_); /// Workaround to prevent crashes
     text__ += '\0';
-    
+
     cairo_show_text(cr, text__.c_str());
 #endif
 }
@@ -512,7 +512,7 @@ void graphic::draw_rect(rect position, color border_color, color fill_color, uin
     {
         double radius = rnd;
         double degrees = M_PI / 180.0;
-        
+
         cairo_arc (cr, l + width - radius, t + radius, radius, -90 * degrees, 0 * degrees);
         cairo_arc (cr, l + width - radius, t + height - radius, radius, 0 * degrees, 90 * degrees);
         cairo_arc (cr, l + radius, t + height - radius, radius, 90 * degrees, 180 * degrees);
@@ -669,7 +669,7 @@ void graphic::draw_surface(cairo_surface_t &surface_, rect position__)
     {
         return;
     }
-    
+
     auto cr = cairo_create(surface);
 
     auto surface_width = cairo_image_surface_get_width(&surface_);

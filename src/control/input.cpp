@@ -64,7 +64,7 @@ input::input(std::string_view text__, input_view input_view__, input_content inp
 {
     update_lines(text__);
     reset_state();
-    
+
     menu_->set_items({
             { 0, menu_item_state::normal, locale(tc, cl_cut).data(), "Ctrl+X", nullptr, {}, [this](int32_t) { buffer_cut(); } },
             { 1, menu_item_state::normal, locale(tc, cl_copy).data(), "Ctrl+C", nullptr, {}, [this](int32_t) { buffer_copy(); } },
@@ -103,14 +103,14 @@ static size_t get_byte_pos_for_char_pos(const std::string& s, size_t char_pos)
     {
         return 0;
     }
-    
+
     auto it = s.begin();
     size_t actual_chars = utf8::distance(s.begin(), s.end());
     if (char_pos >= actual_chars)
     {
         return s.size(); // Returning the end of the string
     }
-    
+
     utf8::advance(it, char_pos, s.end());
     return std::distance(s.begin(), it);
 }
@@ -226,7 +226,7 @@ void input::draw(graphic &gr, rect)
                 std::string str; str.resize(lines_[i].size(), '*');
                 mem_gr->draw_text({ INPUT_HORIZONTAL_INDENT - scroll_offset_x, actual_y }, str, theme_color(tcn, tv_text, theme_), font_);
             }
-            
+
             // Cursor
             if (cursor_visible && i == cursor_row)
             {
@@ -242,7 +242,7 @@ void input::draw(graphic &gr, rect)
             control_pos.top,
             control_pos.width(),
             control_pos.height() }, *mem_gr, 0, 0);
-        
+
         // Rendering scrollbars
         if (input_view_ == input_view::multiline)
         {
@@ -264,7 +264,7 @@ void input::draw(graphic &gr, rect)
 
 bool is_number(std::string_view s)
 {
-    return s.find_first_not_of("-,.0123456789") != std::string::npos;
+    return s.find_first_not_of("-,.0123456789") == std::string::npos;
 }
 
 // Auxiliary function for multiline
@@ -280,30 +280,30 @@ std::pair<size_t, size_t> input::calculate_mouse_cursor_position(int x, int y)
 
     auto control_pos = position();
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
-        
+
     // We take into account scrolling and borders
     int rel_y = y - control_pos.top + border_width + scroll_offset_y;
-    
+
     // Protection against empty lines_
     if (lines_.empty()) {
         return {0, 0};
     }
-    
+
     size_t row = std::min((size_t)(rel_y / line_height), lines_.size() - 1);
-    
+
     int rel_x = x - control_pos.left + border_width - INPUT_HORIZONTAL_INDENT + scroll_offset_x;
-    
+
     // We use character positions to measure text
     size_t char_count = utf8::distance(lines_[row].begin(), lines_[row].end());
     size_t col = 0;
-    
+
     for (; col <= char_count; ++col)
     {
         size_t byte_pos = get_byte_pos_for_char_pos(lines_[row], col);
         int w = measure_text(lines_[row].substr(0, byte_pos), font_).right;
         if (w > rel_x) break;
     }
-    
+
     if (col > 0) {
         --col;
     }
@@ -323,6 +323,7 @@ void input::receive_control_events(const event &ev)
 
     // Scrollbar event handling for multiline
     if (input_view_ == input_view::multiline) {
+        // TODO: ev.type & event_type::mouse
         if (ev.type == event_type::mouse && (ev.mouse_event_.type == mouse_event_type::move || ev.mouse_event_.type == mouse_event_type::enter)) {
             auto parent__ = parent_.lock();
             if (parent__) {
@@ -400,7 +401,7 @@ void input::receive_control_events(const event &ev)
                         return;
                     }
 
-                    if (ev.mouse_event_.x > control_pos.right && cursor_row < lines_[cursor_row].size()) {
+                    if (ev.mouse_event_.x > control_pos.right && cursor_row < lines_.size()) {
                         start_auto_hscroll(false); // right
                         return;
                     }
@@ -558,9 +559,9 @@ void input::receive_control_events(const event &ev)
                         case vk_down:
                             if (shift) {
                                 size_t old_row = cursor_row, old_col = cursor_col;
-                                if (cursor_row + 1 < lines_.size()) { 
-                                    ++cursor_row; 
-                                    cursor_col = std::min(cursor_col, static_cast<size_t>(utf8::distance(lines_[cursor_row].begin(), lines_[cursor_row].end()))); 
+                                if (cursor_row + 1 < lines_.size()) {
+                                    ++cursor_row;
+                                    cursor_col = std::min(cursor_col, static_cast<size_t>(utf8::distance(lines_[cursor_row].begin(), lines_[cursor_row].end())));
                                 } else {
                                     // Если уже на последней строке, двигаем курсор в конец строки
                                     cursor_col = utf8::distance(lines_[cursor_row].begin(), lines_[cursor_row].end());
@@ -676,7 +677,7 @@ void input::receive_control_events(const event &ev)
                                 auto border_width = theme_dimension(tcn, tv_border_width, theme_);
                                 auto font_ = get_font();
                                 int line_height = font_.size;
-                                
+
                                 int content_height = position().height() - border_width * 2 - SCROLL_SIZE;
 
                                 int visible_lines = std::max(1, content_height / line_height);
@@ -749,14 +750,19 @@ void input::receive_control_events(const event &ev)
                 }
 
                 // Разрешить служебные клавиши (backspace, delete) независимо от input_content
-                if (ev.keyboard_event_.key[0] == vk_back || ev.keyboard_event_.key[0] == vk_del)
-                {
-                    // Эти клавиши обрабатываются в keyboard_event_type::down, пропускаем здесь
+                if (ev.keyboard_event_.key[0] == vk_back) {
+                    // TODO: сюда вероятно не заходим, судя по тестам
+
+                    // Эта клавиша обрабатываются в keyboard_event_type::down, пропускаем здесь
                     return;
                 }
 
+                // TODO:  win32 : 0x0E - 0x0F unassigned [Ctrl+n, etc]
+                //       linux?
+
+
                 if (input_content_ == input_content::integer &&
-                    !std::isdigit(ev.keyboard_event_.key[0]))
+                    !std::isdigit(static_cast<unsigned char>(ev.keyboard_event_.key[0])))
                 {
                     return;
                 }
@@ -767,12 +773,18 @@ void input::receive_control_events(const event &ev)
                     return;
                 }
 
+                if (input_content_ == input_content::hexadecimal &&
+                    !std::isxdigit(static_cast<unsigned char>(ev.keyboard_event_.key[0])))
+                {
+                    return;
+                }
+
                 if (clear_selected_text())
                 {
                     redraw();
                     if (change_callback) change_callback();
                 }
-                
+
                 if (symbols_limit != -1 && text().size() < (size_t)symbols_limit)
                 {
                     if (ev.keyboard_event_.key[0] == 13 || ev.keyboard_event_.key[0] == 10)
@@ -787,7 +799,7 @@ void input::receive_control_events(const event &ev)
                     scroll_to_cursor();
                     redraw();
                     if (change_callback) change_callback();
-                }    
+                }
             break;
         }
     }
@@ -992,6 +1004,11 @@ void input::set_input_view(input_view input_view__)
     reset_state();
 }
 
+input_view input::get_input_view() const
+{
+    return input_view_;
+}
+
 void input::set_input_content(input_content input_content__)
 {
     input_content_ = input_content__;
@@ -1096,11 +1113,11 @@ bool input::clear_selected_text()
         // The first line
         size_t start_byte = get_byte_pos_for_char_pos(lines_[srow], scol);
         lines_[srow].erase(start_byte);
-        
+
         // The last line
         size_t end_byte = get_byte_pos_for_char_pos(lines_[erow], ecol);
         lines_[erow].erase(0, end_byte);
-        
+
         // Combining the lines
         lines_[srow] += lines_[erow];
         lines_.erase(lines_.begin() + srow + 1, lines_.begin() + erow + 1);
@@ -1128,11 +1145,11 @@ void input::select_current_word(int x, int y) {
     auto [row, col] = calculate_mouse_cursor_position(x, y);
     cursor_row = row;
     cursor_col = col;
-    
+
     auto& line = lines_[row];
     select_start_row = select_end_row = row;
     select_start_col = select_end_col = col;
-    
+
     // We are looking for the beginning of a word (using character positions)
     while (select_start_col > 0) {
         auto prev_char_pos = select_start_col - 1;
@@ -1142,7 +1159,7 @@ void input::select_current_word(int x, int y) {
         }
         select_start_col = prev_char_pos;
     }
-    
+
     // Looking for the end of a word (using character positions)
     while (select_end_col < lines_[row].size()) {
         auto next_byte_pos = get_byte_pos_for_char_pos(line, select_end_col);
@@ -1151,7 +1168,7 @@ void input::select_current_word(int x, int y) {
         }
         select_end_col++;
     }
-    
+
     selecting = true;
     redraw();
     scroll_to_cursor();
@@ -1176,12 +1193,12 @@ void input::buffer_copy() {
         // The first line
         size_t start_byte = get_byte_pos_for_char_pos(lines_[srow], scol);
         oss << lines_[srow].substr(start_byte);
-        
+
         // Middle lines
         for (size_t i = srow + 1; i < erow; ++i) {
             oss << '\n' << lines_[i];
         }
-        
+
         // The last line
         if (erow > srow) {
             size_t end_byte = get_byte_pos_for_char_pos(lines_[erow], ecol);
@@ -1222,7 +1239,7 @@ void input::buffer_paste() {
     clear_selected_text();
 
     auto paste_string = clipboard_get_text(parent_.lock()->context());
-    
+
     // Splitting the inserted text into lines
     std::istringstream iss(paste_string);
     std::vector<std::string> paste_lines;
@@ -1236,7 +1253,7 @@ void input::buffer_paste() {
     size_t total_chars = 0;
     for (const auto& l : lines_) total_chars += utf8::distance(l.begin(), l.end());
     for (const auto& l : paste_lines) total_chars += utf8::distance(l.begin(), l.end());
-    
+
     if (symbols_limit != -1 && total_chars > (size_t)symbols_limit) {
         return; // We do not insert it if the limit is exceeded.
     }
@@ -1256,9 +1273,7 @@ void input::buffer_paste() {
         for (size_t i = 1; i < paste_lines.size() - 1; ++i) {
             new_lines.push_back(paste_lines[i]);
         }
-        if (paste_lines.size() > 1) {
-            new_lines.push_back(paste_lines.back() + tail);
-        }
+        new_lines.push_back(paste_lines.back() + tail);
         lines_.insert(lines_.begin() + cursor_row + 1, new_lines.begin(), new_lines.end());
         cursor_row += paste_lines.size() - 1;
         // Cursor at the end of the inserted block
@@ -1279,7 +1294,7 @@ void input::update_scroll_areas()
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
     auto font_ = get_font();
     int line_height = font_.size;
-        
+
     // Calculate the maximum line width (using cache)
     int max_width = get_max_line_width();
 
@@ -1291,11 +1306,11 @@ void input::update_scroll_areas()
     int total_height = static_cast<int>(lines_.size()) * line_height;
     int vert_area = std::max(0, total_height - content_height);
     vert_scroll->set_area(vert_area);
-    
+
     // Count the horizontal scrollbar
     int hor_area = std::max(0, max_width - content_width);
     hor_scroll->set_area(hor_area);
-        
+
     update_scroll_visibility();
 }
 
@@ -1357,19 +1372,19 @@ int input::get_max_line_width()
     if (!max_width_dirty_ && cached_max_width_ >= 0) {
         return cached_max_width_;
     }
-    
+
     auto font_ = get_font();
 
     int max_width = 0;
-    
+
     for (const auto& line : lines_) {
         auto text_width = get_text_width(line, line.size(), font_);
         max_width = std::max(max_width, text_width);
     }
-    
+
     cached_max_width_ = max_width + INPUT_HORIZONTAL_INDENT * 2;
     max_width_dirty_ = false;
-    
+
     return cached_max_width_;
 }
 
@@ -1509,12 +1524,12 @@ void input::scroll_to_cursor()
     }
 
     const auto& line = lines_[cursor_row];
-    
+
     auto control_pos = position();
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
     auto font_ = get_font();
     int line_height = font_.size;
-    
+
     // We take into account the place for scrollbars
     bool show_vert_scroll = vert_scroll->showed();
     bool show_hor_scroll = hor_scroll->showed();
@@ -1533,10 +1548,10 @@ void input::scroll_to_cursor()
     size_t max_col = line.empty() ? 0 : utf8::distance(line.begin(), line.end());
     size_t safe_cursor_col = std::min(cursor_col, max_col);
     size_t cursor_byte = line.empty() ? 0 : get_byte_pos_for_char_pos(line, safe_cursor_col);
-    
+
     cursor_x = measure_text(line.substr(0, cursor_byte), font_).right;
     int line_width = measure_text(line, font_).right;
-    
+
     if (safe_cursor_col == max_col)
     {
         int new_scroll = std::max(0, line_width + cursor_extra - content_width);
@@ -1553,7 +1568,7 @@ void input::scroll_to_cursor()
             hor_scroll->set_scroll_pos(cursor_x - content_width + cursor_extra);
         }
     }
-    
+
     // Checking if you need to scroll vertically.
     if (input_view_ == input_view::multiline)
     {

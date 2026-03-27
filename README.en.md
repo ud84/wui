@@ -83,7 +83,7 @@ WUI implements a **"flat subscription"** model: the window acts as a central eve
 // Subscribe to keyboard and system events
 std::string sub_id = window->subscribe(
     [this](const wui::event& ev) {
-        if (ev.type == wui::event_type::keyboard) {
+        if (ev.type & wui::event_type::keyboard) {
             // Hotkey logic
         }
     },

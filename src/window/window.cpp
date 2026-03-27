@@ -14,6 +14,7 @@
 #include <wui/locale/locale.hpp>
 
 #include <wui/control/button.hpp>
+#include <wui/control/input.hpp>
 
 #include <wui/common/flag_helpers.hpp>
 
@@ -35,6 +36,14 @@
 #include <dbt.h>
 
 #include <setupapi.h>
+
+#include <tchar.h>
+
+#if defined(_UNICODE)
+static constexpr auto stdstr_npos = std::wstring::npos;
+#else
+static constexpr auto stdstr_npos = std::string::npos;
+#endif
 
 #elif __linux__
 
@@ -92,7 +101,7 @@ void remove_window_decorations(wui::system_context &context)
     std::string mwh = "_MOTIF_WM_HINTS";
     xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(context.connection,
         xcb_intern_atom(context.connection, 0, mwh.size(), mwh.c_str()),
-        NULL);
+        nullptr);
     auto mwh_atom = reply->atom;
     free(reply);
 
@@ -120,7 +129,7 @@ void remove_window_decorations(wui::system_context &context)
 
 wui::rect get_window_size(wui::system_context &context)
 {
-    auto geom = xcb_get_geometry_reply(context.connection, xcb_get_geometry(context.connection, context.wnd), NULL);
+    auto geom = xcb_get_geometry_reply(context.connection, xcb_get_geometry(context.connection, context.wnd), nullptr);
     if (geom)
     {
         wui::rect out{ geom->x, geom->y, geom->x + geom->width, geom->y + geom->height };
@@ -233,7 +242,7 @@ void window::remove_control(std::shared_ptr<i_control> control)
     {
         docked_control.reset();
     }
-    
+
     auto clear_pos = control->position();
     control->clear_parent();
     clear_pos.widen(theme_dimension(tcn, tv_border_width, theme_));
@@ -274,7 +283,7 @@ void window::redraw(rect redraw_position, bool clear)
     {
         return;
     }
-    
+
     auto parent__ = parent_.lock();
     if (parent__)
     {
@@ -403,7 +412,7 @@ void window::draw(graphic &gr, rect paint_rect)
     }
 
     std::vector<std::shared_ptr<i_control>> topmost_controls;
-    
+
     for (auto &control : controls)
     {
         if (control->position().in(paint_rect))
@@ -574,7 +583,7 @@ void window::set_position(rect position__)
     position_ = { left, top, left + position___.width(), top + position___.height() };
 
     send_internal(internal_event_type::size_changed, position_.width(), position_.height());
-    
+
     if (old_position.width() != position_.width())
     {
         update_buttons();
@@ -605,7 +614,7 @@ void window::set_parent(std::shared_ptr<window> window)
             send_destroy_event();
         }
 #endif
-        
+
         my_control_sid = window->subscribe(std::bind(&window::receive_control_events, this, std::placeholders::_1), event_type::all, shared_from_this());
         my_plain_sid = window->subscribe(std::bind(&window::receive_plain_events, this, std::placeholders::_1), event_type::all);
 
@@ -955,7 +964,7 @@ void window::normal()
 #ifdef _WIN32
     SetWindowPos(context_.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
     SetWindowPos(context_.hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
-    
+
     ShowWindow(context_.hwnd, SW_RESTORE);
 #elif __linux__
     if (context_.connection)
@@ -963,7 +972,7 @@ void window::normal()
         change_style(net_wm_state, 0, net_wm_state_maximized_vert);
         change_style(net_wm_state, 0, net_wm_state_maximized_horz);
         change_style(net_wm_state, 0, net_wm_state_fullscreen);
-        
+
         /// Bring window to top
         change_style(net_wm_state, 1, net_wm_state_above);
         change_style(net_wm_state, 0, net_wm_state_above);
@@ -1009,7 +1018,7 @@ void window::normal()
 
     update_buttons();
 
-    send_internal(internal_event_type::window_normalized, position_.width(), position_.height()); 
+    send_internal(internal_event_type::window_normalized, position_.width(), position_.height());
 
     redraw({ 0, 0, position_.width(), position_.height() }, true);
 }
@@ -1542,6 +1551,7 @@ void window::update_buttons()
 
     if (flag_is_set(window_style_, window_style::expand_button) || flag_is_set(window_style_, window_style::minimize_button))
     {
+        // TODO: make "window_expand_disable" image
         expand_button->set_position({ left, top, left + btn_width, top + btn_height });
         expand_button->show();
 
@@ -1614,7 +1624,7 @@ void window::draw_border(graphic &gr)
 {
     auto c = theme_color(tcn, tv_border, theme_);
     auto x = theme_dimension(tcn, tv_border_width, theme_);
-    
+
     int32_t k = x < 2 ? 0 : x / 2;
 
     int32_t l = 0, t = 0, w = 0, h = 0;
@@ -1781,7 +1791,7 @@ bool window::init(std::string_view caption_, rect position__, window_style style
     /// Create the physical window
 
 #ifdef _WIN32
-    auto h_inst = GetModuleHandle(NULL);
+    auto h_inst = GetModuleHandle(nullptr);
 
     WNDCLASSEXW wcex = { 0 };
 
@@ -1792,7 +1802,7 @@ bool window::init(std::string_view caption_, rect position__, window_style style
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = sizeof(*this);
     wcex.hInstance = h_inst;
-    wcex.hbrBackground = NULL;
+    wcex.hbrBackground = nullptr;
     wcex.lpszClassName = L"WUI Window";
 
     RegisterClassExW(&wcex);
@@ -1805,7 +1815,7 @@ bool window::init(std::string_view caption_, rect position__, window_style style
     {
         center_vertically(position_, context_);
     }
-    
+
     // Создать окно БЕЗ WS_VISIBLE сначала, чтобы избежать показа курсора ожидания
     // Окно будет показано позже через ShowWindow
     context_.hwnd = CreateWindowExW(!topmost() ? 0 : WS_EX_TOPMOST,
@@ -1863,7 +1873,7 @@ bool window::init(std::string_view caption_, rect position__, window_style style
         err.type = error_type::system_error;
         err.component = "window::init()";
         err.message = "window can't open the connection to X server";
-        
+
         return false;
     }
 
@@ -1908,7 +1918,7 @@ bool window::init(std::string_view caption_, rect position__, window_style style
 
     xcb_atom_t styles[2] = { 0 };
     uint32_t styles_count = 0;
-    
+
     if (flag_is_set(window_style_, window_style::topmost))
     {
         styles[styles_count++] = net_wm_state_above;
@@ -1950,11 +1960,11 @@ bool window::init(std::string_view caption_, rect position__, window_style style
     send_internal(internal_event_type::window_created, 0, 0);
 
     send_internal(internal_event_type::size_changed, position_.width(), position_.height());
-    
+
     graphic_.init(get_screen_size(context_), theme_color(tcn, tv_background, theme_));
-    
+
     started = true;
-    
+
     get_listener().add_window(context_.wnd, shared_from_this());
 #endif
 
@@ -2028,7 +2038,7 @@ void window::destroy()
 /// Windows specified code
 #ifdef _WIN32
 
-uint8_t get_key_modifier()
+static uint8_t get_key_modifier()
 {
     if (GetKeyState(VK_SHIFT) < 0)
     {
@@ -2038,7 +2048,7 @@ uint8_t get_key_modifier()
     {
         return vk_capital;
     }
-    else if (GetKeyState(VK_MENU) < 0)
+    else if (GetKeyState(VK_MENU) & 0x8000)
     {
         return vk_alt;
     }
@@ -2108,15 +2118,21 @@ void window::ProcessDeviceChanges(window* wnd, WPARAM w, LPARAM l)
     }
 
     auto bdi = (DEV_BROADCAST_DEVICEINTERFACE*)hdr;
+#if defined(_UNICODE)
     std::wstring name(bdi->dbcc_name);
 
     std::wstring vid_pid;
+#else
+    std::string name(bdi->dbcc_name);
 
-    auto vid_pos = name.find(L"VID", 0);
-    if (vid_pos != std::wstring::npos)
+    std::string vid_pid;
+#endif
+
+    auto vid_pos = name.find(_T("VID"), 0);
+    if (vid_pos != stdstr_npos)
     {
-        auto amp_pos = name.find(L"&", vid_pos);
-        if (amp_pos != std::wstring::npos)
+       auto amp_pos = name.find(_T("&"), vid_pos);
+        if (amp_pos != stdstr_npos)
         {
             vid_pid = name.substr(vid_pos, amp_pos + 1);
         }
@@ -2128,8 +2144,9 @@ void window::ProcessDeviceChanges(window* wnd, WPARAM w, LPARAM l)
     }
 
     HDEVINFO device_info_set = SetupDiGetClassDevs(
-        NULL, L"USB", NULL, DIGCF_ALLCLASSES
+        nullptr, _T("USB"), nullptr, DIGCF_ALLCLASSES
     );
+
 
     if (device_info_set == INVALID_HANDLE_VALUE)
     {
@@ -2143,11 +2160,16 @@ void window::ProcessDeviceChanges(window* wnd, WPARAM w, LPARAM l)
 
     for (DWORD i = 0; SetupDiEnumDeviceInfo(device_info_set, i, &device_info_data); ++i)
     {
-        wchar_t instance_id_buf[1024];
-        if (SetupDiGetDeviceInstanceId(device_info_set, &device_info_data, instance_id_buf, sizeof(instance_id_buf) / 2, NULL))
+        TCHAR instance_id_buf[1024];
+        if (SetupDiGetDeviceInstanceId(device_info_set, &device_info_data, instance_id_buf, sizeof(instance_id_buf) / 2, nullptr))
         {
+#if defined(_UNICODE)
             std::wstring instance_id(instance_id_buf);
-            if (instance_id.find(vid_pid) != std::string::npos)
+#else
+            std::string instance_id(instance_id_buf);
+#endif
+
+            if (instance_id.find(vid_pid) != stdstr_npos)
             {
                 system_event sev = { set,
                     device_type::undefined,
@@ -2155,25 +2177,29 @@ void window::ProcessDeviceChanges(window* wnd, WPARAM w, LPARAM l)
                     static_cast<uint64_t>(l)
                 };
 
-                wchar_t class_name_buf[1024];
-                if (SetupDiGetDeviceRegistryPropertyW(device_info_set, &device_info_data,
-                    SPDRP_CLASS, NULL, (PBYTE)class_name_buf, sizeof(class_name_buf) / 2, NULL))
+                TCHAR class_name_buf[1024];
+                if (SetupDiGetDeviceRegistryProperty(device_info_set, &device_info_data,
+                    SPDRP_CLASS, nullptr, (PBYTE)class_name_buf, sizeof(class_name_buf) / 2, nullptr))
                 {
-                    std::wstring class_name(class_name_buf);
+#if defined(_UNICODE)
+                   std::wstring class_name(class_name_buf);
+#else
+                   std::string class_name(class_name_buf);
+#endif
 
-                    if (class_name.find(L"USB") != std::wstring::npos)
+                   if (class_name.find(_T("USB")) != stdstr_npos)
                     {
-                        continue; 
+                        continue;
                     }
-                    else if (class_name.find(L"Camera") != std::wstring::npos)
+                    else if (class_name.find(_T("Camera")) != stdstr_npos)
                     {
                         sev.device = device_type::camera;
                     }
-                    else if (class_name.find(L"MEDIA") != std::wstring::npos)
+                    else if (class_name.find(_T("MEDIA")) != stdstr_npos)
                     {
                         sev.device = device_type::media;
                     }
-                    else if (class_name.find(L"HIDClass") != std::wstring::npos)
+                    else if (class_name.find(_T("HIDClass")) != stdstr_npos)
                     {
                         sev.device = device_type::hid;
                     }
@@ -2219,7 +2245,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             PAINTSTRUCT ps;
             auto bpdc = BeginPaint(hwnd, &ps);
 
-            if (bpdc == NULL)
+            if (bpdc == nullptr)
             {
                 return 0;
             }
@@ -2233,7 +2259,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->graphic_.clear(paint_rect);
             }
-            
+
             std::vector<std::shared_ptr<i_control>> topmost_controls;
 
             for (auto &control : wnd->controls)
@@ -2332,7 +2358,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         int32_t x_window = window_rect.left + x_mouse - wnd->x_click;
                         int32_t y_window = window_rect.top + y_mouse - wnd->y_click;
 
-                        SetWindowPos(hwnd, NULL, x_window, y_window, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+                        SetWindowPos(hwnd, nullptr, x_window, y_window, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
                     }
                     break;
                     case moving_mode::size_we_left:
@@ -2342,16 +2368,16 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = window_rect.right - window_rect.left - x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top;
-                        
+
                         if (width > wnd->min_width)
                         {
-                            SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
                         }
                         else
                         {
                             width = wnd->min_width;
                             int32_t left = window_rect.right - width;
-                            SetWindowPos(hwnd, NULL, left, window_rect.top, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, left, window_rect.top, width, height, SWP_NOZORDER);
                         }
                     }
                     break;
@@ -2361,7 +2387,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         int32_t height = window_rect.bottom - window_rect.top;
                         if (width < wnd->min_width) width = wnd->min_width;
 
-                        SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                        SetWindowPos(hwnd, nullptr, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
                     }
                     break;
                     case moving_mode::size_ns_top:
@@ -2374,13 +2400,13 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         if (height > wnd->min_height)
                         {
-                            SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
                         }
                         else
                         {
                             height = wnd->min_height;
                             int32_t top = window_rect.bottom - height;
-                            SetWindowPos(hwnd, NULL, window_rect.left, top, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, window_rect.left, top, width, height, SWP_NOZORDER);
                         }
                     }
                     break;
@@ -2390,7 +2416,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         int32_t height = y_mouse;
                         if (height < wnd->min_height) height = wnd->min_height;
 
-                        SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                        SetWindowPos(hwnd, nullptr, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
                     }
                     break;
                     case moving_mode::size_nesw_top:
@@ -2403,13 +2429,13 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         if (width < wnd->min_width) width = wnd->min_width;
                         if (height > wnd->min_height)
                         {
-                            SetWindowPos(hwnd, NULL, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, window_rect.left, scr_mouse.y, width, height, SWP_NOZORDER);
                         }
                         else
                         {
                             height = wnd->min_height;
                             int32_t top = window_rect.bottom - height;
-                            SetWindowPos(hwnd, NULL, window_rect.left, top, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, window_rect.left, top, width, height, SWP_NOZORDER);
                         }
                     }
                     break;
@@ -2420,7 +2446,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         if (width < wnd->min_width) width = wnd->min_width;
                         if (height < wnd->min_height) height = wnd->min_height;
 
-                        SetWindowPos(hwnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+                        SetWindowPos(hwnd, nullptr, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
                     }
                     break;
                     case moving_mode::size_nwse_top:
@@ -2430,22 +2456,22 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
 
                         int32_t width = window_rect.right - window_rect.left - x_mouse;
                         int32_t height = window_rect.bottom - window_rect.top - y_mouse;
-                        
+
                         if (height > wnd->min_height && width > wnd->min_width)
                         {
-                            SetWindowPos(hwnd, NULL, scr_mouse.x, scr_mouse.y, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, scr_mouse.x, scr_mouse.y, width, height, SWP_NOZORDER);
                         }
                         else if (height <= wnd->min_height && width > wnd->min_width)
                         {
                             height = wnd->min_height;
                             int32_t top = window_rect.bottom - height;
-                            SetWindowPos(hwnd, NULL, scr_mouse.x, top, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, scr_mouse.x, top, width, height, SWP_NOZORDER);
                         }
                         else if (height > wnd->min_height && width <= wnd->min_width)
                         {
                             width = wnd->min_width;
                             int32_t left = window_rect.right - width;
-                            SetWindowPos(hwnd, NULL, left, scr_mouse.y, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, left, scr_mouse.y, width, height, SWP_NOZORDER);
                         }
                         else if (height <= wnd->min_height && width <= wnd->min_width)
                         {
@@ -2453,7 +2479,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                             int32_t top = window_rect.bottom - height;
                             width = wnd->min_width;
                             int32_t left = window_rect.right - width;
-                            SetWindowPos(hwnd, NULL, left, top, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, left, top, width, height, SWP_NOZORDER);
                         }
                     }
                     break;
@@ -2468,13 +2494,13 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
                         if (height < wnd->min_height) height = wnd->min_height;
                         if (width > wnd->min_width)
                         {
-                            SetWindowPos(hwnd, NULL, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, scr_mouse.x, window_rect.top, width, height, SWP_NOZORDER);
                         }
                         else
                         {
                             width = wnd->min_width;
                             int32_t left = window_rect.right - width;
-                            SetWindowPos(hwnd, NULL, left, window_rect.top, width, height, SWP_NOZORDER);
+                            SetWindowPos(hwnd, nullptr, left, window_rect.top, width, height, SWP_NOZORDER);
                         }
                     }
                     break;
@@ -2604,7 +2630,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             wnd->position_ = { wnd->position_.left, wnd->position_.top, wnd->position_.left + width, wnd->position_.top + height };
 
             wnd->update_buttons();
-            
+
             wnd->send_internal(wnd->window_state_ != window_state::maximized ? internal_event_type::size_changed : internal_event_type::window_expanded, width, height);
 
             RECT invalidatingRect = { 0, 0, width, height };
@@ -2638,26 +2664,33 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->change_focus(); return 0;
             }
-            else if (w_param == VK_RETURN && get_key_modifier() != vk_lcontrol && get_key_modifier() != vk_rcontrol)
+            else if (w_param == VK_RETURN &&
+                     GetKeyState(VK_SHIFT) >= 0 &&
+                     GetKeyState(VK_LCONTROL) >= 0 &&
+                     GetKeyState(VK_RCONTROL) >= 0)
             {
-                wnd->execute_focused(); return 0;
+                auto focused = wnd->get_focused();
+                auto input_ctrl = std::dynamic_pointer_cast<input>(focused);
+                if (input_ctrl && input_ctrl->get_input_view() == input_view::multiline)
+                {
+                    // Отправляем событие в input для создания новой строки
+                }
+                else
+                {
+                    wnd->execute_focused(); return 0;
+                }
             }
-            else if (w_param == VK_OEM_PERIOD || w_param == VK_DECIMAL)
+            else if (w_param == VK_OEM_PERIOD)
             {
-                event ev;
-                ev.type = event_type::keyboard;
-                ev.keyboard_event_ = keyboard_event{ keyboard_event_type::key, get_key_modifier(), 0 };
-                ev.keyboard_event_.key[0] = '.';
-                ev.keyboard_event_.key_size = 1;
-
-                wnd->send_event_to_plains_and_control(ev, wnd->get_focused());
-                return 0;
+                break; // basic keyboard '.', skip, use WM_CHAR
             }
 
+            // (w_param == VK_DECIMAL) VK_DECIMAL=110 => vk_numlock active, etc
             event ev;
             ev.type = event_type::keyboard;
             ev.keyboard_event_ = keyboard_event{ keyboard_event_type::down, get_key_modifier(), 0 };
             ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
+            ev.keyboard_event_.key_size = 1;
 
             wnd->send_event_to_plains_and_control(ev, wnd->get_focused());
         }
@@ -2670,6 +2703,7 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             ev.type = event_type::keyboard;
             ev.keyboard_event_ = keyboard_event{ keyboard_event_type::up, get_key_modifier(), 0 };
             ev.keyboard_event_.key[0] = static_cast<uint8_t>(w_param);
+            ev.keyboard_event_.key_size = 1;
 
             wnd->send_event_to_plains_and_control(ev, wnd->get_focused());
         }
@@ -2870,7 +2904,7 @@ void window::process_events(xcb_generic_event_t &e)
                 }
 
                 xcb_client_message_event_t event = { 0 };
-                    
+
                 event.window = context_.wnd;
                 event.response_type = XCB_CLIENT_MESSAGE;
                 event.type = net_wm_moveresize;
@@ -2879,7 +2913,7 @@ void window::process_events(xcb_generic_event_t &e)
                 event.data.data32[1] = ev->root_y;
                 event.data.data32[2] = wm_moveresize_dir;
                 event.data.data32[3] = XCB_BUTTON_INDEX_1;
-                    
+
                 xcb_ungrab_pointer(context_.connection, XCB_CURRENT_TIME);
                 xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
                 xcb_flush(context_.connection);
@@ -3017,14 +3051,24 @@ void window::process_events(xcb_generic_event_t &e)
                     change_focus(); return;
                 }
                 else if ((ev_.detail == vk_return || ev_.detail == vk_rreturn) &&
+                    key_modifier != vk_lshift && key_modifier != vk_rshift &&
                     key_modifier != vk_lcontrol && key_modifier != vk_rcontrol)
                 {
-                    execute_focused(); return;
+                    auto focused = get_focused();
+                    auto input_ctrl = std::dynamic_pointer_cast<input>(focused);
+                    if (input_ctrl && input_ctrl->get_input_view() == input_view::multiline)
+                    {
+                        // Отправляем событие в input для создания новой строки
+                    }
+                    else
+                    {
+                        execute_focused(); return;
+                    }
                 }
 
                 XKeyboardState st;
                 XGetKeyboardControl(context_.display, &st);
-                
+
                 if (st.led_mask & 2 &&
                     (
                         ev_.detail == vk_nend ||
@@ -3112,7 +3156,7 @@ void window::process_events(xcb_generic_event_t &e)
                         ev.keyboard_event_.key_size = 1;
                     }
                 }
-                
+
                 send_event_to_plains_and_control(ev, get_focused());
             }
         }
@@ -3220,7 +3264,7 @@ void window::process_events(xcb_generic_event_t &e)
                 xcb_unmap_window(context_.connection, context_.wnd);
                 xcb_destroy_window(context_.connection, context_.wnd);
                 get_listener().delete_window(context_.wnd);
-                
+
                 started = false;
 
                 auto transient_window_ = get_transient_window();
@@ -3251,67 +3295,67 @@ void window::init_atoms()
     free(wm_protocols_event_reply);
 
     auto wm_delete_msg_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 16, "WM_DELETE_WINDOW"), NULL);
+        xcb_intern_atom(context_.connection, 0, 16, "WM_DELETE_WINDOW"), nullptr);
     wm_delete_msg = wm_delete_msg_reply->atom;
     free(wm_delete_msg_reply);
 
     auto wm_change_state_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 15, "WM_CHANGE_STATE"), NULL);
+        xcb_intern_atom(context_.connection, 0, 15, "WM_CHANGE_STATE"), nullptr);
     wm_change_state = wm_change_state_reply->atom;
     free(wm_change_state_reply);
 
     auto net_wm_state_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 13, "_NET_WM_STATE"), NULL);
+        xcb_intern_atom(context_.connection, 0, 13, "_NET_WM_STATE"), nullptr);
     net_wm_state = net_wm_state_reply->atom;
     free(net_wm_state_reply);
 
     auto net_wm_state_focused_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 21, "_NET_WM_STATE_FOCUSED"), NULL);
+        xcb_intern_atom(context_.connection, 0, 21, "_NET_WM_STATE_FOCUSED"), nullptr);
     net_wm_state_focused = net_wm_state_focused_reply->atom;
     free(net_wm_state_focused_reply);
 
     auto net_wm_state_above_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 19, "_NET_WM_STATE_ABOVE"), NULL);
+        xcb_intern_atom(context_.connection, 0, 19, "_NET_WM_STATE_ABOVE"), nullptr);
     net_wm_state_above = net_wm_state_above_reply->atom;
     free(net_wm_state_above_reply);
 
     auto net_wm_state_skip_taskbar_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 26, "_NET_WM_STATE_SKIP_TASKBAR"), NULL);
+        xcb_intern_atom(context_.connection, 0, 26, "_NET_WM_STATE_SKIP_TASKBAR"), nullptr);
     net_wm_state_skip_taskbar = net_wm_state_skip_taskbar_reply->atom;
     free(net_wm_state_skip_taskbar_reply);
 
     auto net_wm_name_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 12, "_NET_WM_NAME"), NULL);
+        xcb_intern_atom(context_.connection, 0, 12, "_NET_WM_NAME"), nullptr);
     net_wm_name = net_wm_name_reply->atom;
     free(net_wm_name_reply);
 
     auto utf8_string_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 11, "UTF8_STRING"), NULL);
+        xcb_intern_atom(context_.connection, 0, 11, "UTF8_STRING"), nullptr);
     utf8_string = utf8_string_reply->atom;
     free(utf8_string_reply);
 
     auto net_active_window_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 18, "_NET_ACTIVE_WINDOW"), NULL);
+        xcb_intern_atom(context_.connection, 0, 18, "_NET_ACTIVE_WINDOW"), nullptr);
     net_active_window = net_active_window_reply->atom;
     free(net_active_window_reply);
 
     auto net_wm_state_fullscreen_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 24, "_NET_WM_STATE_FULLSCREEN"), NULL);
+        xcb_intern_atom(context_.connection, 0, 24, "_NET_WM_STATE_FULLSCREEN"), nullptr);
     net_wm_state_fullscreen = net_wm_state_fullscreen_reply->atom;
     free(net_wm_state_fullscreen_reply);
 
     auto net_wm_state_maximized_vert_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 28, "_NET_WM_STATE_MAXIMIZED_VERT"), NULL);
+        xcb_intern_atom(context_.connection, 0, 28, "_NET_WM_STATE_MAXIMIZED_VERT"), nullptr);
     net_wm_state_maximized_vert = net_wm_state_maximized_vert_reply->atom;
     free(net_wm_state_maximized_vert_reply);
 
     auto net_wm_state_maximized_horz_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 28, "_NET_WM_STATE_MAXIMIZED_HORZ"), NULL);
+        xcb_intern_atom(context_.connection, 0, 28, "_NET_WM_STATE_MAXIMIZED_HORZ"), nullptr);
     net_wm_state_maximized_horz = net_wm_state_maximized_horz_reply->atom;
     free(net_wm_state_maximized_horz_reply);
 
     auto net_wm_moveresize_reply = xcb_intern_atom_reply(context_.connection,
-        xcb_intern_atom(context_.connection, 0, 18, "_NET_WM_MOVERESIZE"), NULL);
+        xcb_intern_atom(context_.connection, 0, 18, "_NET_WM_MOVERESIZE"), nullptr);
     net_wm_moveresize = net_wm_moveresize_reply->atom;
     free(net_wm_moveresize_reply);
 }

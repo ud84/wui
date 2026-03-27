@@ -16,7 +16,7 @@ namespace wui
 
 enum class keyboard_event_type
 {
-    down, 
+    down,
     up,
     key
 };
@@ -51,7 +51,7 @@ static const uint8_t vk_nright = 0x66;
 /// The modifier keys
 static const uint8_t vk_capital = 0x14;
 static const uint8_t vk_lshift = 0x10;
-static const uint8_t vk_rshift = 0x10;
+static const uint8_t vk_rshift = 0x11;
 static const uint8_t vk_alt = 0x12;
 static const uint8_t vk_lcontrol = 0xA2;
 static const uint8_t vk_rcontrol = 0xA3;

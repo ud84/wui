@@ -38,7 +38,8 @@ enum class input_content
     text,
     integer,
     numeric,
-    hostport
+    hostport,
+    hexadecimal
 };
 
 class input : public i_control, public std::enable_shared_from_this<input>
@@ -86,6 +87,7 @@ public:
     std::string text() const;
 
     void set_input_view(input_view input_view_);
+    input_view get_input_view() const;
     void set_input_content(input_content input_content_);
     void set_symbols_limit(int32_t symbols_limit);
 
@@ -124,7 +126,7 @@ private:
     // For multiline
     std::vector<std::string> lines_;
     size_t cursor_row = 0, cursor_col = 0;
-    
+
     // Selection multiline
     size_t select_start_row = 0, select_start_col = 0, select_end_row = 0, select_end_col = 0;
 
@@ -141,7 +143,7 @@ private:
     std::shared_ptr<i_theme> theme_;
 
     rect position_;
-        
+
     std::weak_ptr<window> parent_;
     std::string my_control_sid, my_plain_sid;
 
@@ -159,7 +161,7 @@ private:
     // Cache for maximum line width to avoid expensive recalculations
     int cached_max_width_ = -1;
     bool max_width_dirty_ = true;
-    
+
     // Auto-scroll timer for mouse selection
     enum class auto_scroll_type {
         idle = 0, left, right, up, down
@@ -185,11 +187,11 @@ private:
     // Selections and cursor
     bool clear_selected_text(); /// returns true if selection is not empty
     std::pair<size_t, size_t> calculate_mouse_cursor_position(int x, int y);
-    
+
     // Selection helper
     void select_all();
     void select_current_word(int x, int y);
-    
+
     // Clipboard
     void buffer_copy();
     void buffer_cut();
@@ -201,7 +203,7 @@ private:
     void on_hor_scroll(scroll_state ss, int32_t v);
     void update_scroll_visibility();
     void scroll_to_cursor();
-    
+
     // Cache management for performance
     int get_max_line_width();
     void invalidate_max_width_cache();

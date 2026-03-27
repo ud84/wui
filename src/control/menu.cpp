@@ -127,7 +127,7 @@ void menu::set_parent(std::shared_ptr<window> window)
     {
         window->add_control(list_, { 0 });
 
-        my_subscriber_id = window->subscribe(std::bind(&menu::receive_event, this, std::placeholders::_1), 
+        my_subscriber_id = window->subscribe(std::bind(&menu::receive_event, this, std::placeholders::_1),
             wui::flags_map<wui::event_type>(2, wui::event_type::mouse, wui::event_type::keyboard));
     }
 }
@@ -339,7 +339,7 @@ void menu::update_size()
     {
         return;
     }
-    
+
     auto font_ = theme_font(tcn, tv_font, theme_);
 
     max_text_width = 0, max_hotkey_width = 0;
@@ -352,9 +352,9 @@ void menu::update_size()
         {
             continue;
         }
-
-        auto text_width = measure_text(item->text, font_).right;
-        auto hotkey_width = measure_text(item->hotkey, font_).right;
+        auto parent__ = parent_.lock();
+        auto text_width = measure_text(item->text, font_, parent__ ? &parent__->get_graphic() : (graphic *) nullptr).right;
+        auto hotkey_width = measure_text(item->hotkey, font_, parent__ ? &parent__->get_graphic() : (graphic *) nullptr).right;
         if (hotkey_width != 0)
         {
             hotkey_width += item_height_;
@@ -363,7 +363,7 @@ void menu::update_size()
         {
             max_hotkey_width = hotkey_width;
         }
-        
+
         auto width = (item->level * item_height_) + text_width + max_hotkey_width + (item_height_ * 3);
         if (width > max_text_width)
         {
@@ -411,7 +411,7 @@ void menu::show_on_control(std::shared_ptr<i_control> control, int32_t indent_, 
 
     list_->set_position(pos);
     list_->show();
-    
+
     auto parent__ = parent_.lock();
     if (parent__)
     {
@@ -460,7 +460,7 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, rect item_rect, list::ite
     {
         gr.draw_rect({ item_rect.left, item_rect.top, item_rect.right, item_rect.bottom }, theme_color(tcn, tv_selected_item));
     }
-    
+
     if (item->image_)
     {
         auto img_size = static_cast<int32_t>(item_rect.height() * 0.9);
@@ -480,7 +480,7 @@ void menu::draw_list_item(graphic &gr, int32_t n_item, rect item_rect, list::ite
     auto font = theme_font(tcn, tv_font);
 
     auto text_height = font.size;
-    
+
     gr.draw_text({ item_rect.left + item_rect.height() + item_rect.height() * item->level, item_rect.top + (item_rect.height() - text_height) / 2 }, item->text, text_color, font);
 
     if (!item->hotkey.empty())
@@ -527,7 +527,7 @@ void menu::activate_list_item(int32_t n_item)
         list_->set_item_count(calc_items_count(items));
         show_on_control(activation_control, indent, x, y);
     }
-    
+
     if (item->children.empty() && item->state != menu_item_state::disabled)
     {
         list_->hide();

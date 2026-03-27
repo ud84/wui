@@ -56,7 +56,7 @@ public:
 			if (thread.joinable()) thread.join();
 		}
 	}
-	
+
 	timer(const timer&) = delete;
 	timer& operator=(const timer&) = delete;
 
@@ -106,7 +106,7 @@ public:
 		{
 			return;
 		}
-		
+
         h_timer_queue = CreateTimerQueue();
 		if (!h_timer_queue)
 		{
@@ -127,16 +127,20 @@ public:
 		{
 			return;
 		}
-				
+
 		if (h_timer && h_timer_queue)
 		{
-			DeleteTimerQueueTimer(h_timer_queue, h_timer, INVALID_HANDLE_VALUE);
-            h_timer = nullptr;
+			if (FALSE == DeleteTimerQueueTimer(h_timer_queue, h_timer, INVALID_HANDLE_VALUE)
+				 && ERROR_IO_PENDING != GetLastError())
+			{
+				DeleteTimerQueueTimer(h_timer_queue, h_timer, INVALID_HANDLE_VALUE);
+			}
+         h_timer = nullptr;
 		}
 		if (h_timer_queue)
 		{
-			DeleteTimerQueueEx(h_timer_queue, INVALID_HANDLE_VALUE);
-            h_timer_queue = nullptr;
+			(void) DeleteTimerQueueEx(h_timer_queue, INVALID_HANDLE_VALUE);
+         h_timer_queue = nullptr;
 		}
 		started = false;
 	}
@@ -151,7 +155,7 @@ private:
     HANDLE h_timer_queue;
 
 	std::atomic<bool> started;
-	
+
 	static VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN)
 	{
 		static_cast<timer*>(lpParam)->callback();

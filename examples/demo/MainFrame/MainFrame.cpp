@@ -103,7 +103,7 @@ void MainFrame::Run()
 
 void MainFrame::ReceiveEvents(const wui::event &ev)
 {
-    if (ev.type == wui::event_type::internal)
+    if (ev.type & wui::event_type::internal)
     {
         switch (ev.internal_event_.type)
         {
