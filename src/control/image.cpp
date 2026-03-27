@@ -59,7 +59,8 @@ void load_image_from_resource(WORD image_id, const std::wstring &resource_sectio
         return;
     }
 
-    const void* resource_data = ::LockResource(::LoadResource(h_inst, h_resource));
+    HGLOBAL hr = ::LoadResource(h_inst, h_resource);
+    const void* resource_data = hr ? ::LockResource(hr) : nullptr;
     if (!resource_data)
     {
         return;
@@ -348,7 +349,7 @@ void image::change_image(int32_t resource_index_)
 
     free_image(&img);
     load_image_from_resource(static_cast<WORD>(resource_index), boost::nowide::widen(theme_string(tc, tv_resource, theme_)), &img);
-    
+
     redraw();
 }
 #endif

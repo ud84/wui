@@ -21,6 +21,8 @@
 #include <wui/control/slider.hpp>
 #include <wui/control/panel.hpp>
 
+#include <tchar.h>
+
 #include <Resource.h>
 
 #include <iostream>
@@ -84,13 +86,13 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             parentWindow.lock()->remove_control(window);
 
         Init();
-		
+
         plugged = !plugged;
     }
 
     void Init()
     {
-        window->init("Child window plugged!", { 0 }, 
+        window->init("Child window plugged!", { 0 },
             static_cast<wui::window_style>(static_cast<uint32_t>(wui::window_style::pinned) | static_cast<uint32_t>(wui::window_style::border_right)),
             [this]() {
                 if (parentWindow.lock())
@@ -123,7 +125,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         splitter(std::make_shared<wui::splitter>(wui::splitter_orientation::horizontal, [this](int32_t x, int32_t y) { SplitterChange(x, y); })),
         popupMenu(std::make_shared<wui::menu>()),
         panel(std::make_shared<wui::panel>()),
-		button1(std::make_shared<wui::button>("Button 1", [this]() {
+        button1(std::make_shared<wui::button>("Button 1", [this]() {
             messageBox->show("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took\na galley of type and scrambled it to make a type specimen book.",
                 "hello world", wui::message_icon::information, wui::message_button::ok, [](wui::message_result) {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
@@ -148,7 +150,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             dialog->add_control(select1, { 10, 130, 200, 155 });
 
             dialog->set_transient_for(window);
-            
+
             dialog->init("Modal dialog", { 50, 50, 350, 350 }, wui::window_style::dialog, []() {});
         }, wui::button_view::image, IMG_ACCOUNT, 16)),
         input(std::make_shared<wui::input>("", wui::input_view::multiline)),
@@ -177,7 +179,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
         });
 
         list->update_columns({ { 30, "##" }, { 100, "Name" }, { 100, "Role" } });
-        
+
         list->set_item_height_callback([](int32_t i, int32_t& h) { h = 32 + i * 2; });
         list->set_item_count(20);
         list->select_item(5);
@@ -196,7 +198,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
             if (lines < 9)
             {
                 auto wp = window->position();
-                int32_t inputTop = wp.height() - constAdd - (lines * font.size);
+                const int32_t inputTop = static_cast<int32_t>(wp.height() - constAdd - (lines * font.size));
                 splitter->set_position({ 0, inputTop + 2, wp.right, inputTop + 8 });
                 SplitterChange(0, inputTop);
             }
@@ -207,7 +209,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                 {
                     if (lines > 8) lines = 8;
                     auto wp = window->position();
-                    int32_t inputTop = wp.height() - constAdd - (lines * font.size);
+                    const int32_t inputTop = static_cast<int32_t>(wp.height() - constAdd - (lines * font.size));
                     splitter->set_position({ 0, inputTop + 2, wp.right, inputTop + 8 });
                     SplitterChange(0, inputTop);
                 }
@@ -329,18 +331,18 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
 
         auto textColor = wui::theme_color(wui::input::tc, wui::input::tv_text);
         auto font = wui::theme_font(wui::list::tc, wui::list::tv_font);
-        
+
         auto textRect = itemRect;
-        
+
         textRect.move(20, (itemRect.height() - font.size) / 2);
         gr.draw_text(textRect, "Item " + std::to_string(nItem), textColor, font);
     }
 };
 
 #ifdef _WIN32
-int APIENTRY wWinMain(_In_ HINSTANCE,
+int APIENTRY _tWinMain(_In_ HINSTANCE,
     _In_opt_ HINSTANCE,
-    _In_ LPWSTR    lpCmdLine,
+    _In_ LPTSTR    lpCmdLine,
     _In_ int       nCmdShow)
 #elif __linux__
 int main(int argc, char *argv[])
@@ -432,13 +434,13 @@ int main(int argc, char *argv[])
         pluggedWindow = std::make_shared<PluggedWindow>(window);
         createPluggedButton->disable(); });
     createPluggedButton->disable();
-    
+
     window->add_control(createPluggedButton, { 320, 50, 340, 75 });
 
     //auto text0 = std::make_shared<wui::text>("Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's\nstandard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
     auto text0 = std::make_shared<wui::text>("Высокий уровень вовлечения представителей целевой аудитории является четким доказательством простого факта: граница обучения кадров создаёт предпосылки для новых предложений. Однозначно, непосредственные участники технического прогресса, превозмогая сложившуюся непростую экономическую ситуацию, превращены в посмешище, хотя само их существование приносит несомненную пользу обществу. А ещё базовые сценарии поведения пользователей, превозмогая сложившуюся непростую экономическую ситуацию, ограничены исключительно образом.");
     window->add_control(text0, { 320, 180, 890, 240 });
-    
+
     auto nameInput = std::make_shared<wui::input>(/*"", wui::input_view::password*/);
     nameInput->set_text("Hello world!");
     //nameInput->set_input_content(wui::input_content::numeric);
@@ -474,8 +476,8 @@ int main(int argc, char *argv[])
     });
     t.detach();*/
 
-    auto memo = std::make_shared<wui::input>("", wui::input_view::multiline);
-    memo->set_symbols_limit(-1);
+    auto memo = std::make_shared<wui::input>("", wui::input_view::singleline); // multiline
+    //memo->set_symbols_limit(-1);
     window->add_control(memo, { 320, 400, 890, 500 });
 
     auto dialog = std::make_shared<wui::window>();
@@ -538,13 +540,13 @@ int main(int argc, char *argv[])
 
         window->update_theme();
         pluggedWindow->window->update_theme();
-        dialog->update_theme(); 
+        dialog->update_theme();
         cancelButton->update_theme(MakeRedButtonTheme());
     });
     window->add_control(darkThemeButton, { 320, 350, 440, 375 });
 
     darkThemeButton->turn(true);
-	
+
     auto whiteThemeButton = std::make_shared<wui::button>("Set the light theme",
         [&window, &pluggedWindow, &dialog, &cancelButton]() {
         auto current_theme = "light";
@@ -608,13 +610,13 @@ int main(int argc, char *argv[])
 
         pos = horizSlider->position();
         horizSlider->set_position({ x + 120, pos.top, x + 230, pos.bottom });
-            
+
         pos = vertSlider->position();
         vertSlider->set_position({ x + 280, pos.top, x + 310, pos.bottom });
 
         pos = vertProgressBar->position();
         vertProgressBar->set_position({ x + 320, pos.top, x + 350, pos.bottom });
-        
+
         auto wp = window->position();
         window->redraw({ 0, 0, wp.right, wp.bottom }, true);
         });

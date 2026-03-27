@@ -202,15 +202,18 @@ namespace utf8
     void advance (octet_iterator& it, distance_type n, octet_iterator end)
     {
         const distance_type zero(0);
-        if (n < zero) {
-            // backward
-            for (distance_type i = n; i < zero; ++i)
-                utf8::prior(it, end);
-        } else {
-            // forward
-            for (distance_type i = zero; i < n; ++i)
-                utf8::next(it, end);
+        if constexpr (std::is_signed_v<distance_type>) {
+            if (n < zero) {
+                // backward
+                for (distance_type i = n; i < zero; ++i)
+                    utf8::prior(it, end);
+                return;
+            }
         }
+
+        // forward
+        for (distance_type i = zero; i < n; ++i)
+            utf8::next(it, end);
     }
 
     template <typename octet_iterator>

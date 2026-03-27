@@ -23,10 +23,12 @@
 
 #include <iostream>
 
+#include <tchar.h>
+
 #ifdef _WIN32
-int APIENTRY wWinMain(_In_ HINSTANCE,
+int APIENTRY _tWinMain(_In_ HINSTANCE,
     _In_opt_ HINSTANCE,
-    _In_ LPWSTR    lpCmdLine,
+    _In_ LPTSTR    lpCmdLine,
     _In_ int       nCmdShow)
 #elif __linux__
 int main(int argc, char *argv[])
@@ -48,7 +50,7 @@ int main(int argc, char *argv[])
         { wui::locale_type::rus, "Русский", "res/ru_locale.json", TXT_LOCALE_RU },
     });
 
-    auto current_locale = static_cast<wui::locale_type>(wui::config::get_int("User", "Locale", 
+    auto current_locale = static_cast<wui::locale_type>(wui::config::get_int("User", "Locale",
         static_cast<int32_t>(wui::get_default_system_locale())));
 
     wui::set_current_app_locale(current_locale);

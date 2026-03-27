@@ -30,7 +30,7 @@ enum class window_style : uint32_t
     minimize_button = (1 << 4),
     pin_button = (1 << 5),
     switch_theme_button = (1 << 6),
-	switch_lang_button = (1 << 7),
+    switch_lang_button = (1 << 7),
 
     title_showed = (1 << 10),
     topmost = (1 << 11),
@@ -45,6 +45,14 @@ enum class window_style : uint32_t
     dialog = title_showed | close_button | moving | border_all,
     pinned = pin_button | close_button | resizable | moving
 };
+inline constexpr window_style operator|(const window_style l, const window_style r)
+{
+    return static_cast <window_style> (static_cast <uint32_t> (l) | static_cast <uint32_t> (r));
+}
+inline constexpr bool operator&(const window_style l, const window_style r)
+{
+    return 0 != (static_cast <uint32_t> (l) & static_cast <uint32_t> (r));
+}
 
 struct system_context;
 
@@ -56,7 +64,7 @@ public:
 
     virtual void add_control(std::shared_ptr<i_control> control, rect position) = 0;
     virtual void remove_control(std::shared_ptr<i_control> control) = 0;
-    
+
     virtual void bring_to_front(std::shared_ptr<i_control> control) = 0;
     virtual void move_to_back(std::shared_ptr<i_control> control) = 0;
 

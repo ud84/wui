@@ -29,7 +29,7 @@ std::string str(error_type);
 
 struct error
 {
-    error_type type;
+    error_type type{ error_type::ok };
     std::string component, message;
 
     inline bool operator==(const error &lv)

@@ -193,9 +193,9 @@ void progress::set_parent(std::shared_ptr<window> window)
         old_parent->unsubscribe(my_control_sid);
         my_control_sid.clear();
     }
-    
+
     parent_ = window;
-    
+
     if (window && click_callback)
     {
         // Подписаться на события мыши для обработки кликов
@@ -319,7 +319,7 @@ void progress::set_value(int32_t value_)
 void progress::set_click_callback(std::function<void(int32_t, bool)> click_callback_)
 {
     click_callback = click_callback_;
-    
+
     // Если parent уже установлен и callback задан, подписаться на события
     auto parent__ = parent_.lock();
     if (parent__ && click_callback && my_control_sid.empty())
@@ -377,6 +377,7 @@ void progress::receive_control_events(const event& ev)
         return;
     }
 
+    // TODO: ev.type & event_type::mouse
     if (ev.type == event_type::mouse &&
         (ev.mouse_event_.type == mouse_event_type::left_down || ev.mouse_event_.type == mouse_event_type::right_down))
     {

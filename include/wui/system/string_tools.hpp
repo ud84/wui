@@ -62,8 +62,10 @@ static inline std::string trim_copy(std::string s)
 /// return true if string is numeric
 static inline bool is_number(const std::string& s)
 {
-    return !s.empty() && std::find_if(s.begin(), 
+    return !s.empty() && std::find_if(s.begin(),
         s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
 }
 
+// return true if string is number floating point
+// TODO: static inline bool is_number(const std::string& s) { ... }
 }

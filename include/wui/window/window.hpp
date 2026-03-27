@@ -40,7 +40,7 @@ enum class window_control
     state,
     pin,
     theme,
-	lang
+    lang
 };
 
 class button;
@@ -70,7 +70,7 @@ public:
 
     virtual system_context &context();
 
-	/// i_control impl
+    /// i_control impl
     virtual void draw(graphic &gr, rect paint_rect);
 
     virtual void set_position(rect position);
@@ -107,7 +107,7 @@ public:
     void set_transient_for(std::shared_ptr<window> window_, bool docked = true);
 
     /// Window state methods
-	void switch_lang();
+    void switch_lang();
     void switch_theme();
     void pin();
     void minimize();
@@ -122,7 +122,7 @@ public:
 
     /// Emit event methods
     void emit_event(int32_t x, int32_t y);
-    
+
     /// Method to set the focus of the child control
     void set_focused(std::shared_ptr<i_control> control);
 
@@ -164,14 +164,14 @@ public:
     static constexpr const char *ti_minimize = "window_minimize";
     static constexpr const char *ti_pin = "window_pin";
     static constexpr const char *ti_switch_theme = "window_switch_theme";
-	static constexpr const char *ti_switch_lang = "window_switch_lang";
+    static constexpr const char *ti_switch_lang = "window_switch_lang";
 
     /// Used locale values (from section window)
     static constexpr const char *cl_pin = "pin";
     static constexpr const char *cl_unpin = "unpin";
     static constexpr const char *cl_dark_theme = "dark_theme";
     static constexpr const char *cl_light_theme = "light_theme";
-	static constexpr const char *cl_switch_lang = "switch_lang";
+    static constexpr const char *cl_switch_lang = "switch_lang";
 
 private:
     system_context context_;
@@ -181,7 +181,7 @@ private:
     std::shared_ptr<i_control> active_control;
 
     std::string caption;
-    rect position_, parent_position_, normal_position;
+    rect position_, parent_position_{0}, normal_position;
     int32_t min_width, min_height;
     window_style window_style_;
     wui::window_state window_state_, prev_window_state_;
@@ -269,7 +269,7 @@ private:
     bool started;
 
     std::unique_ptr<udev_handler> udev_handler_;
-    
+
     uint8_t key_modifier;
 
     void process_events(xcb_generic_event_t &e);
@@ -303,7 +303,7 @@ private:
 
     void start_docking(std::shared_ptr<i_control> control);
     void end_docking();
-	std::shared_ptr<window> get_transient_window();
+    std::shared_ptr<window> get_transient_window();
 
     void update_button_images();
     void update_buttons();

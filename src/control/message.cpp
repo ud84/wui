@@ -122,7 +122,7 @@ void message::show(std::string_view message_,
                     btn0_caption = "retry", btn1_caption = "cancel";
                 break;
             }
-            
+
             button0->set_caption(locale("button", btn0_caption));
             window_->add_control(button0, { left, top, left + btn_width , top + btn_height });
 
@@ -160,10 +160,14 @@ void message::show(std::string_view message_,
         }
         break;
     }
-    
+
     window_->set_focused(button0);
 
-    window_->init(title_, { 0, 0, width, height }, window_style::dialog, [this]() {
+    constexpr window_style dialog_top = window_style::title_showed | window_style::topmost
+        | window_style::close_button | window_style::moving | window_style::border_all;
+
+    window_->init(title_, { 0, 0, width, height },
+                  docked_ ? window_style::dialog : dialog_top, [this]() {
         if (result_callback)
         {
             result_callback(result_);
