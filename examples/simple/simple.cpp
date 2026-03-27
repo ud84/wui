@@ -476,7 +476,7 @@ int main(int argc, char *argv[])
     });
     t.detach();*/
 
-    auto memo = std::make_shared<wui::input>("", wui::input_view::singleline); // multiline
+    auto memo = std::make_shared<wui::input>("", wui::input_view::multiline);
     //memo->set_symbols_limit(-1);
     window->add_control(memo, { 320, 400, 890, 500 });
 

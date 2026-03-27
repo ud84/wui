@@ -401,7 +401,7 @@ void input::receive_control_events(const event &ev)
                         return;
                     }
 
-                    if (ev.mouse_event_.x > control_pos.right && cursor_row < lines_[cursor_row].size()) {
+                    if (ev.mouse_event_.x > control_pos.right && cursor_row < lines_.size()) {
                         start_auto_hscroll(false); // right
                         return;
                     }
@@ -1004,6 +1004,11 @@ void input::set_input_view(input_view input_view__)
     reset_state();
 }
 
+input_view input::get_input_view() const
+{
+    return input_view_;
+}
+
 void input::set_input_content(input_content input_content__)
 {
     input_content_ = input_content__;
@@ -1268,9 +1273,7 @@ void input::buffer_paste() {
         for (size_t i = 1; i < paste_lines.size() - 1; ++i) {
             new_lines.push_back(paste_lines[i]);
         }
-        if (paste_lines.size() > 1) {
-            new_lines.push_back(paste_lines.back() + tail);
-        }
+        new_lines.push_back(paste_lines.back() + tail);
         lines_.insert(lines_.begin() + cursor_row + 1, new_lines.begin(), new_lines.end());
         cursor_row += paste_lines.size() - 1;
         // Cursor at the end of the inserted block

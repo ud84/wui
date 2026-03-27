@@ -87,6 +87,7 @@ public:
     std::string text() const;
 
     void set_input_view(input_view input_view_);
+    input_view get_input_view() const;
     void set_input_content(input_content input_content_);
     void set_symbols_limit(int32_t symbols_limit);
 

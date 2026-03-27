@@ -14,6 +14,7 @@
 #include <wui/locale/locale.hpp>
 
 #include <wui/control/button.hpp>
+#include <wui/control/input.hpp>
 
 #include <wui/common/flag_helpers.hpp>
 
@@ -2663,9 +2664,21 @@ LRESULT CALLBACK window::wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARA
             {
                 wnd->change_focus(); return 0;
             }
-            else if (w_param == VK_RETURN && get_key_modifier() != vk_lcontrol && get_key_modifier() != vk_rcontrol)
+            else if (w_param == VK_RETURN &&
+                     GetKeyState(VK_SHIFT) >= 0 &&
+                     GetKeyState(VK_LCONTROL) >= 0 &&
+                     GetKeyState(VK_RCONTROL) >= 0)
             {
-                wnd->execute_focused(); return 0;
+                auto focused = wnd->get_focused();
+                auto input_ctrl = std::dynamic_pointer_cast<input>(focused);
+                if (input_ctrl && input_ctrl->get_input_view() == input_view::multiline)
+                {
+                    // Отправляем событие в input для создания новой строки
+                }
+                else
+                {
+                    wnd->execute_focused(); return 0;
+                }
             }
             else if (w_param == VK_OEM_PERIOD)
             {
@@ -3038,9 +3051,19 @@ void window::process_events(xcb_generic_event_t &e)
                     change_focus(); return;
                 }
                 else if ((ev_.detail == vk_return || ev_.detail == vk_rreturn) &&
+                    key_modifier != vk_lshift && key_modifier != vk_rshift &&
                     key_modifier != vk_lcontrol && key_modifier != vk_rcontrol)
                 {
-                    execute_focused(); return;
+                    auto focused = get_focused();
+                    auto input_ctrl = std::dynamic_pointer_cast<input>(focused);
+                    if (input_ctrl && input_ctrl->get_input_view() == input_view::multiline)
+                    {
+                        // Отправляем событие в input для создания новой строки
+                    }
+                    else
+                    {
+                        execute_focused(); return;
+                    }
                 }
 
                 XKeyboardState st;
