@@ -1,5 +1,7 @@
 #!/bin/sh
 
-cmake CMakeLists.txt
+mkdir build
+cd build
+cmake ..
 make -j 4
 echo "WUI Ready!"
