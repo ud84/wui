@@ -258,6 +258,9 @@
     <ClInclude Include="include\wui\control\tray_icon.hpp">
       <Filter>Header Files\wui\control</Filter>
     </ClInclude>
+    <ClInclude Include="include\wui\window\listener.hpp">
+      <Filter>Header Files\wui\window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\button.cpp">

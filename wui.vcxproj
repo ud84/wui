@@ -94,6 +94,7 @@
     <ClInclude Include="include\wui\theme\theme_impl.hpp" />
     <ClInclude Include="include\wui\theme\theme_selector.hpp" />
     <ClInclude Include="include\wui\window\i_window.hpp" />
+    <ClInclude Include="include\wui\window\listener.hpp" />
     <ClInclude Include="include\wui\window\window.hpp" />
   </ItemGroup>
   <ItemGroup>

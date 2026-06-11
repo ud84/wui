@@ -20,7 +20,7 @@
 #include <mutex>
 
 #ifdef __linux__
-#include <wui/window/listener.h>
+#include <wui/window/listener.hpp>
 #endif
 
 namespace wui

@@ -7,7 +7,7 @@
 // Official repository: https://github.com/ud84/wui
 //
 
-#include <wui/window/listener.h>
+#include <wui/window/listener.hpp>
 
 
 namespace wui

@@ -17,7 +17,7 @@
 #include <windows.h>
 #include <gdiplus.h>
 #elif __linux__
-#include <wui/window/listener.h>
+#include <wui/window/listener.hpp>
 #endif
 
 #include <memory>
