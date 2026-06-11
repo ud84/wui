@@ -7,3 +7,4 @@ sudo apt install libxcb-cursor-dev
 sudo apt install libxcb-ewmh-dev
 sudo apt install libxcb-icccm4-dev
 sudo apt install libudev-dev
+#sudo apt install libpthread-stubs0-dev
