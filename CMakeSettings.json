@@ -1,0 +1,16 @@
+﻿{
+    "configurations": [
+        {
+            "name": "WSL-GCC-Debug",
+            "generator": "Ninja",
+            "configurationType": "Debug",
+            "buildRoot": "${projectDir}\\out\\build\\${name}",
+            "installRoot": "${projectDir}\\out\\install\\${name}",
+            "cmakeCommandArgs": "_DEBUG",
+            "buildCommandArgs": "",
+            "ctestCommandArgs": "",
+            "inheritEnvironments": [ "linux_x64" ],
+            "wslPath": "kali-linux"
+        }
+    ]
+}
