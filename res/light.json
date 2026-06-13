@@ -23,7 +23,7 @@
     {
       "type": "image",
       "resource": "IMAGES_LIGHT",
-      "path": "."
+      "path": "res/images/light"
     },
     {
       "type": "button",
