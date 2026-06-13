@@ -12,7 +12,7 @@
 namespace wui
 {
 
-std::string str(error_type t)
+std::string error::get_text(error_type t)
 {
     static const std::map<error_type, std::string> names = {
         { error_type::ok,             "ok"             },

@@ -25,32 +25,67 @@ enum class error_type
     already_started
 };
 
-std::string str(error_type);
 
-struct error
+class error
 {
     error_type type{ error_type::ok };
-    std::string component, message;
+    std::string component;
+    std::string message;
+public:
+    error(error_type type_, std::string_view component_,
+        std::string_view message_ = "") : type(type_), component(component_),
+        message(message_)
+    {
+    }
+
+    error() = default;
 
     inline bool operator==(const error &lv)
     {
-        return type == lv.type && component == lv.component;
+        return lv.type == type && lv.component == component;
     }
 
-    inline bool is_ok() const
+    [[nodiscard]] inline bool is_ok() const
     {
-        return type == error_type::ok;
+        return error_type::ok == type;
     }
 
     inline void reset()
     {
-        type = error_type::ok; component.clear(); message.clear();
+        type = error_type::ok;
+        component.clear();
+        message.clear();
     }
 
-    std::string str()
+    [[nodiscard]] inline error_type get_type() const
     {
-        return "WUI error :: type: " + wui::str(type) + ", component: " + component + ", message: " + message;
+        return type;
     }
+
+    [[nodiscard]] inline std::string get_component() const
+    {
+        return component;
+    }
+
+    [[nodiscard]] inline std::string get_message() const
+    {
+        return message;
+    }
+
+    inline void set(error_type type_, std::string_view component_,
+        std::string_view message_ = "")
+    {
+        type = type_;
+        component = component_;
+        message = message_;
+    }
+
+    [[nodiscard]] std::string str() const
+    {
+        return "WUI error :: type: " + get_text(type) + ", component: " + component + ", message: " + message;
+    }
+
+    [[nodiscard]] static std::string get_text(error_type t);
 };
 
 }
