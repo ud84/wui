@@ -18,14 +18,13 @@ namespace wui
 namespace framework
 {
 
-void init();
+[[nodiscard]] bool init();
 
 void run();
 void stop();
+[[nodiscard]] bool started();
 
-bool started();
-
-error get_error();
+[[nodiscard]] error get_error();
 
 }
 
