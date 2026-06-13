@@ -14,13 +14,16 @@ namespace wui
 {
 
 template <typename T>
-inline bool flag_is_set(T value, T flag)
+[[deprecated("Use | [AND] for enum (powers of two) class WUI.")]]
+constexpr inline bool flag_is_set(T value, T flag)
 {
-    return ((static_cast<int>(value)) & (static_cast<int>(flag)));
+    return ((static_cast<uint32_t>(value)) & (static_cast<uint32_t>(flag)));
 }
 
+
 template <typename T>
-T flags_map(int32_t cnt, ...)
+[[deprecated("Use | [OR] for enum (powers of two) class WUI.")]]
+constexpr T flags_map(int32_t cnt, ...)
 {
     va_list valist;
 
@@ -37,6 +40,5 @@ T flags_map(int32_t cnt, ...)
 
     return static_cast<T>(out);
 }
-
 
 }
