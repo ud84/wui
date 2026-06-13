@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <atomic>
+#include <condition_variable>
 
 namespace wui
 {
@@ -25,16 +26,19 @@ class framework_lin_impl : public i_framework
 {
 public:
     framework_lin_impl();
+    virtual ~framework_lin_impl() override = default;
 
-    virtual void run();
-    virtual void stop();
+    virtual void run() override;
+    virtual void stop() override;
 
-    virtual bool started() const;
+    [[nodiscard]] virtual bool started() const override;
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const override;
 
 private:
     std::atomic<bool> started_;
+    std::mutex mtx_cv_;
+    std::condition_variable cv_;
 
     error err;
 };
