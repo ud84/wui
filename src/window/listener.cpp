@@ -8,19 +8,11 @@
 //
 
 #include <wui/window/listener.hpp>
-
+#include <algorithm>
 
 namespace wui
 {
-
-listener::listener()
-    : started(false),
-    thread{},
-    context_{},
-    windows{},
-    err{}
-{
-}
+#if __linux__
 
 listener::~listener()
 {
@@ -50,20 +42,39 @@ void listener::delete_window(xcb_window_t id)
     }
 }
 
+// вариант function для физического окна:
+// sample function: [](const wnd& w) { return w.inited() && w.window_->get_graphic().inited();}
+std::shared_ptr<window> listener::get_any_window(std::function<bool(const wnd&)> cmp)
+{
+    auto it{ std::find_if(windows.begin(), windows.end(), [cmp](const auto& n) -> bool { return cmp(n.second); }) };
+    return it != windows.end() ? it->second.window_ : nullptr;
+}
+
+bool listener::is_init() const
+{
+    return nullptr != context_.display;
+}
+
 bool listener::init()
 {
-    context_.display = XOpenDisplay(NULL);
+    context_.display = XOpenDisplay(nullptr); //TODO: display_name.c_str()
     if (!context_.display)
     {
-        err.type = error_type::system_error;
-        err.component = "listener::start()";
-        err.message = "Can't make the connection to X server";
-        
+        err.set(error_type::system_error, "listener::start()", "Can't make the connection to X server");
         return false;
     }
 
     XSetEventQueueOwner(context_.display, XCBOwnsEventQueue);
     context_.connection = XGetXCBConnection(context_.display);
+    if (!context_.connection)
+    {
+        XCloseDisplay(context_.display);
+        context_.display = nullptr;
+
+        err.set(error_type::system_error,
+            "listener::start()", "Could not cast the Display object to an XCBConnection object.");
+        return false;
+    }
 
     context_.screen = xcb_setup_roots_iterator(xcb_get_setup(context_.connection)).data;
 
@@ -86,9 +97,15 @@ void listener::start()
 void listener::stop()
 {
     started = false;
-    if (thread.joinable()) thread.join();
+    if (thread.joinable())
+        thread.join();
 
-    XCloseDisplay(context_.display);
+    if (context_.display)
+    {
+        system_context context = context_;
+        context_.clear();
+        XCloseDisplay(context.display);
+    }
 }
 
 system_context const &listener::context() const
@@ -104,7 +121,10 @@ void listener::process_events()
     {
         xcb_window_t w = e->pad[2];
 
-        switch (e->response_type & ~0x80)
+        // макрос <xcb_event.h>
+        // XCB_EVENT_RESPONSE_TYPE(e) -> type&0x7f : ~0x80 = 0x7F
+        //switch (e->response_type & ~0x80)
+        switch (e->response_type & 0x7f)
         {
             case XCB_EXPOSE:
             {
@@ -120,7 +140,8 @@ void listener::process_events()
                 w = e->pad[0];
             }
             break;
-            default: break;
+            default:
+            break;
         }
 
         auto wnd = windows.find(w);
@@ -137,20 +158,24 @@ void listener::process_events()
             }
             w.window_->process_events(*e);
         }
-
         free(e);
     }
 }
 
-error const &listener::get_error() const
+error listener::get_error() const
 {
     return err;
 }
 
-listener& get_listener()
-{
-    static listener instance;
-    return instance;
-}
+// статические удаляются в достаточно произвольном порядке, находясь в разных единицах трансляции.
+// что вызывает ситуацию удаления instance до удаления последнего окна...
+// (в win32 это случится, в X11 ?)
+// https://evgenykislov.com/cpp-styleguide/cpp-styleguide-archive/cpp-styleguide-012023/
+//listener& get_listener()
+//{
+//    static listener instance;
+//    return instance;
+//}
+#endif
 
 }

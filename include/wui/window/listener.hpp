@@ -26,29 +26,54 @@ namespace wui
 
 #ifdef __linux__
 
-struct wnd
-{
-    std::shared_ptr<window> window_;
-    bool created = false;
-};
-
+// TODO:  i_listener, скрыть stop()
 class listener
 {
 public:
-    listener();
+    struct wnd
+    {
+        std::shared_ptr<window> window_;
+        bool created{ false };
+
+        [[nodiscard]] bool inited() const noexcept { return created && window_; }
+    };
+
+    listener() = default;
     ~listener();
 
     void add_window(xcb_window_t id, std::shared_ptr<window> window);
     void delete_window(xcb_window_t id);
 
-    bool init();
-    
-    system_context const &context() const;
+    [[nodiscard]] bool init();
+    [[nodiscard]] bool is_init() const;
 
-    error const &get_error() const;
+    [[nodiscard]] bool empty() const noexcept
+    {
+        return windows.empty();
+    }
+
+    [[nodiscard]] size_t count() const noexcept
+    {
+        return windows.size();
+    }
+
+    [[nodiscard]] std::shared_ptr<window> get_first()
+    {
+        auto it = windows.begin();
+        return it != windows.end() ? it->second.window_ : nullptr;
+    }
+
+    [[nodiscard]] std::shared_ptr<window> get_any_window(std::function<bool(const wnd&)> cmp);
+
+    [[nodiscard]] system_context const &context() const;
+
+    [[nodiscard]] error get_error() const;
+
+    void stop();
 
 private:
-    bool started;
+
+    std::atomic<bool> started{ false };
     std::thread thread;
     system_context context_;
 
@@ -57,28 +82,84 @@ private:
     error err;
 
     void start();
-    void stop();
-    
+
     void process_events();
 };
 
-listener& get_listener(); /// Singleton
+#elif _WIN32
 
-#else // Windows - stub implementation
-
+// Windows implementation
 class listener
 {
 public:
-    listener() {}
-    ~listener() {}
-    void add_window(void*, std::shared_ptr<window>) {}
-    void delete_window(void*) {}
-    bool init() { return true; }
-    system_context const &context() const { static system_context ctx{}; return ctx; }
-    error const &get_error() const { static error e{}; return e; }
+    struct wnd
+    {
+        std::shared_ptr<window> window_;
+
+        [[nodiscard]] bool inited() const noexcept { return nullptr != window_; }
+    };
+
+    listener() = default;
+    ~listener() { }
+
+    void add_window(void* hwnd, std::shared_ptr<window> window_)
+    {
+        auto w = windows.find(hwnd);
+        if (w == windows.end())
+        {
+            windows[hwnd] = { std::move(window_) }; //, 0 == windows.size()
+        };
+    }
+
+    void delete_window(void* hwnd)
+    {
+        auto w = windows.find(hwnd);
+        if (w != windows.end())
+        {
+            windows.erase(w);
+        }
+    }
+
+    constexpr bool init() const noexcept
+    {
+        return true;
+    }
+
+    [[nodiscard]] bool empty() const noexcept
+    {
+        return windows.empty();
+    }
+
+    [[nodiscard]] size_t count() const noexcept
+    {
+        return windows.size();
+    }
+
+    [[nodiscard]] std::shared_ptr<window> get_first()
+    {
+        auto it = windows.begin();
+        return it != windows.end() ? it->second.window_ : nullptr;
+    }
+
+    [[nodiscard]] std::shared_ptr<window> get_any_window(std::function<bool(const wnd&)> cmp)
+    {
+        auto it{ std::find_if(windows.begin(), windows.end(), [cmp](const auto& n) -> bool { return cmp(n.second); }) };
+        return it != windows.end() ? it->second.window_ : nullptr;
+    }
+
+    [[nodiscard]] system_context const &context() const { static system_context ctx{}; return ctx; }
+
+    [[nodiscard]] error get_error() const { return err; }
+
+private:
+    std::unordered_map<void*, wnd> windows;
+
+    error err;
+
+    //void stop() { };
+    //void start() { };
 };
 
-inline listener& get_listener() { static listener instance; return instance; }
 
 #endif
 
