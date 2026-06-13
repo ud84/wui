@@ -14,8 +14,6 @@
 
 #include <wui/system/tools.hpp>
 
-#include <wui/common/flag_helpers.hpp>
-
 #include <cmath>
 
 namespace wui
@@ -48,7 +46,7 @@ slider::~slider()
     }
 }
 
-void slider::draw(graphic &gr, rect)
+void slider::draw(graphic &gr, const rect&)
 {
     if (!showed_ || position_.is_null())
     {
@@ -63,7 +61,7 @@ void slider::draw(graphic &gr, rect)
 
     double total = (orientation == slider_orientation::horizontal ? control_pos.width() : control_pos.height()) - static_cast<double>(slider_width) / 2;
     double slider_pos;
-    
+
     if (centered_mode && orientation == slider_orientation::vertical && from < 0 && to > 0)
     {
         // Для centered режима позиция вычисляется отдельно в вертикальном блоке
@@ -71,7 +69,8 @@ void slider::draw(graphic &gr, rect)
     }
     else
     {
-        slider_pos = (total * static_cast<double>(value - from)) / static_cast<double>(to - from);
+        const auto d = static_cast<double>(to - from);
+        slider_pos = d ? (total * static_cast<double>(value - from)) / d : 0;
         if (slider_pos < static_cast<double>(slider_width) / 2)
         {
             slider_pos = static_cast<double>(slider_width) / 2;
@@ -103,12 +102,12 @@ void slider::draw(graphic &gr, rect)
     else if (orientation == slider_orientation::vertical)
     {
         auto center_x = control_pos.left + (control_pos.width() / 2) - 1;
-        
+
         if (centered_mode && from < 0 && to > 0)
         {
             // Режим с 0 посередине: нижняя часть = отрицательные, верхняя = положительные
             const double center_y = control_pos.top + control_pos.height() / 2.0; // Центр всего контрола
-            
+
             // slider_y_pos - это позиция ВЕРХНЕГО края слайдера (top)
             double slider_y_pos;
             if (value < 0)
@@ -148,7 +147,7 @@ void slider::draw(graphic &gr, rect)
                 // value == 0: точно в центре, верхний край = center_y - slider_width/2
                 slider_y_pos = center_y - static_cast<double>(slider_width) / 2.0;
             }
-            
+
             // Ограничить позицию
             if (slider_y_pos < static_cast<double>(control_pos.top))
             {
@@ -158,7 +157,7 @@ void slider::draw(graphic &gr, rect)
             {
                 slider_y_pos = static_cast<double>(control_pos.bottom) - slider_width;
             }
-            
+
             // Рисовать две части: нижняя (отрицательные) и верхняя (положительные)
             const int32_t center_y_int = static_cast<int32_t>(center_y);
             if (value < 0)
@@ -178,7 +177,7 @@ void slider::draw(graphic &gr, rect)
                 // value == 0: обе части неактивны
                 gr.draw_rect({ center_x - 1, control_pos.bottom, center_x + 1, control_pos.top }, remain_color);
             }
-            
+
             slider_position = { center_x - (slider_height / 2) + 1,
                     static_cast<int32_t>(slider_y_pos),
                     center_x + (slider_height / 2) - 1,
@@ -211,7 +210,7 @@ void slider::receive_control_events(const event &ev)
         return;
     }
 
-    if (ev.type == event_type::mouse)
+    if (ev.type & event_type::mouse)
     {
         switch (ev.mouse_event_.type)
         {
@@ -243,7 +242,7 @@ void slider::receive_control_events(const event &ev)
                     move_slider(ev.mouse_event_.x, ev.mouse_event_.y);
                 }
             break;
-            case mouse_event_type::left_up:                
+            case mouse_event_type::left_up:
                 active = false;
                 slider_scrolling = false;
                 if (drag_end_callback)
@@ -269,7 +268,7 @@ void slider::receive_control_events(const event &ev)
             break;
         }
     }
-    else if (ev.type == event_type::keyboard)
+    else if (ev.type & event_type::keyboard)
     {
         switch (ev.keyboard_event_.type)
         {
@@ -312,7 +311,7 @@ void slider::receive_control_events(const event &ev)
             break;
         }
     }
-    else if (ev.type == event_type::internal)
+    else if (ev.type & event_type::internal)
     {
         switch (ev.internal_event_.type)
         {
@@ -335,7 +334,7 @@ void slider::receive_plain_events(const event &ev)
         return;
     }
 
-    if (!mouse_on_control && ev.type == event_type::mouse)
+    if (!mouse_on_control && (ev.type & event_type::mouse))
     {
         switch (ev.mouse_event_.type)
         {
@@ -352,7 +351,7 @@ void slider::receive_plain_events(const event &ev)
     }
 }
 
-void slider::set_position(rect position__)
+void slider::set_position(const rect& position__)
 {
     position_ = position__;
 
@@ -369,7 +368,7 @@ void slider::set_parent(std::shared_ptr<window> window_)
     parent_ = window_;
 
     my_control_sid = window_->subscribe(std::bind(&slider::receive_control_events, this, std::placeholders::_1),
-        wui::flags_map<wui::event_type>(3, wui::event_type::internal, wui::event_type::mouse, wui::event_type::keyboard),
+        wui::event_type::internal | wui::event_type::mouse | wui::event_type::keyboard,
         shared_from_this());
 
     my_plain_sid = window_->subscribe(std::bind(&slider::receive_plain_events, this, std::placeholders::_1), event_type::mouse);
@@ -483,7 +482,7 @@ void slider::set_range(int32_t from_, int32_t to_)
 {
     from = from_;
     to = to_;
-    
+
     // Автоматически определяем centered режим
     if (orientation == slider_orientation::vertical && from_ < 0 && to_ > 0)
     {
@@ -543,7 +542,8 @@ void slider::redraw(bool clear)
 
 void slider::calc_consts()
 {
-    diff_size = static_cast<double>(to - from) / static_cast<double>(orientation == slider_orientation::horizontal ? position_.width() : position_.height());
+    const auto d_size = static_cast<double>(orientation == slider_orientation::horizontal ? position_.width() : position_.height());
+    diff_size = d_size ? static_cast<double>(to - from) / d_size : 0;
 }
 
 void slider::move_slider(int32_t x, int32_t y)
@@ -564,14 +564,14 @@ void slider::move_slider(int32_t x, int32_t y)
             const double total_height = control_pos.height() - static_cast<double>(slider_width);
             const double center_y = control_pos.top + control_pos.height() / 2.0; // Центр всего контрола
             const double half_height = total_height / 2.0;
-            
+
             // Доступная область для центра слайдера
             const double top_limit = control_pos.top + static_cast<double>(slider_width) / 2.0;
             const double bottom_limit = control_pos.bottom - static_cast<double>(slider_width) / 2.0;
-            
+
             // Ограничить y в доступных пределах (y это центр слайдера)
             double slider_center_y = (std::max)(top_limit, (std::min)(bottom_limit, static_cast<double>(y)));
-            
+
             if (slider_center_y >= center_y)
             {
                 // Нижняя часть: отрицательные значения
@@ -580,7 +580,7 @@ void slider::move_slider(int32_t x, int32_t y)
                 // Решаем обратно: slider_center_y - bottom + slider_width/2 = -(half_height) * neg_progress
                 // neg_progress = (bottom - slider_width/2 - slider_center_y) / half_height
                 const double bottom_center = bottom_limit; // bottom - slider_width/2
-                
+
                 // ФИКС: Если слайдер в самом низу (около bottom_limit), устанавливаем from
                 const double epsilon = 2.0; // Небольшая погрешность в пикселях
                 if (std::abs(slider_center_y - bottom_center) < epsilon)
@@ -606,7 +606,7 @@ void slider::move_slider(int32_t x, int32_t y)
                 // Решаем обратно: slider_center_y - center_y + slider_width/2 = -(half_height) * pos_progress
                 // pos_progress = (center_y - slider_width/2 - slider_center_y) / half_height
                 const double center_center = center_y - static_cast<double>(slider_width) / 2.0;
-                
+
                 // ФИКС: Если слайдер в самом верху (около top_limit), устанавливаем to
                 const double epsilon = 2.0; // Небольшая погрешность в пикселях
                 if (std::abs(slider_center_y - top_limit) < epsilon)
@@ -621,7 +621,7 @@ void slider::move_slider(int32_t x, int32_t y)
                     // value = pos_range * pos_progress
                     value = static_cast<int32_t>(pos_range * (std::max)(0.0, (std::min)(1.0, pos_progress))); // от 0 до to (+7)
                     // ФИКС: Если значение близко к to (в пределах погрешности округления), устанавливаем точно to
-                    if (value < to && pos_progress >= 0.95) // Если прогресс >= 95%, считаем что достигли максимума
+                    if (value < to && pos_progress >= _pos_progress_max) // Если прогресс >= 95%, считаем что достигли максимума
                     {
                         value = to;
                     }

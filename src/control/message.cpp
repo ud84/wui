@@ -10,12 +10,19 @@
 #include <wui/locale/locale.hpp>
 #include <wui/theme/theme.hpp>
 
-#include <cstring>
-#include <vector>
-#include <sstream>
+#ifdef min
+#   undef min
+#endif
+#ifdef max
+#   undef max
+#endif
 
 namespace wui
 {
+constexpr int32_t space = 20;
+constexpr int32_t space_half = space / 2;
+constexpr int32_t btn_width = 80;
+constexpr int32_t btn_height = 25;
 
 message::message(std::shared_ptr<wui::window> transient_window__,
     bool docked__,
@@ -23,7 +30,7 @@ message::message(std::shared_ptr<wui::window> transient_window__,
     : icon_(message_icon::information),
     button_(message_button::ok),
     result_callback(),
-    transient_window_(transient_window__), docked_(docked__),
+    transient_window_(transient_window__),
     theme_(theme__),
     window_(std::make_shared<window>(window::tc, theme_)),
     icon(std::make_shared<image>(theme_image("message_info", theme_))),
@@ -31,151 +38,105 @@ message::message(std::shared_ptr<wui::window> transient_window__,
     button0(std::make_shared<button>("", std::bind(&message::button0_click, this), button::tc, theme_)),
     button1(std::make_shared<button>("", std::bind(&message::button1_click, this), button::tc, theme_)),
     button2(std::make_shared<button>("", std::bind(&message::button2_click, this), button::tc, theme_)),
+    docked_(docked__),
     result_(message_result::undef)
 {
-    window_->set_transient_for(transient_window_, docked_);
 }
 
 message::~message()
 {
 }
 
-void message::show(std::string_view message_,
+void message::set_docked(const bool docked)
+{
+    docked_ = docked;
+    window_->set_transient_for(transient_window_, docked);
+}
+
+void message::show(std::string_view message__,
     std::string_view title_,
-    message_icon icon__,
-    message_button button__,
+    const message_icon icon__,
+    const message_button button__,
     std::function<void(message_result)> result_callback_)
 {
-    if (window_->context().valid())
+    if (window_->context().physical())
     {
         return;
     }
 
+    message_ = message__;
     icon_ = icon__;
     button_ = button__;
     result_callback = result_callback_;
 
     result_ = message_result::undef;
+    ctrl_pos_inited_ = false;
 
-    text_->set_text(message_);
+    text_->set_text<false>(message_);
 
-    switch (icon_)
+    if (!transient_window_ || !transient_window_->context().physical())
     {
+        docked_ = false;
+    }
+
+    window_->set_transient_for(transient_window_, docked_);
+
+    switch (icon_) {
         case message_icon::alert:
-            icon->change_image(theme_image("message_alert", theme_));
-        break;
+            icon->change_image_raw("message_alert", theme_);
+            break;
         case message_icon::information:
-            icon->change_image(theme_image("message_info", theme_));
-        break;
+            icon->change_image_raw("message_info", theme_);
+            break;
         case message_icon::question:
-            icon->change_image(theme_image("message_question", theme_));
-        break;
+            icon->change_image_raw("message_question", theme_);
+            break;
         case message_icon::stop:
-            icon->change_image(theme_image("message_stop", theme_));
-        break;
+            icon->change_image_raw("message_stop", theme_);
+            break;
     }
 
-    auto text_size = get_text_size();
+    int32_t width_ = 10, height_ = 10;
+    if(graphic::text_measurer_inited())
+        calc_ctrl_position(width_, height_);
+    // else dialog window is root [graphic not initialized]
 
-    auto width = text_size.width() + 110;
-    auto height = text_size.height() + 130;
-
-    window_->add_control(icon, { 20, 50, 68, 98 });
-
-    window_->add_control(text_, { 90, 40, 90 + text_size.width(), 50 + text_size.height() });
-
-    auto btn_width = 80;
-    auto btn_height = 25;
-    auto top = height - btn_height - 20;
-
-    switch (button_)
-    {
-        case message_button::ok:
-        {
-            if (width <= btn_width)
-            {
-                width = btn_width * 2;
+    window_->subscribe(
+        [this](const wui::event& e) {
+            if (e.type & wui::event_type::internal) {
+                switch (e.internal_event_.type) {
+                    case wui::internal_event_type::window_created:
+                    {
+                        const rect tw_pos = transient_window_->position();
+                        if (!ctrl_pos_inited_)
+                        {
+                            // dialog window is root [graphic not initialized ]
+                            rect pos = window_->position();
+                            int32_t width_ = 10, height_ = 10;
+                            calc_ctrl_position(width_, height_);
+                            pos.resize(width_, height_);
+                            window_->set_position(pos);
+                        }
+                        add_controls();
+                    }
+                    break;
+                }
             }
-
-            auto left = (width - btn_width) / 2;
-
-            button0->set_caption(locale("button", "ok"));
-            window_->add_control(button0, { left, top, left + btn_width , top + btn_height });
-        }
-        break;
-        case message_button::ok_cancel: case message_button::yes_no: case message_button::retry_cancel:
-        {
-            if (width <= (btn_width + 10) * 2)
-            {
-                width = (btn_width + 10) * 3;
-            }
-
-            auto left = (width - (btn_width + 10) * 2) / 2;
-
-            std::string btn0_caption = "ok", btn1_caption = "cancel";
-            switch (button_)
-            {
-                case message_button::yes_no:
-                    btn0_caption = "yes", btn1_caption = "no";
-                break;
-                case message_button::retry_cancel:
-                    btn0_caption = "retry", btn1_caption = "cancel";
-                break;
-            }
-
-            button0->set_caption(locale("button", btn0_caption));
-            window_->add_control(button0, { left, top, left + btn_width , top + btn_height });
-
-            button1->set_caption(locale("button", btn1_caption));
-            window_->add_control(button1, { left + btn_width + 20, top, left + (btn_width * 2) + 20, top + btn_height });
-        }
-        break;
-        case message_button::abort_retry_ignore: case message_button::cancel_try_continue: case message_button::yes_no_cancel:
-        {
-            if (width <= (btn_width + 10) * 3)
-            {
-                width = (btn_width + 10) * 4;
-            }
-
-            auto left = (width - (btn_width + 10) * 3) / 2;
-
-            std::string btn0_caption = "abort", btn1_caption = "retry", btn2_caption = "ignore";
-            if (button_ == message_button::cancel_try_continue)
-            {
-                btn0_caption = "cancel", btn1_caption = "try", btn2_caption = "continue";
-            }
-            else if (button_ == message_button::yes_no_cancel)
-            {
-                btn0_caption = "yes", btn1_caption = "no", btn2_caption = "cancel";
-            }
-
-            button0->set_caption(locale("button", btn0_caption));
-            window_->add_control(button0, { left, top, left + btn_width , top + btn_height });
-
-            button1->set_caption(locale("button", btn1_caption));
-            window_->add_control(button1, { left + btn_width + 20, top, left + (btn_width * 2) + 20, top + btn_height });
-
-            button2->set_caption(locale("button", btn2_caption));
-            window_->add_control(button2, { left + (btn_width * 2) + 40, top, left + (btn_width * 3) + 40, top + btn_height });
-        }
-        break;
-    }
-
-    window_->set_focused(button0);
+        }, wui::event_type::internal);
 
     constexpr window_style dialog_top = window_style::title_showed | window_style::topmost
         | window_style::close_button | window_style::moving | window_style::border_all;
 
-    window_->init(title_, { 0, 0, width, height },
+    window_->init(title_, { 0, 0, width_, height_ },
                   docked_ ? window_style::dialog : dialog_top, [this]() {
-        if (result_callback)
-        {
-            result_callback(result_);
-        }
-    });
+            if (result_callback)
+            {
+                result_callback(result_);
+            }
+        });
 }
 
-message_result message::get_result() const
+message_result message::get_result() const noexcept
 {
     return result_;
 }
@@ -200,7 +161,7 @@ void message::button0_click()
             result_ = message_result::cancel;
         break;
     }
-    window_->destroy();
+    window_->close();
 }
 
 void message::button1_click()
@@ -221,7 +182,7 @@ void message::button1_click()
         break;
         default: break;
     }
-    window_->destroy();
+    window_->close();
 }
 
 void message::button2_click()
@@ -239,32 +200,126 @@ void message::button2_click()
         break;
         default: break;
     }
-    window_->destroy();
+    window_->close();
 }
 
-rect message::get_text_size()
+void message::calc_ctrl_position(int32_t& width_, int32_t& height_)
 {
-    if (!transient_window_)
-    {
-        return { 0 };
-    }
+    if (ctrl_pos_inited_)
+        return;
 
-    std::stringstream text__(text_->get_text().data());
-    std::string line, max_line;
-    int32_t lines_count = 0;
+    ctrl_pos_inited_ = true;
 
-    while (std::getline(text__, line, '\n'))
-    {
-        if (max_line.size() < line.size())
+    const auto _top = window_->caption_height() + space;
+    const auto _icon_width = icon->width();
+    const auto _icon_height = icon->height();
+    const rect text_rect = text_->get_preferred_size();
+    const auto _text_height = text_rect.height();
+
+    const auto _icon_top = _icon_height > _text_height ? _top : _top + (_text_height - _icon_height) / 2;
+    icon_position_ = rect{ space, _icon_top, space + _icon_width, _icon_top + _icon_height };
+
+    const auto _text_top = _text_height > _icon_height ? _top : _top + (_icon_height - _text_height) / 2;
+    const auto height = std::max(_text_top + _text_height, _icon_top + _icon_height) + btn_height + space * 2;
+    const auto top = height - btn_height - space;
+    auto width = _icon_width + space * 3 + text_rect.width();
+
+    switch (button_) {
+        case message_button::ok:
         {
-            max_line = line;
+            if (width <= btn_width) {
+                width = btn_width * 2;
+            }
+
+            const auto left = (width - btn_width) / 2;
+            button0_position_ = rect{ left, top, left + btn_width , top + btn_height };
         }
-        ++lines_count;
+        break;
+        case message_button::ok_cancel: case message_button::yes_no: case message_button::retry_cancel:
+        {
+            if (width <= (btn_width + space_half) * 2) {
+                width = (btn_width + space_half) * 3;
+            }
+
+            const auto left = (width - (btn_width + space_half) * 2) / 2;
+
+            button0_position_ = rect{ left, top, left + btn_width , top + btn_height };
+            button1_position_ = rect{ left + btn_width + space, top, left + (btn_width * 2) + space, top + btn_height };
+        }
+        break;
+        case message_button::abort_retry_ignore: case message_button::cancel_try_continue: case message_button::yes_no_cancel:
+        {
+            if (width <= (btn_width + space_half) * 3) {
+                width = (btn_width + space_half) * 4;
+            }
+
+            const auto left = (width - (btn_width + space_half) * 3) / 2;
+            button0_position_ = rect{ left, top, left + btn_width , top + btn_height };
+            button1_position_ = rect{ left + btn_width + space, top, left + (btn_width * 2) + space, top + btn_height };
+            button2_position_ = rect{ left + ((btn_width + space) * 2), top, left + (btn_width * 3) + space * 2, top + btn_height };
+        }
+        break;
     }
 
-    auto text_size = measure_text(max_line, theme_font(text::tc, text::tv_font, theme_));
+    const auto _text_left = (width + space + _icon_width - text_rect.width()) / 2;
+    text_position_ = rect{ _text_left, _text_top, _text_left + text_rect.width(), _text_top + _text_height};
+    width_ = width;
+    height_ = height;
+}
 
-    return { 0, 0, text_size.width(), static_cast<int32_t>(text_size.height() * 1.2 * lines_count) };
+void message::add_controls()
+{
+    window_->add_control(icon, icon_position_);
+
+    switch (button_) {
+        case message_button::ok:
+        {
+            button0->set_caption(locale("button", "ok"));
+            window_->add_control(button0, button0_position_);
+        }
+        break;
+        case message_button::ok_cancel: case message_button::yes_no: case message_button::retry_cancel:
+        {
+            std::string btn0_caption = "ok", btn1_caption = "cancel";
+            switch (button_) {
+                case message_button::yes_no:
+                    btn0_caption = "yes", btn1_caption = "no";
+                    break;
+                case message_button::retry_cancel:
+                    btn0_caption = "retry", btn1_caption = "cancel";
+                    break;
+            }
+
+            button0->set_caption(locale("button", btn0_caption));
+            window_->add_control(button0, button0_position_);
+
+            button1->set_caption(locale("button", btn1_caption));
+            window_->add_control(button1, button1_position_);
+        }
+        break;
+        case message_button::abort_retry_ignore: case message_button::cancel_try_continue: case message_button::yes_no_cancel:
+        {
+            std::string btn0_caption = "abort", btn1_caption = "retry", btn2_caption = "ignore";
+            if (button_ == message_button::cancel_try_continue) {
+                btn0_caption = "cancel", btn1_caption = "try", btn2_caption = "continue";
+            } else if (button_ == message_button::yes_no_cancel) {
+                btn0_caption = "yes", btn1_caption = "no", btn2_caption = "cancel";
+            }
+
+            button0->set_caption(locale("button", btn0_caption));
+            window_->add_control(button0, button0_position_);
+
+            button1->set_caption(locale("button", btn1_caption));
+            window_->add_control(button1, button1_position_);
+
+            button2->set_caption(locale("button", btn2_caption));
+            window_->add_control(button2, button2_position_);
+        }
+        break;
+    }
+
+    window_->add_control(text_, text_position_);
+    window_->set_focused(button0);
 }
 
 }

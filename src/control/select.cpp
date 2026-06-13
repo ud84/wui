@@ -16,8 +16,6 @@
 
 #include <wui/system/tools.hpp>
 
-#include <wui/common/flag_helpers.hpp>
-
 #include <boost/nowide/convert.hpp>
 #include <utf8/utf8.h>
 
@@ -63,7 +61,12 @@ select::~select()
     }
 }
 
-void select::draw(graphic &gr, rect)
+int32_t select::get_font_size() const
+{
+    return theme_font(tcn, tv_font, theme_).size;
+}
+
+void select::draw(graphic &gr, const rect&)
 {
     if (!showed_ || position_.is_null())
     {
@@ -104,7 +107,7 @@ void select::draw(graphic &gr, rect)
 
     auto text_size = measure_text(text, font_, &gr);
 
-    truncate_line(text, gr, font_, control_pos.width() - control_pos.height());
+    truncate_line(text, &gr, font_, control_pos.width() - control_pos.height());
 
     gr.draw_text({ control_pos.left + border_width + select_horizontal_indent,
         control_pos.top + (control_pos.height() - text_size.height()) / 2 },
@@ -113,11 +116,12 @@ void select::draw(graphic &gr, rect)
         font_);
 }
 
-void select::draw_arrow_down(graphic &gr, rect pos)
+void select::draw_arrow_down(graphic &gr, const rect &pos)
 {
-    auto color = theme_color(tcn, !active ? tv_border : tv_focused_border, theme_);
+    auto color = get_rgb(theme_color(tcn, !active ? tv_border : tv_focused_border, theme_));
 
-    int w = 8, h = 4;
+    constexpr int h = 4;
+    int w = 8;
 
     for (int j = 0; j != h; ++j)
     {
@@ -149,12 +153,13 @@ void select::select_down()
 
 void select::show_list()
 {
-    list_->set_position({ position_.left, position_.top, position_.right, position_.top + item_height_ * static_cast<int32_t>(items_.size()) });
-    auto pos = get_popup_position(parent_, position(), list_->position(), 0);
-    
+    list_->set_position({ position_.left, position_.top, position_.right,
+        position_.top + item_height_ * static_cast<int32_t>(items_.size()) });
+    const auto pos = get_popup_position(parent_, position(), list_->position(), 0);
+
     list_->set_position(pos);
     list_->show();
-    
+
     auto parent__ = parent_.lock();
     if (parent__)
     {
@@ -171,7 +176,7 @@ void select::receive_control_events(const event &ev)
         return;
     }
 
-    if (ev.type == event_type::mouse)
+    if (ev.type & event_type::mouse)
     {
         switch (ev.mouse_event_.type)
         {
@@ -206,7 +211,7 @@ void select::receive_control_events(const event &ev)
             break;
         }
     }
-    else if (ev.type == event_type::keyboard)
+    else if (ev.type & event_type::keyboard)
     {
         switch (ev.keyboard_event_.type)
         {
@@ -237,7 +242,7 @@ void select::receive_control_events(const event &ev)
             break;
         }
     }
-    else if (ev.type == event_type::internal)
+    else if (ev.type & event_type::internal)
     {
         switch (ev.internal_event_.type)
         {
@@ -300,7 +305,7 @@ void select::update_list_theme()
     list_theme->set_dimension(list::tc, list::tv_round, theme_dimension(tcn, tv_round, theme_));
 }
 
-void select::set_position(rect position__)
+void select::set_position(const rect& position__)
 {
     position_ = position__;
 }
@@ -320,11 +325,11 @@ void select::set_parent(std::shared_ptr<window> window_)
         list_->hide();
 
         my_control_sid = window_->subscribe(std::bind(&select::receive_control_events, this, std::placeholders::_1),
-            wui::flags_map<wui::event_type>(3, wui::event_type::internal, wui::event_type::mouse, wui::event_type::keyboard),
+            wui::event_type::internal | wui::event_type::mouse | wui::event_type::keyboard,
             shared_from_this());
 
         my_plain_sid = window_->subscribe(std::bind(&select::receive_plain_events, this, std::placeholders::_1),
-            wui::flags_map<wui::event_type>(2, wui::event_type::mouse, wui::event_type::keyboard));
+            wui::event_type::mouse | wui::event_type::keyboard);
     }
 }
 
@@ -339,7 +344,7 @@ void select::clear_parent()
     if (parent__)
     {
         parent__->remove_control(list_);
-        
+
         parent__->unsubscribe(my_control_sid);
         my_control_sid.clear();
 
@@ -447,7 +452,7 @@ void select::update_item(const select_item &si)
     list_->set_item_count(static_cast<int32_t>(items_.size()));
 }
 
-void select::swap_items(int64_t first_item_id, int64_t second_item_id)
+void select::swap_items(const int64_t first_item_id, const int64_t second_item_id)
 {
     auto first_it = std::find(items_.begin(), items_.end(), first_item_id);
     if (first_it != items_.end())
@@ -461,7 +466,7 @@ void select::swap_items(int64_t first_item_id, int64_t second_item_id)
     list_->set_item_count(static_cast<int32_t>(items_.size()));
 }
 
-void select::delete_item(int64_t id)
+void select::delete_item(const int64_t id)
 {
     auto it = std::find(items_.begin(), items_.end(), id);
     if (it != items_.end())
@@ -471,18 +476,18 @@ void select::delete_item(int64_t id)
     list_->set_item_count(static_cast<int32_t>(items_.size()));
 }
 
-void select::set_item_height(int32_t item_height__)
+void select::set_item_height(const int32_t item_height__) noexcept
 {
     item_height_ = item_height__;
 }
 
-void select::select_item_number(int32_t index)
+void select::select_item_number(const int32_t index)
 {
     list_->select_item(index);
     redraw();
 }
 
-void select::select_item_id(int64_t id)
+void select::select_item_id(const int64_t id)
 {
     for (int32_t i = 0; i != static_cast<int32_t>(items_.size()); ++i)
     {
@@ -514,7 +519,7 @@ const select_items_t &select::items() const
     return items_;
 }
 
-void select::set_change_callback(std::function<void(int32_t, int64_t)> change_callback_)
+void select::set_change_callback(std::function<void(int32_t, int64_t)> change_callback_) noexcept
 {
     change_callback = change_callback_;
 }
@@ -533,7 +538,7 @@ void select::redraw()
     }
 }
 
-void select::draw_list_item(graphic &gr, int32_t n_item, rect item_rect, list::item_state state)
+void select::draw_list_item(graphic &gr, const int32_t n_item, const rect &item_rect, const list::item_state state)
 {
     if (static_cast<int32_t>(items_.size()) <= n_item)
     {
@@ -558,20 +563,19 @@ void select::draw_list_item(graphic &gr, int32_t n_item, rect item_rect, list::i
 
     auto text_size = measure_text(text, font, &gr);
 
-    truncate_line(text, gr, font, item_rect.width() - item_rect.height());
+    truncate_line(text, &gr, font, item_rect.width() - item_rect.height());
 
     auto text_height = text_size.height();
     gr.draw_text({ item_rect.left + select_horizontal_indent, item_rect.top + (item_rect.height() - text_height) / 2 }, text, text_color, font);
 }
 
-void select::activate_list_item(int32_t n_item)
+void select::activate_list_item(const int32_t n_item [[maybe_unused]] )
 {
-    (void)n_item; // Unused in this implementation
     list_->hide();
     redraw();
 }
 
-void select::change_list_item(int32_t n_item)
+void select::change_list_item(const int32_t n_item)
 {
     if (change_callback)
     {

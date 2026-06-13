@@ -16,7 +16,13 @@
 #include <wui/theme/theme.hpp>
 
 #include <wui/system/tools.hpp>
-#include <wui/common/flag_helpers.hpp>
+
+#ifdef min
+#   undef min
+#endif
+#ifdef max
+#   undef max
+#endif
 
 namespace wui
 {
@@ -24,25 +30,25 @@ namespace wui
 button::button(std::string_view caption_, std::function<void(void)> click_callback_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view::text),
     caption(caption_),
+    caption_org(caption_),
     image_(),
     image_size(0),
     tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_{ 0 },
+    position_{ },
     parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     pushed(false),
     turned_(false),
-    text_rect{ 0 },
-    err{}
+    text_rect_{ }
 {
 }
 
-std::shared_ptr<image> get_button_image(button_view button_view_, std::shared_ptr<i_theme> theme_)
+static std::shared_ptr<image> get_button_image(button_view button_view_, std::shared_ptr<i_theme> theme_)
 {
     switch (button_view_)
     {
@@ -61,21 +67,21 @@ std::shared_ptr<image> get_button_image(button_view button_view_, std::shared_pt
 button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
+    caption_org(caption_),
     image_(get_button_image(button_view__, theme__)),
     image_size(0),
     tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_{ 0 },
+    position_{ },
     parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     pushed(false),
     turned_(false),
-    text_rect{ 0 },
-    err{}
+    text_rect_{ }
 {
     if (image_) update_err("button::constructor[image from theme standart buttons]", image_->get_error());
 }
@@ -84,20 +90,20 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
 button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, int32_t image_resource_index_, int32_t image_size_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
+    caption_org(caption_),
     image_(std::make_shared<image>(image_resource_index_, theme__)),
     image_size(image_size_),
     tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_{ 0 },
+    position_{ },
     parent_(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     pushed(false),
     turned_(false),
-    text_rect{ 0 },
-    err{}
+    text_rect_{ }
 {
     update_err("button::constructor[image from resource]", image_->get_error());
 }
@@ -106,20 +112,20 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
 button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, std::string_view imageFileName_, int32_t image_size_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
+    caption_org(caption_),
     image_(std::make_shared<image>(imageFileName_, theme__)),
     image_size(image_size_),
     tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_{ 0 },
+    position_{ },
     parent_(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     pushed(false),
     turned_(false),
-    text_rect{ 0 },
-    err{}
+    text_rect_{ }
 {
     update_err("button::constructor[image from file]", image_->get_error());
 }
@@ -127,21 +133,21 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
 button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, const std::vector<uint8_t> &image_data, int32_t image_size_, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
+    caption_org(caption_),
     image_(std::make_shared<image>(image_data)),
     image_size(image_size_),
     tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
     tcn(theme_control_name_),
     theme_(theme__),
-    position_{ 0 },
+    position_{ },
     parent_(),
     my_subscriber_id(),
     showed_(true), enabled_(true), topmost_(false), active(false), focused_(false),
     focusing_(theme_dimension(tcn, tv_focusing, theme_) != 0),
     pushed(false),
     turned_(false),
-    text_rect{ 0 },
-    err{}
+    text_rect_{ }
 {
     update_err("button::constructor[image from data]", image_->get_error());
 }
@@ -155,7 +161,73 @@ button::~button()
     }
 }
 
-void button::draw(graphic &gr, rect)
+constexpr int32_t _text_bottom_add = 2;
+constexpr int32_t _text_space = 10;
+constexpr int32_t _text_bottom_space = 6;
+
+rect button::get_preferred_size()
+{
+    rect text_rect{ }; // NB: text_rec_ не устанавливаем
+    if (button_view_ != button_view::image && !caption_org.empty())
+    {
+        auto font_ = theme_font(tcn, tv_font, theme_);
+        auto parent__ = parent_.lock();
+        text_rect = measure_text(caption_org, font_, parent__ ?
+            &parent__->get_graphic() : nullptr);
+        text_rect.bottom += _text_bottom_add;
+    }
+
+    rect pref_rect{ };
+
+    switch (button_view_) {
+        case button_view::text: case button_view::anchor: case button_view::sheet:
+            pref_rect.right = text_rect.right + _text_space;
+            pref_rect.bottom = text_rect.bottom + _text_bottom_space;
+            break;
+        case button_view::image:
+            if (image_) {
+                pref_rect.right = image_size;
+                pref_rect.bottom = image_size;
+            }
+            break;
+        case button_view::image_right_text:
+            if (image_) {
+                pref_rect.right = image_size + text_rect.right + _text_space;
+                pref_rect.bottom = std::max(image_size + _text_space, text_rect.bottom + _text_bottom_space);
+            }
+            else
+            {
+                pref_rect.right = text_rect.right + _text_space;
+                pref_rect.bottom = std::max(_text_space, text_rect.bottom + _text_bottom_space);
+            }
+            break;
+        case button_view::switcher: case button_view::radio:
+            if (image_) {
+                pref_rect.right = image_->width() + text_rect.right + _text_space;
+                pref_rect.bottom = _text_bottom_space + std::max(image_->height(), text_rect.bottom);
+            }
+            else
+            {
+                pref_rect.right = text_rect.right + _text_space;
+                pref_rect.bottom = text_rect.bottom + _text_bottom_space;
+            }
+            break;
+        case button_view::image_bottom_text:
+            if (image_) {
+                pref_rect.right = _text_space + std::max(image_size, text_rect.right);
+                pref_rect.bottom = text_rect.bottom + std::max(image_size + _text_space, _text_bottom_space);
+            }
+            else
+            {
+                pref_rect.right = text_rect.right + _text_space;
+                pref_rect.bottom = text_rect.bottom + std::max(_text_space, _text_bottom_space);
+            }
+            break;
+    }
+    return pref_rect;
+}
+
+void button::draw(graphic &gr, const rect&)
 {
     if (!showed_ || position_.is_null())
     {
@@ -164,32 +236,42 @@ void button::draw(graphic &gr, rect)
 
     auto font_ = theme_font(tcn, tv_font, theme_);
 
-    if (button_view_ != button_view::image && !caption.empty() && text_rect.width() == 0)
+    if (button_view_ != button_view::image && !caption_org.empty() && text_rect_.width() == 0)
     {
-        text_rect = measure_text(caption, font_, &gr);
-        text_rect.bottom += 2;
+        text_rect_ = measure_text(caption_org, font_, &gr);
+        text_rect_.bottom += _text_bottom_add;
     }
 
-    int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
-
-    auto control_pos = position();
+    int32_t text_top{ }, text_left{ }, image_left{ }, image_top{ };
 
     switch (button_view_)
     {
-        case button_view::text: case button_view::anchor: case button_view::sheet:
-            if (text_rect.right + 10 > position_.width())
+        case button_view::text: case button_view::anchor:// case button_view::sheet:
+            if (text_rect_.right + _text_space > position_.width())
             {
-                position_.right = position_.left + text_rect.right + 10;
-                return redraw();
+                position_.right = position_.left + text_rect_.right + _text_space;
             }
-            if (text_rect.bottom + 6 > position_.height())
+            if (text_rect_.bottom + _text_bottom_space > position_.height())
             {
-                position_.bottom = position_.top + text_rect.bottom + 6;
-                return redraw();
+                position_.bottom = position_.top + text_rect_.bottom + _text_bottom_space;
             }
-
-            text_left = button_view_ == button_view::text ? control_pos.left + ((control_pos.width() - text_rect.right) / 2) : control_pos.left;
-            text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
+            {
+                auto control_pos = position();
+                text_left = control_pos.left;
+                if (button_view_ == button_view::text) {
+                    text_left += (control_pos.width() - text_rect_.right) / 2;
+                }
+                text_top = control_pos.top + (control_pos.height() - text_rect_.bottom) / 2;
+            }
+        break;
+        case button_view::sheet:
+            {
+                auto control_pos = position();
+                text_left = control_pos.left;
+                text_top = control_pos.top + (control_pos.height() - text_rect_.bottom) / 2;
+                caption = caption_org;
+                truncate_line(caption, &gr, font_, control_pos.right - text_left);
+            }
         break;
         case button_view::image:
             if (image_)
@@ -197,93 +279,92 @@ void button::draw(graphic &gr, rect)
                 if (image_size > position_.width())
                 {
                     position_.right = position_.left + image_size;
-                    return redraw();
                 }
                 if (image_size > position_.height())
                 {
                     position_.bottom = position_.top + image_size;
-                    return redraw();
                 }
-
-                image_left = control_pos.left + ((control_pos.width() - image_size) / 2);
-                image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
+                auto control_pos = position();
+                image_left = control_pos.left + (control_pos.width() - image_size) / 2;
+                image_top = control_pos.top + (control_pos.height() - image_size) / 2;
             }
         break;
         case button_view::image_right_text:
-            if (image_)
             {
-                if (image_size + text_rect.right + 10 > position_.width())
+                if (image_size + text_rect_.right + _text_space > position_.width())
                 {
-                    position_.right = position_.left + text_rect.right + image_size + 10;
-                    return redraw();
+                    position_.right = position_.left + text_rect_.right + image_size + _text_space;
                 }
-                if (image_size + 10 > position_.height())
+                if (image_size + _text_space > position_.height())
                 {
-                    position_.bottom = position_.top + image_size + 10;
-                    return redraw();
+                    position_.bottom = position_.top + image_size + _text_space;
                 }
-                if (text_rect.bottom + 6 > position_.height())
+                if (text_rect_.bottom + _text_bottom_space > position_.height())
                 {
-                    position_.bottom = position_.top + text_rect.bottom + 6;
-                    return redraw();
+                    position_.bottom = position_.top + text_rect_.bottom + _text_bottom_space;
                 }
+                const auto control_pos = position();
 
-                image_left = control_pos.left + ((control_pos.width() - text_rect.right - image_size - 5) / 2);
-                image_top = control_pos.top + ((control_pos.height() - image_size) / 2);
-                text_left = image_left + image_size + 5;
-                text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
+                image_left = control_pos.left + ((control_pos.width() - text_rect_.right - image_size - _text_space / 2) / 2);
+                image_top = control_pos.top + (control_pos.height() - image_size) / 2;
+                text_left = image_left + image_size + _text_space / 2;
+
+                text_top = control_pos.top + (control_pos.height() - text_rect_.bottom) / 2;
             }
         break;
         case button_view::switcher: case button_view::radio:
-            if (image_)
             {
-                if (image_->height() + 6 > position_.height())
-                {
-                    position_.bottom = position_.top + image_->height() + 6;
-                    return redraw();
+                if (image_ && (image_->height() + _text_bottom_space > position_.height())) {
+                    position_.bottom = position_.top + image_->height() + _text_bottom_space;
                 }
-                if (text_rect.bottom + 6 > position_.height())
-                {
-                    position_.bottom = position_.top + text_rect.bottom + 6;
-                    return redraw();
+                if (text_rect_.bottom + _text_bottom_space > position_.height()) {
+                    position_.bottom = position_.top + text_rect_.bottom + _text_bottom_space;
                 }
 
+                const auto control_pos = position();
                 image_left = control_pos.left;
-                image_top = control_pos.top + ((control_pos.height() - image_->height()) / 2);
-                text_left = image_left + image_->width() + 5;
-                text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
+                text_left = image_left + _text_space / 2;
+                if (image_) {
+                    image_top = control_pos.top + (control_pos.height() - image_->height()) / 2;
+                    text_left += image_->width();
+                }
+                else
+                {
+                    image_top = control_pos.top + control_pos.height() / 2;
+                }
 
-                truncate_line(caption, gr, font_, control_pos.right - text_left - 10);
+                text_top = control_pos.top + (control_pos.height() - text_rect_.bottom) / 2;
+
+                caption = caption_org;
+                truncate_line(caption, &gr, font_, control_pos.right - text_left - _text_space / 2);
             }
         break;
         case button_view::image_bottom_text:
-            if (image_)
             {
-                if (image_size + 10 > position_.width())
-                {
-                    position_.right = position_.left + image_size + 10;
-                    return redraw();
+                if (image_size + _text_space > position_.width()) {
+                    position_.right = position_.left + image_size + _text_space;
                 }
-                if (image_size + text_rect.bottom + 10 > position_.height())
-                {
-                    position_.bottom = position_.top + text_rect.bottom + image_size + 10;
-                    return redraw();
+                if (image_size + text_rect_.bottom + _text_space > position_.height()) {
+                    position_.bottom = position_.top + text_rect_.bottom + image_size + _text_space;
                 }
-                if (text_rect.bottom + 6 > position_.height())
+                if (text_rect_.bottom + _text_bottom_space > position_.height())
                 {
-                    position_.bottom = position_.top + text_rect.bottom + 6;
-                    return redraw();
+                    position_.bottom = position_.top + text_rect_.bottom + _text_bottom_space;
                 }
 
+                auto control_pos = position();
                 image_left = control_pos.left + ((control_pos.width() - image_size) / 2);
-                image_top = control_pos.top + ((control_pos.height() - text_rect.bottom - image_size - 5) / 2);
-                text_left = control_pos.left + ((control_pos.width() - text_rect.right) / 2);
-                text_top = image_top + image_size + 5;
+                image_top = control_pos.top + ((control_pos.height() - text_rect_.bottom - image_size - _text_space / 2) / 2);
+                text_top = image_top + image_size + _text_space / 2;
+
+                text_left = control_pos.left + ((control_pos.width() - text_rect_.right) / 2);
             }
         break;
     }
 
-    if (button_view_ != button_view::anchor && button_view_ != button_view::switcher && button_view_ != button_view::radio && button_view_ != button_view::sheet)
+    auto control_pos = position();
+    if (button_view_ != button_view::anchor && button_view_ != button_view::switcher
+        && button_view_ != button_view::radio && button_view_ != button_view::sheet)
     {
         auto border_color = focused_
             ? theme_color(tcn, tv_focused_border, theme_)
@@ -293,7 +374,7 @@ void button::draw(graphic &gr, rect)
 
         gr.draw_rect(control_pos, border_color, fill_color, theme_dimension(tcn, tv_border_width, theme_), theme_dimension(tcn, tv_round, theme_));
     }
-    
+
     if (button_view_ != button_view::text && button_view_ != button_view::anchor && image_)
     {
         image_->set_position( { image_left,
@@ -303,7 +384,8 @@ void button::draw(graphic &gr, rect)
         image_->draw(gr, { 0 });
     }
 
-    if (button_view_ != button_view::image)
+    if (button_view_ != button_view::image
+        && !caption.empty())
     {
         auto color_ = theme_color(tcn, tv_text, theme_);
 
@@ -313,19 +395,21 @@ void button::draw(graphic &gr, rect)
             font_.decorations_ = decorations::underline;
         }
 
-        if (!enabled_ && (button_view_ == button_view::anchor || button_view_ == button_view::sheet))
+        if (!enabled_ && (button_view_ == button_view::anchor
+            || button_view_ == button_view::sheet))
         {
             color_ = theme_color(tcn, tv_disabled, theme_);
         }
 
-        gr.draw_text({ text_left, text_top }, caption, 
-            color_,
-            font_);
+        gr.draw_text({ text_left, text_top }, caption, color_, font_);
     }
 
     if (button_view_ == button_view::sheet)
     {
-        gr.draw_rect({ control_pos.left, control_pos.bottom - 2, control_pos.right, control_pos.bottom }, turned_ ? theme_color(tcn, enabled_ ? tv_calm : tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_));
+        gr.draw_rect({ control_pos.left, control_pos.bottom - 2,
+            control_pos.left + text_rect_.width(), control_pos.bottom },
+            turned_ ? theme_color(tcn, enabled_ ? tv_calm : tv_disabled, theme_) :
+                theme_color(window::tc, window::tv_background, theme_));
     }
 }
 
@@ -336,7 +420,7 @@ void button::receive_event(const event &ev)
         return;
     }
 
-    if (ev.type == event_type::mouse)
+    if (ev.type & event_type::mouse)
     {
         switch (ev.mouse_event_.type)
         {
@@ -376,7 +460,10 @@ void button::receive_event(const event &ev)
             break;
             case mouse_event_type::left_down:
                 pushed = true;
-            break;
+                if (click_callback_down) {
+                    click_callback_down();
+                }
+                break;
             case mouse_event_type::left_up:
                 if (pushed)
                 {
@@ -398,7 +485,7 @@ void button::receive_event(const event &ev)
             break;
         }
     }
-    else if (ev.type == event_type::internal)
+    else if (ev.type & event_type::internal)
     {
         switch (ev.internal_event_.type)
         {
@@ -422,13 +509,18 @@ void button::receive_event(const event &ev)
                 if (click_callback)
                 {
                     click_callback();
+                } else {
+                    if (click_callback_down)
+                    {
+                        click_callback_down();
+                    }
                 }
             break;
         }
     }
 }
 
-void button::set_position(rect position__)
+void button::set_position(const rect& position__)
 {
     position_ = position__;
 }
@@ -446,7 +538,7 @@ void button::set_parent(std::shared_ptr<window> window_)
     parent_ = window_;
     window_->add_control(tooltip_, tooltip_->position());
     my_subscriber_id = window_->subscribe(std::bind(&button::receive_event, this, std::placeholders::_1),
-        wui::flags_map<wui::event_type>(2, wui::event_type::internal, wui::event_type::mouse),
+        wui::event_type::internal | wui::event_type::mouse,
         shared_from_this());
 }
 
@@ -509,12 +601,12 @@ void button::update_theme(std::shared_ptr<i_theme> theme__)
 
     if (button_view_ == button_view::switcher)
     {
-        image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
+        image_->change_image_raw(turned_ ? ti_switcher_on : ti_switcher_off);
         update_err("button::update_theme[switcher]", image_->get_error());
     }
     if (button_view_ == button_view::radio)
     {
-        image_->change_image(theme_image(turned_ ? ti_radio_on : ti_radio_off));
+        image_->change_image_raw(turned_ ? ti_radio_on : ti_radio_off);
         update_err("button::update_theme[radio]", image_->get_error());
     }
     else if (image_)
@@ -572,10 +664,11 @@ bool button::enabled() const
 void button::set_caption(std::string_view caption_)
 {
     caption = caption_;
+    caption_org = caption_;
     tooltip_->set_text(caption_);
 
-    text_rect = { 0 };
-    
+    text_rect_.clear();
+
     redraw();
 }
 
@@ -613,7 +706,7 @@ void button::set_image(std::string_view file_name)
     {
         image_ = std::make_shared<image>(file_name);
     }
-    
+
     update_err("button::set_image[from file]", image_->get_error());
     redraw();
 }
@@ -649,11 +742,11 @@ void button::turn(bool on)
     switch (button_view_)
     {
         case button_view::switcher:
-            image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
+            image_->change_image_raw(turned_ ? ti_switcher_on : ti_switcher_off);
             update_err("button::turn", image_->get_error());
         break;
         case button_view::radio:
-            image_->change_image(theme_image(turned_ ? ti_radio_on : ti_radio_off));
+            image_->change_image_raw(turned_ ? ti_radio_on : ti_radio_off);
             update_err("button::turn", image_->get_error());
         break;
         default:
@@ -672,6 +765,11 @@ void button::set_callback(std::function<void(void)> click_callback_)
     click_callback = click_callback_;
 }
 
+void button::set_callback_down(std::function<void(void)> click_callback_)
+{
+    click_callback_down = click_callback_;
+}
+
 void button::redraw()
 {
     if (showed_)
@@ -688,8 +786,8 @@ void button::redraw()
 
 void button::update_err(std::string_view place, const error &input_err)
 {
-    err = input_err;
-    err.component = std::string(place) + "::" + input_err.component;
+    err.set(input_err.get_type(), std::string(place) + "::" + input_err.get_component(),
+        input_err.get_message());
 }
 
 }

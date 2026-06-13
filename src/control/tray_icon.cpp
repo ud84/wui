@@ -182,11 +182,11 @@ void tray_icon::show_message(std::string_view title, std::string_view message)
         nid.dwInfoFlags = NIIF_INFO | NIIF_NOSOUND;
         if (!title.empty())
         {
-            wcscpy_s(nid.szInfoTitle, 128, boost::nowide::widen(title).c_str());
+            wcscpy_s(nid.szInfoTitle, 64, boost::nowide::widen(title).c_str());
     }
         if (!message.empty())
         {
-            wcscpy_s(nid.szInfo, 128, boost::nowide::widen(message).c_str());
+            wcscpy_s(nid.szInfo, 256, boost::nowide::widen(message).c_str());
         }
 
         Shell_NotifyIconW(NIM_MODIFY, &nid);
