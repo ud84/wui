@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2021-2026 Intent Garden Org
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -19,6 +19,7 @@
 #ifdef _WIN32
 
 #include <windows.h>
+#include <tchar.h>
 
 #elif __linux__
 
@@ -33,44 +34,64 @@
 namespace wui
 {
 
+    static cursor _cursor{ cursor::no_ }; // предотвращаем затратные операции
+
+    // может понадобится при смене фокуса
+    void reset_cursor()
+    {
+        _cursor = cursor::no_;
+    }
+
 #ifdef _WIN32
 
-void set_cursor(system_context &, cursor cursor_)
+void set_cursor(system_context &, const cursor cursor_)
 {
+    if (cursor_ == _cursor)
+        return;
+
+    LPCTSTR lcursorName = nullptr;
     switch (cursor_)
     {
         case cursor::default_:
-            SetCursor(LoadCursor(NULL, IDC_ARROW));
+            lcursorName = IDC_ARROW;
         break;
         case cursor::hand:
-            SetCursor(LoadCursor(NULL, IDC_HAND));
+            lcursorName = IDC_HAND;
         break;
         case cursor::ibeam:
-            SetCursor(LoadCursor(NULL, IDC_IBEAM));
+            lcursorName = IDC_IBEAM;
         break;
         case cursor::wait:
-            SetCursor(LoadCursor(NULL, IDC_WAIT));
+            lcursorName = IDC_WAIT;
         break;
         case cursor::size_nwse:
-            SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
+            lcursorName = IDC_SIZENWSE;
         break;
         case cursor::size_nesw:
-            SetCursor(LoadCursor(NULL, IDC_SIZENESW));
+            lcursorName = IDC_SIZENESW;
         break;
         case cursor::size_we:
-            SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+            lcursorName = IDC_SIZEWE;
         break;
         case cursor::size_ns:
-            SetCursor(LoadCursor(NULL, IDC_SIZENS));
+            lcursorName = IDC_SIZENS;
         break;
+    }
+    if (lcursorName)
+    {
+        _cursor = cursor_;
+        SetCursor(LoadCursor(NULL, lcursorName));
     }
 }
 
 #elif __linux__
 
-void set_cursor(system_context &context, cursor cursor_)
+void set_cursor(system_context &context, const cursor cursor_)
 {
-    std::string cursor_id;
+    if (cursor_ == _cursor)
+        return;
+
+    const char* cursor_id;
 
     switch (cursor_)
     {
@@ -86,11 +107,17 @@ void set_cursor(system_context &context, cursor cursor_)
         case cursor::wait:
             cursor_id = "wait";
         break;
-        case cursor::size_nwse:
+        case cursor::size_bottom_right:
+            cursor_id = "bottom_right_corner";
+        break;
+        case cursor::size_top_left:
             cursor_id = "top_left_corner";
         break;
-        case cursor::size_nesw:
+        case cursor::size_top_right:
             cursor_id = "top_right_corner";
+        break;
+        case cursor::size_bottom_left:
+            cursor_id = "bottom_left_corner";
         break;
         case cursor::size_we:
             cursor_id = "sb_h_double_arrow";
@@ -104,10 +131,21 @@ void set_cursor(system_context &context, cursor cursor_)
     auto screen = xcb_setup_roots_iterator(xcb_get_setup(context.connection)).data;
     if (xcb_cursor_context_new(context.connection, screen, &ctx) >= 0)
     {
-        xcb_cursor_t cursor = xcb_cursor_load_cursor(ctx, cursor_id.c_str());
+        xcb_cursor_t cursor = xcb_cursor_load_cursor(ctx, cursor_id);
         if (cursor != XCB_CURSOR_NONE)
         {
             xcb_change_window_attributes(context.connection, context.wnd, XCB_CW_CURSOR, &cursor);
+            _cursor = cursor_;
+        }
+        else
+        {
+            cursor_id = "arrow";
+            xcb_cursor_t cursor = xcb_cursor_load_cursor(ctx, cursor_id);
+            if (cursor != XCB_CURSOR_NONE)
+            {
+                xcb_change_window_attributes(context.connection, context.wnd, XCB_CW_CURSOR, &cursor);
+                _cursor = cursor::default_;
+            }
         }
         xcb_cursor_context_free(ctx);
     }
@@ -118,10 +156,7 @@ bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, error 
     xcb_generic_error_t *error = xcb_request_check(connection, cookie);
     if (error)
     {
-        err.type = error_type::system_error;
-        err.component = component;
-        err.message = "error code: " + std::to_string(error->error_code);
-
+        err.set(error_type::system_error, component, "error code: " + std::to_string(error->error_code));
         return false;
     }
     return true;
@@ -129,41 +164,43 @@ bool check_cookie(xcb_void_cookie_t cookie, xcb_connection_t *connection, error 
 
 #endif
 
-void line_up_top_bottom(rect &pos, int32_t height, int32_t space)
+void line_up_top_bottom(rect &pos, const int32_t height, const int32_t space)
 {
     pos.top = pos.bottom + space;
     pos.bottom = pos.top + height;
 }
 
-void line_up_left_right(rect &pos, int32_t width, int32_t space)
+void line_up_left_right(rect &pos, const int32_t width, const int32_t space)
 {
     pos.left = pos.right + space;
     pos.right = pos.left + width;
 }
 
-rect get_control_position(rect control_position, std::weak_ptr<window> parent)
+rect get_control_position(const rect& control_position, std::weak_ptr<window> parent)
 {
     auto out_pos = control_position;
 
     auto parent_ = parent.lock();
-    if (parent_ && parent_->parent().lock())
+    if (parent_ && !parent_->parent().expired())
     {
-        out_pos.move(parent_->position().left, parent_->position().top);
+        const rect r = parent_->position();
+        out_pos.move(r.left, r.top);
     }
 
     return out_pos;
 }
 
-rect get_popup_position(std::weak_ptr<window> parent, rect base_position, rect popup_control_position, int32_t indent)
+rect get_popup_position(std::weak_ptr<window> parent, const rect& base_position,
+    const rect& popup_control_position, const int32_t indent)
 {
     auto parent_ = parent.lock();
     if (!parent_)
     {
-        return { 0 };
+        return { };
     }
 
     auto parent_pos = parent_->position();
-    if (!parent_->parent().lock())
+    if (parent_->parent().expired()) 
     {
         parent_pos = { 0, 0, parent_pos.width(), parent_pos.height() };
     }
@@ -194,6 +231,12 @@ rect get_popup_position(std::weak_ptr<window> parent, rect base_position, rect p
             if (out_pos.right >= parent_pos.right)
             {
                 out_pos.put(parent_pos.right - out_pos.width(), base_position.top - out_pos.height() - indent);
+            }
+            //TODO: full test
+            const auto ch = parent_->caption_height();
+            if (out_pos.top < parent_pos.top + ch)
+            {
+                out_pos.top = parent_pos.top + ch;
             }
             position_finded = true;
         }
@@ -230,7 +273,14 @@ rect get_popup_position(std::weak_ptr<window> parent, rect base_position, rect p
             out_pos.top = parent_pos.top;
             out_pos.bottom = parent_pos.bottom;
         }
+        //TODO: full test
+        const auto ch = parent_->caption_height();
+        if (out_pos.top < parent_pos.top + ch)
+        {
+            out_pos.top = parent_pos.top + ch;
+        }
     }
+
     if (out_pos.right > parent_pos.right)
     {
         out_pos.move(parent_pos.right - out_pos.right, 0);
@@ -241,9 +291,8 @@ rect get_popup_position(std::weak_ptr<window> parent, rect base_position, rect p
         }
     }
 
-    parent_ = parent.lock();
     parent_pos = parent_->position();
-    if (!parent_->parent().lock())
+    if (parent_->parent().expired())
     {
         parent_pos = { 0, 0, parent_pos.width(), parent_pos.height() };
     }
@@ -259,8 +308,7 @@ namespace
     // helper: check "first len bytes - valid UTF-8".
     inline bool prefix_is_valid_utf8(const std::string& s, std::size_t len)
     {
-        return utf8::find_invalid(s.begin(), s.begin() + len) ==
-            s.begin() + len;
+        return utf8::find_invalid(s.begin(), s.begin() + len) == s.begin() + len;
     }
 
     // helper: nearest valid position <= pos
@@ -268,23 +316,28 @@ namespace
     {
         pos = std::min(pos, s.size());
         while (pos && !prefix_is_valid_utf8(s, pos))
-            --pos;                       // maximum 3-4 steps (code point length)
+        {
+            --pos;  // maximum 3-4 steps (code point length)
+        }
         return pos;
     }
 }
 
-void truncate_line(std::string& text,
-    graphic& gr,
-    const font& f,
-    int32_t           max_width,
-    std::string_view  ellipsis)
+void truncate_line(std::string& text, graphic* gr, const font& f,
+    const int32_t max_width, std::string_view ellipsis)
 {
     // 0. Does it fit yet?
-    if (gr.measure_text(text, f).width() <= max_width)
+    if (measure_text_direct(text, f, gr).width() <= max_width)
+    {
         return;
+    }
 
-    const int32_t ell_w = gr.measure_text(ellipsis, f).width();
-    if (ell_w > max_width) { text.clear(); return; }
+    const int32_t ell_w = measure_text_direct(ellipsis, f, gr).width();
+    if (ell_w > max_width)
+    {
+        text.clear();
+        return;
+    }
 
     // 1. Exponential acceleration: find "hi" where width > max_width
     std::size_t lo = 0;
@@ -292,12 +345,16 @@ void truncate_line(std::string& text,
     const std::size_t n = text.size();
 
     while (hi < n) {
-        std::size_t cut = safe_utf8_cut(text, hi);
-        if (cut == lo) { hi = std::min(hi * 2, n); continue; }
+        const std::size_t cut = safe_utf8_cut(text, hi);
+        if (cut == lo)
+        {
+            hi = std::min(hi * 2, n);
+            continue;
+        }
 
-        int32_t w = measure_text(
-            std::string_view(text.data(), cut), f, &gr).width() + ell_w;
-        if (w > max_width) break;
+        const int32_t w = measure_text(std::string_view(text.data(), cut), f, gr).width() + ell_w;
+        if (w > max_width)
+            break;
 
         lo = cut;
         hi = std::min(hi * 2, n);
@@ -306,12 +363,15 @@ void truncate_line(std::string& text,
 
     // 2. Binary search in [lo, hi)
     while (hi - lo > 1) {
-        std::size_t mid = (lo + hi) / 2;
-        std::size_t cut = safe_utf8_cut(text, mid);
-        if (cut == lo) { hi = lo + 1; break; }   // no progress
+        const std::size_t mid = (lo + hi) / 2;
+        const std::size_t cut = safe_utf8_cut(text, mid);
+        if (cut == lo)
+        {
+            hi = lo + 1;
+            break; // no progress
+        }
 
-        int32_t w = measure_text(
-            std::string_view(text.data(), cut), f, &gr).width() + ell_w;
+        const int32_t w = measure_text(std::string_view(text.data(), cut), f, gr).width() + ell_w;
         (w <= max_width) ? lo = cut : hi = cut;
     }
 
@@ -321,5 +381,66 @@ void truncate_line(std::string& text,
         text.append(ellipsis);
     }
 }
+
+#ifdef _WIN32
+void truncate_line_gdiplus(std::string& text, graphic *gr, const font& f,
+    const int32_t max_width, std::string_view ellipsis)
+{
+    // 0. Does it fit yet?
+    if (measure_text_gdiplus_direct(text, f, gr).width() <= max_width)
+    {
+        return;
+    }
+
+    const int32_t ell_w = measure_text_gdiplus_direct(ellipsis, f, gr).width();
+    if (ell_w > max_width)
+    {
+        text.clear();
+        return;
+    }
+
+    // 1. Exponential acceleration: find "hi" where width > max_width
+    std::size_t lo = 0;
+    std::size_t hi = 1;
+    const std::size_t n = text.size();
+
+    while (hi < n) {
+        const std::size_t cut = safe_utf8_cut(text, hi);
+        if (cut == lo)
+        {
+            hi = std::min(hi * 2, n);
+            continue;
+        }
+
+        const int32_t w = measure_text_gdiplus(std::string_view(text.data(), cut), f, gr).width() + ell_w;
+        if (w > max_width)
+            break;
+
+        lo = cut;
+        hi = std::min(hi * 2, n);
+    }
+    hi = std::max<std::size_t>(hi, lo + 1);   // guarantee hi > lo
+
+    // 2. Binary search in [lo, hi)
+    while (hi - lo > 1) {
+        const std::size_t mid = (lo + hi) / 2;
+        const std::size_t cut = safe_utf8_cut(text, mid);
+        if (cut == lo)
+        {
+            hi = lo + 1;
+            break; // no progress
+        }
+
+        const int32_t w = measure_text_gdiplus(std::string_view(text.data(), cut), f, gr).width() + ell_w;
+        (w <= max_width) ? lo = cut : hi = cut;
+    }
+
+    // 3. Result
+    if (lo < text.size()) {
+        text.resize(lo);
+        text.append(ellipsis);
+    }
+}
+#endif
 
 }
