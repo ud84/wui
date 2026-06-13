@@ -19,10 +19,6 @@
 #include <memory>
 #include <mutex>
 
-#ifdef __linux__
-#include <wui/window/listener.hpp>
-#endif
-
 namespace wui
 {
 
@@ -54,52 +50,59 @@ public:
     virtual ~window();
 
     /// i_window impl
-    virtual bool init(std::string_view caption, rect position, window_style style, std::function<void(void)> close_callback = []() {});
-    virtual void destroy();
+    virtual bool init(std::string_view caption, const rect& position,
+        window_style style, std::function<void(void)> close_callback = nullptr) override;
+    virtual void destroy() override;
 
-    virtual void add_control(std::shared_ptr<i_control> control, rect position);
-    virtual void remove_control(std::shared_ptr<i_control> control);
+    virtual void add_control(std::shared_ptr<i_control> control, const rect& position) override;
+    virtual void remove_control(std::shared_ptr<i_control> control) override;
 
-    virtual void bring_to_front(std::shared_ptr<i_control> control);
-    virtual void move_to_back(std::shared_ptr<i_control> control);
+    virtual void bring_to_front(std::shared_ptr<i_control> control) override;
+    virtual void move_to_back(std::shared_ptr<i_control> control) override;
 
-    virtual void redraw(rect position, bool clear = false);
+    virtual void redraw(const rect& position, bool clear = false) override;
 
-    virtual std::string subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr);
-    virtual void unsubscribe(std::string_view subscriber_id);
+    virtual std::string subscribe(std::function<void(const event&)> receive_callback,
+        event_type event_types, std::shared_ptr<i_control> control = nullptr) override;
+    virtual void unsubscribe(std::string_view subscriber_id) override;
 
-    virtual system_context &context();
+    /// Get the context of this window or parent's.
+    [[nodiscard]] virtual system_context &context() override;
 
     /// i_control impl
-    virtual void draw(graphic &gr, rect paint_rect);
+    virtual void draw(graphic &gr, const rect& paint_rect) override;
 
-    virtual void set_position(rect position);
-    virtual rect position() const;
+    virtual void set_position(const rect& position) override;
+    [[nodiscard]] virtual rect position() const override;
 
-    virtual void set_parent(std::shared_ptr<window> window_);
-    virtual std::weak_ptr<window> parent() const;
-    virtual void clear_parent();
+    virtual void set_parent(std::shared_ptr<window> window_) override;
+    [[nodiscard]] virtual std::weak_ptr<window> parent() const override;
+    virtual void clear_parent() override;
 
-    virtual void set_topmost(bool yes);
-    virtual bool topmost() const;
+    virtual void set_topmost(bool yes) override;
+    [[nodiscard]] virtual bool topmost() const override;
 
-    virtual bool focused() const;
-    virtual bool focusing() const;
+    [[nodiscard]] virtual bool focused() const override;
+    [[nodiscard]] virtual bool focusing() const override;
 
-    virtual void update_theme_control_name(std::string_view theme_control_name);
-    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual void update_theme_control_name(std::string_view theme_control_name) override;
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) override;
 
-    virtual void show();
-    virtual void hide();
-    virtual bool showed() const;
+    virtual void show() override;
+    virtual void hide() override;
+    [[nodiscard]] virtual bool showed() const override;
 
-    virtual void enable();
-    virtual void disable();
-    virtual bool enabled() const;
+    virtual void enable() override;
+    virtual void disable() override;
+    [[nodiscard]] virtual bool enabled() const override;
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const override;
 
     /// Window style methods
+    [[nodiscard]] int32_t caption_height(const window_style create_style = window_style::frame) const;
+
+    // [[nodiscard]] static rect get_dispay_position() const; // TODO
+
     void set_caption(std::string_view caption);
     void set_style(window_style style);
     void set_min_size(int32_t width, int32_t height);
@@ -109,16 +112,19 @@ public:
     /// Window state methods
     void switch_lang();
     void switch_theme();
+    void set_button_next_theme();
     void pin();
     void minimize();
     void expand();
     void normal();
-    window_state state() const;
+    [[nodiscard]] window_state state() const;
+
+    void close();
 
     /// Disabling draw for increase performance on mass operations
     void disable_draw();
     void enable_draw();
-    bool draw_enabled() const;
+    [[nodiscard]] bool draw_enabled() const;
 
     /// Emit event methods
     void emit_event(int32_t x, int32_t y);
@@ -136,14 +142,28 @@ public:
     /// Call this only after the window::init()
     void enable_device_change_handling(bool yes);
 
-    /// Direct link to window's graphic
-    graphic &get_graphic();
+    /// Direct link to window graphic. Initialized (graphic&) if at least one window is created.
+    [[nodiscard]] graphic& get_graphic()
+    {
+        return graphic_;
+    }
 
-    /// Get the type of window
-    bool is_physical_window() const;
+    /// Get the type of this window
+    [[nodiscard]] bool is_physical_window() const;
 
-    /// Set this window always physical
-    void set_root_window(bool yes);
+    [[nodiscard]] bool docked() const
+    {
+        return docked_;
+    }
+
+    [[nodiscard]] std::string_view get_control_name() const
+    {
+        return tcn; // string_view(), если lock() ?
+    }
+    [[nodiscard]] std::shared_ptr<i_theme> get_theme() const
+    {
+        return theme_;
+    }
 
 public:
     /// Control name in theme / locale
@@ -174,6 +194,14 @@ public:
     static constexpr const char *cl_switch_lang = "switch_lang";
 
 private:
+    bool _destroy();
+
+    bool disable_close_callback{false};
+
+#if __linux__
+    void destroy_window();
+#endif
+
     system_context context_;
     graphic graphic_;
 
@@ -181,7 +209,7 @@ private:
     std::shared_ptr<i_control> active_control;
 
     std::string caption;
-    rect position_, parent_position_{0}, normal_position;
+    rect position_, parent_position_, normal_position;
     int32_t min_width, min_height;
     window_style window_style_;
     wui::window_state window_state_, prev_window_state_;
@@ -189,7 +217,15 @@ private:
     std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
 
-    bool showed_, enabled_, root_window_;
+    bool showed_;
+    bool enabled_;
+
+    /// назначается первому открытому окну, используется при закрытии всех окон
+    /// Set this window always physical
+    bool root_window_;
+
+    bool docked_;
+    bool exit_{ false };
     std::atomic<bool> skip_draw_;
 
     size_t focused_index;
@@ -198,7 +234,6 @@ private:
     std::string my_control_sid, my_plain_sid;
 
     std::weak_ptr<window> transient_window;
-    bool docked_;
     std::shared_ptr<i_control> docked_control;
 
     struct event_subscriber
@@ -266,8 +301,6 @@ private:
 
     time_t prev_button_click;
 
-    bool started;
-
     std::unique_ptr<udev_handler> udev_handler_;
 
     uint8_t key_modifier;
@@ -294,16 +327,16 @@ private:
 
     void send_mouse_event(const mouse_event &ev);
 
-    bool check_control_here(int32_t x, int32_t y);
+    [[nodiscard]] bool check_control_here(int32_t x, int32_t y);
 
     void change_focus();
     void execute_focused();
     void set_focused(size_t index);
-    std::shared_ptr<i_control> get_focused();
+    [[nodiscard]] std::shared_ptr<i_control> get_focused();
 
     void start_docking(std::shared_ptr<i_control> control);
     void end_docking();
-    std::shared_ptr<window> get_transient_window();
+    [[nodiscard]] std::shared_ptr<window> get_transient_window();
 
     void update_button_images();
     void update_buttons();
