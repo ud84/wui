@@ -15,9 +15,7 @@
 #include <wui/theme/theme_selector.hpp>
 
 #include <wui/locale/locale.hpp>
-#include <wui/locale/locale_selector.hpp>
-
-#include <wui/common/flag_helpers.hpp>
+//#include <wui/locale/locale_selector.hpp>
 
 #include <MainFrame/MainFrame.h>
 
@@ -25,9 +23,11 @@
 
 #include <iostream>
 
+
 MainFrame::MainFrame()
     : window(std::make_shared<wui::window>()),
-    
+
+
     mainSheet    (std::make_shared<wui::button>(wui::locale("main_frame", "main_sheet_"),   [this](){ sheet = Sheet::Main;   UpdateSheets(); }, wui::button_view::sheet)),
     windowSheet  (std::make_shared<wui::button>(wui::locale("main_frame", "window_sheet_"), [this](){ sheet = Sheet::Window; UpdateSheets(); }, wui::button_view::sheet)),
     buttonSheet  (std::make_shared<wui::button>(wui::locale("main_frame", "button_sheet_"), [this](){ sheet = Sheet::Button; UpdateSheets(); }, wui::button_view::sheet)),
@@ -35,10 +35,10 @@ MainFrame::MainFrame()
     listSheet    (std::make_shared<wui::button>(wui::locale("main_frame", "list_sheet_"),   [this](){ sheet = Sheet::List;   UpdateSheets(); }, wui::button_view::sheet)),
     menuSheet    (std::make_shared<wui::button>(wui::locale("main_frame", "menu_sheet_"),   [this](){ sheet = Sheet::Menu;   UpdateSheets(); }, wui::button_view::sheet)),
     panelSheet   (std::make_shared<wui::button>(wui::locale("main_frame", "other_sheet_"),  [this](){ sheet = Sheet::Others; UpdateSheets(); }, wui::button_view::sheet)),
-    
+
     accountButton(std::make_shared<wui::button>(wui::locale("main_frame", "account_btn"),   []() {}, wui::button_view::image, IMG_ACCOUNT, 32, wui::button::tc_tool)),
     menuButton   (std::make_shared<wui::button>(wui::locale("main_frame", "main_menu"),     []() {}, wui::button_view::image, IMG_MENU,    32, wui::button::tc_tool)),
-    
+
     sheet(Sheet::Main),
 
     mainSheetImpl(),
@@ -47,24 +47,16 @@ MainFrame::MainFrame()
     window->subscribe(std::bind(&MainFrame::ReceiveEvents,
         this,
         std::placeholders::_1),
-        wui::flags_map<wui::event_type>(3, wui::event_type::internal, wui::event_type::system, wui::event_type::keyboard));
+        wui::event_type::internal | wui::event_type::system | wui::event_type::keyboard);
 
-    window->add_control(mainSheet,     { 0 });
-    window->add_control(windowSheet,   { 0 });
-    window->add_control(buttonSheet,   { 0 });
-    window->add_control(inputSheet,    { 0 });
-    window->add_control(listSheet,     { 0 });
-    window->add_control(menuSheet,     { 0 });
-    window->add_control(panelSheet,    { 0 });
-    window->add_control(accountButton, { 0 });
-    window->add_control(menuButton,    { 0 });
+    //window->set_min_size(WND_WIDTH - 1, WND_HEIGHT - 1); // -1 ?
+    window->set_min_size(WND_WIDTH, WND_HEIGHT);
 }
 
 void MainFrame::Run()
 {
-    UpdateSheets();
-
-    window->set_control_callback([&](wui::window_control control, std::string &tooltip_text, bool &continue_) {
+    window->set_control_callback([&](wui::window_control control,
+        std::string &tooltip_text, bool &continue_ [[maybe_unused]]) {
         switch (control)
         {
             case wui::window_control::theme:
@@ -81,6 +73,8 @@ void MainFrame::Run()
                 wui::config::set_string("User", "Theme", nextTheme);
 
                 window->update_theme();
+
+                tooltip_text = wui::locale("window", nextTheme == "dark" ? wui::window::cl_light_theme : wui::window::cl_dark_theme);
             }
             break;
             case wui::window_control::lang:
@@ -92,11 +86,9 @@ void MainFrame::Run()
         window->update_theme();
     });
 
-    window->init(wui::locale("main_frame", "caption"), { -1, -1, WND_WIDTH, WND_HEIGHT },
-        wui::flags_map<wui::window_style>(3, wui::window_style::frame, wui::window_style::switch_theme_button, wui::window_style::border_all),
-        [this]() {
-            wui::framework::stop();
-    });
+    window->init(wui::locale("main_frame", "caption"), { -1, -1, WND_WIDTH + 200, WND_HEIGHT },
+        wui::window_style::frame | wui::window_style::switch_theme_button | wui::window_style::border_all,
+        [this]() {});
 
     UpdateSheets();
 }
@@ -108,7 +100,19 @@ void MainFrame::ReceiveEvents(const wui::event &ev)
         switch (ev.internal_event_.type)
         {
             case wui::internal_event_type::window_created:
-        
+                // The main window is already initialized (context and graphics).
+                // Font size and str length calculations are available (get_preferred_size(), measure_text(), ...).
+                window->add_control(mainSheet, { 0 });
+                window->add_control(windowSheet, { 0 });
+                window->add_control(buttonSheet, { 0 });
+                window->add_control(inputSheet, { 0 });
+                window->add_control(listSheet, { 0 });
+                window->add_control(menuSheet, { 0 });
+                window->add_control(panelSheet, { 0 });
+                window->add_control(accountButton, { 0 });
+                window->add_control(menuButton, { 0 });
+
+                UpdateSheets();
             break;
             case wui::internal_event_type::size_changed:
                 if (window->state() == wui::window_state::normal &&
@@ -131,13 +135,17 @@ void MainFrame::ReceiveEvents(const wui::event &ev)
 
 void MainFrame::UpdateSheetsSize()
 {
+    constexpr int32_t sheets_height = MainSheet::sheets_height;
     const auto width = window->position().width(), height = window->position().height();
     const auto sheet_width = (width - 140) / 7;
 
-    const int32_t sheets_top = 35, sheets_height = 30;
+    int32_t sheets_top = 35;
+    if (window) {
+        sheets_top = window->caption_height() + 2;
+    }
 
-    mainSheet->set_position({ 10,                       sheets_top, sheet_width,              sheets_top + sheets_height });
-    windowSheet->set_position({ 10 * 2 + sheet_width,     sheets_top, 10 * 2 + sheet_width * 2, sheets_top + sheets_height });
+    mainSheet->set_position({ 10, sheets_top, sheet_width, sheets_top + sheets_height });
+    windowSheet->set_position({ 10 * 2 + sheet_width, sheets_top, 10 * 2 + sheet_width * 2, sheets_top + sheets_height });
     buttonSheet->set_position({ 10 * 3 + sheet_width * 2, sheets_top, 10 * 3 + sheet_width * 3, sheets_top + sheets_height });
     inputSheet->set_position({ 10 * 4 + sheet_width * 3, sheets_top, 10 * 4 + sheet_width * 4, sheets_top + sheets_height });
     listSheet->set_position({ 10 * 5 + sheet_width * 4, sheets_top, 10 * 5 + sheet_width * 5, sheets_top + sheets_height });
@@ -176,14 +184,14 @@ void MainFrame::UpdateSheets()
         break;
         case Sheet::Window:
             windowSheet->turn(true);
-            
+
             mainSheetImpl.End();
             buttonSheetImpl.End();
             inputSheetImpl.End();
         break;
         case Sheet::Button:
             buttonSheet->turn(true);
-            
+
             mainSheetImpl.End();
             inputSheetImpl.End();
 

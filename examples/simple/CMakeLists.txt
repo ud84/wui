@@ -18,3 +18,9 @@ target_link_libraries(simple
 	pthread
 	udev
 )
+
+add_custom_target(copy_simple ALL
+   ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/res
+   DEPENDS simple
+   COMMENT "Copy ${CMAKE_CURRENT_SOURCE_DIR}/res to ${CMAKE_CURRENT_BINARY_DIR}/res"
+   )

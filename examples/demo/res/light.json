@@ -21,7 +21,7 @@
     },
     {
       "type": "h1_text",
-      "color": "#191914",
+      "color": "#70191914",
       "font": {
         "name": "Segoe UI",
         "size": 32
@@ -96,14 +96,15 @@
     },
     {
       "type": "input",
-      "background": "#fcfcfc",
+      "background": "#eeeeed",
       "text": "#191914",
       "selection": "#99c9ef",
       "cursor": "#141414",
-      "border": "#28788c",
+      "border": "#444443",
       "border_width": 1,
-      "focused_border": "#140a14",
-      "round": 0,
+      "hover_border": "#888887",
+      "focused_border": "#444443",
+      "round": 8,
       "font": {
         "name": "Segoe UI",
         "size": 20

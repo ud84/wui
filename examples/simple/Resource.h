@@ -17,7 +17,7 @@
 
 static int TXT_LOCALE_EN = 0, TXT_LOCALE_RU = 0, TXT_DARK_THEME = 0, TXT_LIGHT_THEME = 0;
 
-const constexpr char *IMG_ACCOUNT = "res/images/dark/account.png";
-const constexpr char *IMG_SETTINGS = "res/images/dark/settings.png";
+const constexpr char *IMG_ACCOUNT = "account.png";
+const constexpr char *IMG_SETTINGS = "settings.png";
 
 #endif

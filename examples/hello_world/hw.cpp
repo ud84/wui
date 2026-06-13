@@ -23,7 +23,9 @@
 
 #include <iostream>
 
+#ifdef _WIN32
 #include <tchar.h>
+#endif
 
 #ifdef _WIN32
 int APIENTRY _tWinMain(_In_ HINSTANCE,
@@ -34,7 +36,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE,
 int main(int argc, char *argv[])
 #endif
 {
-    wui::framework::init();
+    if (!wui::framework::init())
+    {
+        return -1;
+    }
 
     auto ok = wui::config::create_config("hello_world.ini", "Software\\wui\\hello_world");
     if (!ok)

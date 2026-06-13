@@ -20,3 +20,9 @@ target_link_libraries(hello_world
 	stdc++fs
 	udev
 )
+
+add_custom_target(copy_hello_world ALL
+   ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/res
+   DEPENDS hello_world
+   COMMENT "Copy ${CMAKE_CURRENT_SOURCE_DIR}/res to ${CMAKE_CURRENT_BINARY_DIR}/res"
+   )

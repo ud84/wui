@@ -58,12 +58,11 @@
       "right_text": "Image with right text",
       "bottom_text": "Image with bottom text",
       "switcher_text": "Switcher button",
-      "radio0_text": "Radio first",
-      "radio1_text": "Radio second",
-      "anchor_text": "Don't do this",
+      "radio0_text": "First Radio button",
+      "radio1_text": "Second Radio button",
+      "anchor_text": "Anchor button text",
       "sheet0_text": "First sheet",
       "sheet1_text": "Second sheet"
     }
-
   ]
 }

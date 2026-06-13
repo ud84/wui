@@ -21,10 +21,8 @@
 
 #include <Resource.h>
 
-#include <tchar.h>
-
 #ifdef _WIN32
-#include <gdiplus.h>
+#include <tchar.h>
 #endif
 
 #include <iostream>
@@ -32,13 +30,16 @@
 #ifdef _WIN32
 int APIENTRY _tWinMain(_In_ HINSTANCE,
     _In_opt_ HINSTANCE,
-    _In_ LPTSTR    lpCmdLine,
-    _In_ int       nCmdShow)
+    _In_ LPTSTR    lpCmdLine [[maybe_unused]],
+    _In_ int       nCmdShow [[maybe_unused]] )
 #elif __linux__
 int main(int argc, char *argv[])
 #endif
 {
-    wui::framework::init();
+    if (!wui::framework::init())
+    {
+        return -1;
+    }
 
     auto ok = wui::config::create_config("demo.ini", "Software\\wui\\demo");
     if (!ok)

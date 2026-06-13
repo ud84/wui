@@ -13,6 +13,7 @@
 
 #include <wui/control/text.hpp>
 #include <wui/control/button.hpp>
+    #include <wui/locale/locale.hpp>
 
 
 class ButtonSheet
@@ -27,8 +28,9 @@ public:
 
 private:
     std::weak_ptr<wui::window> parentWindow_;
-    
+
     std::shared_ptr<wui::text> buttonsText;
+
     std::shared_ptr<wui::button> simpleButton0, simpleButton1;
     std::shared_ptr<wui::button> imageButton;
     std::shared_ptr<wui::button> imageRightTextButton;

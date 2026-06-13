@@ -5,7 +5,7 @@
       "background": "#fffffe",
       "border": "#9a9a9a",
       "border_width": 1,
-      "round": 5,
+      "round": 0,
       "text": "#191914",
       "caption_font": {
         "name": "Segoe UI",
@@ -21,9 +21,17 @@
       }
     },
     {
+      "type": "h1_text",
+      "color": "#191914",
+      "font": {
+        "name": "Segoe UI",
+        "size": 32
+      }
+    },
+    {
       "type": "image",
       "resource": "IMAGES_LIGHT",
-      "path": "."
+      "path": "res/images/light"
     },
     {
       "type": "button",
@@ -46,6 +54,7 @@
       "type": "tool_button",
       "calm": "#fffffe",
       "active": "#dcdcdc",
+      "border": "#fffffe",
       "border_width": 0,
       "text": "#181818",
       "disabled": "#fffffe",

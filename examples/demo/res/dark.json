@@ -15,7 +15,7 @@
     },
     {
       "type": "h1_text",
-      "color": "#f5f5f0",
+      "color": "#70f5f5f0",
       "font": {
         "name": "Segoe UI",
         "size": 32
@@ -104,6 +104,7 @@
       "cursor": "#d2d2d2",
       "border": "#404040",
       "border_width": 1,
+      "hover_border": "#33353b",
       "focused_border": "#8c8c8c",
       "round": 0,
       "font": {

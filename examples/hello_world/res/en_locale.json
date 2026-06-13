@@ -37,10 +37,12 @@
       "caption": "Hello world WUI",
       "whats_your_name_text": "What is your name?",
       "ok_button": "We'll be acquainted!",
-      "ok_message_caption": "Nice to meet you!",
+      "ok_message_caption": "Моdal window [undoked]",
       "hello_text": "Hello, ",
+      "hello_text2": "Nice to meet you!",
+      "hello_again_text": "Hello again, ",
       "cross_message_caption": "Close confirmation",
-      "confirm_close_text": "Close the application?\n\n"
+      "confirm_close_text": "Close the application?"
     }
   ]
 }

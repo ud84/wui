@@ -18,8 +18,8 @@
 
       "pin": "Прикрепить окно",
       "unpin": "Открепить окно",
-      "dark_theme": "Темная тема",
-      "light_theme": "Светлая тема",
+      "dark_theme": "Показать темную тему",
+      "light_theme": "Показать светлую тему",
       "switch_lang": "Сменить язык"
     },
     {
@@ -37,10 +37,12 @@
       "caption": "Привет из WUI",
       "whats_your_name_text": "Как ваше имя?",
       "ok_button": "Приятно познакомиться!",
-      "ok_message_caption": "Хорошего дня!",
+      "ok_message_caption": "Окно [моdal, undoked]",
       "hello_text": "Привет, ",
+      "hello_text2": "Хорошего дня!",
+      "hello_again_text": "И снова здравствуйте, ",
       "cross_message_caption": "Подтверждение закрытия",
-      "confirm_close_text": "Закрыть приложение?\n\n"
+      "confirm_close_text": "Закрыть приложение?"
     }
   ]
 }

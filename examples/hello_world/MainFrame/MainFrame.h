@@ -27,14 +27,15 @@ public:
     void Run();
 
 private:
-    
+
     void ReceiveEvents(const wui::event &ev);
 
     void UpdateControlsPosition();
+    void UpdateButtonPosition();
 
     void OnOK();
 
-    static const int32_t WND_WIDTH = 400, WND_HEIGHT = 400;
+    static constexpr int32_t WND_WIDTH = 300, WND_HEIGHT = 350;
 
     std::shared_ptr<wui::window> window = std::make_shared<wui::window>();
 
@@ -53,6 +54,7 @@ private:
 
     std::shared_ptr<wui::message> messageBox = std::make_shared<wui::message>(window);
 
-    bool user_approve_close = false;
+    bool user_approve_close{ false };
+    bool hello_again{ false };
 };
 

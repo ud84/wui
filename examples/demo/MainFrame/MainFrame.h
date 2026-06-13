@@ -35,7 +35,7 @@ public:
     void Run();
 
 private:
-    static const int32_t WND_WIDTH = 800, WND_HEIGHT = 600;
+    static constexpr int32_t WND_WIDTH = 700, WND_HEIGHT = 600;
 
     std::shared_ptr<wui::window> window;
 
