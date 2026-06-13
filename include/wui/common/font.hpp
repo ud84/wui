@@ -23,11 +23,23 @@ enum class decorations : uint32_t
     strike_out = (1 << 3)
 };
 
+
+inline constexpr decorations operator|(const decorations l, const decorations r)
+{
+    return static_cast <decorations> (static_cast <uint32_t> (l) | static_cast <uint32_t> (r));
+}
+
+inline constexpr bool operator&(const decorations l, const decorations r)
+{
+    return 0 != (static_cast <uint32_t> (l) & static_cast <uint32_t> (r));
+}
+
+
 struct font
 {
     std::string name;
-    int32_t size;
-    decorations decorations_;
+    int32_t size{ };
+    decorations decorations_{ decorations::normal };
 };
 
 }
