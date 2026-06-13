@@ -19,6 +19,7 @@
 
 #include <string_view>
 #include <cstdint>
+#include <vector>
 
 #ifdef __linux__
 struct _cairo_surface;
@@ -27,50 +28,96 @@ struct _cairo_device;
 
 namespace wui
 {
-
 class graphic
 {
 public:
+
+    struct text_line
+    {
+        std::string str;
+        rect rc{ };
+    };
+    typedef std::vector<text_line> text_lines_t;
+
     graphic(system_context &context);
+    graphic() = default;
     ~graphic();
 
-    bool init(rect max_size, color background_color);
+    [[nodiscard]] bool init(const rect& max_size, const color background_color);
     void release();
+    [[nodiscard]] bool inited() const noexcept;
 
-    rect max_size() const;
+    [[nodiscard]] rect max_size() const noexcept;
 
     void set_background_color(color background_color);
 
-    void clear(rect position = { 0 });
+    void clear(const rect& position = { 0 });
 
-    void flush(rect updated_size);
+    void flush(const rect& updated_size);
 
-    void draw_pixel(rect position, color color_);
+    void draw_pixel(const rect& position, const color color_);
 
-    void draw_line(rect position, color color_, uint32_t width = 1);
+    /// NB: linux width = 1 always
+    void draw_line(const rect& position, const color color_, const int32_t width = 1);
 
-    rect measure_text(std::string_view text_, const font &font__);
-    void draw_text(rect position, std::string_view text, color color_, const font &font_);
-
-    void draw_rect(rect position, color fill_color);
-    void draw_rect(rect position, color border_color, color fill_color, uint32_t border_width, uint32_t round);
-
-    /// draw some buffer on context
-    void draw_buffer(rect position, uint8_t *buffer, int32_t left_shift, int32_t top_shift);
-
-    /// draw another graphic on context
-    void draw_graphic(rect position, graphic &graphic_, int32_t left_shift, int32_t top_shift);
-
+    [[nodiscard]] rect measure_text(std::string_view text_, const font &font__);
 #ifdef _WIN32
-    HDC drawable();
-#elif __linux__
-    xcb_drawable_t drawable();
-
-    /// workaround on linux
-    void draw_surface(_cairo_surface &surface, rect position);
+    [[nodiscard]] rect measure_text_gdiplus(std::string_view text_, const font &font__);
 #endif
 
-    error get_error() const;
+    void draw_text(const rect& position, std::string_view text,
+        const color color_, const font &font_);
+
+    /// support clip and alpha
+    void draw_text_clip(const rect& position,
+        const text_lines_t& lines_data,
+        const color color_, const font& font__, const bool clip_);
+
+#ifdef _WIN32
+    void graphic::draw_text_clip_rgb(const rect& position, const text_lines_t& lines,
+        const color color_, const font& font__, const bool clip_);
+#elif __linux__
+    void draw_text_clip_rgb(const rect& position, const text_lines_t& lines,
+        const color color_, const font& font__, const bool clip_)
+    {
+        draw_text_clip(position, lines, get_rgb_opaqui(color_), font__, clip_);
+    }
+#endif
+
+    void draw_rect(const rect& position, const color fill_color);
+    void draw_rect(const rect& position, const color border_color,
+        const color fill_color, const uint32_t border_width, const uint32_t round);
+
+    /// draw some buffer on context
+    void draw_buffer(const rect& position, uint8_t *buffer, const int32_t left_shift,
+        const int32_t top_shift);
+
+    /// draw another graphic on context
+    void draw_graphic(const rect& position, graphic &graphic_,
+        const int32_t left_shift, const int32_t top_shift);
+
+#ifdef _WIN32
+    [[nodiscard]] HDC drawable()
+    {
+        return mem_dc;
+    }
+
+#elif __linux__
+    [[nodiscard]] xcb_drawable_t drawable()
+    {
+        return mem_pixmap;
+    }
+
+    /// workaround on linux
+    void draw_surface(_cairo_surface &surface, const rect& position);
+#endif
+
+    [[nodiscard]] error get_error() const;
+
+    static void set_text_measurer(graphic* gr) noexcept;
+    [[nodiscard]] static graphic* get_text_measurer() noexcept;
+    [[nodiscard]] static bool text_measurer_inited() noexcept;
+    [[nodiscard]] static bool is_me_text_measurer(const graphic &gr) noexcept;
 
 private:
     system_context &context_;
@@ -88,13 +135,24 @@ private:
     xcb_pixmap_t mem_pixmap;
 
     _cairo_surface *surface;
-    _cairo_device *device;
+    _cairo_device *device; // not used
 #endif
 
     error err;
 };
 
-void init_text_measurer(graphic &gr);
-rect measure_text(std::string_view text, const font &font_, graphic *gr = nullptr);
+//NB: ? добавить для совместимости с wui-1.3.260215 example simple
+//void init_text_measurer(graphic* gr) noexcept;
+
+[[nodiscard]] rect measure_text(std::string_view text, const font &font_, graphic *gr = nullptr);
+/// measure text, hash not use
+[[nodiscard]] rect measure_text_direct(std::string_view text, const font &font_, graphic *gr = nullptr);
+
+#ifdef _WIN32
+[[nodiscard]] rect measure_text_gdiplus(std::string_view text, const font &font_, graphic *gr = nullptr);
+/// measure text, hash not use
+[[nodiscard]] rect measure_text_gdiplus_direct(std::string_view text, const font &font_, graphic *gr = nullptr);
+#endif
+
 
 }
