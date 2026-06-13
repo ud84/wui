@@ -23,7 +23,6 @@ namespace config
 config_impl_ini::config_impl_ini(std::string_view file_name_)
     : file_name(wui::real_path(file_name_)),
     values(),
-    err{},
     changed(false)
 {
     load_values();
@@ -117,10 +116,8 @@ bool config_impl_ini::load_values()
             return true;
         }
 
-        err.type = error_type::file_not_found;
-        err.component = "config_impl_ini::load_values()";
-        err.message = "Error opening config file: " + file_name;
-        
+        err.set(error_type::file_not_found, "config_impl_ini::load_values()",
+            "Error opening config file: '" + file_name + "'");
         return false;
     }
 
@@ -136,7 +133,7 @@ bool config_impl_ini::load_values()
             continue;
         }
 
-        auto eq_pos = line.find("=");		
+        auto eq_pos = line.find("=");
         if (eq_pos != std::string::npos && eq_pos < comment_pos)
         {
             std::string entry = trim_copy(line.substr(0, eq_pos));
@@ -158,17 +155,15 @@ bool config_impl_ini::load_values()
                 }
                 catch (std::invalid_argument const& ex)
                 {
-                    err.type = error_type::invalid_json;
-                    err.component = "config_impl_ini::load_values()";
-                    err.message = "std::invalid_argument::what(): " + std::string(ex.what());
+                    err.set(error_type::invalid_json, "config_impl_ini::load_values()",
+                        "std::invalid_argument::what(): " + std::string(ex.what()));
 
                     return false;
                 }
                 catch (std::out_of_range const& ex)
                 {
-                    err.type = error_type::invalid_json;
-                    err.component = "config_impl_ini::load_values()";
-                    err.message = "std::out_of_range::what(): " + std::string(ex.what());
+                    err.set(error_type::invalid_json, "config_impl_ini::load_values()",
+                        "std::out_of_range::what(): " + std::string(ex.what()));
 
                     return false;
                 }
@@ -199,9 +194,8 @@ bool config_impl_ini::save_values()
     std::ofstream f(std::filesystem::u8path(file_name), std::ios::out | std::ios::trunc);
     if (!f)
     {
-        err.type = error_type::file_not_found;
-        err.component = "config_impl_ini::save_values()";
-        err.message = "Error write to config file: " + file_name;
+        err.set(error_type::file_not_found, "config_impl_ini::save_values()",
+            "Error write to config file: " + file_name);
 
         return false;
     }
@@ -219,14 +213,14 @@ bool config_impl_ini::save_values()
             }
 
             f << "[" << v.first.first << "]" << std::endl;
-                        
+
             if (first_section)
             {
                 first_section = false;
             }
-            
+
             current_section = v.first.first;
-        
+
             for (auto &s : values)
             {
                 if (s.first.first == current_section)
@@ -253,7 +247,7 @@ bool config_impl_ini::save_values()
     }
 
     f.close();
-    
+
     return true;
 }
 
