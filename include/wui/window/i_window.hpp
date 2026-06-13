@@ -53,29 +53,35 @@ inline constexpr bool operator&(const window_style l, const window_style r)
 {
     return 0 != (static_cast <uint32_t> (l) & static_cast <uint32_t> (r));
 }
+// используется в window::draw()
+inline constexpr window_style operator~(const window_style v)
+{
+    return static_cast <window_style> (~(static_cast <uint32_t> (v)));
+}
 
 struct system_context;
 
 class i_window
 {
 public:
-    virtual bool init(std::string_view caption, rect position, window_style style, std::function<void(void)> close_callback) = 0;
+    [[nodiscard]] virtual bool init(std::string_view caption, const rect& position, window_style style,
+        std::function<void(void)> close_callback = nullptr) = 0;
     virtual void destroy() = 0;
 
-    virtual void add_control(std::shared_ptr<i_control> control, rect position) = 0;
+    virtual void add_control(std::shared_ptr<i_control> control, const rect& position) = 0;
     virtual void remove_control(std::shared_ptr<i_control> control) = 0;
 
     virtual void bring_to_front(std::shared_ptr<i_control> control) = 0;
     virtual void move_to_back(std::shared_ptr<i_control> control) = 0;
 
-    virtual void redraw(rect position, bool clear = false) = 0;
+    virtual void redraw(const rect& position, bool clear = false) = 0;
 
-    virtual std::string subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr) = 0;
+    [[nodiscard]] virtual std::string subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr) = 0;
     virtual void unsubscribe(std::string_view subscriber_id) = 0;
 
-    virtual system_context &context() = 0;
+    [[nodiscard]] virtual system_context &context() = 0;
 
-    virtual error get_error() const = 0;
+    [[nodiscard]] virtual error get_error() const = 0;
 
 protected:
     ~i_window() {}
