@@ -25,12 +25,9 @@ namespace wui
 {
 
 class image;
+//class menu;
 
-struct menu_item;
-
-typedef std::vector<menu_item> menu_items_t;
-
-enum menu_item_state
+enum class menu_item_state
 {
     normal,
     separator,
@@ -38,76 +35,129 @@ enum menu_item_state
     disabled
 };
 
-struct menu_item
+template < typename T >
+struct menu_item_data_
 {
-    int32_t id;
+    int32_t id{ };
 
-    menu_item_state state;
+    menu_item_state state{ menu_item_state::normal };
 
     std::string text;
 
     std::string hotkey;
 
-    std::shared_ptr<image> image_;
+    std::shared_ptr<image> image_{ };
 
-    menu_items_t children;
+    std::vector<T> children;
 
-    std::function<void(int32_t)> click_callback;
-
-    int32_t level; menu_item_state prev_state; /// don't fill
+    std::function<void(int32_t)> click_callback{ };
 
     inline bool operator==(int32_t id_)
     {
         return id == id_;
     }
+
+    menu_item_data_& operator=(const menu_item_data_& item)
+    {
+        id = item.id;
+        state = item.state;
+        text = item.text;
+        hotkey = item.hotkey;
+        image_ = item.image_;
+        click_callback = item.click_callback;
+        return *this;
+    }
 };
+
+struct menu_item;
+
+struct menu_item_data : public menu_item_data_ < menu_item_data >
+{
+    menu_item_data& operator=(const menu_item_data& item)
+    {
+        menu_item_data_ < menu_item_data >::operator =(item);
+        return *this;
+    }
+};
+
+struct menu_item : public menu_item_data_ < menu_item >
+{
+    int32_t level;
+    menu_item_state prev_state;
+
+    inline menu_item& operator=(const menu_item& item)
+    {
+        menu_item_data_ < menu_item >::operator =(item);
+        return *this;
+    }
+
+    inline menu_item& operator=(const menu_item_data& item)
+    {
+        id = item.id;
+        state = item.state;
+        text = item.text;
+        hotkey = item.hotkey;
+        image_ = item.image_;
+        click_callback = item.click_callback;
+        return *this;
+    }
+};
+
+typedef std::vector<menu_item_data> menu_items_t_;
+typedef std::vector<menu_item> menu_items_t;
 
 class menu : public i_control, public std::enable_shared_from_this<menu>
 {
 public:
     menu(std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
-    ~menu();
+    virtual ~menu();
 
-    virtual void draw(graphic &gr, rect);
+    virtual void draw(graphic &gr, const rect&) override;
 
-    virtual void set_position(rect position);
-    virtual rect position() const;
+    virtual void set_position(const rect& position) override;
+    [[nodiscard]] virtual rect position() const override;
 
-    virtual void set_parent(std::shared_ptr<window> window_);
-    virtual std::weak_ptr<window> parent() const;
-    virtual void clear_parent();
+    virtual void set_parent(std::shared_ptr<window> window_) override;
+    [[nodiscard]] virtual std::weak_ptr<window> parent() const override;
+    virtual void clear_parent() override;
 
-    virtual void set_topmost(bool);
-    virtual bool topmost() const;
+    virtual void set_topmost(bool) override;
+    [[nodiscard]] virtual bool topmost() const override;
 
-    virtual void update_theme_control_name(std::string_view theme_control_name);
-    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual void update_theme_control_name(std::string_view theme_control_name) override;
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) override;
 
-    virtual void show();
-    virtual void hide();
-    virtual bool showed() const;
+    virtual void show() override;
+    virtual void hide() override;
+    [[nodiscard]] virtual bool showed() const override;
 
-    virtual void enable();
-    virtual void disable();
-    virtual bool enabled() const;
+    virtual void enable() override;
+    virtual void disable() override;
+    [[nodiscard]] virtual bool enabled() const override;
 
-    virtual bool focused() const;
-    virtual bool focusing() const;
+    [[nodiscard]] virtual bool focused() const override;
+    [[nodiscard]] virtual bool focusing() const override;
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const override;
 
 public:
     /// Menu's interface
-    void set_items(const menu_items_t &mi);
+    //void set_items(const menu_items_t &mi);
+    void set_items(const menu_items_t_&mi);
     void update_item(const menu_item &mi);
     void swap_items(int32_t first_item_id, int32_t second_item_id);
     void delete_item(int32_t id);
 
-    void set_item_height(int32_t item_height);
+    void set_item_height(int32_t item_height) noexcept;
 
     void show_on_control(std::shared_ptr<i_control> control, int32_t indent, int32_t x = -1, int32_t y = -1);
 
     void show_on_point(int32_t x, int32_t y);
+
+    [[nodiscard]] bool is_showed() const
+    {
+        return showed_ || list_->showed();
+    }
 
 public:
     /// Control name in theme
@@ -156,9 +206,10 @@ private:
 
     void update_size();
 
-    void draw_arrow_down(graphic &gr, rect pos, bool expanded);
-    void draw_list_item(wui::graphic &gr, int32_t n_item, rect item_rect_, list::item_state state);
-    void activate_list_item(int32_t n_item);
+    void draw_arrow_down(graphic &gr, const rect& pos, const bool expanded);
+    void draw_list_item(wui::graphic &gr, const int32_t n_item, const rect& item_rect_,
+        const list::item_state state);
+    void activate_list_item(const int32_t n_item);
 };
 
 }

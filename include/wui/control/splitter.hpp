@@ -12,7 +12,9 @@
 #include <wui/graphic/graphic.hpp>
 #include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
-#include <wui/common/color.hpp>
+
+// TODO: enum class cursor {}, вынести определение в отдельный файл enum class cursor
+#include <wui/system/tools.hpp>
 
 #include <functional>
 #include <memory>
@@ -31,42 +33,44 @@ class splitter : public i_control, public std::enable_shared_from_this<splitter>
 public:
     splitter(splitter_orientation orientation, std::function<void(int32_t, int32_t)> callback, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
 
-    ~splitter();
+    virtual ~splitter();
 
     /// i_control impl
-    virtual void draw(graphic &gr, rect );
+    virtual void draw(graphic &gr, const rect&) override;
 
-    virtual void set_position(rect position);
-    virtual rect position() const;
+    virtual void set_position(const rect& position) override;
+    [[nodiscard]] virtual rect position() const override;
 
-    virtual void set_parent(std::shared_ptr<window> window_);
-    virtual std::weak_ptr<window> parent() const;
-    virtual void clear_parent();
+    virtual void set_parent(std::shared_ptr<window> window_) override;
+    [[nodiscard]] virtual std::weak_ptr<window> parent() const override;
+    virtual void clear_parent() override;
 
-    virtual void set_topmost(bool yes);
-    virtual bool topmost() const;
+    virtual void set_topmost(bool yes) override;
+    [[nodiscard]] virtual bool topmost() const override;
 
-    virtual void update_theme_control_name(std::string_view theme_control_name);
-    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual void update_theme_control_name(std::string_view theme_control_name) override;
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) override;
 
-    virtual void show();
-    virtual void hide();
-    virtual bool showed() const;
+    virtual void show() override;
+    virtual void hide() override;
+    [[nodiscard]] virtual bool showed() const override;
 
-    virtual void enable();
-    virtual void disable();
-    virtual bool enabled() const;
+    virtual void enable() override;
+    virtual void disable() override;
+    [[nodiscard]] virtual bool enabled() const override;
 
-    virtual bool focused() const;
-    virtual bool focusing() const;
+    [[nodiscard]] virtual bool focused() const override;
+    [[nodiscard]] virtual bool focusing() const override;
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const override;
 
 public:
     /// Splitter interface
     void set_callback(std::function<void(int32_t, int32_t)> callback_);
 
     void set_margins(int32_t min_, int32_t max_);
+
+    void redraw();
 
 public:
     /// Control name in theme
@@ -90,13 +94,12 @@ private:
     std::string my_control_sid, my_plain_sid;
 
     bool showed_, enabled_, active, topmost_;
-
+    cursor cursor_{ cursor::no_ };
     rect prev_pos;
 
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);
 
-    void redraw();
 };
 
 }

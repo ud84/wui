@@ -11,7 +11,7 @@
 #include <wui/control/i_control.hpp>
 #include <wui/graphic/graphic.hpp>
 #include <wui/common/rect.hpp>
-#include <wui/common/color.hpp>
+//#include <wui/common/color.hpp>
 #include <wui/common/orientation.hpp>
 #include <wui/event/event.hpp>
 
@@ -26,35 +26,35 @@ class progress : public i_control, public std::enable_shared_from_this<progress>
 {
 public:
     progress(int32_t from, int32_t to, int32_t value, orientation orientation_ = orientation::horizontal, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
-    ~progress();
+    virtual ~progress();
 
-    virtual void draw(graphic &gr, rect );
+    virtual void draw(graphic &gr, const rect&) override;
 
-    virtual void set_position(rect position);
-    virtual rect position() const;
+    virtual void set_position(const rect& position) override;
+    [[nodiscard]] virtual rect position() const override;
 
-    virtual void set_parent(std::shared_ptr<window> window_);
-    virtual std::weak_ptr<window> parent() const;
-    virtual void clear_parent();
+    virtual void set_parent(std::shared_ptr<window> window_) override;
+    [[nodiscard]] virtual std::weak_ptr<window> parent() const override;
+    virtual void clear_parent() override;
 
-    virtual void set_topmost(bool yes);
-    virtual bool topmost() const;
+    virtual void set_topmost(bool yes) override;
+    [[nodiscard]] virtual bool topmost() const override;
 
-    virtual void update_theme_control_name(std::string_view theme_control_name);
-    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual void update_theme_control_name(std::string_view theme_control_name) override;
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) override;
 
-    virtual void show();
-    virtual void hide();
-    virtual bool showed() const;
+    virtual void show() override;
+    virtual void hide() override;
+    [[nodiscard]] virtual bool showed() const override;
 
-    virtual void enable();
-    virtual void disable();
-    virtual bool enabled() const;
+    virtual void enable() override;
+    virtual void disable() override;
+    [[nodiscard]] virtual bool enabled() const override;
 
-    virtual bool focused() const;
-    virtual bool focusing() const;
+    [[nodiscard]] virtual bool focused() const override;
+    [[nodiscard]] virtual bool focusing() const override;
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const override;
 
 public:
     /// Progress's interface
@@ -62,6 +62,8 @@ public:
     void set_value(int32_t value);
     void set_click_callback(std::function<void(int32_t, bool)> click_callback);
     void set_point(int32_t value, bool is_max);
+
+    void redraw();
 
 public:
     /// Control name in theme
@@ -97,7 +99,6 @@ private:
     int32_t min_point{ 0 };
     int32_t max_point{ 0 };
 
-    void redraw();
     void receive_control_events(const event &ev);
 };
 

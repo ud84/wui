@@ -48,36 +48,36 @@ public:
 #endif
     button(std::string_view caption, std::function<void(void)> click_callback, button_view button_view_, std::string_view image_file_name, int32_t image_size, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
     button(std::string_view caption, std::function<void(void)> click_callback, button_view button_view_, const std::vector<uint8_t> &image_data, int32_t image_size, std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
-    ~button();
+    virtual ~button();
 
     /// i_control impl
-    virtual void draw(graphic &gr, rect );
+    virtual void draw(graphic &gr, const rect&) override;
 
-    virtual void set_position(rect position);
-    virtual rect position() const;
+    virtual void set_position(const rect& position) override;
+    [[nodiscard]] virtual rect position() const override;
 
-    virtual void set_parent(std::shared_ptr<window> window_);
-    virtual std::weak_ptr<window> parent() const;
-    virtual void clear_parent();
+    virtual void set_parent(std::shared_ptr<window> window_) override;
+    [[nodiscard]] virtual std::weak_ptr<window> parent() const override;
+    virtual void clear_parent() override;
 
-    virtual void set_topmost(bool yes);
-    virtual bool topmost() const;
+    virtual void set_topmost(bool yes) override;
+    [[nodiscard]] virtual bool topmost() const override;
 
-    virtual void update_theme_control_name(std::string_view theme_control_name);
-    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual void update_theme_control_name(std::string_view theme_control_name) override;
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) override;
 
-    virtual void show();
-    virtual void hide();
-    virtual bool showed() const;
+    virtual void show() override;
+    virtual void hide() override;
+    [[nodiscard]] virtual bool showed() const override;
 
-    virtual void enable();
-    virtual void disable();
-    virtual bool enabled() const;
+    virtual void enable() override;
+    virtual void disable() override;
+    [[nodiscard]] virtual bool enabled() const override;
 
-    virtual bool focused() const;
-    virtual bool focusing() const;
+    [[nodiscard]] virtual bool focused() const override;
+    [[nodiscard]] virtual bool focusing() const override;
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const override;
 
 public:
     /// Button's interface
@@ -94,9 +94,13 @@ public:
     void disable_focusing();
 
     void turn(bool on);
-    bool turned() const;
+    [[nodiscard]] bool turned() const;
+    [[nodiscard]] rect get_preferred_size();
 
     void set_callback(std::function<void(void)> click_callback);
+    void set_callback_down(std::function<void(void)> click_callback);
+
+    void redraw();
 
 public:
     /// Possible control names in theme
@@ -127,13 +131,15 @@ public:
 private:
     button_view button_view_;
     std::string caption;
+    std::string caption_org;
 
     std::shared_ptr<image> image_;
     int32_t image_size;
-    
+
     std::shared_ptr<tooltip> tooltip_;
-    
+
     std::function<void(void)> click_callback;
+    std::function<void(void)> click_callback_down{};
 
     std::string tcn; /// control name in theme
     std::shared_ptr<i_theme> theme_;
@@ -151,13 +157,11 @@ private:
 
     bool turned_;
 
-    rect text_rect;
+    rect text_rect_;
 
     error err;
 
     void receive_event(const event &ev);
-
-    void redraw();
 
     void update_err(std::string_view place, const error &input_err);
 };

@@ -34,7 +34,7 @@ public:
     tray_icon(std::weak_ptr<window> parent, int32_t icon_resource_index, std::string_view tip, std::function<void(tray_icon_action action)> click_callback);
 #endif
     tray_icon(std::weak_ptr<window> parent, std::string_view icon_file_name, std::string_view tip, std::function<void(tray_icon_action action)> click_callback);
-    ~tray_icon();
+    virtual ~tray_icon();
 
 #ifdef _WIN32
     void change_icon(int32_t icon_resource_index);

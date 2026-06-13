@@ -35,47 +35,51 @@ public:
 #endif
     image(std::string_view file_name, std::shared_ptr<i_theme> theme_ = nullptr);
     image(const std::vector<uint8_t> &data);
-    ~image();
 
-    virtual void draw(graphic &gr, rect );
+    virtual ~image();
 
-    virtual void set_position(rect position);
-    virtual std::weak_ptr<window> parent() const;
-    virtual rect position() const;
+    virtual void draw(graphic &gr, const rect& ) override;
 
-    virtual void set_parent(std::shared_ptr<window> window_);
-    virtual void clear_parent();
+    virtual void set_position(const rect& position) override;
+    [[nodiscard]] virtual std::weak_ptr<window> parent() const override;
+    [[nodiscard]] virtual rect position() const override;
 
-    virtual void set_topmost(bool yes);
-    virtual bool topmost() const;
+    virtual void set_parent(std::shared_ptr<window> window_) override;
+    virtual void clear_parent() override;
 
-    virtual void update_theme_control_name(std::string_view theme_control_name);
-    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual void set_topmost(bool yes) noexcept override;
+    [[nodiscard]] virtual bool topmost() const noexcept override;
 
-    virtual void show();
-    virtual void hide();
-    virtual bool showed() const;
+    virtual void update_theme_control_name(std::string_view theme_control_name) override;
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) override;
 
-    virtual void enable();
+    virtual void show() override;
+    virtual void hide() override;
+    [[nodiscard]] virtual bool showed() const override;
+
+    virtual void enable() override;
     virtual void disable();
-    virtual bool enabled() const;
+    [[nodiscard]] virtual bool enabled() const override;
 
-    virtual bool focused() const;
-    virtual bool focusing() const;
+    [[nodiscard]] virtual bool focused() const noexcept override;
+    [[nodiscard]] virtual bool focusing() const noexcept override;
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const override;
 
 public:
     /// Image's interface
 #ifdef _WIN32
-    void change_image(int32_t resource_index);
+    void change_image(const int32_t resource_index);
 #endif
 
     void change_image(std::string_view file_name);
+    void change_image_raw(std::string_view data_name_, std::shared_ptr<i_theme> theme__ = nullptr);
     void change_image(const std::vector<uint8_t> &data);
 
-    int32_t width() const;
-    int32_t height() const;
+    [[nodiscard]] int32_t width() const;
+    [[nodiscard]] int32_t height() const;
+
+    void redraw();
 
 public:
     /// Control name in theme
@@ -95,7 +99,10 @@ private:
     bool showed_, topmost_;
 
     std::string file_name;
-    
+    std::string path_;
+    std::string data_name;
+    std::string theme_name;
+
 #ifdef _WIN32
     int32_t resource_index;
     Gdiplus::Image *img;
@@ -104,8 +111,6 @@ private:
 #endif
 
     error err;
-
-    void redraw();
 };
 
 }

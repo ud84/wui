@@ -60,17 +60,19 @@ public:
 
     void show(std::string_view message_,
         std::string_view title_,
-        message_icon icon_,
-        message_button button_,
+        const message_icon icon_,
+        const message_button button_,
         std::function<void(message_result)> result_callback = [](message_result) {});
 
-    message_result get_result() const;
+    message_result get_result() const noexcept;
+    void set_docked(const bool docked = true);
 
-private:
+protected:
+    std::string message_;
     message_icon icon_;
     message_button button_;
     std::function<void(message_result)> result_callback;
-    std::shared_ptr<window> transient_window_; bool docked_;
+    std::shared_ptr<window> transient_window_;
     std::shared_ptr<i_theme> theme_;
 
     std::shared_ptr<window> window_;
@@ -79,13 +81,22 @@ private:
     std::shared_ptr<text> text_;
     std::shared_ptr<button> button0, button1, button2;
 
+    bool docked_;
+    bool ctrl_pos_inited_{ false };
+
+    rect icon_position_{ };
+    rect button0_position_{ };
+    rect button1_position_{ };
+    rect button2_position_{ };
+    rect text_position_{ };
+
     message_result result_;
 
+    void calc_ctrl_position(int32_t &width_, int32_t &height_);
+    void add_controls();
     void button0_click();
     void button1_click();
     void button2_click();
-
-    rect get_text_size();
 };
 
 }

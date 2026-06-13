@@ -51,51 +51,54 @@ public:
         int32_t symbols_limit = 10000, /// By default, the maximum limit - 10000 symbols
         std::string_view theme_control_name = tc,
         std::shared_ptr<i_theme> theme_ = nullptr);
-    ~input();
+    virtual ~input();
 
-    virtual void draw(graphic &gr, rect );
+    virtual void draw(graphic &gr, const rect&) override;
 
-    virtual void set_position(rect position);
-    virtual rect position() const;
+    virtual void set_position(const rect& position) override;
+    [[nodiscard]] virtual rect position() const override;
 
-    virtual void set_parent(std::shared_ptr<window> window_);
-    virtual std::weak_ptr<window> parent() const;
+    virtual void set_parent(std::shared_ptr<window> window_) override;
+    [[nodiscard]] virtual std::weak_ptr<window> parent() const override;
     virtual void clear_parent();
 
-    virtual void set_topmost(bool yes);
-    virtual bool topmost() const;
+    virtual void set_topmost(bool yes) override;
+    [[nodiscard]] virtual bool topmost() const override;
 
-    virtual void update_theme_control_name(std::string_view theme_control_name);
-    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual void update_theme_control_name(std::string_view theme_control_name) override;
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) override;
 
-    virtual void show();
-    virtual void hide();
-    virtual bool showed() const;
+    virtual void show() override;
+    virtual void hide() override;
+    [[nodiscard]] virtual bool showed() const override;
 
-    virtual void enable();
-    virtual void disable();
-    virtual bool enabled() const;
+    virtual void enable() override;
+    virtual void disable() override;
+    [[nodiscard]] virtual bool enabled() const override;
 
-    virtual bool focused() const;
-    virtual bool focusing() const;
+    [[nodiscard]] virtual bool focused() const override;
+    [[nodiscard]] virtual bool focusing() const override;
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const override;
 
 public:
     /// Input's interface
     void set_text(std::string_view text);
     std::string text() const;
+    [[nodiscard]] int32_t get_font_size() const;
 
     void set_input_view(input_view input_view_);
-    input_view get_input_view() const;
+    [[nodiscard]] input_view get_input_view() const;
     void set_input_content(input_content input_content_);
     void set_symbols_limit(int32_t symbols_limit);
 
     void set_change_callback(std::function<void()> change_callback);
     void set_return_callback(std::function<void()> return_callback);
 
-    const std::vector<std::string>& get_lines() const;
+    [[nodiscard]] const std::vector<std::string>& get_lines() const;
     void scroll_to_end();
+
+    void redraw();
 
 public:
     /// Control name in theme
@@ -163,9 +166,11 @@ private:
     bool max_width_dirty_ = true;
 
     // Auto-scroll timer for mouse selection
-    enum class auto_scroll_type {
+    enum class auto_scroll_type
+    {
         idle = 0, left, right, up, down
     };
+
     std::shared_ptr<timer> auto_scroll_timer_;
     auto_scroll_type auto_scroll_type_ = auto_scroll_type::idle;
     void start_auto_scroll(bool up = false);
@@ -176,8 +181,6 @@ private:
     void receive_control_events(const event &ev);
     void receive_plain_events(const event &ev);
 
-    void redraw();
-
     void redraw_cursor();
 
     // Multiline helpers
@@ -186,13 +189,14 @@ private:
 
     // Selections and cursor
     bool clear_selected_text(); /// returns true if selection is not empty
-    std::pair<size_t, size_t> calculate_mouse_cursor_position(int x, int y);
+    [[nodiscard]] std::pair<size_t, size_t> calculate_mouse_cursor_position(int x, int y);
 
     // Selection helper
     void select_all();
     void select_current_word(int x, int y);
 
     // Clipboard
+    //TODO: X11
     void buffer_copy();
     void buffer_cut();
     void buffer_paste();
@@ -205,13 +209,13 @@ private:
     void scroll_to_cursor();
 
     // Cache management for performance
-    int get_max_line_width();
+    [[nodiscard]] int get_max_line_width();
     void invalidate_max_width_cache();
 
     // Get font
-    font get_font();
+    [[nodiscard]] font get_font();
 
-    bool update_mem_gr();
+    [[nodiscard]] bool update_mem_gr(const int32_t round);
 };
 
 }

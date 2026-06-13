@@ -12,7 +12,6 @@
 #include <wui/graphic/graphic.hpp>
 #include <wui/event/event.hpp>
 #include <wui/common/rect.hpp>
-#include <wui/common/color.hpp>
 
 #include <string>
 #include <functional>
@@ -37,36 +36,36 @@ public:
         slider_orientation orientation = slider_orientation::horizontal,
         std::string_view theme_control_name = tc, std::shared_ptr<i_theme> theme_ = nullptr);
 
-    ~slider();
+    virtual ~slider();
 
     /// i_control impl
-    virtual void draw(graphic &gr, rect );
+    virtual void draw(graphic &gr, const rect&) override;
 
-    virtual void set_position(rect position);
-    virtual rect position() const;
+    virtual void set_position(const rect& position) override;
+    [[nodiscard]] virtual rect position() const override;
 
-    virtual void set_parent(std::shared_ptr<window> window_);
-    virtual std::weak_ptr<window> parent() const;
-    virtual void clear_parent();
+    virtual void set_parent(std::shared_ptr<window> window_) override;
+    [[nodiscard]] virtual std::weak_ptr<window> parent() const override;
+    virtual void clear_parent() override;
 
-    virtual void set_topmost(bool yes);
-    virtual bool topmost() const;
+    virtual void set_topmost(bool yes) override;
+    [[nodiscard]] virtual bool topmost() const override;
 
-    virtual void update_theme_control_name(std::string_view theme_control_name);
-    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr);
+    virtual void update_theme_control_name(std::string_view theme_control_name) override;
+    virtual void update_theme(std::shared_ptr<i_theme> theme_ = nullptr) override;
 
-    virtual void show();
-    virtual void hide();
-    virtual bool showed() const;
+    virtual void show() override;
+    virtual void hide() override;
+    [[nodiscard]] virtual bool showed() const override;
 
-    virtual void enable();
-    virtual void disable();
-    virtual bool enabled() const;
+    virtual void enable() override;
+    virtual void disable() override;
+    [[nodiscard]] virtual bool enabled() const override;
 
-    virtual bool focused() const;
-    virtual bool focusing() const;
+    [[nodiscard]] virtual bool focused() const override;
+    [[nodiscard]] virtual bool focusing() const override;
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const override;
 
 public:
     /// Slider's interface
@@ -91,6 +90,7 @@ public:
     static constexpr const char *tv_slider_round = "slider_round";
 
 private:
+    static constexpr double _pos_progress_max = 0.95; /// Если прогресс >= 95%, считаем что достигли максимума
     slider_orientation orientation;
     int32_t from, to, value;
     bool centered_mode; // Если true, 0 находится посередине (для диапазонов типа -7..+7)
