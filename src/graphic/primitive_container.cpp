@@ -8,11 +8,11 @@
 
 #include <wui/graphic/primitive_container.hpp>
 
-#include <wui/common/flag_helpers.hpp>
-
 #include <boost/nowide/convert.hpp>
 
-#ifdef __linux__
+#ifdef _WIN32
+#include <strsafe.h>
+#elif __linux__
 #include <xcb/xcb_image.h>
 #include <cairo.h>
 #include <cairo-xcb.h>
@@ -22,17 +22,7 @@ namespace wui
 {
 
 primitive_container::primitive_container(wui::system_context &context__)
-    : context_(context__),
-    err{},
-#ifdef _WIN32
-    pens{},
-    brushes{},
-    fonts{},
-    bitmaps{}
-#elif __linux__
-    gcs{},
-    fonts{}
-#endif
+    : context_(context__)
 {
 }
 
@@ -45,6 +35,7 @@ primitive_container::~primitive_container()
 
 void primitive_container::init()
 {
+    err.reset();
 }
 
 void primitive_container::release()
@@ -74,23 +65,23 @@ void primitive_container::release()
     bitmaps.clear();
 }
 
-HPEN primitive_container::get_pen(int32_t style, int32_t width, color color_)
+HPEN primitive_container::get_pen(const int32_t style, const int32_t width, const color color_)
 {
     auto it = pens.find({ { style, width }, color_ });
     if (it != pens.end())
     {
         return it->second;
     }
-    auto pen = CreatePen(style, width, color_);
+    auto pen = CreatePen(style, width, get_rgb(color_));
 
     pens[{ { style, width }, color_ }] = pen;
 
     return pen;
 }
 
-HBRUSH primitive_container::get_brush(color color_)
+HBRUSH primitive_container::get_brush(const color color_)
 {
-    if (get_alpha(color_) != 0)
+    if (is_alpha(color_)) // TODO: alpha
     {
         return (HBRUSH)GetStockObject(NULL_BRUSH);
     }
@@ -100,14 +91,14 @@ HBRUSH primitive_container::get_brush(color color_)
         return it->second;
     }
 
-    auto brush = CreateSolidBrush(color_);
+    auto brush = CreateSolidBrush(get_rgb(color_));
 
     brushes[color_] = brush;
 
     return brush;
 }
 
-HFONT primitive_container::get_font(font font_)
+HFONT primitive_container::get_font(const font& font_)
 {
     auto it = fonts.find({ {font_.name, font_.size }, font_.decorations_ });
     if (it != fonts.end())
@@ -115,14 +106,15 @@ HFONT primitive_container::get_font(font font_)
         return it->second;
     }
 
-    LOGFONTW log_font = { font_.size,
+    LOGFONTW log_font = {
+        font_.size,
         0,
         0,
         0,
-        flag_is_set(font_.decorations_, decorations::bold) ? FW_MEDIUM : FW_DONTCARE,
-        flag_is_set(font_.decorations_, decorations::italic),
-        flag_is_set(font_.decorations_, decorations::underline),
-        flag_is_set(font_.decorations_, decorations::strike_out),
+        (font_.decorations_ & decorations::bold) ? FW_MEDIUM : FW_DONTCARE,
+        0 != (font_.decorations_ & decorations::italic),
+        0 != (font_.decorations_ & decorations::underline),
+        0 != (font_.decorations_ & decorations::strike_out),
         ANSI_CHARSET,
         OUT_TT_PRECIS,
         CLIP_DEFAULT_PRECIS,
@@ -130,8 +122,14 @@ HFONT primitive_container::get_font(font font_)
         DEFAULT_PITCH | FF_DONTCARE,
         0
     };
-    auto font_name = boost::nowide::widen(font_.name);
-    memcpy(log_font.lfFaceName, font_name.c_str(), font_name.size() * 2);
+    std::wstring font_name = boost::nowide::widen(font_.name);
+#if 0
+    const size_t length = font_name.length() < LF_FACESIZE ? font_name.length() : LF_FACESIZE - 1;
+    std::memcpy(log_font.lfFaceName, font_name.data(), length * sizeof(WCHAR));
+    log_font.lfFaceName[length] = 0x0000;
+#else
+    StringCchCopyW(log_font.lfFaceName, LF_FACESIZE, font_name.c_str());
+#endif
     HFONT font__ = CreateFontIndirectW(&log_font);
 
     fonts[{ {font_.name, font_.size }, font_.decorations_ }] = font__;
@@ -139,7 +137,8 @@ HFONT primitive_container::get_font(font font_)
     return font__;
 }
 
-HBITMAP primitive_container::get_bitmap(int32_t width, int32_t height, uint8_t *buffer, HDC hdc)
+HBITMAP primitive_container::get_bitmap(const int32_t width, const int32_t height,
+    uint8_t *buffer, const HDC hdc)
 {
     auto it = bitmaps.find({ width, height });
     if (it != bitmaps.end())
@@ -150,7 +149,7 @@ HBITMAP primitive_container::get_bitmap(int32_t width, int32_t height, uint8_t *
 
         bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFO) - sizeof(RGBQUAD);
         bmpInfo.bmiHeader.biWidth = width;
-        bmpInfo.bmiHeader.biHeight = 0 - (int)height;
+        bmpInfo.bmiHeader.biHeight = 0 - (LONG)height;
         bmpInfo.bmiHeader.biPlanes = 1;
         bmpInfo.bmiHeader.biBitCount = 32;
         bmpInfo.bmiHeader.biCompression = BI_RGB;
@@ -197,13 +196,11 @@ void primitive_container::release()
     fonts.clear();
 }
 
-xcb_gcontext_t primitive_container::get_gc(color color_)
+xcb_gcontext_t primitive_container::get_gc(const color color_)
 {
     if (!context_.connection)
     {
-        err.type = error_type::no_handle;
-        err.component = "primitive_container::get_gc(color)";
-        err.message = "no context_.connection";
+        err.set(error_type::no_handle, "primitive_container::get_gc(color)", "no context_.connection");
         return -1;
     }
 
@@ -216,7 +213,7 @@ xcb_gcontext_t primitive_container::get_gc(color color_)
     auto gc = xcb_generate_id(context_.connection);
 
     uint32_t mask = XCB_GC_FOREGROUND;
-    uint32_t value[] = { static_cast<uint32_t>(color_) };
+    uint32_t value[] = { color_ };
     auto gc_create_cookie = xcb_create_gc(context_.connection, gc, context_.wnd, mask, value);
 
     gcs[color_] = gc;
@@ -224,7 +221,7 @@ xcb_gcontext_t primitive_container::get_gc(color color_)
     return gc;
 }
 
-_cairo *primitive_container::get_font(font font_, _cairo_surface *surface)
+_cairo *primitive_container::get_font(const font& font_, _cairo_surface *surface)
 {
     if (!surface)
     {
@@ -243,8 +240,9 @@ _cairo *primitive_container::get_font(font font_, _cairo_surface *surface)
         return nullptr;
     }
 
-    cairo_select_font_face(cr, font_.name.c_str(), !flag_is_set(font_.decorations_, decorations::italic) ? CAIRO_FONT_SLANT_NORMAL : CAIRO_FONT_SLANT_ITALIC,
-        !flag_is_set(font_.decorations_, decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_BOLD);
+    cairo_select_font_face(cr, font_.name.c_str(),
+        !(font_.decorations_ & decorations::italic) ? CAIRO_FONT_SLANT_NORMAL : CAIRO_FONT_SLANT_ITALIC,
+        !(font_.decorations_ & decorations::bold) ? CAIRO_FONT_WEIGHT_NORMAL : CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, font_.size);
 
     fonts[{ {font_.name, font_.size }, font_.decorations_ }] = cr;
