@@ -46,7 +46,7 @@ panel::~panel()
     }
 }
 
-void panel::draw(graphic &gr, rect)
+void panel::draw(graphic &gr, const rect&)
 {
     if (!showed_ || position_.is_null())
     {
@@ -61,7 +61,7 @@ void panel::draw(graphic &gr, rect)
     }
 }
 
-void panel::set_position(rect position__)
+void panel::set_position(const rect& position__)
 {
     position_ = position__;
 }

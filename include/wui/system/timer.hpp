@@ -133,7 +133,7 @@ public:
 			if (FALSE == DeleteTimerQueueTimer(h_timer_queue, h_timer, INVALID_HANDLE_VALUE)
 				 && ERROR_IO_PENDING != GetLastError())
 			{
-				DeleteTimerQueueTimer(h_timer_queue, h_timer, INVALID_HANDLE_VALUE);
+				(void) DeleteTimerQueueTimer(h_timer_queue, h_timer, INVALID_HANDLE_VALUE);
 			}
          h_timer = nullptr;
 		}

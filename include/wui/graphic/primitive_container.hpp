@@ -35,16 +35,16 @@ public:
     void init();
     void release();
 
-    wui::error get_error() const;
+    [[nodiscard]] wui::error get_error() const;
 
 #ifdef _WIN32
-    HPEN get_pen(int32_t style, int32_t width, color color_);
-    HBRUSH get_brush(color color_);
-    HFONT get_font(font font_);
-    HBITMAP get_bitmap(int32_t width, int32_t height, uint8_t *buffer, HDC hdc);
+    [[nodiscard]] HPEN get_pen(const int32_t style, const int32_t width, const color color_);
+    [[nodiscard]] HBRUSH get_brush(const color color_);
+    [[nodiscard]] HFONT get_font(const font& font_);
+    [[nodiscard]] HBITMAP get_bitmap(const int32_t width, const int32_t height, uint8_t *buffer, const HDC hdc);
 #elif __linux__
-    xcb_gcontext_t get_gc(color color_);
-    _cairo *get_font(font font_, _cairo_surface *surface);
+    xcb_gcontext_t get_gc(const color color_);
+    [[nodiscard]] _cairo *get_font(const font& font_, _cairo_surface *surface);
 #endif
 
 private:

@@ -23,9 +23,9 @@ public:
     virtual void run() = 0;
     virtual void stop() = 0;
 
-    virtual bool started() const = 0;
+    [[nodiscard]] virtual bool started() const = 0;
 
-    virtual error get_error() const = 0;
+    [[nodiscard]] virtual error get_error() const = 0;
 
     virtual ~i_framework() {}
 };

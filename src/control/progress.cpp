@@ -16,8 +16,6 @@
 
 #include <wui/event/event.hpp>
 
-#include <wui/common/flag_helpers.hpp>
-
 #include <boost/nowide/convert.hpp>
 
 #include <cstring>
@@ -53,7 +51,7 @@ progress::~progress()
     }
 }
 
-void progress::draw(graphic& gr, rect)
+void progress::draw(graphic& gr, const rect&)
 {
     if (!showed_ || position_.is_null())
     {
@@ -71,7 +69,7 @@ void progress::draw(graphic& gr, rect)
     {
         double half_px = (orientation_ == orientation::horizontal ? control_pos.width() : control_pos.height()) / 2.0;
 
-        rect meter_rect = { 0 };
+        rect meter_rect{ 0 };
         color meter_color = theme_color(tcn, tv_meter, theme_);
 
         if (value > 0)
@@ -170,12 +168,12 @@ void progress::draw(graphic& gr, rect)
     auto border_width = theme_dimension(tcn, tv_border_width, theme_);
     gr.draw_rect(control_pos,
         theme_color(tcn, tv_border, theme_),
-        make_color(0, 0, 0, 255),
+        make_color(0, 0, 0, 0),
         border_width,
         theme_dimension(tcn, tv_round, theme_));
 }
 
-void progress::set_position(rect position__)
+void progress::set_position(const rect& position__)
 {
     position_ = position__;
 }
@@ -201,7 +199,7 @@ void progress::set_parent(std::shared_ptr<window> window)
         // Подписаться на события мыши для обработки кликов
         my_control_sid = window->subscribe(
             std::bind(&progress::receive_control_events, this, std::placeholders::_1),
-            flags_map<event_type>(1, event_type::mouse),
+            event_type::mouse,
             shared_from_this()
         );
     }
@@ -326,7 +324,7 @@ void progress::set_click_callback(std::function<void(int32_t, bool)> click_callb
     {
         my_control_sid = parent__->subscribe(
             std::bind(&progress::receive_control_events, this, std::placeholders::_1),
-            flags_map<event_type>(1, event_type::mouse),
+            event_type::mouse,
             shared_from_this()
         );
     }
@@ -377,8 +375,7 @@ void progress::receive_control_events(const event& ev)
         return;
     }
 
-    // TODO: ev.type & event_type::mouse
-    if (ev.type == event_type::mouse &&
+    if ((ev.type & event_type::mouse) &&
         (ev.mouse_event_.type == mouse_event_type::left_down || ev.mouse_event_.type == mouse_event_type::right_down))
     {
         const bool is_right = (ev.mouse_event_.type == mouse_event_type::right_down);

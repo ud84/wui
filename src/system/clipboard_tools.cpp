@@ -31,11 +31,12 @@ void clipboard_put(std::string_view text, system_context &context)
 
     if (OpenClipboard(context.hwnd))
     {
-        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, wide_str.size() * sizeof(wchar_t) + 2);
+        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, (wide_str.size() + 1) * sizeof(wchar_t));
         if (hGlobal != NULL)
         {
             LPVOID lpText = GlobalLock(hGlobal);
-            memcpy(lpText, wide_str.c_str(), wide_str.size() * sizeof(wchar_t));
+            if(lpText)
+                memcpy(lpText, wide_str.c_str(), wide_str.size() * sizeof(wchar_t));
 
             EmptyClipboard();
             GlobalUnlock(hGlobal);
@@ -46,15 +47,13 @@ void clipboard_put(std::string_view text, system_context &context)
     }
 }
 
-bool is_text_in_clipboard(system_context &context)
+bool is_text_in_clipboard(system_context &context [[maybe_unused]] )
 {
-    (void)context; // Unused on Windows
     return IsClipboardFormatAvailable(CF_UNICODETEXT);
 }
 
-std::string clipboard_get_text(system_context &context)
+std::string clipboard_get_text(system_context &context [[maybe_unused]] )
 {
-    (void)context; // Unused on Windows
     if (!OpenClipboard(NULL))
     {
         return "";
@@ -78,6 +77,8 @@ std::string clipboard_get_text(system_context &context)
 }
 
 #elif __linux__
+
+// TODO: X11
 
 void clipboard_put(std::string_view text, system_context &context)
 {

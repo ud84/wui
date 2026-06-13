@@ -36,7 +36,7 @@ tooltip::~tooltip()
     }
 }
 
-void tooltip::draw(graphic &gr, rect)
+void tooltip::draw(graphic &gr, const rect&)
 {
     if (!showed_ || position_.is_null())
     {
@@ -61,7 +61,7 @@ void tooltip::draw(graphic &gr, rect)
     gr.draw_text(text_position, text, theme_color(tcn, tv_text, theme_), font_);
 }
 
-void tooltip::set_position(rect position__)
+void tooltip::set_position(const rect& position__)
 {
     position_ = position__;
 }
@@ -193,7 +193,9 @@ void tooltip::update_size()
     auto old_position = position_;
 
     auto height = font_.size;
-    auto position__ = measure_text(text, font_);
+
+    auto parent__ = parent_.lock();
+    auto position__ = measure_text(text, font_, parent__ ? &parent__->get_graphic() : (graphic*) nullptr);
 
     auto text_indent = theme_dimension(tcn, tv_text_indent, theme_);
     position__.right += text_indent * 2;
@@ -209,7 +211,7 @@ void tooltip::show_on_control(i_control &control, int32_t indent)
     update_size();
 
     auto pos = get_popup_position(parent_, control.position(), position_, indent);
-    
+
     set_position(pos);
     show();
 }

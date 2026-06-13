@@ -67,5 +67,5 @@ static inline bool is_number(const std::string& s)
 }
 
 // return true if string is number floating point
-// TODO: static inline bool is_number(const std::string& s) { ... }
+// TODO: static inline bool is_number_float(const std::string& s) { ... }
 }

@@ -24,13 +24,14 @@ class framework_win_impl : public i_framework
 {
 public:
     framework_win_impl();
+    virtual ~framework_win_impl() override = default;
 
-    virtual void run();
-    virtual void stop();
+    virtual void run() override;
+    virtual void stop() override;
 
-    virtual bool started() const;
+    [[nodiscard]] virtual bool started() const override;
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const override;
 
 private:
     bool started_;

@@ -13,7 +13,7 @@
 namespace wui
 {
 
-static std::shared_ptr<i_theme> instance = nullptr;
+static std::shared_ptr<i_theme> instance;
 static std::string dummy_string;
 static std::vector<uint8_t> dummy_image;
 
@@ -59,12 +59,12 @@ bool set_default_theme_from_name(std::string_view name, error &err)
     auto theme_params = wui::get_app_theme(name);
 
 #ifdef _WIN32
-    bool ok = wui::set_default_theme_from_resource(name, theme_params.resource_id, "JSONS");
+    const bool ok = wui::set_default_theme_from_resource(name, theme_params.resource_id, "JSONS");
 #else
-    bool ok = wui::set_default_theme_from_file(name, theme_params.file_name);
+    const bool ok = wui::set_default_theme_from_file(name, theme_params.file_name);
 #endif
 
-    err = instance->get_error();
+    err = std::move(instance->get_error());
     return ok;
 }
 
@@ -72,14 +72,14 @@ error get_theme_error()
 {
     if (instance)
     {
-        instance->get_error();
+        return instance->get_error();
     }
     return {};
 }
 
 std::shared_ptr<i_theme> get_default_theme()
 {
-    return instance;    
+    return instance;
 }
 
 std::shared_ptr<i_theme> make_custom_theme(std::string_view name)

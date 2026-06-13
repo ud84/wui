@@ -24,20 +24,20 @@ public:
     config_impl_ini(std::string_view file_name);
     ~config_impl_ini();
 
-    int32_t get_int(std::string_view section, std::string_view entry, int32_t default_);
+    [[nodiscard]] int32_t get_int(std::string_view section, std::string_view entry, int32_t default_);
     void set_int(std::string_view section, std::string_view entry, int32_t value);
 
-    int64_t get_int64(std::string_view section, std::string_view entry, int64_t default_);
+    [[nodiscard]] int64_t get_int64(std::string_view section, std::string_view entry, int64_t default_);
     void set_int64(std::string_view section, std::string_view entry, int64_t value);
 
-    std::string get_string(std::string_view section, std::string_view entry, std::string_view default_);
+    [[nodiscard]] std::string get_string(std::string_view section, std::string_view entry, std::string_view default_);
     void set_string(std::string_view section, std::string_view entry, std::string_view value);
 
     void delete_value(std::string_view section, std::string_view entry);
 
     void delete_key(std::string_view section);
 
-    virtual error get_error() const;
+    [[nodiscard]] virtual error get_error() const;
 
 private:
     enum class value_type

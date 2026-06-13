@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2021-2026 Intent Garden Org
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -24,7 +24,7 @@ namespace wui
 {
 
 locale_impl::locale_impl(locale_type type_, std::string_view name_)
-    : type(type_), name(name_), strings(), dummy_string(), err{}
+    : type(type_), name(name_), strings(), dummy_string()
 {
 }
 
@@ -60,7 +60,7 @@ void locale_impl::load_resource(int32_t resource_index, std::string_view resourc
     auto h_resource = FindResourceW(h_inst, (LPCWSTR)MAKEINTRESOURCE(resource_index), boost::nowide::widen(resource_section).c_str());
     if (!h_resource)
     {
-        return;
+        return; //TODO : set err
     }
 
     auto resource_size = ::SizeofResource(h_inst, h_resource);
@@ -89,10 +89,7 @@ void locale_impl::load_json(std::string_view json_)
 
         if (j.is_discarded())
         {
-            err.type = error_type::invalid_json;
-            err.component = "locale_impl::load_json()";
-            err.message = "json parse discarded";
-
+            err.set(error_type::invalid_json, "locale_impl::load_json()", "json parse discarded");
             return;
         }
 
@@ -119,9 +116,8 @@ void locale_impl::load_json(std::string_view json_)
     }
     catch (nlohmann::detail::exception &e)
     {
-        err.type = error_type::invalid_json;
-        err.component = "locale_impl::load_json()";
-        err.message = "Error reading locale json: " + std::string(e.what());
+        err.set(error_type::invalid_json, "locale_impl::load_json()",
+            "Error reading locale json: " + std::string(e.what()));
     }
 }
 
@@ -132,13 +128,11 @@ void locale_impl::load_file(std::string_view file_name)
     std::ifstream f(wui::real_path(file_name));
     if (!f)
     {
-        err.type = error_type::file_not_found;
-        err.component = "locale_impl::load_file()";
-        err.message = "Unable to open locale file: " + wui::real_path(file_name) + " errno: " + std::to_string(errno);
-
+        err.set(error_type::file_not_found, "locale_impl::load_file()",
+            "Unable to open locale file: '" + wui::real_path(file_name) + "', errno: " + std::to_string(errno));
         return;
     }
-    
+
     std::stringstream buffer;
     buffer << f.rdbuf();
 

@@ -13,11 +13,12 @@
 
 namespace wui
 {
+// TODO: X11
 
 /// Clipboard's functions
 void clipboard_put(std::string_view text, system_context &context);
 
-bool is_text_in_clipboard(system_context &context);
-std::string clipboard_get_text(system_context &context);
+[[nodiscard]] bool is_text_in_clipboard(system_context &context);
+[[nodiscard]] std::string clipboard_get_text(system_context &context);
 
 }

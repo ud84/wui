@@ -10,6 +10,8 @@
 
 #include <wui/framework/framework_win_impl.hpp>
 
+#include <wui/window/listener.hpp>
+
 #include <windows.h>
 
 namespace wui
@@ -17,10 +19,10 @@ namespace wui
 
 namespace framework
 {
+extern std::shared_ptr<listener> get_listener();
 
 framework_win_impl::framework_win_impl()
-    : started_(false),
-    err{}
+    : started_(false)
 {
 }
 
@@ -28,9 +30,7 @@ void framework_win_impl::run()
 {
     if (started_)
     {
-        err.type = error_type::already_started;
-        err.component = "framework_win_impl::run()";
-
+        err.set(error_type::already_started, "framework_win_impl::run()");
         return;
     }
     started_ = true;
@@ -41,6 +41,8 @@ void framework_win_impl::run()
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
+    started_ = false;
 }
 
 void framework_win_impl::stop()
@@ -50,7 +52,7 @@ void framework_win_impl::stop()
         PostQuitMessage(IDCANCEL);
         started_ = false;
 
-        err.reset();
+        // err.reset(); // сохраняем ошибки
     }
 }
 

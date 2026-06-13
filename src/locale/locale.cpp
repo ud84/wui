@@ -72,14 +72,14 @@ error get_locale_error()
 {
     if (instance)
     {
-        instance->get_error();
+        return std::move(instance->get_error());
     }
     return {};
 }
 
 std::shared_ptr<i_locale> get_locale()
 {
-    return instance;    
+    return instance;
 }
 
 void set_locale_value(std::string_view section, std::string_view value, std::string_view str)

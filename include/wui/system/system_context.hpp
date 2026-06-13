@@ -23,27 +23,42 @@ class graphic;
 
 struct system_context
 {
-    HWND hwnd;
+    HWND hwnd{ NULL };
 
-    bool valid() const
+    bool physical() const noexcept
     {
-        return hwnd != 0;
+        return hwnd != NULL;
     }
+
+    // only clear
+    void clear() noexcept
+    {
+        hwnd = NULL;
+    }
+
 };
 
 #elif __linux__
 
 struct system_context
 {
-    Display          *display;
+    Display* display{ nullptr }; // installed in the listener::init()
+    xcb_connection_t *connection{ nullptr }; // installed in the listener::init()
 
-    xcb_connection_t *connection;
-    xcb_screen_t     *screen;
-    xcb_window_t     wnd;
+    xcb_screen_t *screen{ nullptr }; // installed in the graphic::init()
+    xcb_window_t wnd{ }; // [id] installed in the window::init()
 
-    bool valid() const
+    [[nodiscard]] bool physical() const noexcept
     {
         return display != nullptr;
+    }
+
+    void clear()
+    {
+        display = nullptr;
+        connection = nullptr;
+        screen = nullptr;
+        wnd = 0;
     }
 };
 
