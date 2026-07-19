@@ -461,7 +461,7 @@ void graphic::draw_text_clip_rgb(const rect& position, const text_lines_t& lines
     {
         auto wide_str = boost::nowide::widen(line.str);
         ExtTextOutW(mem_dc,
-            line.rc.left, line.rc.top,
+            position.left + line.rc.left, position.top + line.rc.top,
             ETO_CLIPPED,
             ptr_rc, wide_str.c_str(),
             static_cast<UINT>(wide_str.size()), NULL);
@@ -493,7 +493,8 @@ void graphic::draw_text_clip(const rect& position, const text_lines_t& lines,
     for (auto& line : lines)
     {
         auto wide_str = boost::nowide::widen(line.str);
-        const Gdiplus::PointF pt(static_cast<Gdiplus::REAL>(line.rc.left), static_cast<Gdiplus::REAL>(line.rc.top));
+        const Gdiplus::PointF pt(static_cast<Gdiplus::REAL>(position.left + line.rc.left),
+            static_cast<Gdiplus::REAL>(position.top + line.rc.top));
         g.DrawString(wide_str.c_str(),
             static_cast<INT>(wide_str.size()),
             &font,
@@ -532,7 +533,7 @@ void graphic::draw_text_clip(const rect & position, const text_lines_t & lines,
     std::string text;
     for (auto& line : lines)
     {
-        cairo_move_to(cr, line.rc.left, line.rc.top + font__.size * 5.0 / 6.0);
+        cairo_move_to(cr, position.left + line.rc.left, position.top + line.rc.top + font__.size * 5.0 / 6.0);
         text = line.str; /// Workaround to prevent crashes
         text += '\0';
 
@@ -666,11 +667,7 @@ void graphic::draw_rect(const rect& position, const color border_color,
 
     if (0 == rnd)
     {
-        cairo_move_to(cr, l, t);
-        cairo_line_to(cr, r, t);
-        cairo_line_to(cr, r, b);
-        cairo_line_to(cr, l, b);
-        cairo_line_to(cr, l, t);
+        cairo_rectangle(cr, l, t, width, height);
     }
     else
     {
@@ -783,8 +780,11 @@ void graphic::draw_buffer(const rect& position,
         top_shift,
         position.left,
         position.top,
-        position.right,
-        position.bottom);
+        position.width(),
+        position.height()
+        //position.right, // ?
+        //position.bottom // ?
+    );
 
     xcb_free_pixmap(context_.connection, pixmap);
 
@@ -817,7 +817,7 @@ void graphic::draw_graphic(const rect& position, graphic &graphic_,
         auto copy_area_cookie = xcb_copy_area(context_.connection,
             graphic_.drawable(),
             mem_pixmap,
-            pc.get_gc(background_color),
+            pc.get_gc(graphic_.background_color), //old: this->background_color
             left_shift,
             top_shift,
             position.left,

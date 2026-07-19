@@ -212,7 +212,7 @@ void a_text::update_text(graphic* gr, const bool clip__)
 
     const auto font_ = theme_font(tcn, tv_font, theme_);
     const auto line_height = font_.size;
-    const auto control_pos = position();
+    const rect control_pos{ 0, 0, position_.width(), position_.height()};
     const auto line_space = static_cast<int32_t>(line_height * space_coeff_);
 
     int32_t line_top{ control_pos.top };

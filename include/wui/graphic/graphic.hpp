@@ -35,7 +35,7 @@ public:
     struct text_line
     {
         std::string str;
-        rect rc{ };
+        rect rc{ };  /// local coordinate
     };
     typedef std::vector<text_line> text_lines_t;
 

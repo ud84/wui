@@ -192,7 +192,7 @@ protected:
     rect text_position_{ };
 #endif
 
-    graphic::text_lines_t lines_;
+    graphic::text_lines_t lines_; // local coordinate
 
     /// используется для определения количества строк
     rect position_{ };
