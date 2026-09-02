@@ -10,6 +10,7 @@
 
 #include <wui/locale/locale_type.hpp>
 #include <vector>
+#include <cstdint>
 
 namespace wui
 {
