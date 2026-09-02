@@ -519,6 +519,7 @@ void window::receive_plain_events(const event &ev)
             set_position(new_position);
         }
 
+        send_event_to_plains(ev);
         return;
     }
 
