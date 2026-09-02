@@ -17,8 +17,10 @@
 
 #include <wui/graphic/primitive_container.hpp>
 
-#include <string_view>
 #include <cstdint>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 
 #ifdef __linux__
 struct _cairo_surface;
@@ -55,6 +57,13 @@ public:
     void draw_rect(rect position, color fill_color);
     void draw_rect(rect position, color border_color, color fill_color, uint32_t border_width, uint32_t round);
 
+    /// Draws a PNG scaled into position. The loaded surface is cached per
+    /// path and owned by this graphic (released on destruction).
+    /// Implemented on Linux only (no-op elsewhere). The cache is not
+    /// invalidated: if the file changes on disk, the previous image is
+    /// reused until the graphic is destroyed.
+    void draw_image(std::string_view file_name, rect position);
+
     /// draw some buffer on context
     void draw_buffer(rect position, uint8_t *buffer, int32_t left_shift, int32_t top_shift);
 
@@ -89,6 +98,7 @@ private:
 
     _cairo_surface *surface;
     _cairo_device *device;
+    std::unordered_map<std::string, _cairo_surface*> image_cache_;
 #endif
 
     error err;
