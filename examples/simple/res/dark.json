@@ -168,6 +168,12 @@
       "meter": "#8dd28a"
     },
     {
+      "type": "scroll",
+      "background": "#3e3e42",
+      "slider": "#686868",
+      "slider_active": "#9e9e9e"
+    },
+    {
       "type": "slider",
       "perform": "#0078d7",
       "remain": "#666666",

@@ -710,24 +710,45 @@ void scroll::start_work(worker_action action)
     if (!worker_started)
     {
         worker_started = true;
+#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
+        if (!worker)
+        {
+            auto weak = weak_from_this();
+            worker = std::make_unique<timer>([weak]() {
+                // Callbacks may remove the control; keep it alive for this tick.
+                if (auto control = weak.lock()) control->work();
+            });
+        }
+        worker->start(20);
+#else
         if (worker.joinable()) worker.join();
         worker = std::thread(std::bind(&scroll::work, this));
+#endif
     }
 }
 
 void scroll::work()
 {
+#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
+    // One step per main-loop timer tick on UI-thread-only platforms.
+    if (worker_started)
+#else
     while (worker_started)
+#endif
     {
         switch (worker_action_)
         {
         case worker_action::scroll_up:
             scroll_up();
+#if !defined(__APPLE__) && !defined(__EMSCRIPTEN__)
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
+#endif
         break;
         case worker_action::scroll_down:
             scroll_down();
+#if !defined(__APPLE__) && !defined(__EMSCRIPTEN__)
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
+#endif
         break;
         case worker_action::scrollbar_show:
             if (progress < full_scrollbar_size)
@@ -750,17 +771,26 @@ void scroll::work()
                 if (callback) callback(scroll_state::activated, static_cast<int32_t>(0));
             }
 
+#if !defined(__APPLE__) && !defined(__EMSCRIPTEN__)
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
+#endif
         break;
         default: break;
         }
     }
+#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
+    if (!worker_started && worker) worker->stop();
+#endif
 }
 
 void scroll::end_work()
 {
     worker_started = false;
+#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
+    if (worker) worker->stop();
+#else
     if (worker.joinable()) worker.join();
+#endif
 }
 
 }

@@ -166,6 +166,12 @@
       "meter": "#8dd28a"
     },
     {
+      "type": "scroll",
+      "background": "#e8e8ec",
+      "slider": "#c2c3c9",
+      "slider_active": "#686868"
+    },
+    {
       "type": "slider",
       "perform": "#0078d7",
       "remain": "#999999",

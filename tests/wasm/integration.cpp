@@ -14,6 +14,8 @@ namespace {
 std::shared_ptr<wui::window> root;
 std::shared_ptr<wui::input> first, second;
 std::shared_ptr<wui::message> dialog;
+std::shared_ptr<wui::scroll> bar;
+int scroll_activated=0;
 std::unique_ptr<wui::timer> self_timer;
 int clicks=0,ticks=0,emitted=0,closed=0,result=0;
 bool veto=true;
@@ -22,7 +24,7 @@ std::string snapshot;
 extern "C" {
 EMSCRIPTEN_KEEPALIVE const char *test_text(int which) { snapshot=(which?second:first)->text();return snapshot.c_str(); }
 EMSCRIPTEN_KEEPALIVE int test_value(int which) {
-    switch(which) { case 0:return clicks;case 1:return ticks;case 2:return emitted;case 3:return first->focused();case 4:return second->focused();case 5:return closed;case 6:return result;default:return 0; }
+    switch(which) { case 0:return clicks;case 1:return ticks;case 2:return emitted;case 3:return first->focused();case 4:return second->focused();case 5:return closed;case 6:return result;case 7:return scroll_activated;case 8:return bar->get_scroll_pos();default:return 0; }
 }
 EMSCRIPTEN_KEEPALIVE void test_action(int action) {
     switch(action) {
@@ -66,6 +68,8 @@ int main()
     int stack_counter=0;
     auto button=std::make_shared<wui::button>("Click",[&](){clicks=++stack_counter;});
     root->add_control(first,{20,60,300,100});root->add_control(second,{20,120,300,180});root->add_control(button,{20,200,140,240});
+    bar=std::make_shared<wui::scroll>(1000,0,wui::orientation::vertical,[](auto state,int){if(state==wui::scroll_state::activated) ++scroll_activated;});
+    root->add_control(bar,{350,60,364,260});
     root->set_control_callback([](auto control,std::string&,bool& proceed){if(control==wui::window_control::close && veto) proceed=false;});
     root->subscribe([](const auto& event){if(event.internal_event_.type==wui::internal_event_type::user_emitted && event.internal_event_.x==12 && event.internal_event_.y==34) ++emitted;},wui::event_type::internal);
     assert(root->init("WASM integration",{40,40,540,440},wui::window_style::frame|wui::window_style::border_all,[]{++closed;wui::framework::stop();}));

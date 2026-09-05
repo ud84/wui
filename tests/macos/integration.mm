@@ -223,6 +223,22 @@ int main()
         once->start(30);
         wui::framework::run();
         CHECK(!once && !w->context().valid());
+        // Hover animation must stay on the UI thread and tolerate removal in its callback.
+        CHECK(w->init("Scrollbar timer",{100,100,400,300},wui::window_style::frame,[&]{wui::framework::stop();}));
+        int activated=0;
+        std::shared_ptr<wui::scroll> bar;
+        bar=std::make_shared<wui::scroll>(1000,0,wui::orientation::vertical,[&](auto state,int) {
+            CHECK([NSThread isMainThread]);
+            if(state==wui::scroll_state::activated) {
+                ++activated;w->remove_control(bar);bar.reset();w->destroy();
+            }
+        });
+        w->add_control(bar,{250,40,264,180});
+        wui::event hover{};hover.type=wui::event_type::mouse;hover.mouse_event_.type=wui::mouse_event_type::enter;
+        bar->receive_control_events(hover);
+        wui::timer timeout([&]{wui::framework::stop();});timeout.start(2000);
+        wui::framework::run();timeout.stop();
+        CHECK(activated==1 && !bar && !w->context().valid());
         std::puts("PASS: windows, resize, callbacks, drawing, PNG, UTF-8, clipboard, dialogs, timers, restart");
     }
 }

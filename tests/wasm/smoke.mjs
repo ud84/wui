@@ -60,6 +60,11 @@ try {
         const click=async(x,y)=>canvas.click({position:{x,y}});
         assert.equal(await page.evaluate(()=>Module._test_pixels()),1,'RGBA / 2x / clipped offscreen blit');
         await click(70,220);assert.equal(await value(0),1,'First click reaches control; main stack remains alive');
+        const bounds=await canvas.boundingBox();
+        await page.mouse.move(bounds.x+357,bounds.y+100);
+        await page.waitForFunction(()=>Module._test_value(7)>0);
+        await page.mouse.move(bounds.x+357,bounds.y+252);await page.mouse.down();
+        await page.waitForFunction(()=>Module._test_value(8)>0);await page.mouse.up();
         await click(60,80);await page.keyboard.insertText('Привет 🌍');assert.equal(await text(0),'Привет 🌍');
         await page.keyboard.press('Backspace');assert.equal(await text(0),'Привет ');
         await page.keyboard.press('Control+a');await page.keyboard.insertText('hello');assert.equal(await text(0),'hello');
