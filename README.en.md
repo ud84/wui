@@ -116,8 +116,4 @@ Advantages:
 ![WUI screen 1](doc/en/docs/img/hw0.png)
 ![WUI screen 2](doc/en/docs/img/hw1.png)
 
-## Maintainer
-
-The project is supported by the independent laboratory of deterministic synthesis [🌿 Intent-Garden](https://intent-garden.org).
-
-🌿 [Intent-Garden](https://intent-garden.org) | 📜 [RuleROM](https://rulerom.com) | 🐉 [Decima8](https://decima8.org) | 🎨 [libwui](https://libwui.org)
+🎨 [libwui.org](https://libwui.org)

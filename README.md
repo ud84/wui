@@ -10,6 +10,8 @@ WUI (Window User Interface Library) is a cross-platform library for creating gra
 ## English
 [README on English](README.en.md)
 
-[🌿 Intent Garden Org](https://intent-garden.org) | [📖 Rule-Rom Community](https://github.com/rule-rom) | [🖼️ LibWUI Doc](https://libwui.org/doc.html)
+[🎨 libwui.org](https://libwui.org)
 
 [macOS: сборка / build](doc/en/docs/howto/macos.md)
+
+[План развития / Roadmap (RU)](ROADMAP.md)

@@ -116,8 +116,4 @@ window->unsubscribe(sub_id);
 ![WUI screen 1](doc/ru/docs/img/hw0.png)
 ![WUI screen 2](doc/ru/docs/img/hw1.png)
 
-## Поддержка
-
-Проект поддерживается независимой лабораторией детерминированного синтеза [🌿 Сад намерений / Intent-Garden](https://intent-garden.org).
-
-🌿 [Intent-Garden](https://intent-garden.org) | 📜 [RuleROM](https://rulerom.com) | 🐉 [Decima8](https://decima8.org) | 🎨 [libwui](https://libwui.org)
+🎨 [libwui.org](https://libwui.org)
