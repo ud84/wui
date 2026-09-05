@@ -8,6 +8,9 @@
 
 #include <wui/control/tray_icon.hpp>
 #include <boost/nowide/convert.hpp>
+#ifdef __APPLE__
+#include "macos/tray_mac.hpp"
+#endif
 
 namespace wui
 {
@@ -68,6 +71,8 @@ tray_icon::tray_icon(std::weak_ptr<window> parent__, std::string_view icon_file_
         nid.hIcon = (HICON)LoadImageW(NULL, boost::nowide::widen(icon_file_name).c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
         wcscpy_s(nid.szTip, 128, boost::nowide::widen(tip).c_str());
         Shell_NotifyIconW(NIM_ADD, &nid);
+#elif __APPLE__
+        macos_tray_backend::create(*this);
 #elif __linux__
 #endif
     }
@@ -75,6 +80,9 @@ tray_icon::tray_icon(std::weak_ptr<window> parent__, std::string_view icon_file_
 
 tray_icon::~tray_icon()
 {
+#ifdef __APPLE__
+    macos_tray_backend::release(*this);
+#endif
     auto parent_ = parent.lock();
     if (parent_)
     {
@@ -134,6 +142,8 @@ void tray_icon::change_icon(std::string_view icon_file_name_)
 
         Shell_NotifyIconW(NIM_MODIFY, &nid);
     }
+#elif __APPLE__
+    macos_tray_backend::update(*this);
 #elif __linux__
 #endif
 }
@@ -158,6 +168,8 @@ void tray_icon::change_tip(std::string_view tip_)
 
         Shell_NotifyIconW(NIM_MODIFY, &nid);
     }
+#elif __APPLE__
+    macos_tray_backend::update(*this);
 #elif __linux__
 #endif
 }
@@ -191,6 +203,8 @@ void tray_icon::show_message(std::string_view title, std::string_view message)
 
         Shell_NotifyIconW(NIM_MODIFY, &nid);
     }
+#elif __APPLE__
+    macos_tray_backend::message(*this,title,message);
 #elif __linux__
 #endif
 }

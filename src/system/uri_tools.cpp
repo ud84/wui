@@ -23,22 +23,18 @@
 namespace wui
 {
 
+#ifndef __APPLE__
 bool open_uri(std::string_view uri)
 {
 #ifdef _WIN32
     return reinterpret_cast<int64_t>(ShellExecuteW(NULL, L"open", boost::nowide::widen(uri).c_str(), NULL, NULL, SW_SHOW)) < 32;
 #else
-    std::string cmd =
-#ifdef __APPLE__
-        std::string("open ")
-#else
-        std::string("xdg-open ")
-#endif
-        + std::string(uri);
+    std::string cmd = std::string("xdg-open ") + std::string(uri);
 
     auto res = system(cmd.c_str());
     return res == 0;
 #endif        
 }
+#endif
 
 }

@@ -23,7 +23,21 @@
 namespace wui
 {
 
-#ifndef _WIN32
+#ifdef __APPLE__
+class timer
+{
+public:
+    explicit timer(std::function<void(void)> callback);
+    ~timer();
+    void start(uint32_t interval = 1000);
+    void stop();
+    timer(const timer&) = delete;
+    timer& operator=(const timer&) = delete;
+private:
+    std::function<void(void)> callback_;
+    void *native_timer_ = nullptr;
+};
+#elif !defined(_WIN32)
 class timer
 {
 public:

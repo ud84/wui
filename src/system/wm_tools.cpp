@@ -77,7 +77,7 @@ rect get_screen_size(system_context &context)
     return { 0 };
 }
 
-#else
+#elif __linux__
 
 void hide_taskbar_icon(system_context &ctx)
 {

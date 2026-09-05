@@ -12,6 +12,9 @@
 #include <wui/framework/framework_lin_impl.hpp>
 
 #include <wui/framework/i_framework.hpp>
+#ifdef __APPLE__
+#include "macos/framework_mac.hpp"
+#endif
 
 #ifdef _WIN32
 #include <windows.h>
@@ -41,6 +44,8 @@ void init()
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
     Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+#elif __APPLE__
+    init_macos();
 #elif __linux__
     if (setlocale(LC_ALL, "") == NULL)
     {
@@ -72,7 +77,8 @@ void run()
     instance = std::make_shared<framework_mac_impl>();
 #endif
 
-    instance->run();
+    auto running_instance = instance;
+    running_instance->run();
 
 #ifdef _WIN32
     CoUninitialize();

@@ -48,6 +48,10 @@ public:
     void set_callback(std::function<void(tray_icon_action action)> click_callback);
 
 private:
+#ifdef __APPLE__
+    friend struct macos_tray_backend;
+    void *macos_state_ = nullptr;
+#endif
     static const uint32_t ID = 3556;
 
     std::weak_ptr<window> parent;

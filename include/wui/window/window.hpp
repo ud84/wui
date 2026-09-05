@@ -314,6 +314,10 @@ private:
     void send_internal(internal_event_type type, int32_t x, int32_t y);
 
     friend listener;
+#ifdef __APPLE__
+    friend struct macos_window_backend;
+    std::weak_ptr<i_control> macos_saved_focus_;
+#endif
 };
 
 }

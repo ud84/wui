@@ -84,6 +84,8 @@ void free_image(Gdiplus::Image **img)
     }
 }
 
+#elif __APPLE__
+#include "macos/image_mac.hpp"
 #elif __linux__
 
 #include <boost/nowide/fstream.hpp>
@@ -230,6 +232,8 @@ void image::draw(graphic &gr_, rect)
     {
         gr_.draw_surface(*img, control_pos);
     }
+#elif __APPLE__
+    gr_.draw_native_image(img, control_pos);
 #endif
 }
 
@@ -380,6 +384,8 @@ int32_t image::width() const
         return img->GetWidth();
 #elif __linux__
         return cairo_image_surface_get_width(img);
+#elif __APPLE__
+        return mac_image_width(img);
 #endif
     }
     return 0;
@@ -393,6 +399,8 @@ int32_t image::height() const
         return img->GetHeight();
 #elif __linux__
         return cairo_image_surface_get_height(img);
+#elif __APPLE__
+        return mac_image_height(img);
 #endif
     }
     return 0;

@@ -1,12 +1,12 @@
 # WUI (Window User Interface Library)
 
-WUI is a cross-platform modern C++ library for creating graphical user interfaces. The library uses C++17 and has a minimalistic API. Currently it supports Windows (XP - 11) and Linux (glibc 2.23 and above).
+WUI is a cross-platform modern C++ library for creating graphical user interfaces. The library uses C++17 and has a minimalistic API. Currently it supports Windows (XP - 11), Linux (glibc 2.23 and above), and macOS (experimental port).
 
 WUI is designed to provide developers with a simple and efficient tool for creating cross-platform GUI applications in C++. The library allows focusing on application logic rather than platform-specific interface implementation details.
 
 ## Features
 
-- Cross-platform: supports Windows and Linux, with macOS planned
+- Cross-platform: supports Windows and Linux, with an experimental macOS port
 - Minimalistic API, ease of use
 - Common interfaces for drawing and event handling, platform-independent
 - Support for themes and localization
@@ -42,7 +42,9 @@ Currently supported:
 - **Windows** (WinAPI + GDI)
 - **Linux** (X11 + xcb)
 
-macOS support will be completed soon.
+- **macOS** (AppKit + Core Graphics, experimental port)
+
+[macOS build and usage](doc/en/docs/howto/macos.md).
 
 All platform-dependent code is collected in two elements — `window` and `graphic` (rendering subsystem).
 
@@ -114,8 +116,4 @@ Advantages:
 ![WUI screen 1](doc/en/docs/img/hw0.png)
 ![WUI screen 2](doc/en/docs/img/hw1.png)
 
-## Maintainer
-
-The project is supported by the independent laboratory of deterministic synthesis [🌿 Intent-Garden](https://intent-garden.org).
-
-🌿 [Intent-Garden](https://intent-garden.org) | 📜 [RuleROM](https://rulerom.com) | 🐉 [Decima8](https://decima8.org) | 🎨 [libwui](https://libwui.org)
+🎨 [libwui.org](https://libwui.org)

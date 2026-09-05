@@ -21,6 +21,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <memory>
 
 #ifdef __linux__
 struct _cairo_surface;
@@ -67,7 +68,7 @@ public:
     /// draw some buffer on context
     void draw_buffer(rect position, uint8_t *buffer, int32_t left_shift, int32_t top_shift);
 
-    /// draw another graphic on context
+    /// draw another graphic on context; position is {x, y, width, height}
     void draw_graphic(rect position, graphic &graphic_, int32_t left_shift, int32_t top_shift);
 
 #ifdef _WIN32
@@ -79,6 +80,11 @@ public:
     void draw_surface(_cairo_surface &surface, rect position);
 #endif
 
+#ifdef __APPLE__
+    // CGContextRef / CGImageRef, without Objective-C types in the C++ API.
+    void *drawable();
+    void draw_native_image(void *image, rect position);
+#endif
     error get_error() const;
 
 private:
@@ -101,6 +107,10 @@ private:
     std::unordered_map<std::string, _cairo_surface*> image_cache_;
 #endif
 
+#ifdef __APPLE__
+    struct mac_state;
+    std::unique_ptr<mac_state> mac_;
+#endif
     error err;
 };
 

@@ -23,14 +23,16 @@
 
 #include <iostream>
 
+#ifdef _WIN32
 #include <tchar.h>
+#endif
 
 #ifdef _WIN32
 int APIENTRY _tWinMain(_In_ HINSTANCE,
     _In_opt_ HINSTANCE,
     _In_ LPTSTR    lpCmdLine,
     _In_ int       nCmdShow)
-#elif __linux__
+#elif defined(__linux__) || defined(__APPLE__)
 int main(int argc, char *argv[])
 #endif
 {
