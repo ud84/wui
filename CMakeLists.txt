@@ -1,24 +1,24 @@
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
+if(CMAKE_HOST_APPLE AND NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum macOS version")
+endif()
+project(wui LANGUAGES CXX C)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
 
-project (wui CXX C)
-
-set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -static-libstdc++ -static-libgcc")
-
-set(CMAKE_MAKE_PROGRAM "make -j 3")
-
-#set(CMAKE_CXX_FLAGS:STRING= -fsanitize=address  -fsanitize=leak -g)
-#set(CMAKE_C_FLAGS:STRING=-fsanitize=address  -fsanitize=leak -g)
-#set(CMAKE_EXE_LINKER_FLAGS:STRING=-fsanitize=address  -fsanitize=leak)
-#set(CMAKE_MODULE_LINKER_FLAGS:STRING=-fsanitize=address  -fsanitize=leak)
-
-include_directories(
-	include)
-
-link_directories(
-	src)
-
-add_subdirectory (src)
-add_subdirectory (examples/hello_world)
-add_subdirectory (examples/simple)
-add_subdirectory (examples/demo)
+if(APPLE)
+    enable_language(OBJCXX)
+endif()
+option(WUI_BUILD_EXAMPLES "Build the WUI examples" ON)
+option(WUI_BUILD_TESTS "Build platform integration tests" OFF)
+add_subdirectory(src)
+if(WUI_BUILD_EXAMPLES)
+    add_subdirectory(examples/hello_world)
+    add_subdirectory(examples/simple)
+    add_subdirectory(examples/demo)
+endif()
+if(WUI_BUILD_TESTS AND APPLE)
+    enable_testing()
+    add_subdirectory(tests/macos)
+endif()

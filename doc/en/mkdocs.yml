@@ -24,6 +24,7 @@ nav:
     - Article: 'article/onboarding.md'
   - Manuals:
     - Installation: 'howto/setup.md'
+    - macOS: 'howto/macos.md'
     - Hello world: 'howto/hello-world.md'
 
   - Handbook:

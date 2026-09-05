@@ -23,6 +23,7 @@ nav:
   - Руководства:
     - 🌟 Пошаговое руководство: 'article/onboarding.md'
     - Установка: 'howto/setup.md'
+    - macOS: 'howto/macos.md'
     - Hello world: 'howto/hello-world.md'
   - Справочник:
     - Общие типы: 'base/common.md'

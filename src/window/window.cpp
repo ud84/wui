@@ -28,6 +28,9 @@
 #include <algorithm>
 #include <set>
 #include <random>
+#ifdef __APPLE__
+#include "macos/window_mac.hpp"
+#endif
 
 #ifdef _WIN32
 
@@ -175,13 +178,13 @@ window::window(std::string_view theme_control_name, std::shared_ptr<i_theme> the
     pin_button(std::make_shared<button>(locale(tcn, cl_pin), std::bind(&window::pin, this), button_view::image, theme_image(ti_pin), 24, button::tc_tool)),
     minimize_button(std::make_shared<button>("", std::bind(&window::minimize, this), button_view::image, theme_image(ti_minimize), 24, button::tc_tool)),
     expand_button(std::make_shared<button>("", [this]() { window_state_ == window_state::normal ? expand() : normal(); }, button_view::image, window_state_ == window_state::normal ? theme_image(ti_expand) : theme_image(ti_normal), 24, button::tc_tool)),
-    close_button(std::make_shared<button>("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24, button::tc_tool_red)),
+    close_button(std::make_shared<button>("", std::bind(&window::destroy, this), button_view::image, theme_image(ti_close), 24, button::tc_tool_red))
 #ifdef _WIN32
-    mouse_tracked(false),
+    , mouse_tracked(false),
     device_change_handling(false),
     dev_notify_handle(0)
 #elif __linux__
-    wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_wm_name(), utf8_string(), net_active_window(), net_wm_state_fullscreen(), net_wm_state_maximized_vert(), net_wm_state_maximized_horz(), net_wm_moveresize(),
+    , wm_protocols_event(), wm_delete_msg(), wm_change_state(), net_wm_state(), net_wm_state_focused(), net_wm_state_above(), net_wm_state_skip_taskbar(), net_wm_name(), utf8_string(), net_active_window(), net_wm_state_fullscreen(), net_wm_state_maximized_vert(), net_wm_state_maximized_horz(), net_wm_moveresize(),
     prev_button_click(0),
     started(false),
     udev_handler_(),
@@ -210,6 +213,8 @@ window::~window()
     }
 #elif __linux__
     send_destroy_event();
+#elif __APPLE__
+    macos_window_backend::close(*this, false);
 #endif
 }
 
@@ -313,6 +318,8 @@ void window::redraw(rect redraw_position, bool clear)
             xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_EXPOSURE, (const char*)&event);
             xcb_flush(context_.connection);
         }
+#elif __APPLE__
+        macos_window_backend::invalidate(*this, redraw_position);
 #endif
     }
 }
@@ -563,6 +570,8 @@ void window::set_position(rect position__)
             values);
 
         xcb_flush(context_.connection);
+#elif __APPLE__
+        macos_window_backend::position(*this, position___);
 #endif
 
         parent_position_ = { 0 };
@@ -614,6 +623,8 @@ void window::set_parent(std::shared_ptr<window> window)
         {
             send_destroy_event();
         }
+#elif __APPLE__
+        macos_window_backend::close(*this, false);
 #endif
 
         my_control_sid = window->subscribe(std::bind(&window::receive_control_events, this, std::placeholders::_1), event_type::all, shared_from_this());
@@ -717,6 +728,8 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
         auto ws = get_window_size(context_);
         redraw({ 0, 0, ws.width(), ws.height() }, true);
 
+#elif __APPLE__
+        redraw({0, 0, position_.width(), position_.height()}, true);
 #endif
     }
 
@@ -738,6 +751,8 @@ void window::show()
         ShowWindow(context_.hwnd, SW_SHOW);
 #elif __linux__
         update_window_style();
+#elif __APPLE__
+        macos_window_backend::show(*this, true);
 #endif
     }
     else
@@ -760,6 +775,8 @@ void window::hide()
         ShowWindow(context_.hwnd, SW_HIDE);
 #elif __linux__
         update_window_style();
+#elif __APPLE__
+        macos_window_backend::show(*this, false);
 #endif
     }
     else
@@ -788,6 +805,8 @@ void window::enable()
     EnableWindow(context_.hwnd, TRUE);
     SetWindowPos(context_.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
     SetWindowPos(context_.hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+#elif __APPLE__
+    macos_window_backend::show(*this, showed_);
 #endif
 }
 
@@ -876,6 +895,8 @@ void window::minimize()
     ShowWindow(context_.hwnd, SW_MINIMIZE);
 #elif __linux__
     change_style(wm_change_state, XCB_ICCCM_WM_STATE_ICONIC, 1);
+#elif __APPLE__
+    macos_window_backend::minimize(*this);
 #endif
 
     window_state_ = window_state::minimized;
@@ -945,6 +966,8 @@ void window::expand()
     {
         change_style(net_wm_state, 1, net_wm_state_fullscreen);
     }
+#elif __APPLE__
+    macos_window_backend::expand(*this);
 #endif
     expand_button->set_image(theme_image(ti_normal, theme_));
 }
@@ -989,6 +1012,8 @@ void window::normal()
         xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
         xcb_flush(context_.connection);
     }
+#elif __APPLE__
+    macos_window_backend::restore(*this);
 #endif
 
     window_state_ = window_state::normal;
@@ -1012,6 +1037,8 @@ void window::normal()
             values);
 
         xcb_flush(context_.connection);
+#elif __APPLE__
+        macos_window_backend::position(*this, normal_position);
 #endif
     }
 
@@ -1042,6 +1069,8 @@ void window::set_caption(std::string_view caption_)
         {
             set_wm_name(caption_);
         }
+#elif __APPLE__
+        macos_window_backend::style(*this);
 #endif
         redraw({ 0, 0, position_.width(), 30 }, true);
     }
@@ -1079,6 +1108,9 @@ void window::set_style(window_style style)
     update_window_style();
 
     redraw({ 0, 0, position_.width(), 30 }, true);
+#elif __APPLE__
+    macos_window_backend::style(*this);
+    redraw({0, 0, position_.width(), position_.height()}, true);
 #endif
 }
 
@@ -1086,6 +1118,9 @@ void window::set_min_size(int32_t width, int32_t height)
 {
     min_width = width;
     min_height = height;
+#ifdef __APPLE__
+    macos_window_backend::style(*this);
+#endif
 }
 
 void window::set_transient_for(std::shared_ptr<window> window_, bool docked__)
@@ -1150,6 +1185,8 @@ void window::emit_event(int32_t x, int32_t y)
             xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_NO_EVENT, (const char*)&event);
             xcb_flush(context_.connection);
         }
+#elif __APPLE__
+        macos_window_backend::emit(*this, x, y);
 #endif
     }
     else
@@ -1196,6 +1233,10 @@ void window::enable_device_change_handling(bool yes)
         udev_handler_->stop();
         udev_handler_.reset();
     }
+#elif __APPLE__
+    if (yes)
+        err = {error_type::system_error, "window::enable_device_change_handling()",
+            "Device hotplug notifications are not implemented on macOS"};
 #endif
 }
 
@@ -1210,6 +1251,8 @@ bool window::is_physical_window() const
     return root_window_ || (context_.hwnd != 0);
 #elif __linux__
     return root_window_ || (context_.connection && context_.wnd);
+#elif __APPLE__
+    return root_window_ || context_.valid();
 #endif
 }
 
@@ -1323,8 +1366,22 @@ void window::send_mouse_event(const mouse_event &ev)
             {
                 active_control = send_to_control;
 
+#ifdef __APPLE__
+                // AppKit can deliver the activating click without a preceding mouse move.
+                mouse_event me{ mouse_event_type::enter, ev_.x, ev_.y };
+                auto target = send_to_control;
+                send_event_to_control(target, { event_type::mouse, me });
+                if (ev_.type != mouse_event_type::enter && ev_.type != mouse_event_type::move)
+                {
+                    if (target->focusing() && ev_.type == mouse_event_type::left_down)
+                        set_focused(target);
+                    send_event_to_control(target, { event_type::mouse, ev_ });
+                }
+                return;
+#else
                 mouse_event me{ mouse_event_type::enter };
                 return send_event_to_control(send_to_control, { event_type::mouse, me });
+#endif
             }
         }
     };
@@ -1768,6 +1825,10 @@ bool window::init(std::string_view caption_, rect position__, window_style style
 #elif __linux__
                 left = (context_.screen->width_in_pixels - position_.width()) / 2;
                 top = (context_.screen->height_in_pixels - position_.height()) / 2;
+#elif __APPLE__
+                auto screen = get_screen_size(context_);
+                left = (screen.width() - position_.width()) / 2;
+                top = (screen.height() - position_.height()) / 2;
 #endif
             }
 
@@ -1967,6 +2028,8 @@ bool window::init(std::string_view caption_, rect position__, window_style style
     started = true;
 
     get_listener().add_window(context_.wnd, shared_from_this());
+#elif __APPLE__
+    return macos_window_backend::create(*this);
 #endif
 
     return true;
@@ -2032,6 +2095,8 @@ void window::destroy()
         DestroyWindow(context_.hwnd);
 #elif __linux__
         send_destroy_event();
+#elif __APPLE__
+        macos_window_backend::close(*this, true);
 #endif
     }
 }

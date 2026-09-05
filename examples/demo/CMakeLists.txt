@@ -9,17 +9,15 @@ include_directories(.)
 
 add_executable(demo ${SOURCES})
 
-target_link_libraries(demo
-	wui
-	xcb
-	xcb-cursor
-	xcb-ewmh
-	xcb-icccm
-	xcb-image
-	X11
-	X11-xcb
-	stdc++fs
-	cairo
-	pthread
-	udev
-)
+target_link_libraries(demo PRIVATE wui)
+if(APPLE)
+    set_target_properties(demo PROPERTIES MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_GUI_IDENTIFIER "org.libwui.demo")
+    add_custom_command(TARGET demo POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/res" "$<TARGET_BUNDLE_CONTENT_DIR:demo>/Resources/res")
+else()
+    add_custom_command(TARGET demo POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/res" "$<TARGET_FILE_DIR:demo>/res")
+endif()

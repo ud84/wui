@@ -21,7 +21,9 @@
 #include <wui/control/slider.hpp>
 #include <wui/control/panel.hpp>
 
+#ifdef _WIN32
 #include <tchar.h>
+#endif
 
 #include <Resource.h>
 
@@ -294,7 +296,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                         OutputDebugStringA("connect device: ");
                         OutputDebugStringA(to_string(e.system_event_.device).data());
                         OutputDebugStringA("\n");
-#elif __linux__
+#elif defined(__linux__) || defined(__APPLE__)
                         printf("connect device: %s\n", to_string(e.system_event_.device).data());
 #endif
                     break;
@@ -303,7 +305,7 @@ struct PluggedWindow : public std::enable_shared_from_this<PluggedWindow>
                         OutputDebugStringA("disconnect device: ");
                         OutputDebugStringA(to_string(e.system_event_.device).data());
                         OutputDebugStringA("\n");
-#elif __linux__
+#elif defined(__linux__) || defined(__APPLE__)
                         printf("disconnect device: %s\n", to_string(e.system_event_.device).data());
 #endif
                     break;
@@ -344,7 +346,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE,
     _In_opt_ HINSTANCE,
     _In_ LPTSTR    lpCmdLine,
     _In_ int       nCmdShow)
-#elif __linux__
+#elif defined(__linux__) || defined(__APPLE__)
 int main(int argc, char *argv[])
 #endif
 {

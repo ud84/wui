@@ -101,6 +101,8 @@ private:
     Gdiplus::Image *img;
 #elif __linux__
     cairo_surface_t *img;
+#elif __APPLE__
+    void *img; // retained CGImageRef
 #endif
 
     error err;

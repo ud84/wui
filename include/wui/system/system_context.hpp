@@ -47,6 +47,18 @@ struct system_context
     }
 };
 
+#elif __APPLE__
+
+// Opaque AppKit handles keep public headers usable from ordinary C++.
+struct system_context
+{
+    void *native_window = nullptr;
+    void *native_view = nullptr;
+    double scale = 1.0;
+
+    bool valid() const { return native_window != nullptr; }
+};
+
 #endif
 
 }

@@ -20,6 +20,9 @@
 
 namespace wui
 {
+#ifdef __APPLE__
+std::string macos_resource_path(std::string_view path);
+#endif
 
 std::string real_path(std::string_view relative_path)
 {
@@ -41,7 +44,11 @@ std::string real_path(std::string_view relative_path)
     }
 #endif
 
-    return relative_path.data();
+#ifdef __APPLE__
+    return macos_resource_path(relative_path);
+#else
+    return std::string(relative_path);
+#endif
 }
 
 }
