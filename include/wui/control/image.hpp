@@ -101,8 +101,8 @@ private:
     Gdiplus::Image *img;
 #elif __linux__
     cairo_surface_t *img;
-#elif __APPLE__
-    void *img; // retained CGImageRef
+#elif defined(__APPLE__) || defined(__EMSCRIPTEN__)
+    void *img; // opaque platform image
 #endif
 
     error err;

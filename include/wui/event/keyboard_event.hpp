@@ -21,7 +21,7 @@ enum class keyboard_event_type
     key
 };
 
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_WIN32) || defined(__APPLE__) || defined(__EMSCRIPTEN__)
 static const uint8_t vk_tab = 0x09;
 static const uint8_t vk_return = 0x0D;
 static const uint8_t vk_rreturn = 0;

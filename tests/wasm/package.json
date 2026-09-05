@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node smoke.mjs ../../build-wasm" },
+  "devDependencies": { "playwright": "1.62.1" }
+}

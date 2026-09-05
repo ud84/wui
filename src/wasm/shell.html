@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WUI · Live demo</title>
+<style>
+html,body { margin:0;height:100%;background:#171b22;color:#dce3ed;font:14px system-ui,sans-serif; }
+body { display:flex;flex-direction:column; }
+header { padding:12px 20px;display:flex;gap:20px;align-items:center;border-bottom:1px solid #343d49; }
+a { color:#a8d5ff; } #status { margin-left:auto;color:#a9b5c4; }
+#wui { position:relative;flex:1;min-height:320px;overflow:auto; }
+.wui-window { position:absolute;box-shadow:0 10px 36px #0006; }
+.wui-canvas { display:block;width:100%;height:100%;touch-action:none; }
+.wui-input { position:absolute;opacity:0;pointer-events:none;resize:none;padding:0;border:0;overflow:hidden;font:16px sans-serif; }
+.wui-input.wui-composing { opacity:1;background:#fff;color:#111;outline:1px solid #7ba8dc; }
+.wui-restore { position:relative;margin:8px;padding:8px 16px;z-index:2147483647; }
+</style>
+</head>
+<body>
+<header><a href="https://libwui.org">WUI</a><span>Live demo</span><span id="status" role="status">Loading…</span></header>
+<main id="wui" aria-label="WUI application"></main>
+<script>
+var Module = {
+    setStatus: function(text) { document.getElementById('status').textContent=text; },
+    onRuntimeInitialized: function() { this.setStatus(''); },
+    onAbort: function(reason) { document.getElementById('status').textContent='Could not start the demo';console.error(reason); }
+};
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>

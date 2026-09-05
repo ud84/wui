@@ -12,6 +12,9 @@
 #include <wui/framework/framework_lin_impl.hpp>
 
 #include <wui/framework/i_framework.hpp>
+#ifdef __EMSCRIPTEN__
+#include "wasm/framework_wasm.hpp"
+#endif
 #ifdef __APPLE__
 #include "macos/framework_mac.hpp"
 #endif
@@ -73,6 +76,8 @@ void run()
     instance = std::make_shared<framework_win_impl>();
 #elif __linux__
     instance = std::make_shared<framework_lin_impl>();
+#elif __EMSCRIPTEN__
+    instance = std::make_shared<framework_wasm_impl>();
 #elif __APPLE__
     instance = std::make_shared<framework_mac_impl>();
 #endif

@@ -3,6 +3,10 @@
    UTF-8/IME input, clipboard, main-thread timers, embedded/modal windows and status items.
 2. Build macOS application bundles for all examples and add platform integration tests.
 3. Keep the active framework implementation alive until its event loop returns.
+4. Add experimental WebAssembly backend (Emscripten, Canvas 2D), browser windows,
+   Unicode/composition input, clipboard events and single-threaded timers.
+5. Build all three examples for static web hosting; add browser integration tests.
+6. Fix hello_world image resource paths and missing heading styles.
 
 # 1.3.260902
 1. Add graphic::draw_image: draw a PNG scaled into position with a per-path surface cache (Linux only)

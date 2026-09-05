@@ -23,7 +23,7 @@
 namespace wui
 {
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(__EMSCRIPTEN__)
 bool open_uri(std::string_view uri)
 {
 #ifdef _WIN32

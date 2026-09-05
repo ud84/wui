@@ -15,3 +15,5 @@ WUI (Window User Interface Library) is a cross-platform library for creating gra
 [macOS: сборка / build](doc/en/docs/howto/macos.md)
 
 [План развития / Roadmap (RU)](ROADMAP.md)
+
+[WebAssembly: сборка](doc/ru/docs/howto/wasm.md) / [build](doc/en/docs/howto/wasm.md)

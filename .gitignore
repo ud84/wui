@@ -54,3 +54,6 @@ examples/hello_world/hello_world
 /wui/x64/Debug
 /out/build/x64-Debug
 /.qwen
+
+/build-wasm*/
+/tests/wasm/node_modules/
