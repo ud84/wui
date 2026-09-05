@@ -1,3 +1,6 @@
+# 1.3.260902
+1. Add graphic::draw_image: draw a PNG scaled into position with a per-path surface cache (Linux only)
+
 # 1.3.260327
 1. Merged fixes by S.K.
 2. Fix input behavior

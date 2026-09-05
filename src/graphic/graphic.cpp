@@ -166,6 +166,12 @@ void graphic::release()
     DeleteDC(mem_dc);
     mem_dc = 0;
 #elif __linux__
+    for (auto &entry : image_cache_)
+    {
+        if (entry.second) cairo_surface_destroy(entry.second);
+    }
+    image_cache_.clear();
+
     if (surface)
     {
         cairo_surface_destroy(surface);
@@ -537,6 +543,45 @@ void graphic::draw_rect(rect position, color border_color, color fill_color, uin
 
     cairo_destroy(cr);
 
+#endif
+}
+
+void graphic::draw_image(std::string_view file_name, rect position)
+{
+#ifdef __linux__
+    if (!surface || position.is_null() || file_name.empty()) return;
+    const std::string key(file_name);
+    auto it = image_cache_.find(key);
+    if (it == image_cache_.end())
+    {
+        auto *loaded = cairo_image_surface_create_from_png(key.c_str());
+        if (!loaded || cairo_surface_status(loaded) != CAIRO_STATUS_SUCCESS)
+        {
+            if (loaded) cairo_surface_destroy(loaded);
+            return;
+        }
+        it = image_cache_.emplace(key, loaded).first;
+    }
+
+    auto *cr = cairo_create(surface);
+    const int width = cairo_image_surface_get_width(it->second);
+    const int height = cairo_image_surface_get_height(it->second);
+    if (width <= 0 || height <= 0)
+    {
+        cairo_destroy(cr);
+        return;
+    }
+    cairo_save(cr);
+    cairo_translate(cr, position.left, position.top);
+    cairo_scale(cr, static_cast<double>(position.width()) / width,
+                static_cast<double>(position.height()) / height);
+    cairo_set_source_surface(cr, it->second, 0, 0);
+    cairo_paint(cr);
+    cairo_restore(cr);
+    cairo_destroy(cr);
+#else
+    (void)file_name;
+    (void)position;
 #endif
 }
 
