@@ -17,7 +17,7 @@ window->add_control(btn, {10, 10, 100, 30});
 auto img_btn = std::make_shared<wui::button>("Save", []() {
     save_document();
 }, wui::button_view::image_right_text, "res/save.png", 16);
-window->add_control(img_btn, {10, 50, 100, 30});
+window->add_control(img_btn, {10, 50, 100, 80});
 ```
 
 ## Button Views
@@ -32,11 +32,34 @@ enum class button_view
     switcher,          // Toggle switch
     radio,             // Radio button
     anchor,            // Link
-    sheet              // Sheet button
+    sheet,             // Sheet button
+    checkbox           // Classic checkbox
 };
 ```
 
 ![WUI Button](../img/button.png)
+
+### Toggle or classic checkbox
+
+`switcher` is a pill-shaped toggle; `checkbox` is a square with a check mark.
+Both update `turned()` before invoking the click callback, for mouse and keyboard
+activation. `turn(bool)` changes state without calling the callback.
+
+```cpp
+auto check = std::make_shared<wui::button>("Remember choice", [] {},
+    wui::button_view::checkbox);
+check->turn(true);
+window->add_control(check, {20, 60, 240, 94});
+// Change presentation without resetting the checked state:
+check->set_button_view(wui::button_view::switcher);
+```
+
+Switcher, checkbox and radio indicators are drawn with primitives, without PNG
+resources. The optional `indicator_size` theme dimension specifies their height
+in logical pixels; missing or zero uses the font size plus 4 (minimum 12).
+The toggle is twice as wide. Colors use `calm`, `active`, `text`, `disabled` and
+`focused_border`; the checked mark automatically contrasts with the fill.
+Legacy `button_switcher_*` and `button_radio_*` images are no longer used.
 
 ## API
 
@@ -156,7 +179,7 @@ Button uses the following theme values:
   "disabled": "#a5a5a0",
   "border_width": 1,
   "round": 4,
-  "font": "button_font"
+  "font": {"name": "Segoe UI", "size": 18}
 }
 ```
 

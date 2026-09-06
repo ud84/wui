@@ -47,6 +47,15 @@ struct system_context
     }
 };
 
+#elif __EMSCRIPTEN__
+
+struct system_context
+{
+    int canvas = 0;
+    double scale = 1.0;
+    bool valid() const { return canvas != 0; }
+};
+
 #elif __APPLE__
 
 // Opaque AppKit handles keep public headers usable from ordinary C++.

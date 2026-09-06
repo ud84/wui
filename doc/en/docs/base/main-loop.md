@@ -1,59 +1,25 @@
-## Main application loop
+# Main application loop
 
-In case of running on Windows, the standard infinite loop is started:
+Call `framework::init()` before creating GUI objects, initialize a window, then
+call `framework::run()`. Call `framework::stop()` when your application is finished.
+`started()` reports an active framework instance; `get_error()` exposes its error.
+There is no `framework::end()` API.
 
-    #ifdef _WIN32
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+| Backend | Event processing |
+| --- | --- |
+| Windows | Win32 message loop |
+| Linux | XCB event processing for windows; framework waits until stopped |
+| macOS | AppKit main-thread event loop |
+| WASM | Asyncify loop that yields to the browser and returns after `stop()` |
 
-    return (int) msg.wParam;
+Keep application objects alive across `run()`. Closing a window and stopping the
+application are separate operations: explicitly stop in the main close callback
+when that is the behavior you want. A scratchpad can close without stopping its owner.
 
-Each running, non-child window becomes a message recipient via its existing wnd_proc. Then, depending on the type of event, either controls are redrawn, window position/size is handled, or the event is sent to subscribers. The lifetime of the first window created determines the lifetime of the application.
+```cpp
+window->init("Application", {-1, -1, 800, 600}, wui::window_style::frame,
+    [] { wui::framework::stop(); });
+wui::framework::run();
+```
 
-On linux the picture is slightly different, but it looks similar for the user and controls. Each non-child window, starts a separate thread to wait for events in xcb_wait_for_event() and sends them out to subscribers as they arrive. 
-
-    bool window::init(...)
-    {
-        ...
-        thread = std::thread(std::bind(&window::process_events, this));
-    }
-
-    void window::process_events()
-    {
-        xcb_generic_event_t *e = nullptr;
-        while (started && (e = xcb_wait_for_event(context_.connection)))
-        {
-            switch (e->response_type & ~0x80)
-            {
-                case XCB_EXPOSE:
-
-                ...
-
-All this code is hidden in ``window`` and ``framework``. ``framework`` has only 3 main functions ``init()``, ``run()`` and ``stop()``. ``init()`` should be called on the first line of ``main()``, ``run()`` after ``window->init(...)``, and ``stop()`` when the process needs to be terminated (e.g. the user pressed the "cross").
-
-    int main(..)
-    {
-        wui::framework::init();
-
-        MainFrame mainFrame;
-        mainFrame.Run();
-
-        wui::framework::run();
-
-        return 0;
-    }
-
-Here ``wui::framework::end();`` is called in the main window closing callback:
-
-    void MainFrame::Run()
-    {
-        window->init(wui::locale("main_frame", "caption"), { -1, -1, width, height },
-            wui::window_style::frame, [this]() { 
-                wui::framework::stop(); 
-        });
-    }
-
+See [Hello world](../howto/hello-world.md) and [threading](multi-threading.md).

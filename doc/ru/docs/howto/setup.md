@@ -1,65 +1,54 @@
-## Получение сборка и проверка
+# Установка и сборка
 
-## Зависимости на Linux
-Использующие WUI приложения зависят от следующих системных библиотек
+Нужны компилятор C++17 и CMake 3.16 или новее. Команды выполняются из корня репозитория.
+Чтобы получить функции текущего Showcase:
 
-    xcb
-	xcb-cursor
-	xcb-ewmh
-	xcb-icccm
-	xcb-image
-	X11
-	X11-xcb
-	cairo
-	pthread
+```sh
+git clone https://github.com/intent-garden/wui.git
+cd wui
+git switch I-94
+```
 
-## Получение и сборка на Linux
-    git clone https://github.com/intent-garden/wui
-    cd wui
-    cmake CMakeLists.txt
-    make
+## Linux (X11)
 
-## Проверка на Linux
-    cd examples/simple
-    ./simple
+CMake подключает Cairo, XCB, X11, потоки и udev. Для Debian/Ubuntu:
 
-## Получение и сборка на Windows
-    git clone https://github.com/intent-garden/wui
-  
-Для сборки и работы рекомендуется Visual Studio не ниже 2017, лучше использовать последнюю версию.
-Поддерживается 4 вида сборки:
+```sh
+sudo apt install build-essential cmake pkg-config libcairo2-dev libxcb1-dev   libxcb-cursor-dev libxcb-ewmh-dev libxcb-icccm4-dev libxcb-image0-dev   libx11-dev libx11-xcb-dev libudev-dev
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+./build/examples/demo/demo
+```
 
-    Debug
-    Debug(v141_xp)
-    Release
-    Release(v141_xp)
+Нужна графическая сессия X11. Нативного бэкенда Wayland пока нет.
+Ресурсы примеров копируются в `res/` рядом с исполняемыми файлами.
 
-В каждой сборке есть две платформы:
+## Windows
 
-    x64
-    x86
+Откройте `wui.sln` в Visual Studio с инструментами C++ для рабочего стола,
+Windows SDK и ATL. Используйте обычные Debug/Release и toolset из solution
+(v143 для стандартных конфигураций). Назначьте `demo` стартовым проектом.
+Есть также старые конфигурации v141_xp: им нужны отдельные инструменты VS2017/XP;
+проверки macOS и браузера не проверяют работоспособность этих сборок.
+Ресурсы Windows-примеров встроены через `.rc`.
 
-Сборки v141_xp позволяют собрать приложение запускающееся на Windows XP. Если вы не планируете
-использование этой платформы, лучше использовать сборки Debug / Release.
+## macOS и браузер
 
-## Зависимости на Windows
+- [Сборка macOS, bundles и требования](macos.md)
+- [Сборка Emscripten и статический хостинг](wasm.md)
 
-Для работы потребуются следующие компоненты Visual Studio:
+## Подключение к CMake-приложению
 
-    Основные компоненты C++
-    MSVC версии 143 - VS2022 C++ x84/x64 Build Tools (последняя версия)
-    Пакет SDK для Windows 10 / 11 любой версии
-    ATL-библиотека C++ для новейшей версии Build Tools v143 (x86 и x64)
+```cmake
+set(WUI_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory(path/to/wui)
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE wui)
+```
 
-Сборка для XP зависит от:
+Цель `wui` передаёт путь заголовков и требование C++17. Упаковкой ресурсов занимается
+приложение: см. [ресурсы](../base/resources.md). На Windows используйте настройки
+существующего solution для системных библиотек и компиляции ресурсов.
 
-    Основные компоненты C++
-    MSVC версии 141 - средства сборки C++ для VS2017 для x64 или x86
-    Пакет SDK для универсальной CRT для Windows
-    Поддержка Windows XP на C++ для инструментов VS2017 (версия 141)
-    ATL C++ для средств сборки версии 141 (x86 и x64)
-
-## Проверка на Windows
-Запустите
-
-    simple.exe
+`WUI_BUILD_EXAMPLES` по умолчанию ON, `WUI_BUILD_TESTS` — OFF. Тесты доступны для
+macOS и WASM при выборе соответствующей платформы сборки.

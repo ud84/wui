@@ -1,8 +1,11 @@
 site_name: libWUI official documentation 🏛️
-site_url: https://libwui.org
+site_url: https://libwui.org/doc/
+
+copyright: Copyright &copy; 2021–2026 WUI contributors
 
 theme:
   name: material
+  language: en
   palette:
     scheme: slate
   features:
@@ -14,6 +17,13 @@ extra_css:
   - assets/rulerom.css
 
 extra:
+  alternate:
+    - name: English
+      link: https://libwui.org/doc/
+      lang: en
+    - name: Русский
+      link: https://libwui.org/doc_ru/
+      lang: ru
   analytics:
     provider: yandex
     property: 95291159
@@ -25,6 +35,7 @@ nav:
   - Manuals:
     - Installation: 'howto/setup.md'
     - macOS: 'howto/macos.md'
+    - WebAssembly: 'howto/wasm.md'
     - Hello world: 'howto/hello-world.md'
 
   - Handbook:
@@ -49,6 +60,8 @@ nav:
   - Controls:
     - All: 'controls/all.md'
     
+    - Text: 'controls/text.md'
+    - Scroll: 'controls/scroll.md'
     - Button: 'controls/button.md'
     - Image: 'controls/image.md'
     - Text input: 'controls/input.md'
@@ -66,3 +79,8 @@ nav:
   - About the Library:
     - License: 'about/licence.md'
     - Contacts: 'about/contacts.md'
+
+validation:
+  links:
+    anchors: warn
+    unrecognized_links: warn

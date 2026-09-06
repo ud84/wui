@@ -10,19 +10,20 @@ The `menu` control provides a context menu with support for nested items.
 auto menu = std::make_shared<wui::menu>();
 
 wui::menu_items_t items = {
-    {1, wui::normal, "Open", "Ctrl+O", nullptr, {}, [](int32_t id) {
+    {1, wui::normal, "Open", "Ctrl+O", nullptr, {}, [](int32_t visible_index) {
         open_file();
     }},
-    {2, wui::normal, "Save", "Ctrl+S", nullptr, {}, [](int32_t id) {
+    {2, wui::normal, "Save", "Ctrl+S", nullptr, {}, [](int32_t visible_index) {
         save_file();
     }},
     {3, wui::separator, "", "", nullptr, {}, nullptr},
-    {4, wui::normal, "Exit", "Alt+F4", nullptr, {}, [](int32_t id) {
+    {4, wui::normal, "Exit", "Alt+F4", nullptr, {}, [](int32_t visible_index) {
         exit_app();
     }}
 };
 
 menu->set_items(items);
+window->add_control(menu, {0});
 
 // Show on right click
 window->subscribe([&menu](const wui::event& ev) {
@@ -47,6 +48,8 @@ enum menu_item_state {
 ![WUI Menu](../img/menu0.png)
 
 ![WUI Menu with submenu](../img/menu1.png)
+
+Callbacks receive the visible row index, not `menu_item::id`. Expanding children changes those indices. Capture a stable ID in each callback when needed. `hotkey` is display text; register keyboard shortcuts in the application. Keep the menu alive while it is attached.
 
 ## API
 

@@ -7,6 +7,7 @@
 //
 
 #include <wui/control/button.hpp>
+#include <algorithm>
 
 #include <wui/window/window.hpp>
 
@@ -42,26 +43,18 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
 {
 }
 
-std::shared_ptr<image> get_button_image(button_view button_view_, std::shared_ptr<i_theme> theme_)
+namespace
 {
-    switch (button_view_)
-    {
-        case button_view::switcher:
-            return std::make_shared<image>(theme_image(button::ti_switcher_on, theme_));
-        break;
-        case button_view::radio:
-            return std::make_shared<image>(theme_image(button::ti_radio_on, theme_));
-        break;
-        default:
-            return nullptr;
-        break;
-    }
+bool is_checkable(button_view view)
+{
+    return view == button_view::switcher || view == button_view::radio || view == button_view::checkbox;
+}
 }
 
 button::button(std::string_view caption_, std::function<void(void)> click_callback_, button_view button_view__, std::string_view theme_control_name_, std::shared_ptr<i_theme> theme__)
     : button_view_(button_view__),
     caption(caption_),
-    image_(get_button_image(button_view__, theme__)),
+    image_(),
     image_size(0),
     tooltip_(std::make_shared<tooltip>(caption_, tooltip::tc, theme__)),
     click_callback(click_callback_),
@@ -77,7 +70,6 @@ button::button(std::string_view caption_, std::function<void(void)> click_callba
     text_rect{ 0 },
     err{}
 {
-    if (image_) update_err("button::constructor[image from theme standart buttons]", image_->get_error());
 }
 
 #ifdef _WIN32
@@ -173,6 +165,9 @@ void button::draw(graphic &gr, rect)
     int32_t text_top = 0, text_left = 0, image_left = 0, image_top = 0;
 
     auto control_pos = position();
+    auto display_caption = caption;
+    const int indicator_size = (std::max)(12, theme_dimension(tcn, tv_indicator_size, theme_) > 0
+        ? theme_dimension(tcn, tv_indicator_size, theme_) : font_.size + 4);
 
     switch (button_view_)
     {
@@ -234,27 +229,24 @@ void button::draw(graphic &gr, rect)
                 text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
             }
         break;
-        case button_view::switcher: case button_view::radio:
-            if (image_)
+        case button_view::switcher: case button_view::radio: case button_view::checkbox:
+        {
+            const int height = (std::max)(indicator_size, text_rect.height()) + 6;
+            const int width = indicator_size * (button_view_ == button_view::switcher ? 2 : 1);
+            if (height > position_.height() || width > position_.width())
             {
-                if (image_->height() + 6 > position_.height())
-                {
-                    position_.bottom = position_.top + image_->height() + 6;
-                    return redraw();
-                }
-                if (text_rect.bottom + 6 > position_.height())
-                {
-                    position_.bottom = position_.top + text_rect.bottom + 6;
-                    return redraw();
-                }
-
-                image_left = control_pos.left;
-                image_top = control_pos.top + ((control_pos.height() - image_->height()) / 2);
-                text_left = image_left + image_->width() + 5;
-                text_top = control_pos.top + ((control_pos.height() - text_rect.bottom) / 2);
-
-                truncate_line(caption, gr, font_, control_pos.right - text_left - 10);
+                position_.bottom = position_.top + (std::max)(height, position_.height());
+                position_.right = position_.left + (std::max)(width, position_.width());
+                return redraw();
             }
+            image_left = control_pos.left;
+            image_top = control_pos.top + (control_pos.height() - indicator_size) / 2;
+            text_left = image_left + width + 8;
+            text_top = control_pos.top + (control_pos.height() - text_rect.height()) / 2;
+            const int available = control_pos.right - text_left;
+            if (available > 0) truncate_line(display_caption, gr, font_, available);
+            else display_caption.clear();
+        }
         break;
         case button_view::image_bottom_text:
             if (image_)
@@ -283,7 +275,7 @@ void button::draw(graphic &gr, rect)
         break;
     }
 
-    if (button_view_ != button_view::anchor && button_view_ != button_view::switcher && button_view_ != button_view::radio && button_view_ != button_view::sheet)
+    if (button_view_ != button_view::anchor && !is_checkable(button_view_) && button_view_ != button_view::sheet)
     {
         auto border_color = focused_
             ? theme_color(tcn, tv_focused_border, theme_)
@@ -294,13 +286,16 @@ void button::draw(graphic &gr, rect)
         gr.draw_rect(control_pos, border_color, fill_color, theme_dimension(tcn, tv_border_width, theme_), theme_dimension(tcn, tv_round, theme_));
     }
     
-    if (button_view_ != button_view::text && button_view_ != button_view::anchor && image_)
+    if (is_checkable(button_view_))
     {
-        image_->set_position( { image_left,
-            image_top,
-            image_left + (button_view_ != button_view::switcher && button_view_ != button_view::radio ? image_size : image_->width()),
-            image_top + (button_view_ != button_view::switcher  && button_view_ != button_view::radio ? image_size : image_->height()) });
-        image_->draw(gr, { 0 });
+        const int width = indicator_size * (button_view_ == button_view::switcher ? 2 : 1);
+        draw_indicator(gr, {image_left, image_top, image_left + width, image_top + indicator_size});
+    }
+    else if ((button_view_ == button_view::image || button_view_ == button_view::image_right_text ||
+              button_view_ == button_view::image_bottom_text) && image_)
+    {
+        image_->set_position({image_left, image_top, image_left + image_size, image_top + image_size});
+        image_->draw(gr, {0});
     }
 
     if (button_view_ != button_view::image)
@@ -313,12 +308,12 @@ void button::draw(graphic &gr, rect)
             font_.decorations_ = decorations::underline;
         }
 
-        if (!enabled_ && (button_view_ == button_view::anchor || button_view_ == button_view::sheet))
+        if (!enabled_ && (button_view_ == button_view::anchor || button_view_ == button_view::sheet || is_checkable(button_view_)))
         {
             color_ = theme_color(tcn, tv_disabled, theme_);
         }
 
-        gr.draw_text({ text_left, text_top }, caption, 
+        gr.draw_text({ text_left, text_top }, display_caption,
             color_,
             font_);
     }
@@ -326,6 +321,46 @@ void button::draw(graphic &gr, rect)
     if (button_view_ == button_view::sheet)
     {
         gr.draw_rect({ control_pos.left, control_pos.bottom - 2, control_pos.right, control_pos.bottom }, turned_ ? theme_color(tcn, enabled_ ? tv_calm : tv_disabled, theme_) : theme_color(window::tc, window::tv_background, theme_));
+    }
+}
+
+void button::draw_indicator(graphic &gr, rect bounds)
+{
+    const int size = bounds.height();
+    const int stroke = (std::max)(1, size / 12);
+    const auto transparent = make_color(0, 0, 0, 255);
+    const auto disabled = theme_color(tcn, tv_disabled, theme_);
+    const auto accent = theme_color(tcn, active ? tv_active : tv_calm, theme_);
+    const auto outline = enabled_ ? theme_color(tcn, tv_text, theme_) : disabled;
+    const auto fill = turned_ ? (enabled_ ? accent : disabled) : transparent;
+    // Contrast the mark with its track, including custom themes and disabled state.
+    const auto brightness = ((fill >> 16) & 255) + ((fill >> 8) & 255) + (fill & 255);
+    const auto mark = turned_ ? (brightness > 382 ? make_color(24, 30, 27) : make_color(255, 255, 255)) : outline;
+    const int round = button_view_ == button_view::checkbox ? (std::max)(2, size / 6) : size;
+    gr.draw_rect(bounds, enabled_ && (turned_ || active) ? accent : outline, fill, stroke, round);
+
+    if (button_view_ == button_view::switcher)
+    {
+        const int inset = (std::max)(3, size / 6);
+        const int diameter = size - inset * 2;
+        const int x = turned_ ? bounds.right - inset - diameter : bounds.left + inset;
+        gr.draw_rect({x, bounds.top + inset, x + diameter, bounds.bottom - inset}, mark, mark, 0, diameter);
+    }
+    else if (turned_ && button_view_ == button_view::radio)
+    {
+        const int inset = size / 3;
+        gr.draw_rect({bounds.left + inset, bounds.top + inset, bounds.right - inset, bounds.bottom - inset},
+            mark, mark, 0, size);
+    }
+    else if (turned_)
+    {
+        const int x = bounds.left, y = bounds.top;
+        gr.draw_line({x + size * 2 / 10, y + size / 2, x + size * 4 / 10, y + size * 7 / 10}, mark, (std::max)(2, size / 8));
+        gr.draw_line({x + size * 4 / 10, y + size * 7 / 10, x + size * 8 / 10, y + size * 3 / 10}, mark, (std::max)(2, size / 8));
+    }
+    if (focused_ && enabled_)
+    {
+        gr.draw_rect(bounds, theme_color(tcn, tv_focused_border, theme_), transparent, 2, round);
     }
 }
 
@@ -383,7 +418,7 @@ void button::receive_event(const event &ev)
                     active = false;
                     tooltip_->hide();
 
-                    if (button_view_ == button_view::switcher || button_view_ == button_view::radio)
+                    if (is_checkable(button_view_))
                     {
                         turn(!turned_);
                     }
@@ -397,6 +432,16 @@ void button::receive_event(const event &ev)
                 }
             break;
         }
+    }
+    else if (ev.type == event_type::keyboard && focused_ &&
+             ev.keyboard_event_.type == keyboard_event_type::key &&
+             ev.keyboard_event_.key_size == 1 && ev.keyboard_event_.key[0] == ' ' &&
+             ev.keyboard_event_.modifier == 0)
+    {
+        // Character events carry the same space on every platform; native key
+        // codes differ on X11. Enter is routed through execute_focused by window.
+        if (is_checkable(button_view_)) turn(!turned_);
+        if (click_callback) click_callback();
     }
     else if (ev.type == event_type::internal)
     {
@@ -415,7 +460,7 @@ void button::receive_event(const event &ev)
                 redraw();
             break;
             case internal_event_type::execute_focused:
-                if (button_view_ == button_view::switcher || button_view_ == button_view::radio)
+                if (is_checkable(button_view_))
                 {
                     turn(!turned_);
                 }
@@ -446,7 +491,7 @@ void button::set_parent(std::shared_ptr<window> window_)
     parent_ = window_;
     window_->add_control(tooltip_, tooltip_->position());
     my_subscriber_id = window_->subscribe(std::bind(&button::receive_event, this, std::placeholders::_1),
-        wui::flags_map<wui::event_type>(2, wui::event_type::internal, wui::event_type::mouse),
+        wui::flags_map<wui::event_type>(3, wui::event_type::internal, wui::event_type::mouse, wui::event_type::keyboard),
         shared_from_this());
 }
 
@@ -507,20 +552,8 @@ void button::update_theme(std::shared_ptr<i_theme> theme__)
 
     tooltip_->update_theme(theme_);
 
-    if (button_view_ == button_view::switcher)
-    {
-        image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
-        update_err("button::update_theme[switcher]", image_->get_error());
-    }
-    if (button_view_ == button_view::radio)
-    {
-        image_->change_image(theme_image(turned_ ? ti_radio_on : ti_radio_off));
-        update_err("button::update_theme[radio]", image_->get_error());
-    }
-    else if (image_)
-    {
-        image_->update_theme(theme_);
-    }
+    if (image_) image_->update_theme(theme_);
+    text_rect = {0};
 
     redraw();
 }
@@ -582,6 +615,7 @@ void button::set_caption(std::string_view caption_)
 void button::set_button_view(button_view button_view__)
 {
     button_view_ = button_view__;
+    text_rect = {0};
 
     redraw();
 }
@@ -646,19 +680,6 @@ void button::disable_focusing()
 void button::turn(bool on)
 {
     turned_ = on;
-    switch (button_view_)
-    {
-        case button_view::switcher:
-            image_->change_image(theme_image(turned_ ? ti_switcher_on : ti_switcher_off));
-            update_err("button::turn", image_->get_error());
-        break;
-        case button_view::radio:
-            image_->change_image(theme_image(turned_ ? ti_radio_on : ti_radio_off));
-            update_err("button::turn", image_->get_error());
-        break;
-        default:
-        break;
-    }
     redraw();
 }
 

@@ -17,7 +17,7 @@ static inline color make_color(unsigned char red, unsigned char green, unsigned 
 {
 #ifdef _WIN32
     return ((red) | (static_cast<unsigned short>(green) << 8)) | (static_cast<unsigned long>(blue) << 16);
-#elif defined(__linux__) || defined(__APPLE__)
+#elif defined(__linux__) || defined(__APPLE__) || defined(__EMSCRIPTEN__)
     return ((blue) | (static_cast<unsigned short>(green) << 8)) | (static_cast<unsigned long>(red) << 16);
 #endif
 }
@@ -26,7 +26,7 @@ static inline color make_color(unsigned char red, unsigned char green, unsigned 
 {
 #ifdef _WIN32
     return ((red) | (static_cast<unsigned short>(green) << 8)) | (static_cast<unsigned long>(blue) << 16) | (static_cast<unsigned long>(alpha) << 24);
-#elif defined(__linux__) || defined(__APPLE__)
+#elif defined(__linux__) || defined(__APPLE__) || defined(__EMSCRIPTEN__)
     return ((blue) | (static_cast<unsigned short>(green) << 8)) | (static_cast<unsigned long>(red) << 16) | (static_cast<unsigned long>(alpha) << 24);
 #endif
 }

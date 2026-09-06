@@ -6,6 +6,7 @@ The `list` control provides a list of items with support for columns and scrolli
 
 ```cpp
 #include <wui/control/list.hpp>
+#include <wui/theme/theme.hpp>
 
 auto list = std::make_shared<wui::list>();
 
@@ -22,7 +23,8 @@ list->set_item_count(100);
 // Draw callback
 list->set_draw_callback([](wui::graphic& gr, int32_t n_item, 
                             wui::rect item_rect, wui::list::item_state state) {
-    gr.draw_text(item_rect, get_item_text(n_item));
+    gr.draw_text(item_rect, std::to_string(n_item),
+        wui::theme_color("text", "color"), wui::theme_font("list", "font"));
 });
 
 window->add_control(list, {10, 10, 400, 300});
@@ -64,6 +66,11 @@ int32_t selected_item() const;
 // Callbacks
 void set_draw_callback(std::function<void(graphic&, int32_t, rect, item_state)> cb);
 void set_item_click_callback(std::function<void(click_button, int32_t, int32_t, int32_t)> cb);
+void set_item_height_callback(std::function<void(int32_t, int32_t&)> cb);
+void set_item_activate_callback(std::function<void(int32_t)> cb);
+void make_selected_visible();
+void scroll_to_start();
+void scroll_to_end();
 void set_item_change_callback(std::function<void(int32_t)> cb);
 void set_column_click_callback(std::function<void(int32_t)> cb);
 ```

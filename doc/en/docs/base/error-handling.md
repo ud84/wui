@@ -1,16 +1,18 @@
-##Error handling
+# Error handling
 
-WUI does not use exceptions. Methods that may terminate with an error return a bool. To get details about the problem, the get_error() method returns the structure 
+Many WUI operations report failure through `bool` and an `error` value:
 
-    struct error
-    {
-        error_type type;
-        std::string component, message;
-        bool is_ok() const;
-    };
+```cpp
+if (!window->init("Application", {-1, -1, 800, 600}, wui::window_style::frame)) {
+    std::cerr << window->get_error().str() << '\n';
+}
+```
 
-Errors that may have occurred in the object constructor should be checked like this:
+Check a control's `get_error()` after loading images or constructing resources.
+`error::is_ok()` checks the status; `str()` formats the component and message.
+Theme/locale helpers also expose their load errors, and name-based loading accepts
+an `error&` argument.
 
-    newObject(new wui::image(IMG_LOGO)).....
-
-    if (!newObject->get_error().is_ok()) { log("error", newObject->get_error().str()); }
+Do not interpret this as a guarantee that C++ exceptions can never occur: allocation,
+user callbacks and some supporting APIs may throw. The WASM build explicitly enables
+exception support. Handle application failures at the appropriate boundary.

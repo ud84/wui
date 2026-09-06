@@ -17,7 +17,11 @@
 
 #include <functional>
 #include <memory>
+#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
+#include <wui/system/timer.hpp>
+#else
 #include <thread>
+#endif
 
 namespace wui
 {
@@ -131,7 +135,11 @@ private:
     };
 
     worker_action worker_action_;
+#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
+    std::unique_ptr<timer> worker;
+#else
     std::thread worker;
+#endif
     bool worker_started;
 
     int32_t progress;

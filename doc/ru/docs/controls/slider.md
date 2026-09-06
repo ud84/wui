@@ -176,7 +176,7 @@ auto max_slider = std::make_shared<wui::slider>(
 );
 
 window->add_control(min_slider, {10, 10, 200, 30});
-window->add_control(max_slider, {10, 50, 200, 30});
+window->add_control(max_slider, {10, 50, 200, 80});
 ```
 
 ## Темизация

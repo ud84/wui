@@ -80,7 +80,8 @@ window->add_control(download_progress, {10, 10, 300, 20});
 
 // В процессе загрузки
 void on_download_progress(size_t current, size_t total) {
-    int percent = (current * 100) / total;
+    if (total == 0) return;
+    int percent = static_cast<int>((100.0 * current) / total);
     download_progress->set_value(percent);
 }
 ```
@@ -110,20 +111,13 @@ progress->set_point(75, true);    // Максимальная точка
 window->add_control(progress, {10, 10, 300, 20});
 ```
 
-### Неопределённый прогресс
+### Неизвестная длительность
 
-```cpp
-// Для операций с неизвестной длительностью
-auto indeterminate = std::make_shared<wui::progress>(0, 100, 0);
-window->add_control(indeterminate, {10, 10, 200, 20});
-
-// Анимация
-int value = 0;
-auto timer = std::make_shared<wui::timer>(window, 100, [&]() {
-    value = (value + 5) % 100;
-    indeterminate->set_value(value);
-});
-```
+Встроенной анимации неопределённого прогресса нет. Приложение может периодически
+обновлять значение: см. [потоки и таймеры](../base/multi-threading.md) с актуальным
+API `timer(callback)` / `start(milliseconds)` и доставкой обновления в UI.
+Храните данные callback всё время работы таймера. При загрузке файла проверяйте
+`total == 0` до деления.
 
 ## Темизация
 

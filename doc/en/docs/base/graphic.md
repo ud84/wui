@@ -1,119 +1,54 @@
-# Graphical context
+# Graphics
 
-Graphical context is an encapsulation of the system graphical context
-and serves to unify rendering procedures and isolate platform-dependent code.
+`graphic` wraps the platform rendering context. Bounds are passed by value.
 
-The interface:
+```cpp
+graphic(system_context &context);
+    ~graphic();
 
-	class graphic
-	{
-	public:
-		graphic(system_context &context);
+    bool init(rect max_size, color background_color);
+    void release();
 
-		void init(const rect &max_size, color background_color);
-    	void release();
+    rect max_size() const;
 
-    	void set_background_color(color background_color);
+    void set_background_color(color background_color);
 
-    	void clear(const rect &position);
+    void clear(rect position = { 0 });
 
-    	void flush(const rect &updated_size);
+    void flush(rect updated_size);
 
-    	void draw_pixel(const rect &position, color color_);
+    void draw_pixel(rect position, color color_);
 
-    	void draw_line(const rect &position, color color_, uint32_t width = 1);
+    void draw_line(rect position, color color_, uint32_t width = 1);
 
-    	rect measure_text(const std::string &text, const font &font_);
-    	void draw_text(const rect &position, const std::string &text, color color_, const font &font_);
+    rect measure_text(std::string_view text_, const font &font__);
+    void draw_text(rect position, std::string_view text, color color_, const font &font_);
 
-    	void draw_rect(const rect &position, color fill_color);
-    	void draw_rect(const rect &position, color border_color, color fill_color, uint32_t border_width, uint32_t round);
+    void draw_rect(rect position, color fill_color);
+    void draw_rect(rect position, color border_color, color fill_color, uint32_t border_width, uint32_t round);
 
-    	/// draw some buffer on context
-    	void draw_buffer(const rect &position, uint8_t *buffer, int32_t left_shift, int32_t top_shift);
+    /// Draws a PNG scaled into position. The loaded surface is cached per
+    /// path and owned by this graphic (released on destruction).
+    /// Implemented on Linux only (no-op elsewhere). The cache is not
+    /// invalidated: if the file changes on disk, the previous image is
+    /// reused until the graphic is destroyed.
+    void draw_image(std::string_view file_name, rect position);
 
-    	/// draw another graphic on context
-    	void draw_graphic(const rect &position, graphic &graphic_, int32_t left_shift, int32_t top_shift);
-	};
+    /// draw some buffer on context
+    void draw_buffer(rect position, uint8_t *buffer, int32_t left_shift, int32_t top_shift);
 
-## constructor
-Takes the system context from the window as input
+    /// draw another graphic on context; position is {x, y, width, height}
+    void draw_graphic(rect position, graphic &graphic_, int32_t left_shift, int32_t top_shift);
+```
 
-## init
-Initialization of the subsystem
+`init()` returns success. `draw_text()` requires bounds, text, color and font.
+Use `wui::image` for portable images: `graphic::draw_image()` is currently Linux-only.
 
-- max_size - maximum size of the drawing field
-- background_color - fill color
+Most rectangles use `{left, top, right, bottom}`. `draw_graphic()` is a legacy
+exception: its destination rectangle is interpreted as `{x, y, width, height}`;
+`left_shift` and `top_shift` select the source offset. Do not reuse control bounds
+without converting their right/bottom edges into extents.
 
-## release
-Deinitialization of the subsystem, clearing
-
-## set_background_color
-Change fill color
-
-## clear
-Clearing the area with fill color
-
-- position - coordinates of the area to be cleared
-
-## flush
-Resetting (drawing) the area to the system graphic context
-
-- updated_size - coordinates of the reset area
-
-## draw_pixel
-Drawing a point
-
-- position - coordinates of the point
-- color_ - color of the point
-
-## draw_line
-Drawing a line
-
-- position - coordinates of the start and end points
-- color_ - line color
-- width - line thickness
-
-## measure_text
-Returns the dimensions of the text line in pixels
-
-- text - line
-- font_ - font
-
-## draw_text
-Draw text string
-
-- position - coordinates of the upper left corner of the string
-- text - line text
-- color_ - color
-- font_ - font
-
-## draw_rect #1
-Drawing a simple rectangle
-
-- position - coordinates
-- fill_color - fill color
-
-## draw_rect #2
-Drawing a rectangle with border and rounding
-
-- position - coordinates
-- border_color - border color
-- fill_color - fill color
-- border_width - border thickness
-- round - radius of rounding
-
-## draw_buffer
-Draw buffer with RGB32 color depth
-
-- position - coordinates for drawing
-- buffer - buffer
-- buffer_size - buffer size in bytes
-
-## draw_graphic
-Drawing another graphic context
-
-- position - coordinates for drawing
-- graphic_ - graphic context
-- left_shift - x offset
-- top_shift - y offset
+macOS uses logical points and WASM uses CSS pixels; their backing buffers account
+for display scale. In a panel callback, coordinates belong to the window, not to
+a separate panel-local canvas.

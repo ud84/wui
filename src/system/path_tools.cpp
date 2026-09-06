@@ -8,7 +8,7 @@
 
 #include <wui/system/path_tools.hpp>
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__EMSCRIPTEN__)
 
 #include <pwd.h>
 
@@ -26,7 +26,7 @@ std::string macos_resource_path(std::string_view path);
 
 std::string real_path(std::string_view relative_path)
 {
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__EMSCRIPTEN__)
     auto index = relative_path.find("~/");
     if (index != std::string::npos)
     {

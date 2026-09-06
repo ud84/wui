@@ -8,7 +8,7 @@
 по умолчанию используют все контролы приложения. Подсистема позволяет звгрузить тему из json который может 
 храниться на диске или быть ресурсом Windows приложения.
 
-Пример [json файла](https://github.com/intent-garden/wui/blob/main/res/dark.json) содержащий визуальные параметры основных контролов.
+Пример [json файла](https://github.com/intent-garden/wui/blob/I-94/examples/demo/res/dark.json) содержащий визуальные параметры основных контролов.
 
 Несмотря на то, что в приложении всегда есть тема по умолчанию, вы можете создать свою кастомную тему и указать любому контролу ее для использования. В таком случае, контрол будет отображаться в соответствии с вашей темой.
 
@@ -22,38 +22,38 @@
 
     /// Set and get the current theme
     #ifdef _WIN32
-    bool set_default_theme_from_resource(const std::string &name, int32_t resource_index, const std::string &resource_section);
+    bool set_default_theme_from_resource(std::string_view name, int32_t resource_index, std::string_view resource_section);
     #endif
-    bool set_default_theme_from_json(const std::string &name, const std::string &json);
-    bool set_default_theme_from_file(const std::string &name, const std::string &file_name);
-    void set_default_theme_empty(const std::string &name);
+    bool set_default_theme_from_json(std::string_view name, std::string_view json);
+    bool set_default_theme_from_file(std::string_view name, std::string_view file_name);
+    void set_default_theme_empty(std::string_view name);
 
     /// Return the pointer to current default theme instance
     std::shared_ptr<i_theme> get_default_theme();
 
     /// Make the custom theme for the some control
-    std::shared_ptr<i_theme> make_custom_theme(const std::string &name = "");
-    std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json);
+    std::shared_ptr<i_theme> make_custom_theme(std::string_view name = "");
+    std::shared_ptr<i_theme> make_custom_theme(std::string_view name, std::string_view json);
 
     /// Return the item's color by current theme
-    color theme_color(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+    color theme_color(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
     /// Return the item's dimension by current theme
-    int32_t theme_dimension(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+    int32_t theme_dimension(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
     /// Return the item's string value by current theme
-    const std::string &theme_string(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+    const std::string &theme_string(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
     /// Return the item's font value by current theme
-    font theme_font(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+    font theme_font(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
-    const std::vector<uint8_t> &theme_image(const std::string &name, std::shared_ptr<i_theme> theme_ = nullptr);
+    const std::vector<uint8_t> &theme_image(std::string_view name, std::shared_ptr<i_theme> theme_ = nullptr);
 
 ### set_default_theme_from_resource (Windows only)
 #### Входные параметры
- - const std::string &name - имя темы, например "dark"
+ - std::string_view name - имя темы, например "dark"
  - int32_t resource_index - ID ресурса
- - const std::string &resource_section - секция ресурсов, например "JSONS"
+ - std::string_view resource_section - секция ресурсов, например "JSONS"
 #### Возвращаемое значение
  - true в случае успеха
 
@@ -72,8 +72,8 @@
 
 ### set_default_theme_from_json
 #### Входные параметры
- - const std::string &name - имя темы
- - const std::string &json - строка содержащая json темы
+ - std::string_view name - имя темы
+ - std::string_view json - строка содержащая json темы
 #### Возвращаемое значение
  - true в случае успеха
 
@@ -81,8 +81,8 @@
 
 ### set_default_theme_from_file
 #### Входные параметры
- - const std::string &name - имя темы
- - const std::string &file_name - путь к json файлу темы
+ - std::string_view name - имя темы
+ - std::string_view file_name - путь к json файлу темы
 #### Возвращаемое значение
  - true в случае успеха
 
@@ -103,7 +103,7 @@
 
 ### set_default_theme_empty
 #### Входные параметры
- - const std::string &name - имя темы
+ - std::string_view name - имя темы
 
 Устанавливает в текущую тему пустую тему, например для последующей настройки ее при помощи сеттеров инстанса.
 
@@ -115,7 +115,7 @@
 
 ### make_custom_theme
 #### Входные параметры
- - const std::string &name - имя темы
+ - std::string_view name - имя темы
 #### Возвращаемое значение
  - std::shared_ptr&lt;i_theme&gt; - указатель на инстанс созданной темы
 
@@ -123,8 +123,8 @@
 
 ### make_custom_theme
 #### Входные параметры
- - const std::string &name - имя темы
- - const std::string &json - строка содержащая json темы
+ - std::string_view name - имя темы
+ - std::string_view json - строка содержащая json темы
 #### Возвращаемое значение
  - std::shared_ptr&lt;i_theme&gt; - указатель на инстанс созданной темы
 
@@ -132,8 +132,8 @@
 
 ### theme_color
 #### Входные параметры
- - const std::string &control - имя контрола, например "button"
- - const std::string &value - название цвета, например "active"
+ - std::string_view control - имя контрола, например "button"
+ - std::string_view value - название цвета, например "active"
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
 #### Возвращаемое значение
  - color - запрошенный цвет
@@ -162,8 +162,8 @@
 
 ### theme_dimension
 #### Входные параметры
- - const std::string &control - имя контрола, например "button"
- - const std::string &value - название размера, например "border_width"
+ - std::string_view control - имя контрола, например "button"
+ - std::string_view value - название размера, например "border_width"
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
 #### Возвращаемое значение
  - int32_t - запрошенный размер
@@ -172,8 +172,8 @@
 
 ### theme_string
 #### Входные параметры
- - const std::string &control - имя контрола
- - const std::string &value - название строки
+ - std::string_view control - имя контрола
+ - std::string_view value - название строки
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
 #### Возвращаемое значение
  - const std::string & - ссылка на запрошенную строку
@@ -182,8 +182,8 @@
 
 ### theme_font
 #### Входные параметры
- - const std::string &control - имя контрола
- - const std::string &value - название шрифта, например "caption_font"
+ - std::string_view control - имя контрола
+ - std::string_view value - название шрифта, например "caption_font"
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
 #### Возвращаемое значение
  - font - запрошенный шрифт
@@ -192,7 +192,7 @@
 
 ### theme_image
 #### Входные параметры
- - const std::string &name - имя изображения
+ - std::string_view name - имя изображения
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - указатель на инстанс темы, если nullptr - берется тема по умолчанию
 #### Возвращаемое значение
  - const std::vector&lt;uint8_t&gt;& - запрошенное изображение
@@ -212,29 +212,29 @@
     public:
         virtual std::string get_name() const = 0;
 
-        virtual void set_color(const std::string &control, const std::string &value, color color_) = 0;
-        virtual color get_color(const std::string &control, const std::string &value) const = 0;
+        virtual void set_color(std::string_view control, std::string_view value, color color_) = 0;
+        virtual color get_color(std::string_view control, std::string_view value) const = 0;
 
-        virtual void set_dimension(const std::string &control, const std::string &value, int32_t dimension) = 0;
-        virtual int32_t get_dimension(const std::string &control, const std::string &value) const = 0;
+        virtual void set_dimension(std::string_view control, std::string_view value, int32_t dimension) = 0;
+        virtual int32_t get_dimension(std::string_view control, std::string_view value) const = 0;
 
-        virtual void set_string(const std::string &control, const std::string &value, const std::string &str) = 0;
-        virtual const std::string &get_string(const std::string &control, const std::string &value) const = 0;
+        virtual void set_string(std::string_view control, std::string_view value, std::string_view str) = 0;
+        virtual const std::string &get_string(std::string_view control, std::string_view value) const = 0;
 
-        virtual void set_font(const std::string &control, const std::string &value, const font &font_) = 0;
-        virtual font get_font(const std::string &control, const std::string &value) const = 0;
+        virtual void set_font(std::string_view control, std::string_view value, const font &font_) = 0;
+        virtual font get_font(std::string_view control, std::string_view value) const = 0;
 
-        virtual void set_image(const std::string &name, const std::vector<uint8_t> &data) = 0;
-        virtual const std::vector<uint8_t> &get_image(const std::string &name) = 0;
+        virtual void set_image(std::string_view name, const std::vector<uint8_t> &data) = 0;
+        virtual const std::vector<uint8_t> &get_image(std::string_view name) = 0;
 
     #ifdef _WIN32
-        virtual void load_resource(int32_t resource_index, const std::string &resource_section) = 0;
+        virtual void load_resource(int32_t resource_index, std::string_view resource_section) = 0;
     #endif
-        virtual void load_json(const std::string &json) = 0;
-        virtual void load_file(const std::string &file_name) = 0;
+        virtual void load_json(std::string_view json) = 0;
+        virtual void load_file(std::string_view file_name) = 0;
         virtual void load_theme(const i_theme &theme_) = 0;
 
-        virtual bool is_ok() const = 0;
+        virtual error get_error() const = 0;
 
         virtual ~i_theme() {}
     };
@@ -248,8 +248,8 @@
 
 ### set_color
 #### Входные параметры
- - const std::string &control - имя контрола, например "button"
- - const std::string &value - название цвета, например "active"
+ - std::string_view control - имя контрола, например "button"
+ - std::string_view value - название цвета, например "active"
  - color color_ - устанавливаемый цвет
 
 Устанавливает цвет для значения ``value`` контрола ``control``
@@ -272,8 +272,8 @@
 
 ### get_color
 #### Входные параметры
- - const std::string &control - имя контрола
- - const std::string &value - название цвета
+ - std::string_view control - имя контрола
+ - std::string_view value - название цвета
 #### Возвращаемое значение
  - color - запрошенный цвет
 
@@ -281,16 +281,16 @@
 
 ### set_dimension
 #### Входные параметры
- - const std::string &control - имя контрола
- - const std::string &value - название размера
+ - std::string_view control - имя контрола
+ - std::string_view value - название размера
  - int32_t dimension - устанавливаемый размер
 
 Устанавливает размер для значения ``value`` контрола ``control``
 
 ### get_dimension
 #### Входные параметры
- - const std::string &control - имя контрола
- - const std::string &value - название размера
+ - std::string_view control - имя контрола
+ - std::string_view value - название размера
 #### Возвращаемое значение
  - int32_t - запрошенный размер
 
@@ -298,16 +298,16 @@
 
 ### set_string
 #### Входные параметры
- - const std::string &control - имя контрола
- - const std::string &value - название строки
- - const std::string &str - устанавливаемая строка
+ - std::string_view control - имя контрола
+ - std::string_view value - название строки
+ - std::string_view str - устанавливаемая строка
 
 Устанавливает строку для значения ``value`` контрола ``control``
 
 ### get_string
 #### Входные параметры
- - const std::string &control - имя контрола
- - const std::string &value - название строки
+ - std::string_view control - имя контрола
+ - std::string_view value - название строки
 #### Возвращаемое значение
  - const std::string & - ссылка на запрошенную строку
 
@@ -315,16 +315,16 @@
 
 ### set_font
 #### Входные параметры
- - const std::string &control - имя контрола
- - const std::string &value - название шрифта
+ - std::string_view control - имя контрола
+ - std::string_view value - название шрифта
  - const font &font_ - устанавливаемый шрифт
 
 Устанавливает шрифт для значения ``value`` контрола ``control``
 
 ### get_font
 #### Входные параметры
- - const std::string &control - имя контрола
- - const std::string &value - название шрифта
+ - std::string_view control - имя контрола
+ - std::string_view value - название шрифта
 #### Возвращаемое значение
  - font - запрошенный шрифт
 
@@ -332,14 +332,14 @@
 
 ### set_image
 #### Входные параметры
- - const std::string &name - имя изображения
+ - std::string_view name - имя изображения
  - const std::vector&lt;uint8_t&gt; &data - устанавливаемое изображение
 
 Устанавливает изображение с именем ``name`` из массива байтов ``data``
 
 ### get_image
 #### Входные параметры
- - const std::string &name - имя изображения
+ - std::string_view name - имя изображения
 #### Возвращаемое значение
  - const std::vector&lt;uint8_t&gt; & - запрошенное изображение
 
@@ -348,19 +348,19 @@
 ### load_resource (Windows only)
 #### Входные параметры
  - int32_t resource_index - ID ресурса
- - const std::string &resource_section - секция ресурсов, например "JSONS"
+ - std::string_view resource_section - секция ресурсов, например "JSONS"
 
 Функция загружающая тему из json файла который хранится в ресурсе приложения
 
 ### load_json
 #### Входные параметры
- - const std::string &json - json строка
+ - std::string_view json - json строка
 
 Функция загружающая тему из json строки
 
 ### load_file
 #### Входные параметры
- - const std::string &file_name - путь к json файлу
+ - std::string_view file_name - путь к json файлу
 
 Функция загружающая тему из json файла
 
@@ -370,8 +370,7 @@
 
 Функция загружающая тему из другого инстанса темы
 
-### is_ok
-#### Возвращаемое значение
- - true в случае если json загружен успешно
+### get_error
+Возвращает `error`; используйте `get_error().is_ok()` и `get_error().str()`.
 
-Возвращает нормально ли загрузилась тема из json
+После загрузки общей темы вызовите `window->update_theme()`. Контрол с явно назначенной темой сохраняет её при обновлении без аргумента; для замены передайте другую тему явно. Шрифт — JSON-объект с `name`, `size` и необязательным `decorations`, а не имя записи отдельного реестра шрифтов.

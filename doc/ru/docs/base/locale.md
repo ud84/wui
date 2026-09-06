@@ -8,7 +8,7 @@
 #include <wui/locale/locale.hpp>
 
 // Установка локали из файла (Linux/macOS)
-auto ok = wui::set_locale_from_file(wui::locale_type::ru, "ru", "res/ru.json");
+auto ok = wui::set_locale_from_file(wui::locale_type::rus, "ru", "res/ru_locale.json");
 if (!ok) {
     std::cerr << "can't load locale" << std::endl;
     return -1;
@@ -26,7 +26,7 @@ bool set_locale_from_file(locale_type type, std::string_view name, std::string_v
 ```
 
 **Параметры:**
-- `type` — тип локали (например, `locale_type::ru`, `locale_type::en`)
+- `type` — тип локали (например, `locale_type::rus`, `locale_type::eng`)
 - `name` — имя локали
 - `file_name` — путь к JSON-файлу с локалью
 
@@ -125,9 +125,9 @@ class i_locale
 public:
     virtual std::string get_name() const = 0;
 
-    virtual void set_value(std::string_view section, std::string_view value, 
+    virtual void set(std::string_view section, std::string_view value,
                           std::string_view str) = 0;
-    virtual const std::string &get_value(std::string_view section, 
+    virtual const std::string &get(std::string_view section,
                                         std::string_view value) const = 0;
 
 #ifdef _WIN32
@@ -137,7 +137,7 @@ public:
     virtual void load_json(std::string_view json) = 0;
     virtual void load_file(std::string_view file_name) = 0;
 
-    virtual bool is_ok() const = 0;
+    virtual error get_error() const = 0;
 
     virtual ~i_locale() {}
 };
@@ -146,7 +146,7 @@ public:
 ### get_name
 **Возвращает:** Имя экземпляра локали (например, "ru", "en")
 
-### set_value
+### set
 **Параметры:**
 - `section` — секция
 - `value` — ключ
@@ -154,7 +154,7 @@ public:
 
 Устанавливает строковое значение для секции и ключа.
 
-### get_value
+### get
 **Параметры:**
 - `section` — секция
 - `value` — ключ
@@ -164,22 +164,19 @@ public:
 ### load_json / load_file / load_resource
 Загружает локаль из JSON-строки, файла или ресурса.
 
-### is_ok
-**Возвращает:** `true`, если локаль загружена успешно
+### get_error
+Возвращает `error`, а не bool; проверяйте `is_ok()` и `str()`.
 
 ## Переключение языка
 
-Для переключения языка во время выполнения:
-
 ```cpp
-// Загрузка английской локали
-wui::set_locale_from_file(wui::locale_type::en, "en", "res/en.json");
-
-// Все контролы автоматически обновят текст
-// или обновите их вручную при необходимости
+wui::error error;
+if (wui::set_locale_from_type(wui::get_next_app_locale(), error)) {
+    label->set_text(wui::locale("main_frame", "whats_your_name_text"));
+    button->set_caption(wui::locale("main_frame", "ok_button"));
+}
 ```
 
-## См. также
-
-- [Визуальные темы](theme.md) — для стилизации интерфейса
-- [Конфиг](config.md) — для хранения настроек приложения
+Сначала зарегистрируйте локали через `set_app_locales()`, как в полном примере
+Hello world. Загрузка локали не заменяет автоматически строки, уже сохранённые
+в контролах. Состояние экземпляра локали проверяется через `get_error().is_ok()`.

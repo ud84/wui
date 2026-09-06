@@ -18,6 +18,8 @@
 #include <cstdlib>
 #include <cmath>
 #include <thread>
+#include "../common/input_selection.hpp"
+#include "../common/button_states.hpp"
 
 #define CHECK(condition) do { if (!(condition)) { std::fprintf(stderr,"FAIL %s:%d: %s\n",__FILE__,__LINE__,#condition); std::abort(); } } while (0)
 
@@ -110,6 +112,8 @@ int main()
         auto before=wui::measure_text("Привет, macOS!",font);
         CHECK(before.width()>0 && before.height()>0);
         CHECK(wui::measure_text("Hello  ",font).width()>wui::measure_text("Hello",font).width());
+        CHECK(run_input_selection_tests());
+        CHECK(run_button_state_tests());
         auto w=std::make_shared<wui::window>();
         auto input=std::make_shared<wui::input>();
         int clicks=0,created=0,resized=0,emitted=0,closed=0,ticks=0;
@@ -223,6 +227,22 @@ int main()
         once->start(30);
         wui::framework::run();
         CHECK(!once && !w->context().valid());
+        // Hover animation must stay on the UI thread and tolerate removal in its callback.
+        CHECK(w->init("Scrollbar timer",{100,100,400,300},wui::window_style::frame,[&]{wui::framework::stop();}));
+        int activated=0;
+        std::shared_ptr<wui::scroll> bar;
+        bar=std::make_shared<wui::scroll>(1000,0,wui::orientation::vertical,[&](auto state,int) {
+            CHECK([NSThread isMainThread]);
+            if(state==wui::scroll_state::activated) {
+                ++activated;w->remove_control(bar);bar.reset();w->destroy();
+            }
+        });
+        w->add_control(bar,{250,40,264,180});
+        wui::event hover{};hover.type=wui::event_type::mouse;hover.mouse_event_.type=wui::mouse_event_type::enter;
+        bar->receive_control_events(hover);
+        wui::timer timeout([&]{wui::framework::stop();});timeout.start(2000);
+        wui::framework::run();timeout.stop();
+        CHECK(activated==1 && !bar && !w->context().valid());
         std::puts("PASS: windows, resize, callbacks, drawing, PNG, UTF-8, clipboard, dialogs, timers, restart");
     }
 }

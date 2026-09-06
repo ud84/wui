@@ -10,7 +10,7 @@
 // Из файла
 auto tray = std::make_shared<wui::tray_icon>(
     window,
-    "res/icon.png",
+    "res/icon.ico",
     "My Application",
     [](wui::tray_icon_action action) {
         switch (action) {
@@ -126,7 +126,7 @@ tray_menu->set_items(items);
 
 auto tray = std::make_shared<wui::tray_icon>(
     window,
-    "res/icon.png",
+    "res/icon.ico",
     "My Application",
     [&tray_menu](wui::tray_icon_action action) {
         if (action == wui::tray_icon_action::right_click) {
@@ -143,7 +143,7 @@ auto tray = std::make_shared<wui::tray_icon>(
 ```cpp
 auto tray = std::make_shared<wui::tray_icon>(
     window,
-    "res/icon.png",
+    "res/icon.ico",
     "My Application",
     [](wui::tray_icon_action) {}
 );
@@ -227,7 +227,7 @@ void set_busy(bool busy) {
 ```cpp
 auto tray = std::make_shared<wui::tray_icon>(
     window,
-    "res/icon.png",
+    "res/icon.ico",
     "My Application",
     [](wui::tray_icon_action action) {
         if (action == wui::tray_icon_action::left_click) {
@@ -251,3 +251,11 @@ window->set_minimize_callback([&tray]() {
 
 - [Меню](menu.md) — для контекстного меню
 - [Окно](../base/interfaces.md#window) — родительское окно
+
+## Поведение платформ
+
+На macOS используется `NSStatusItem`; `show_message()` открывает popover, а не
+уведомление Notification Center. В WASM системный трей не создаётся.
+Ветви Linux этого класса пока являются заглушками; значок трея не создаётся.
+
+Файловый конструктор Windows ожидает ICO; macOS принимает изображение, например PNG.

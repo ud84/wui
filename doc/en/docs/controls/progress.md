@@ -80,7 +80,8 @@ window->add_control(download_progress, {10, 10, 300, 20});
 
 // During download
 void on_download_progress(size_t current, size_t total) {
-    int percent = (current * 100) / total;
+    if (total == 0) return;
+    int percent = static_cast<int>((100.0 * current) / total);
     download_progress->set_value(percent);
 }
 ```
@@ -110,20 +111,12 @@ progress->set_point(75, true);    // Maximum point
 window->add_control(progress, {10, 10, 300, 20});
 ```
 
-### Indeterminate Progress
+### Unknown duration
 
-```cpp
-// For operations with unknown duration
-auto indeterminate = std::make_shared<wui::progress>(0, 100, 0);
-window->add_control(indeterminate, {10, 10, 200, 20});
-
-// Animation
-int value = 0;
-auto timer = std::make_shared<wui::timer>(window, 100, [&]() {
-    value = (value + 5) % 100;
-    indeterminate->set_value(value);
-});
-```
+There is no built-in indeterminate animation. An application may update a value
+periodically; see [threads and timers](../base/multi-threading.md) for the actual
+`timer(callback)` / `start(milliseconds)` API and safe UI delivery. Keep callback
+state alive. For a download, guard against `total == 0` before dividing.
 
 ## Theming
 

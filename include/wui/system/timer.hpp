@@ -23,7 +23,7 @@
 namespace wui
 {
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
 class timer
 {
 public:

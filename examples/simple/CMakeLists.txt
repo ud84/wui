@@ -12,8 +12,12 @@ if(APPLE)
     add_custom_command(TARGET simple POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${CMAKE_CURRENT_SOURCE_DIR}/res" "$<TARGET_BUNDLE_CONTENT_DIR:simple>/Resources/res")
-else()
+elseif(NOT EMSCRIPTEN)
     add_custom_command(TARGET simple POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${CMAKE_CURRENT_SOURCE_DIR}/res" "$<TARGET_FILE_DIR:simple>/res")
+endif()
+
+if(EMSCRIPTEN)
+    wui_wasm_app(simple "${CMAKE_CURRENT_SOURCE_DIR}/res")
 endif()

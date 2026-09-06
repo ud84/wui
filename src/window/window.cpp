@@ -28,6 +28,9 @@
 #include <algorithm>
 #include <set>
 #include <random>
+#ifdef __EMSCRIPTEN__
+#include "wasm/window_wasm.hpp"
+#endif
 #ifdef __APPLE__
 #include "macos/window_mac.hpp"
 #endif
@@ -213,6 +216,8 @@ window::~window()
     }
 #elif __linux__
     send_destroy_event();
+#elif __EMSCRIPTEN__
+    wasm_window_backend::close(*this, false);
 #elif __APPLE__
     macos_window_backend::close(*this, false);
 #endif
@@ -318,6 +323,8 @@ void window::redraw(rect redraw_position, bool clear)
             xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_EXPOSURE, (const char*)&event);
             xcb_flush(context_.connection);
         }
+#elif __EMSCRIPTEN__
+        wasm_window_backend::invalidate(*this, redraw_position);
 #elif __APPLE__
         macos_window_backend::invalidate(*this, redraw_position);
 #endif
@@ -570,6 +577,8 @@ void window::set_position(rect position__)
             values);
 
         xcb_flush(context_.connection);
+#elif __EMSCRIPTEN__
+        wasm_window_backend::position(*this, position___);
 #elif __APPLE__
         macos_window_backend::position(*this, position___);
 #endif
@@ -623,6 +632,8 @@ void window::set_parent(std::shared_ptr<window> window)
         {
             send_destroy_event();
         }
+#elif __EMSCRIPTEN__
+        wasm_window_backend::close(*this, false);
 #elif __APPLE__
         macos_window_backend::close(*this, false);
 #endif
@@ -728,7 +739,7 @@ void window::update_theme(std::shared_ptr<i_theme> theme__)
         auto ws = get_window_size(context_);
         redraw({ 0, 0, ws.width(), ws.height() }, true);
 
-#elif __APPLE__
+#elif defined(__APPLE__) || defined(__EMSCRIPTEN__)
         redraw({0, 0, position_.width(), position_.height()}, true);
 #endif
     }
@@ -751,6 +762,8 @@ void window::show()
         ShowWindow(context_.hwnd, SW_SHOW);
 #elif __linux__
         update_window_style();
+#elif __EMSCRIPTEN__
+        wasm_window_backend::show(*this, true);
 #elif __APPLE__
         macos_window_backend::show(*this, true);
 #endif
@@ -775,6 +788,8 @@ void window::hide()
         ShowWindow(context_.hwnd, SW_HIDE);
 #elif __linux__
         update_window_style();
+#elif __EMSCRIPTEN__
+        wasm_window_backend::show(*this, false);
 #elif __APPLE__
         macos_window_backend::show(*this, false);
 #endif
@@ -805,6 +820,8 @@ void window::enable()
     EnableWindow(context_.hwnd, TRUE);
     SetWindowPos(context_.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
     SetWindowPos(context_.hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+#elif __EMSCRIPTEN__
+    wasm_window_backend::show(*this, showed_);
 #elif __APPLE__
     macos_window_backend::show(*this, showed_);
 #endif
@@ -895,6 +912,8 @@ void window::minimize()
     ShowWindow(context_.hwnd, SW_MINIMIZE);
 #elif __linux__
     change_style(wm_change_state, XCB_ICCCM_WM_STATE_ICONIC, 1);
+#elif __EMSCRIPTEN__
+    wasm_window_backend::minimize(*this);
 #elif __APPLE__
     macos_window_backend::minimize(*this);
 #endif
@@ -966,6 +985,8 @@ void window::expand()
     {
         change_style(net_wm_state, 1, net_wm_state_fullscreen);
     }
+#elif __EMSCRIPTEN__
+    wasm_window_backend::expand(*this);
 #elif __APPLE__
     macos_window_backend::expand(*this);
 #endif
@@ -1012,6 +1033,8 @@ void window::normal()
         xcb_send_event(context_.connection, false, context_.screen->root, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, (const char*)&event);
         xcb_flush(context_.connection);
     }
+#elif __EMSCRIPTEN__
+    wasm_window_backend::restore(*this);
 #elif __APPLE__
     macos_window_backend::restore(*this);
 #endif
@@ -1037,6 +1060,8 @@ void window::normal()
             values);
 
         xcb_flush(context_.connection);
+#elif __EMSCRIPTEN__
+        wasm_window_backend::position(*this, normal_position);
 #elif __APPLE__
         macos_window_backend::position(*this, normal_position);
 #endif
@@ -1069,6 +1094,8 @@ void window::set_caption(std::string_view caption_)
         {
             set_wm_name(caption_);
         }
+#elif __EMSCRIPTEN__
+        wasm_window_backend::style(*this);
 #elif __APPLE__
         macos_window_backend::style(*this);
 #endif
@@ -1108,6 +1135,9 @@ void window::set_style(window_style style)
     update_window_style();
 
     redraw({ 0, 0, position_.width(), 30 }, true);
+#elif __EMSCRIPTEN__
+    wasm_window_backend::style(*this);
+    redraw({0, 0, position_.width(), position_.height()}, true);
 #elif __APPLE__
     macos_window_backend::style(*this);
     redraw({0, 0, position_.width(), position_.height()}, true);
@@ -1118,7 +1148,9 @@ void window::set_min_size(int32_t width, int32_t height)
 {
     min_width = width;
     min_height = height;
-#ifdef __APPLE__
+#ifdef __EMSCRIPTEN__
+    wasm_window_backend::style(*this);
+#elif __APPLE__
     macos_window_backend::style(*this);
 #endif
 }
@@ -1185,6 +1217,8 @@ void window::emit_event(int32_t x, int32_t y)
             xcb_send_event(context_.connection, false, context_.wnd, XCB_EVENT_MASK_NO_EVENT, (const char*)&event);
             xcb_flush(context_.connection);
         }
+#elif __EMSCRIPTEN__
+        wasm_window_backend::emit(*this, x, y);
 #elif __APPLE__
         macos_window_backend::emit(*this, x, y);
 #endif
@@ -1233,10 +1267,10 @@ void window::enable_device_change_handling(bool yes)
         udev_handler_->stop();
         udev_handler_.reset();
     }
-#elif __APPLE__
+#elif defined(__APPLE__) || defined(__EMSCRIPTEN__)
     if (yes)
         err = {error_type::system_error, "window::enable_device_change_handling()",
-            "Device hotplug notifications are not implemented on macOS"};
+            "Device hotplug notifications are not implemented on this platform"};
 #endif
 }
 
@@ -1251,7 +1285,7 @@ bool window::is_physical_window() const
     return root_window_ || (context_.hwnd != 0);
 #elif __linux__
     return root_window_ || (context_.connection && context_.wnd);
-#elif __APPLE__
+#elif defined(__APPLE__) || defined(__EMSCRIPTEN__)
     return root_window_ || context_.valid();
 #endif
 }
@@ -1366,8 +1400,8 @@ void window::send_mouse_event(const mouse_event &ev)
             {
                 active_control = send_to_control;
 
-#ifdef __APPLE__
-                // AppKit can deliver the activating click without a preceding mouse move.
+#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
+                // The platform can deliver the activating click without a preceding mouse move.
                 mouse_event me{ mouse_event_type::enter, ev_.x, ev_.y };
                 auto target = send_to_control;
                 send_event_to_control(target, { event_type::mouse, me });
@@ -1825,7 +1859,7 @@ bool window::init(std::string_view caption_, rect position__, window_style style
 #elif __linux__
                 left = (context_.screen->width_in_pixels - position_.width()) / 2;
                 top = (context_.screen->height_in_pixels - position_.height()) / 2;
-#elif __APPLE__
+#elif defined(__APPLE__) || defined(__EMSCRIPTEN__)
                 auto screen = get_screen_size(context_);
                 left = (screen.width() - position_.width()) / 2;
                 top = (screen.height() - position_.height()) / 2;
@@ -2028,6 +2062,8 @@ bool window::init(std::string_view caption_, rect position__, window_style style
     started = true;
 
     get_listener().add_window(context_.wnd, shared_from_this());
+#elif __EMSCRIPTEN__
+    return wasm_window_backend::create(*this);
 #elif __APPLE__
     return macos_window_backend::create(*this);
 #endif
@@ -2095,6 +2131,8 @@ void window::destroy()
         DestroyWindow(context_.hwnd);
 #elif __linux__
         send_destroy_event();
+#elif __EMSCRIPTEN__
+        wasm_window_backend::close(*this, true);
 #elif __APPLE__
         macos_window_backend::close(*this, true);
 #endif

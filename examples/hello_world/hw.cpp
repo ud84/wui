@@ -32,7 +32,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE,
     _In_opt_ HINSTANCE,
     _In_ LPTSTR    lpCmdLine,
     _In_ int       nCmdShow)
-#elif defined(__linux__) || defined(__APPLE__)
+#elif defined(__linux__) || defined(__APPLE__) || defined(__EMSCRIPTEN__)
 int main(int argc, char *argv[])
 #endif
 {

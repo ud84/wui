@@ -1,65 +1,54 @@
-## Receive build and verify
+# Installation and build
 
-## Dependencies on Linux
-WUI applications that use the WUI depend on the following system libraries
+Use a C++17 compiler and CMake 3.16 or newer. Commands below run from the repository root.
+To reproduce the features shown in the current Showcase:
 
-    xcb
-	xcb-cursor
-	xcb-ewmh
-	xcb-icccm
-	xcb-image
-	X11
-	X11-xcb
-	cairo
-	pthread
+```sh
+git clone https://github.com/intent-garden/wui.git
+cd wui
+git switch I-94
+```
 
-## Receive and build on Linux
-    git clone https://github.com/intent-garden/wui
-    cd wui
-    cmake CMakeLists.txt
-    make
+## Linux (X11)
 
-## Checking on Linux
-    cd examples/simple
-    ./simple
+The CMake target links Cairo, XCB, X11, threads and udev. For Debian/Ubuntu:
 
-## Receive and build on Windows
-    git clone https://github.com/intent-garden/wui
-  
-To build and work, Visual Studio is recommended at least 2017, it is better to use the latest version.
-4 types of build types are supported:
+```sh
+sudo apt install build-essential cmake pkg-config libcairo2-dev libxcb1-dev   libxcb-cursor-dev libxcb-ewmh-dev libxcb-icccm4-dev libxcb-image0-dev   libx11-dev libx11-xcb-dev libudev-dev
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+./build/examples/demo/demo
+```
 
-    Debug
-    Debug(v141_xp)
-    Release
-    Release(v141_xp)
+An X11 graphical session is required. This is not a native Wayland backend.
+Resources are copied beside the example binaries into `res/`.
 
-There are two platforms in each build type:
+## Windows
 
-    x64
-    x86
+Open `wui.sln` in Visual Studio with C++ desktop tools, a Windows SDK and ATL.
+Use the standard Debug/Release configurations with the toolset selected by the
+solution (v143 for the regular configurations). Set `demo` as startup project.
+The solution also contains legacy v141_xp configurations; those require their own
+VS2017/XP toolchain and are not covered by the macOS/browser test runs.
+Windows examples embed resources through `.rc` files.
 
-The v141_xp builds allow you to build an application that runs on Windows XP.
-If you do not plan to use this platform, it is better to use Debug / Release builds.
+## macOS and browser
 
-## Dependencies on Windows
+- [macOS build, bundles and requirements](macos.md)
+- [Emscripten build and static hosting](wasm.md)
 
-The following Visual Studio components will be required:
+## Embed the library in a CMake application
 
-    Basic C++ components
-    MSVC version 143 - VS2022 C++ x84/x64 Build Tools (latest version)
-    SDK for Windows 10 / 11 of any version
-    ATL C++ library for the latest version of Build Tools v143 (x86 and x64)
+```cmake
+set(WUI_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory(path/to/wui)
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE wui)
+```
 
-The build for XP depends on:
+The `wui` target exports its include path and C++17 requirement. Resource packaging
+belongs to the application; see [resources](../base/resources.md). On Windows use
+the existing solution settings for Win32 libraries and resource compilation.
 
-    Basic C++ components
-    MSVC version 141 - C++ build tools for VS2017 for x64 or x86
-    SDK for Universal CRT for Windows
-    C++ support for Windows XP for VS2017 tools (version 141)
-    ATL C++ for build tools version 141 (x86 and x64)
-
-## Test on Windows
-Run
-
-    simple.exe
+`WUI_BUILD_EXAMPLES` defaults to ON. `WUI_BUILD_TESTS` defaults to OFF and enables
+macOS or WASM integration tests on those respective toolchains.

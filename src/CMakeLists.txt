@@ -1,19 +1,32 @@
 file(GLOB SOURCES CONFIGURE_DEPENDS
     common/*.cpp control/*.cpp config/*.cpp event/*.cpp framework/*.cpp
     graphic/*.cpp theme/*.cpp locale/*.cpp system/*.cpp window/*.cpp)
-if(APPLE)
+if(APPLE OR EMSCRIPTEN)
     list(REMOVE_ITEM SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/graphic/graphic.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/graphic/primitive_container.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/system/udev_handler.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/window/listener.cpp")
-    file(GLOB MAC_SOURCES CONFIGURE_DEPENDS macos/*.mm)
-    list(APPEND SOURCES ${MAC_SOURCES})
+    if(EMSCRIPTEN)
+        file(GLOB WASM_SOURCES CONFIGURE_DEPENDS wasm/*.cpp)
+        list(APPEND SOURCES ${WASM_SOURCES})
+    else()
+        file(GLOB MAC_SOURCES CONFIGURE_DEPENDS macos/*.mm)
+        list(APPEND SOURCES ${MAC_SOURCES})
+    endif()
 endif()
 add_library(wui STATIC ${SOURCES})
 target_compile_features(wui PUBLIC cxx_std_17)
 target_include_directories(wui PUBLIC ../include PRIVATE . ../thirdparty)
-if(APPLE)
+if(EMSCRIPTEN)
+    target_compile_options(wui PUBLIC -fexceptions)
+    target_link_options(wui PUBLIC
+        -fexceptions -sALLOW_MEMORY_GROWTH=1 -sASYNCIFY=1
+        "-sEXPORTED_RUNTIME_METHODS=['ccall']"
+        "SHELL:--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm/browser.js")
+    set_property(TARGET wui APPEND PROPERTY INTERFACE_LINK_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/wasm/browser.js")
+elseif(APPLE)
     set_target_properties(wui PROPERTIES OBJCXX_STANDARD 17 OBJCXX_STANDARD_REQUIRED YES)
     target_compile_options(wui PRIVATE "$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>")
     target_link_libraries(wui PUBLIC "-framework Cocoa" "-framework CoreGraphics"

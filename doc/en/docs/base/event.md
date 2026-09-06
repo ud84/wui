@@ -1,4 +1,4 @@
-## events
+# Events
 
 ## Event Subscription Model
 
@@ -15,9 +15,6 @@ You don't need to inherit from `wui::button` to override `on_click`. You simply 
 
 **Lifetime Management (Subscriber ID)**
 The method returns a unique `subscriber_id` (string). This allows dynamic unsubscribing at any time without destroying the object. This is critical for "detachable" windows and dynamic interfaces.
-
-**Performance on Modern C++**
-Using `std::function` and `std::shared_ptr` ensures the callback is invoked as quickly and safely as possible.
 
 **Bitmask Event Types**
 The `event_type` parameter is a bitmask. You can subscribe to `mouse | keyboard | internal` at once, reducing the number of callback registrations.
@@ -66,7 +63,7 @@ All events pass through the window. The following methods are used to work with 
 	public:
 		...
 		std::string subscribe(std::function<void(const event&)> receive_callback, event_type event_types, std::shared_ptr<i_control> control = nullptr);
-		void unsubscribe(const std::string &subscriber_id);
+		void unsubscribe(std::string_view subscriber_id);
 
 		void emit_event(int32_t x, int32_t y);
 		...
@@ -81,7 +78,7 @@ which should be passed to ``unsubscribe()`` for unsubscribing.
 - control - if this field is set, only mouse events occurring on this control will be received.
 and keyboard events if it has input focus. Otherwise, all events from the window will be received.
 
-### unsubscribe(const std::string &subscriber_id)
+### unsubscribe(std::string_view subscriber_id)
 Used to unsubscribe from window events 
 
 - subscriber_id is a unique identifier of the subscriber, given by the ```subscribe`` method.
@@ -193,20 +190,3 @@ Depending on the type of event, the value from the event association is taken.
 		internal_event_type type;
 		int32_t x, y;
 	};
-
-## Internal Implementation: Event Dispatching via std::vector
-
-In libwui, we abandoned heavy associative containers (`std::map` / `std::unordered_map`) in favor of a simple and efficient `std::vector<subscriber>`.
-
-### Advantages of std::vector for Performance
-
-**Cache Locality**  
-On modern processors, cache misses are the main enemy of performance. Subscribers in a vector are stored in memory as a dense block. When iterating events, the processor pulls them into cache in whole chunks. In `std::map`, nodes are scattered across the heap, reducing performance on every mouse event.
-
-**Efficient Dispatching**  
-The event dispatch loop to subscribers is maximally linear. The compiler can easily vectorize this loop using AVX2 instructions.
-
-**ID Management via Prefix**  
-Although ID lookup in a vector is O(n), the number of subscribers per window rarely exceeds hundreds. At this scale, linear search through a vector is faster than computing a hash in `unordered_map`.
-
-> **Note:** We use `std::vector` to store subscribers. In modern C++, sequential memory access is orders of magnitude more important than theoretical algorithm complexity. Event dispatching in libwui is a memory scan with predictable access time, not pointer jumping through the heap.

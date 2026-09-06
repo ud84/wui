@@ -85,6 +85,10 @@ public:
     void *drawable();
     void draw_native_image(void *image, rect position);
 #endif
+#ifdef __EMSCRIPTEN__
+    int drawable() const;
+    void draw_native_image(void *image, rect position);
+#endif
     error get_error() const;
 
 private:
@@ -110,6 +114,10 @@ private:
 #ifdef __APPLE__
     struct mac_state;
     std::unique_ptr<mac_state> mac_;
+#endif
+#ifdef __EMSCRIPTEN__
+    struct wasm_state;
+    std::unique_ptr<wasm_state> wasm_;
 #endif
     error err;
 };

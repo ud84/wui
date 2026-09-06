@@ -1,54 +1,26 @@
-# Welcome to WUI
+# WUI documentation
 
-WUI is a minimalistic C++17 cross-platform library for creating desktop GUI applications.
+WUI is a compiled C++17 GUI library with shared controls for Windows, Linux,
+macOS and WebAssembly. It is distributed under the Boost Software License 1.0;
+it is not a Boost library or a header-only toolkit.
 
----
+[Try the live Showcase](https://libwui.org/wasm/demo/) · [Source code](https://github.com/intent-garden/wui)
 
-## 🌟 Quick Start
+## Start here
 
-* [Get, build and setup](howto/setup.md)
-* [Hello world application](howto/hello-world.md)
-* **[Step-by-step Guide (Onboarding)](article/onboarding.md)** — complete guide to creating an application with WUI
+- [Installation and build](howto/setup.md)
+- [Hello world](howto/hello-world.md)
+- [macOS backend](howto/macos.md)
+- [WebAssembly backend and browser limits](howto/wasm.md)
+- [Application structure](article/onboarding.md)
+- [All controls](controls/all.md)
 
----
+## WUI features
 
-## Handbook
+Showcase demonstrates nine button views (including a primitive-drawn checkbox,
+toggle and radio), Unicode text editing, filtered lists, menus, dialogs, custom
+panel drawing and split layouts. Explore its seven tabs without installing anything.
 
-### Basics
-
-* [Main application loop](base/main-loop.md)
-* [Resources](base/resources.md)
-* [Events](base/event.md)
-* [Transient / Modal](base/transient.md)
-* [Flat Control Ownership](base/ownership.md)
-* [Visual themes](base/theme.md)
-* [Locales](base/locale.md)
-* [Config](base/config.md)
-* [Multithreading](base/multi-threading.md)
-* [Unicode](base/unicode.md)
-* [Error Handling](base/error-handling.md)
-
-### Controls
-
-* [All controls](controls/all.md)
-* [Button](controls/button.md)
-* [Image](controls/image.md)
-* [Input](controls/input.md)
-* [List](controls/list.md)
-* [Menu](controls/menu.md)
-* [Message](controls/message.md)
-* [Panel](controls/panel.md)
-* [Progress](controls/progress.md)
-* [Select](controls/select.md)
-* [Slider](controls/slider.md)
-* [Splitter](controls/splitter.md)
-* [Tooltip](controls/tooltip.md)
-* [Tray](controls/tray.md)
-
-### Additional
-
-* [Dependencies](base/dependencies.md)
-
-## Contacts
-
-* [Contacts and Support](about/contacts.md)
+Windows and Linux are the original backends. The macOS and browser ports are
+experimental, with integration tests on macOS and in Chromium, Firefox and WebKit.
+See their platform pages for deployment requirements and limitations.
