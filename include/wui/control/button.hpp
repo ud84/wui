@@ -34,7 +34,8 @@ enum class button_view
     switcher,
     radio,
     anchor,
-    sheet
+    sheet,
+    checkbox // Classic square check; appended to preserve existing enum values.
 };
 
 class button : public i_control, public std::enable_shared_from_this<button>
@@ -118,7 +119,10 @@ public:
     static constexpr const char *tv_focusing = "focusing";
     static constexpr const char *tv_font = "font";
 
-    ///Used theme images
+    /// Indicator height in logical pixels; 0/missing follows the font size.
+    static constexpr const char *tv_indicator_size = "indicator_size";
+
+    /// Legacy image names retained for source compatibility; indicators use primitives.
     static constexpr const char *ti_switcher_off = "button_switcher_off";
     static constexpr const char *ti_switcher_on = "button_switcher_on";
     static constexpr const char *ti_radio_off = "button_radio_off";
@@ -158,6 +162,7 @@ private:
     void receive_event(const event &ev);
 
     void redraw();
+    void draw_indicator(graphic &gr, rect bounds);
 
     void update_err(std::string_view place, const error &input_err);
 };

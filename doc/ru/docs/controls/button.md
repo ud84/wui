@@ -32,11 +32,34 @@ enum class button_view
     switcher,          // Переключатель
     radio,             // Радио-кнопка
     anchor,            // Ссылка
-    sheet              // Кнопка-лист
+    sheet,             // Кнопка-лист
+    checkbox           // Классический чекбокс с галочкой
 };
 ```
 
 ![Кнопка WUI](../img/button.png)
+
+### Тоггл или классический чекбокс
+
+`switcher` — переключатель с круглым бегунком, `checkbox` — квадрат с галочкой.
+Оба меняют `turned()` до вызова callback при активации мышью или клавиатурой.
+Программный вызов `turn(bool)` меняет состояние без вызова callback.
+
+```cpp
+auto check = std::make_shared<wui::button>("Запомнить выбор", [] {},
+    wui::button_view::checkbox);
+check->turn(true);
+window->add_control(check, {20, 60, 240, 94});
+// Сменить представление, сохранив состояние:
+check->set_button_view(wui::button_view::switcher);
+```
+
+Индикаторы switcher, checkbox и radio рисуются примитивами без PNG-ресурсов.
+Параметр темы `indicator_size` задаёт высоту в логических пикселях; отсутствие
+или ноль означает размер шрифта плюс 4 (минимум 12). Ширина тоггла вдвое больше.
+Используются цвета `calm`, `active`, `text`, `disabled` и `focused_border`;
+цвет галочки автоматически контрастирует с заливкой.
+Прежние изображения `button_switcher_*` и `button_radio_*` больше не используются.
 
 ## API
 

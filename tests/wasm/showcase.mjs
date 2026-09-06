@@ -24,10 +24,13 @@ export async function exerciseShowcase(page, root, engine) {
     const amplitude=await page.evaluate(()=>showcaseText.filter(t=>t.startsWith('Amplitude /')).at(-1));
     await click(630,416); await click(600,482); // square wave
     await shot('overview');
-    await tab(2); await seen('eight personalities');
+    await tab(2); await seen('nine personalities');
     await click(120,260); await seen('1 clicks');
     await click(120,260); await seen('2 clicks');
     await click(600,318); await click(300,260); await seen('Previously disabled');
+    await click(600,368); await seen('Checkbox / Checked');
+    await page.keyboard.press('Space'); await seen('Checkbox / Unchecked');
+    await click(600,368); await seen('Checkbox / Checked');
     await shot('buttons');
     await tab(3); await seen('Text editing');
     await click(130,278); await page.keyboard.press('ControlOrMeta+A');

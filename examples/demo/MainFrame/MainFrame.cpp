@@ -197,7 +197,7 @@ void MainFrame::Windows()
 }
 void MainFrame::Buttons()
 {
-    Heading("One button, eight personalities", "Text, images, links, switches, radio buttons and tabs share the same API.");
+    Heading("One button, nine personalities", "Text, images, links, toggles, checkboxes, radio buttons and tabs.");
     Card({24,178,484,540}); Card({500,178,776,540});
     Label("ACTIONS & IMAGES", {44,194,460,222}, "accent_text");
     auto clicks = std::make_shared<int>(0);
@@ -219,8 +219,10 @@ void MainFrame::Buttons()
     auto toggle = Button("Enable action", {520,302,756,336}, [] {}, button_view::switcher);
     toggle->set_callback([toggle=std::weak_ptr<button>(toggle),disabled] { if(toggle.lock()->turned()) disabled->enable(); else disabled->disable(); });
     disabled->set_callback([this] { Notify("Button / Previously disabled action activated"); });
-    auto radio1 = Button("Compact", {520,364,756,398}, [] {}, button_view::radio);
-    auto radio2 = Button("Comfortable", {520,410,756,444}, [] {}, button_view::radio);
+    auto check = Button("Remember choice", {520,350,756,384}, [] {}, button_view::checkbox);
+    check->set_callback([this,check=std::weak_ptr<button>(check)] { Notify(check.lock()->turned() ? "Checkbox / Checked" : "Checkbox / Unchecked"); });
+    auto radio1 = Button("Compact", {520,400,756,434}, [] {}, button_view::radio);
+    auto radio2 = Button("Comfortable", {520,446,756,480}, [] {}, button_view::radio);
     radio1->turn(true);
     a=radio1; b=radio2;
     radio1->set_callback([this,a,b] { a.lock()->turn(true); b.lock()->turn(false); Notify("Density / Compact"); });

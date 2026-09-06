@@ -11,6 +11,7 @@
 #include <memory>
 #include <cassert>
 #include "../common/input_selection.hpp"
+#include "../common/button_states.hpp"
 namespace {
 std::shared_ptr<wui::window> root;
 std::shared_ptr<wui::input> first, second;
@@ -70,6 +71,7 @@ int main()
     assert(wui::set_default_theme_from_file("dark","res/dark.json"));
     assert(wui::set_locale_from_file(wui::locale_type::eng,"English","res/en_locale.json"));
     assert(run_input_selection_tests());
+    assert(run_button_state_tests());
     root=std::make_shared<wui::window>();
     first=std::make_shared<wui::input>();second=std::make_shared<wui::input>("",wui::input_view::multiline);
     // Stack-owned callback data verifies framework::run() preserves main's stack.

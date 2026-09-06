@@ -19,6 +19,7 @@
 #include <cmath>
 #include <thread>
 #include "../common/input_selection.hpp"
+#include "../common/button_states.hpp"
 
 #define CHECK(condition) do { if (!(condition)) { std::fprintf(stderr,"FAIL %s:%d: %s\n",__FILE__,__LINE__,#condition); std::abort(); } } while (0)
 
@@ -112,6 +113,7 @@ int main()
         CHECK(before.width()>0 && before.height()>0);
         CHECK(wui::measure_text("Hello  ",font).width()>wui::measure_text("Hello",font).width());
         CHECK(run_input_selection_tests());
+        CHECK(run_button_state_tests());
         auto w=std::make_shared<wui::window>();
         auto input=std::make_shared<wui::input>();
         int clicks=0,created=0,resized=0,emitted=0,closed=0,ticks=0;

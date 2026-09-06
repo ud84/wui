@@ -7,7 +7,7 @@ Windows, Linux, macOS and WebAssembly; the browser host only supplies a canvas.
 | --- | --- |
 | Overview | Custom panel drawing, sine/square wave selection, slider and linked progress |
 | Windows | Four message dialogs with result callbacks and a separate editable scratchpad |
-| Buttons | All eight button views, enabled/disabled state, counters, switches and radio groups |
+| Buttons | All nine button views, enabled/disabled state, counters, switches, classic checkboxes and radio groups |
 | Inputs | Single/multiline, password/reveal, read-only, integer, numeric, hexadecimal and host/port filters |
 | Lists | 120 sample rows, text/category filtering, selection, activation and scrolling |
 | Menus | Nested items, separators, disabled actions, tooltips and theme-aware images |
