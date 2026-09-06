@@ -3,6 +3,7 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import {installShowcaseProbe, exerciseShowcase} from './showcase.mjs';
 const { chromium, firefox, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(process.argv[2] || 'build-wasm');
 const engine = process.env.WUI_BROWSER || 'chromium';
@@ -25,6 +26,7 @@ try {
         const errors=[];
         page.on('pageerror', e => errors.push(e.message));
         page.on('console', e => { if(e.type()==='error') errors.push(e.text()); });
+        if(example==='demo') await installShowcaseProbe(page);
         await page.goto(`${url}/examples/${example}/${example}.html`);
         await page.waitForFunction(() => globalThis.Module?.wui?.windows.size > 0);
         await page.waitForFunction(() => [...Module.wui.images.values()].every(i => i.complete && i.naturalWidth));
@@ -34,15 +36,7 @@ try {
             return false;
         }));
         await page.screenshot({path:path.join(root,`${example}-${engine}.png`)});
-        if(example==='demo') {
-            const before=await page.locator('.wui-canvas').first().evaluate(c=>c.toDataURL());
-            await page.locator('.wui-canvas').first().click({position:{x:350,y:50}});
-            await page.waitForFunction(before=>document.querySelector('.wui-canvas').toDataURL()!==before,before);
-            await page.screenshot({path:path.join(root,`demo-inputs-${engine}.png`)});
-            const background=await page.locator('.wui-canvas').first().evaluate(c=>Array.from(c.getContext('2d').getImageData(10,10,1,1).data).join(','));
-            await page.locator('.wui-canvas').first().click({position:{x:653,y:15}});
-            await page.waitForFunction(background=>Array.from(document.querySelector('.wui-canvas').getContext('2d').getImageData(10,10,1,1).data).join(',')!==background,background);
-        }
+        if(example==='demo') await exerciseShowcase(page,root,engine);
         const windows=await page.evaluate(() => [...Module.wui.windows.values()].map(w=>({id:w.id,width:w.width,height:w.height,title:w.title})));
         assert.deepEqual(errors,[],`${example}: browser errors`);
         console.log(JSON.stringify({example,engine,windows,errors}));

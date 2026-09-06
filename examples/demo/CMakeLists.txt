@@ -1,15 +1,13 @@
-file(GLOB SOURCES 
-	*.cpp
-	ButtonSheet/*.cpp
-	InputSheet/*.cpp
-	MainFrame/*.cpp
-	MainSheet/*.cpp)
+set(SOURCES demo.cpp MainFrame/MainFrame.cpp)
 
 include_directories(.)
 
 add_executable(demo ${SOURCES})
 
 target_link_libraries(demo PRIVATE wui)
+if(MSVC)
+    target_compile_options(demo PRIVATE /utf-8)
+endif()
 if(APPLE)
     set_target_properties(demo PROPERTIES MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_GUI_IDENTIFIER "org.libwui.demo")

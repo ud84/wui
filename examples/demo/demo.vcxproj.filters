@@ -16,12 +16,6 @@
     <Filter Include="Header Files\MainFrame">
       <UniqueIdentifier>{e93e6622-909c-4523-b7a7-e537155222ea}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\MainSheet">
-      <UniqueIdentifier>{ddc4ea99-beaa-450f-9bf1-ac0dd1cc472a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\MainSheet">
-      <UniqueIdentifier>{66574b58-cec1-48cf-956d-1a3c2eb48452}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\MainFrame">
       <UniqueIdentifier>{ec0dc937-6c77-4db7-8adb-3c46e2690b9f}</UniqueIdentifier>
     </Filter>
@@ -36,18 +30,6 @@
     </Filter>
     <Filter Include="Resource Files\res\images\light">
       <UniqueIdentifier>{f9518afe-6541-448e-9e0f-86a0c525bf65}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\ButtonSheet">
-      <UniqueIdentifier>{133a035e-b650-4418-a121-9a1c5bae6afc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\ButtonSheet">
-      <UniqueIdentifier>{8c14141a-86ac-4c0e-b011-b92201ad7ca0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\InputSheet">
-      <UniqueIdentifier>{ea3e5d7f-f92f-4c82-9d7d-943a643c2808}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\InputSheet">
-      <UniqueIdentifier>{03fd192b-a4b0-4d1c-b842-5dab8a3c0cfe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -96,34 +78,16 @@
     <ClInclude Include="MainFrame\MainFrame.h">
       <Filter>Header Files\MainFrame</Filter>
     </ClInclude>
-    <ClInclude Include="MainSheet\MainSheet.h">
-      <Filter>Header Files\MainSheet</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ButtonSheet\ButtonSheet.h">
-      <Filter>Header Files\ButtonSheet</Filter>
-    </ClInclude>
-    <ClInclude Include="InputSheet\InputSheet.h">
-      <Filter>Header Files\InputSheet</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MainSheet\MainSheet.cpp">
-      <Filter>Source Files\MainSheet</Filter>
-    </ClCompile>
     <ClCompile Include="MainFrame\MainFrame.cpp">
       <Filter>Source Files\MainFrame</Filter>
     </ClCompile>
     <ClCompile Include="demo.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ButtonSheet\ButtonSheet.cpp">
-      <Filter>Source Files\ButtonSheet</Filter>
-    </ClCompile>
-    <ClCompile Include="InputSheet\InputSheet.cpp">
-      <Filter>Source Files\InputSheet</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

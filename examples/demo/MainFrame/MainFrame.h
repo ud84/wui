@@ -1,55 +1,51 @@
-//
-// Copyright (c) 2023 Anton Golovkov (udattsk at gmail dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-//
-//
-
+// Copyright (c) 2021-2026 Intent Garden Org
+// Distributed under the Boost Software License, Version 1.0.
 #pragma once
 
 #include <wui/window/window.hpp>
 #include <wui/control/button.hpp>
+#include <wui/control/text.hpp>
+#include <wui/control/message.hpp>
+#include <vector>
 
-#include <MainSheet/MainSheet.h>
-#include <ButtonSheet/ButtonSheet.h>
-#include <InputSheet/InputSheet.h>
-
-enum class Sheet
-{
-    Main,
-    Window,
-    Button,
-    Input,
-    List,
-    Menu,
-    Others
-};
-
+// Each page owns its controls for the lifetime of the showcase. Switching pages
+// preserves edits and selection; geometry is recomputed without rebuilding widgets.
 class MainFrame
 {
 public:
     MainFrame();
-
+    ~MainFrame();
     void Run();
-
 private:
-    static const int32_t WND_WIDTH = 800, WND_HEIGHT = 600;
-
-    std::shared_ptr<wui::window> window;
-
-    std::shared_ptr<wui::button> mainSheet, windowSheet, buttonSheet, inputSheet, listSheet, menuSheet, panelSheet;
-    std::shared_ptr<wui::button> accountButton, menuButton;
-
-    Sheet sheet;
-
-    MainSheet mainSheetImpl;
-    ButtonSheet buttonSheetImpl;
-    InputSheet inputSheetImpl;
-
-    void ReceiveEvents(const wui::event &ev);
-
-    void UpdateSheetsSize();
-    void UpdateSheets();
+    struct Item { std::shared_ptr<wui::i_control> control; wui::rect bounds; int page; };
+    std::shared_ptr<wui::window> window = std::make_shared<wui::window>();
+    std::vector<Item> items;
+    std::vector<std::shared_ptr<wui::button>> tabs;
+    std::shared_ptr<wui::text> status;
+    std::shared_ptr<wui::window> child;
+    std::unique_ptr<wui::message> message;
+    int page = 0;
+    int buildingPage = -1;
+    std::function<void()> layoutDetail;
+    template<class T> std::shared_ptr<T> Add(std::shared_ptr<T> control, wui::rect bounds)
+    {
+        items.push_back({control, bounds, buildingPage});
+        if (buildingPage < 0 || buildingPage == page) window->add_control(control, bounds);
+        return control;
+    }
+    std::shared_ptr<wui::text> Label(const std::string&, wui::rect, const char* theme = "text");
+    std::shared_ptr<wui::button> Button(const std::string&, wui::rect, std::function<void()>, wui::button_view = wui::button_view::text);
+    void Heading(const char*, const char*);
+    void Card(wui::rect);
+    void ShowPage(int);
+    void Layout();
+    void Overview();
+    void Windows();
+    void Buttons();
+    void Inputs();
+    void Lists();
+    void Menus();
+    void Layouts();
+    void Notify(const std::string&);
+    void Dialog(wui::message_icon, wui::message_button);
 };
