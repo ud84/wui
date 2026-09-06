@@ -8,7 +8,7 @@ The Locale subsystem provides a convenient way to centrally store text content f
 #include <wui/locale/locale.hpp>
 
 // Set locale from file (Linux/macOS)
-auto ok = wui::set_locale_from_file(wui::locale_type::ru, "ru", "res/ru.json");
+auto ok = wui::set_locale_from_file(wui::locale_type::rus, "ru", "res/ru_locale.json");
 if (!ok) {
     std::cerr << "can't load locale" << std::endl;
     return -1;
@@ -26,7 +26,7 @@ bool set_locale_from_file(locale_type type, std::string_view name, std::string_v
 ```
 
 **Parameters:**
-- `type` — locale type (e.g., `locale_type::ru`, `locale_type::en`)
+- `type` — locale type (e.g., `locale_type::rus`, `locale_type::eng`)
 - `name` — locale name
 - `file_name` — path to JSON locale file
 
@@ -125,9 +125,9 @@ class i_locale
 public:
     virtual std::string get_name() const = 0;
 
-    virtual void set_value(std::string_view section, std::string_view value, 
+    virtual void set(std::string_view section, std::string_view value,
                           std::string_view str) = 0;
-    virtual const std::string &get_value(std::string_view section, 
+    virtual const std::string &get(std::string_view section,
                                         std::string_view value) const = 0;
 
 #ifdef _WIN32
@@ -137,7 +137,7 @@ public:
     virtual void load_json(std::string_view json) = 0;
     virtual void load_file(std::string_view file_name) = 0;
 
-    virtual bool is_ok() const = 0;
+    virtual error get_error() const = 0;
 
     virtual ~i_locale() {}
 };
@@ -146,7 +146,7 @@ public:
 ### get_name
 **Returns:** Locale instance name (e.g., "ru", "en")
 
-### set_value
+### set
 **Parameters:**
 - `section` — section
 - `value` — key
@@ -154,7 +154,7 @@ public:
 
 Sets a string value for the section and key.
 
-### get_value
+### get
 **Parameters:**
 - `section` — section
 - `value` — key
@@ -164,22 +164,19 @@ Sets a string value for the section and key.
 ### load_json / load_file / load_resource
 Loads locale from JSON string, file, or resource.
 
-### is_ok
-**Returns:** `true` if locale loaded successfully
+### get_error
+Returns `error`, not bool; inspect `is_ok()` and `str()`.
 
-## Language Switching
-
-To switch language at runtime:
+## Language switching
 
 ```cpp
-// Load English locale
-wui::set_locale_from_file(wui::locale_type::en, "en", "res/en.json");
-
-// All controls will automatically update text
-// or update them manually if needed
+wui::error error;
+if (wui::set_locale_from_type(wui::get_next_app_locale(), error)) {
+    label->set_text(wui::locale("main_frame", "whats_your_name_text"));
+    button->set_caption(wui::locale("main_frame", "ok_button"));
+}
 ```
 
-## See Also
-
-- [Visual Themes](theme.md) — for interface styling
-- [Config](config.md) — for application settings storage
+Register supported locales with `set_app_locales()` first, as in the complete
+Hello world example. Loading a locale does not automatically replace application
+strings already stored in controls. `get_error().is_ok()` checks the locale instance.

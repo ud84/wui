@@ -1,54 +1,26 @@
-# Добро пожаловать в WUI
+# Документация WUI
 
-WUI — минималистичная C++17 кроссплатформенная библиотека для создания графического интерфейса десктопных приложений.
+WUI — компилируемая C++17-библиотека GUI с общими контролами для Windows, Linux,
+macOS и WebAssembly. Лицензия — Boost Software License 1.0; WUI не входит в Boost
+и не является header-only библиотекой.
 
----
+[Открыть живой Showcase](https://libwui.org/wasm/demo/) · [Исходный код](https://github.com/intent-garden/wui)
 
-## 🌟 Быстрый старт
+## Начало работы
 
-* [Получение, сборка и установка](howto/setup.md)
-* [Hello world приложение](howto/hello-world.md)
-* **[Пошаговое руководство (Onboarding)](article/onboarding.md)** — полное руководство по созданию приложения на WUI
+- [Установка и сборка](howto/setup.md)
+- [Hello world](howto/hello-world.md)
+- [Бэкенд macOS](howto/macos.md)
+- [WebAssembly и ограничения браузера](howto/wasm.md)
+- [Устройство приложения](article/onboarding.md)
+- [Все контролы](controls/all.md)
 
----
+## Возможности WUI
 
-## Справочник
+В Showcase есть девять видов кнопок, включая чекбокс, тоггл и radio, нарисованные
+примитивами, Unicode-ввод, фильтрация списков, меню, диалоги, собственная графика
+и разделители областей. Семь вкладок можно попробовать прямо в браузере.
 
-### Основы
-
-* [Главный цикл приложения](base/main-loop.md)
-* [Ресурсы](base/resources.md)
-* [События](base/event.md)
-* [Транзиентность / Модальность](base/transient.md)
-* [Плоская модель владения контролами](base/ownership.md)
-* [Визуальные темы](base/theme.md)
-* [Локали](base/locale.md)
-* [Конфиг](base/config.md)
-* [Многопоточность](base/multi-threading.md)
-* [Unicode](base/unicode.md)
-* [Обработка ошибок](base/error-handling.md)
-
-### Контролы
-
-* [Все контролы](controls/all.md)
-* [Button](controls/button.md)
-* [Image](controls/image.md)
-* [Input](controls/input.md)
-* [List](controls/list.md)
-* [Menu](controls/menu.md)
-* [Message](controls/message.md)
-* [Panel](controls/panel.md)
-* [Progress](controls/progress.md)
-* [Select](controls/select.md)
-* [Slider](controls/slider.md)
-* [Splitter](controls/splitter.md)
-* [Tooltip](controls/tooltip.md)
-* [Tray](controls/tray.md)
-
-### Дополнительно
-
-* [Зависимости](base/dependencies.md)
-
-## Контакты
-
-* [Контакты и поддержка](about/contacts.md)
+Windows и Linux — исходные бэкенды. Порты macOS и браузера экспериментальные;
+интеграционные проверки выполняются на macOS и в Chromium, Firefox и WebKit.
+Требования и ограничения описаны на страницах платформ.

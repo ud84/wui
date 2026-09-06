@@ -11,7 +11,10 @@
 auto tooltip = std::make_shared<wui::tooltip>("This is a helpful tooltip");
 
 // Показать над кнопкой
-auto button = std::make_shared<wui::button>("Hover me", []() {});
+window->add_control(tooltip, {0});
+tooltip->hide();
+
+auto button = std::make_shared<wui::button>("Show tooltip", []() {});
 window->add_control(button, {10, 10, 100, 30});
 
 // Показываем подсказку при наведении
@@ -165,7 +168,7 @@ window->add_control(info_icon, {10, 10, 24, 24});
   "text": "#000000",
   "text_indent": 5,
   "round": 4,
-  "font": "tooltip_font"
+  "font": {"name": "Segoe UI", "size": 18}
 }
 ```
 

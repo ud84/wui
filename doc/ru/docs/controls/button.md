@@ -17,7 +17,7 @@ window->add_control(btn, {10, 10, 100, 30});
 auto img_btn = std::make_shared<wui::button>("Save", []() {
     save_document();
 }, wui::button_view::image_right_text, "res/save.png", 16);
-window->add_control(img_btn, {10, 50, 100, 30});
+window->add_control(img_btn, {10, 50, 100, 80});
 ```
 
 ## Виды кнопок
@@ -179,7 +179,7 @@ window->add_control(save_btn, {10, 50, 120, 80});
   "disabled": "#a5a5a0",
   "border_width": 1,
   "round": 4,
-  "font": "button_font"
+  "font": {"name": "Segoe UI", "size": 18}
 }
 ```
 

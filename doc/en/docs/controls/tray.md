@@ -9,7 +9,7 @@ The `tray_icon` class adds an application icon to the system tray.
 
 auto tray = std::make_shared<wui::tray_icon>(
     window,
-    "res/icon.png",
+    "res/icon.ico",
     "My Application",
     [](wui::tray_icon_action action) {
         if (action == wui::tray_icon_action::left_click) {
@@ -53,3 +53,11 @@ void set_callback(std::function<void(tray_icon_action)> cb);
 
 - [Menu](menu.md) — for context menu
 - [Window](../base/interfaces.md#window) — parent window
+
+## Platform behavior
+
+On macOS this uses `NSStatusItem`; `show_message()` shows a popover, not a
+Notification Center notification. In WASM no operating-system tray is created.
+The Linux branches of this class are currently stubs; no tray icon is created. See the platform guides.
+
+The Windows file constructor expects an ICO file; macOS accepts an image file such as PNG.

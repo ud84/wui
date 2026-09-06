@@ -23,7 +23,7 @@ auto password = std::make_shared<wui::input>(
     "", 
     wui::input_view::password
 );
-window->add_control(password, {10, 100, 200, 30});
+window->add_control(password, {10, 100, 200, 130});
 ```
 
 ## Режимы просмотра
@@ -46,11 +46,22 @@ enum class input_content
     text,       // Обычный текст
     integer,    // Целые числа
     numeric,    // Числа с плавающей точкой
-    hostport    // Хост:порт
+    hostport,   // Хост:порт
+    hexadecimal // 0-9, A-F, a-f
 };
 ```
 
 ![Input WUI](../img/input.png)
+
+## Поведение редактора
+
+- Текст хранится в UTF-8; курсор и лимиты учитывают кодовые точки, а не байты.
+- Многострочное поле поддерживает выделение через пустые строки, Shift+стрелки и автопрокрутку при выделении мышью.
+- `symbols_limit = -1` снимает лимит; по умолчанию он равен 10000. При вставке учитывается длина результата после замены выделения.
+- Однострочные поля заменяют вставленные переводы строк пробелами. Маска пароля соответствует кодовым точкам.
+- `integer`, `numeric`, `hostport`, `hexadecimal` фильтруют символы, но не заменяют полную проверку числа, имени хоста или порта.
+- Read-only разрешает выделение/копирование, но запрещает редактирование. Enter в multiline редактирует текст; `set_return_callback()` служит для отправки в применимых однострочных режимах.
+- Буфер обмена браузера имеет [платформенные ограничения](../howto/wasm.md).
 
 ## API
 
@@ -82,6 +93,7 @@ std::string text() const;
 
 // Настройки
 void set_input_view(input_view input_view_);
+input_view get_input_view() const;
 void set_input_content(input_content input_content_);
 void set_symbols_limit(int32_t symbols_limit);
 
@@ -112,7 +124,7 @@ password_input->set_return_callback([]() {
     // Enter нажат - отправляем форму
     login();
 });
-window->add_control(password_input, {10, 50, 200, 30});
+window->add_control(password_input, {10, 50, 200, 80});
 ```
 
 ### Многострочный редактор
@@ -169,7 +181,7 @@ window->add_control(status, {10, 10, 200, 30});
   "hover_border": "#999999",
   "focused_border": "#0078d7",
   "round": 4,
-  "font": "input_font"
+  "font": {"name": "Segoe UI", "size": 18}
 }
 ```
 

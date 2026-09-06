@@ -1,57 +1,25 @@
-## Главный цикл приложения
+# Главный цикл приложения
 
-В случае работы на Windows запускается стандартный бесконечный цикл:
+Вызовите `framework::init()` до создания GUI, инициализируйте окно, затем вызовите
+`framework::run()`. Для завершения используется `framework::stop()`.
+`started()` сообщает о наличии активного экземпляра framework, `get_error()` — об ошибке.
+Метода `framework::end()` нет.
 
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+| Бэкенд | Обработка событий |
+| --- | --- |
+| Windows | Цикл сообщений Win32 |
+| Linux | Обработка XCB-событий окон; framework ждёт остановки |
+| macOS | Главный цикл AppKit в основном потоке |
+| WASM | Asyncify-цикл уступает управление браузеру и возвращается после `stop()` |
 
-Каждое запущенное, не дочернее окно, становится получателем сообщений через имеющейся в нем wnd_proc. Далее, в зависимости от типа события, производится либо перерисовка контролов, работа с положением/размером окна, либо событие посылается подписчикам. Срок жизни первого созданного окна определяет срок жизни приложения.
+Объекты приложения должны жить всё время работы `run()`. Закрытие окна и остановка
+приложения — разные операции: явно вызывайте stop в callback главного окна, если
+нужно завершать приложение. Закрытие вспомогательного окна может не останавливать владельца.
 
-На линукс картина слегка отличается, но для пользователя и контролов выглядит аналогично. Каждое не дочернее окно, запускает отдельный тред для ожидания событий в xcb_wait_for_event() и по мере их поступления рассылает их подписчикам. 
+```cpp
+window->init("Application", {-1, -1, 800, 600}, wui::window_style::frame,
+    [] { wui::framework::stop(); });
+wui::framework::run();
+```
 
-    bool window::init(...)
-    {
-        ...
-        thread = std::thread(std::bind(&window::process_events, this));
-    }
-
-    void window::process_events()
-    {
-        xcb_generic_event_t *e = nullptr;
-        while (started && (e = xcb_wait_for_event(context_.connection)))
-        {
-            switch (e->response_type & ~0x80)
-            {
-                case XCB_EXPOSE:
-
-                ...
-
-Весь этот код скрыт в ``window`` и ``framework``.
-framework имеет всего 3 главные функции ``init()``, ``run()`` и ``stop()``. ``init()`` нужно вызвать в первой строке ``main()``, ``run()`` после ``window->init(...)``, а ``stop()`` когда нужно завершить процесс (например пользователь нажал "крестик").
-
-    int main(..)
-    {
-        wui::framework::init();
-
-        MainFrame mainFrame;
-        mainFrame.Run();
-
-        wui::framework::run();
-
-        return 0;
-    }
-
-Здесь ``wui::framework::end();`` вызывается в коллбеке закрытия главного окна:
-
-    void MainFrame::Run()
-    {
-        window->init(wui::locale("main_frame", "caption"), { -1, -1, width, height },
-            wui::window_style::frame, [this]() { 
-                wui::framework::stop(); 
-        });
-    }
-
+См. [Hello world](../howto/hello-world.md) и [потоки](multi-threading.md).

@@ -1,5 +1,14 @@
-## Зависимости
+# Зависимости
 
-WUI использует три библиотеки в thirdparty. Это: boost::nowide, nlohman::json и utf8 от Nemanja Trifunovic. Последние две, header only и хлопот не вызывают. boost::widen поставляется в виде “вырезки” из boost, имеются сборки на vs 2017 и 2019 версия boost: 1.82. Если в вашем проекте уже используется boost (тем более другой версии), лучше указать для wui путь к вашему boost.
+WUI — компилируемая библиотека. В `thirdparty` находятся nlohmann/json,
+UTF-8-инструменты и Boost.Nowide для преобразования строк Windows.
+Полный дистрибутив Boost для использования WUI не нужен.
 
-Внешние зависимости отсутствуют на Windows. На Linux, в данный момент, для работы требуется xcb и cairo.
+| Бэкенд | Системные зависимости |
+| --- | --- |
+| Windows | Win32, GDI+, Windows SDK, toolchain и ATL из настроек solution |
+| Linux | Cairo, XCB (cursor/EWMH/ICCCM/image), X11/X11-xcb, потоки, udev; pkg-config для CMake |
+| macOS | Cocoa/AppKit, CoreGraphics, CoreText, ImageIO; без X11 и Cairo |
+| WASM | Emscripten для сборки; Canvas 2D, DOM и WebAssembly во время работы |
+
+Команды приведены в [установке](../howto/setup.md) и руководствах платформ.

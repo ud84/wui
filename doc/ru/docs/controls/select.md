@@ -122,7 +122,7 @@ font_size_select->set_change_callback([](int32_t, int64_t id) {
     set_font_size(static_cast<int>(id));
 });
 
-window->add_control(font_size_select, {10, 50, 100, 30});
+window->add_control(font_size_select, {10, 50, 100, 80});
 ```
 
 ### Динамическое обновление
@@ -163,7 +163,7 @@ country_select->set_change_callback(
 );
 
 window->add_control(country_select, {10, 10, 150, 30});
-window->add_control(city_select, {10, 50, 150, 30});
+window->add_control(city_select, {10, 50, 150, 80});
 ```
 
 ### Удаление элемента
@@ -210,7 +210,7 @@ window->add_control(remove_btn, {170, 10, 250, 30});
   "selected_item": "#cce8ff",
   "active_item": "#e5f3ff",
   "round": 4,
-  "font": "select_font"
+  "font": {"name": "Segoe UI", "size": 18}
 }
 ```
 

@@ -12,19 +12,20 @@ auto menu = std::make_shared<wui::menu>();
 
 // Определение пунктов
 wui::menu_items_t items = {
-    {1, wui::normal, "Open", "Ctrl+O", nullptr, {}, [](int32_t id) {
+    {1, wui::normal, "Open", "Ctrl+O", nullptr, {}, [](int32_t visible_index) {
         open_file();
     }},
-    {2, wui::normal, "Save", "Ctrl+S", nullptr, {}, [](int32_t id) {
+    {2, wui::normal, "Save", "Ctrl+S", nullptr, {}, [](int32_t visible_index) {
         save_file();
     }},
     {3, wui::separator, "", "", nullptr, {}, nullptr},
-    {4, wui::normal, "Exit", "Alt+F4", nullptr, {}, [](int32_t id) {
+    {4, wui::normal, "Exit", "Alt+F4", nullptr, {}, [](int32_t visible_index) {
         exit_app();
     }}
 };
 
 menu->set_items(items);
+window->add_control(menu, {0});
 
 // Показать по правому клику
 window->subscribe([&menu](const wui::event& ev) {
@@ -65,6 +66,8 @@ struct menu_item
     std::function<void(int32_t)> click_callback;
 };
 ```
+
+Callback получает индекс видимой строки, а не `menu_item::id`. Раскрытие дочерних элементов меняет индексы. При необходимости захватите стабильный ID в callback. `hotkey` — подпись: обработку клавиатурного сочетания задаёт приложение. Храните меню, пока оно подключено к окну.
 
 ## API
 
@@ -167,6 +170,7 @@ wui::menu_items_t items = {
 };
 
 list_menu->set_items(items);
+window->add_control(menu, {0});
 
 // Показать при правом клике на списке
 list_menu->show_on_control(list, 5);
@@ -194,6 +198,7 @@ wui::menu_items_t items = {
 };
 
 icon_menu->set_items(items);
+window->add_control(menu, {0});
 ```
 
 ## Темизация
@@ -211,7 +216,7 @@ icon_menu->set_items(items);
   "separator": "#e0e0e0",
   "hotkey": "#888888",
   "round": 4,
-  "font": "menu_font"
+  "font": {"name": "Segoe UI", "size": 18}
 }
 ```
 

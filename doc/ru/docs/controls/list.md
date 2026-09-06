@@ -6,6 +6,7 @@
 
 ```cpp
 #include <wui/control/list.hpp>
+#include <wui/theme/theme.hpp>
 
 auto list = std::make_shared<wui::list>();
 
@@ -92,6 +93,11 @@ void set_item_height_callback(std::function<void(int32_t, int32_t&)> cb);
 // Коллбэки
 void set_draw_callback(std::function<void(graphic&, int32_t, rect, item_state)> cb);
 void set_item_click_callback(std::function<void(click_button, int32_t, int32_t, int32_t)> cb);
+void set_item_height_callback(std::function<void(int32_t, int32_t&)> cb);
+void set_item_activate_callback(std::function<void(int32_t)> cb);
+void make_selected_visible();
+void scroll_to_start();
+void scroll_to_end();
 void set_item_change_callback(std::function<void(int32_t)> cb);
 void set_item_activate_callback(std::function<void(int32_t)> cb);
 void set_column_click_callback(std::function<void(int32_t)> cb);
@@ -219,7 +225,7 @@ window->add_control(variable_list, {10, 10, 300, 400});
   "column_header_background": "#f5f5f5",
   "column_header_text": "#333333",
   "scrollbar": "scrollbar",
-  "font": "list_font"
+  "font": {"name": "Segoe UI", "size": 18}
 }
 ```
 

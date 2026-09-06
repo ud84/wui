@@ -8,11 +8,13 @@ WUI library provides a set of standard controls for creating user interfaces.
 |---------|-------------|
 | [Button](button.md) | Button for user interaction. Supports text, images, toggles |
 | [Image](image.md) | Image display with visual themes support |
+| [Text](text.md) | Non-editable text and alignment |
+| [Scroll](scroll.md) | Standalone scrollbar |
 | [Input](input.md) | Text input field. Single-line, multi-line, password, read-only |
 | [List](list.md) | List of items with columns, scrolling, and custom drawing |
 | [Menu](menu.md) | Context menu with nested items and icons support |
 | [Message](message.md) | Modal dialogs for displaying messages |
-| [Panel](panel.md) | Container for grouping elements or custom drawing |
+| [Panel](panel.md) | Background and custom drawing; not a container |
 | [Progress](progress.md) | Progress indicator (horizontal/vertical) |
 | [Select](select.md) | Dropdown list for selecting one value |
 | [Slider](slider.md) | Slider for selecting a value from a range |
@@ -22,7 +24,7 @@ WUI library provides a set of standard controls for creating user interfaces.
 
 ## Base Interface
 
-All controls implement the `i_control` interface:
+Visual controls implement `i_control`. `message` and `tray_icon` are helper classes with separate APIs:
 
 ```cpp
 class i_control
@@ -72,17 +74,10 @@ window->add_control(button, {10, 10, 100, 30}); // left, top, right, bottom
 All controls support visual themes. Example theme JSON:
 
 ```json
-{
-  "button": {
-    "calm": "#06a5df",
-    "active": "#1aafe9",
-    "disabled": "#a5a5a0"
-  },
-  "input": {
-    "background": "#ffffff",
-    "text": "#000000"
-  }
-}
+{"controls": [
+  {"type": "button", "calm": "#06a5df", "active": "#1aafe9", "disabled": "#a5a5a0"},
+  {"type": "input", "background": "#ffffff", "text": "#000000"}
+]}
 ```
 
 [More about themes](../base/theme.md)

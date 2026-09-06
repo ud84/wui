@@ -6,7 +6,7 @@ The subsystem is designed to display application controls in a single view and e
 The subsystem provides handy helpers for working with themes. These helpers operate with a singleton that 
 all application controls use by default. The subsystem allows you to load a theme from json, which can be stored on disk or be a Windows application resource.
 
-Example [json file](https://github.com/intent-garden/wui/blob/main/res/dark.json) containing visual parameters of the main controllers.
+Example [json file](https://github.com/intent-garden/wui/blob/I-94/examples/demo/res/dark.json) containing visual parameters of the main controllers.
 
 Although the application always has a default theme, you can create your own custom theme and specify any control to use it. In this case, the control will be displayed according to your theme.
 
@@ -20,38 +20,38 @@ access to the default theme instance singleton of the application.
 
     /// Set and get the current theme
     #ifdef _WIN32
-    bool set_default_theme_from_resource(const std::string &name, int32_t resource_index, const std::string &resource_section);
+    bool set_default_theme_from_resource(std::string_view name, int32_t resource_index, std::string_view resource_section);
     #endif
-    bool set_default_theme_from_json(const std::string &name, const std::string &json);
-    bool set_default_theme_from_file(const std::string &name, const std::string &file_name);
-    void set_default_theme_empty(const std::string &name);
+    bool set_default_theme_from_json(std::string_view name, std::string_view json);
+    bool set_default_theme_from_file(std::string_view name, std::string_view file_name);
+    void set_default_theme_empty(std::string_view name);
 
     /// Return the pointer to current default theme instance
     std::shared_ptr<i_theme> get_default_theme();
 
     /// Make the custom theme for the some control
-    std::shared_ptr<i_theme> make_custom_theme(const std::string &name = "");
-    std::shared_ptr<i_theme> make_custom_theme(const std::string &name, const std::string &json);
+    std::shared_ptr<i_theme> make_custom_theme(std::string_view name = "");
+    std::shared_ptr<i_theme> make_custom_theme(std::string_view name, std::string_view json);
 
     /// Return the item's color by current theme
-    color theme_color(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+    color theme_color(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
     /// Return the item's dimension by current theme
-    int32_t theme_dimension(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+    int32_t theme_dimension(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
     /// Return the item's string value by current theme
-    const std::string &theme_string(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+    const std::string &theme_string(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
     /// Return the item's font value by current theme
-    font theme_font(const std::string &control, const std::string &value, std::shared_ptr<i_theme> theme_ = nullptr);
+    font theme_font(std::string_view control, std::string_view value, std::shared_ptr<i_theme> theme_ = nullptr);
 
-    const std::vector<uint8_t> &theme_image(const std::string &name, std::shared_ptr<i_theme> theme_ = nullptr);
+    const std::vector<uint8_t> &theme_image(std::string_view name, std::shared_ptr<i_theme> theme_ = nullptr);
 
 ### set_default_theme_from_resource (Windows only)
 #### Input parameters
- - const std::string &name - theme name, e.g. "dark"
+ - std::string_view name - theme name, e.g. "dark"
  - int32_t resource_index - resource ID
- - const std::string &resource_section - resource section, e.g. "JSONS"
+ - std::string_view resource_section - resource section, e.g. "JSONS"
 #### Return value
  - true if successful
 
@@ -70,8 +70,8 @@ Example:
 
 ### set_default_theme_from_json
 #### Input parameters
- - const std::string &name - theme name
- - const std::string &json - string containing the theme json
+ - std::string_view name - theme name
+ - std::string_view json - string containing the theme json
 #### Return value
  - true if successful
 
@@ -79,8 +79,8 @@ Function loading default application theme from json string
 
 ### set_default_theme_from_file
 #### Input parameters
- - const std::string &name - theme name
- - const std::string &file_name - path to the theme json file
+ - std::string_view name - theme name
+ - std::string_view file_name - path to the theme json file
 #### Return value
  - true if successful
 
@@ -101,7 +101,7 @@ Example:
 
 ### set_default_theme_empty
 #### Input parameters
- - const std::string &name - theme name
+ - std::string_view name - theme name
 
 Sets the current theme to an empty theme, e.g. to customize it later using instance setters.
 
@@ -113,7 +113,7 @@ Returns a pointer to the default instance of the topic
 
 ### make_custom_theme
 #### Input parameters
- - const std::string &name - theme name
+ - std::string_view name - theme name
 #### Return value
  - std::shared_ptr&lt;i_theme&gt; - pointer to the instance of the created theme
 
@@ -121,8 +121,8 @@ Creates and returns a pointer to an empty custom theme. Intended for use in an i
 
 ### make_custom_theme
 #### Input parameters
- - const std::string &name - theme name
- - const std::string &json - string containing the theme json
+ - std::string_view name - theme name
+ - std::string_view json - string containing the theme json
 #### Return value
  - std::shared_ptr&lt;i_theme&gt; - pointer to the instance of the created theme
 
@@ -130,8 +130,8 @@ Creates and returns a pointer to a custom theme loaded from json. Designed to be
 
 ### theme_color
 #### Input parameters
- - const std::string &control - control name, e.g. "button"
- - const std::string &value - color name, e.g. "active"
+ - std::string_view control - control name, e.g. "button"
+ - std::string_view value - color name, e.g. "active"
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - pointer to the theme instance, if nullptr - the default theme is taken
 #### Return value
  - color - requested color
@@ -160,8 +160,8 @@ A fragment of the theme's json:
 
 ### theme_dimension
 #### Input parameters
- - const std::string &control - control name, e.g. "button"
- - const std::string &value - dimension name, e.g. "border_width"
+ - std::string_view control - control name, e.g. "button"
+ - std::string_view value - dimension name, e.g. "border_width"
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - pointer to the theme instance, if nullptr - the default theme is taken
 #### Return value
  - int32_t - requested dimension
@@ -170,8 +170,8 @@ Returns the size for the ``value`` of the ``control`` control. The ``theme_`` pa
 
 ### theme_string
 #### Input parameters
- - const std::string &control - control name
- - const std::string &value -  string name
+ - std::string_view control - control name
+ - std::string_view value -  string name
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - pointer to the theme instance, if nullptr - the default theme is taken
 #### Return value
  - const std::string & - link to the requested string
@@ -180,8 +180,8 @@ Returns a string for the ``value`` of the ``control`` control. The ``theme_`` pa
 
 ### theme_font
 #### Input parameters
- - const std::string &control - control name
- - const std::string &value - font name, e.g. "caption_font"
+ - std::string_view control - control name
+ - std::string_view value - font name, e.g. "caption_font"
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - pointer to the theme instance, if nullptr - the default theme is taken
 #### Return value
  - font - requested font
@@ -190,7 +190,7 @@ Returns the font for the ``value`` of the ``control`` control. The ``theme_`` pa
 
 ### theme_image
 #### Input parameters
- - const std::string &name - image name
+ - std::string_view name - image name
  - std::shared_ptr&lt;i_theme&gt; theme_ = nullptr - pointer to the theme instance, if nullptr - the default theme is taken
 #### Return value
  - const std::vector&lt;uint8_t&gt;& - requested image
@@ -210,29 +210,29 @@ Example json:
     public:
         virtual std::string get_name() const = 0;
 
-        virtual void set_color(const std::string &control, const std::string &value, color color_) = 0;
-        virtual color get_color(const std::string &control, const std::string &value) const = 0;
+        virtual void set_color(std::string_view control, std::string_view value, color color_) = 0;
+        virtual color get_color(std::string_view control, std::string_view value) const = 0;
 
-        virtual void set_dimension(const std::string &control, const std::string &value, int32_t dimension) = 0;
-        virtual int32_t get_dimension(const std::string &control, const std::string &value) const = 0;
+        virtual void set_dimension(std::string_view control, std::string_view value, int32_t dimension) = 0;
+        virtual int32_t get_dimension(std::string_view control, std::string_view value) const = 0;
 
-        virtual void set_string(const std::string &control, const std::string &value, const std::string &str) = 0;
-        virtual const std::string &get_string(const std::string &control, const std::string &value) const = 0;
+        virtual void set_string(std::string_view control, std::string_view value, std::string_view str) = 0;
+        virtual const std::string &get_string(std::string_view control, std::string_view value) const = 0;
 
-        virtual void set_font(const std::string &control, const std::string &value, const font &font_) = 0;
-        virtual font get_font(const std::string &control, const std::string &value) const = 0;
+        virtual void set_font(std::string_view control, std::string_view value, const font &font_) = 0;
+        virtual font get_font(std::string_view control, std::string_view value) const = 0;
 
-        virtual void set_image(const std::string &name, const std::vector<uint8_t> &data) = 0;
-        virtual const std::vector<uint8_t> &get_image(const std::string &name) = 0;
+        virtual void set_image(std::string_view name, const std::vector<uint8_t> &data) = 0;
+        virtual const std::vector<uint8_t> &get_image(std::string_view name) = 0;
 
     #ifdef _WIN32
-        virtual void load_resource(int32_t resource_index, const std::string &resource_section) = 0;
+        virtual void load_resource(int32_t resource_index, std::string_view resource_section) = 0;
     #endif
-        virtual void load_json(const std::string &json) = 0;
-        virtual void load_file(const std::string &file_name) = 0;
+        virtual void load_json(std::string_view json) = 0;
+        virtual void load_file(std::string_view file_name) = 0;
         virtual void load_theme(const i_theme &theme_) = 0;
 
-        virtual bool is_ok() const = 0;
+        virtual error get_error() const = 0;
 
         virtual ~i_theme() {}
     };
@@ -246,8 +246,8 @@ Returns the character name of the theme, for example ```"dark"`` or ``"light"``
 
 ### set_color
 #### Input parameters
- - const std::string &control - control name, e.g. "button"
- - const std::string &value - color name, e.g. "active"
+ - std::string_view control - control name, e.g. "button"
+ - std::string_view value - color name, e.g. "active"
  - color color_ - settable color
 
 Sets the color for the ``value`` of the ``control`` control
@@ -270,8 +270,8 @@ Which means this color will be applied to the control named ``"button"`` in the 
 
 ### get_color
 #### Input parameters
- - const std::string &control - control name
- - const std::string &value - color name
+ - std::string_view control - control name
+ - std::string_view value - color name
 #### Return value
  - color - requested color
 
@@ -279,16 +279,16 @@ Returns the color for the ``value`` of the ``control`` control
 
 ### set_dimension
 #### Input parameters
- - const std::string &control - control name
- - const std::string &value - dimension name
+ - std::string_view control - control name
+ - std::string_view value - dimension name
  - int32_t dimension - setted dimension
 
 Sets the size for the ``value`` of the ``control`` control
 
 ### get_dimension
 #### Input parameters
- - const std::string &control - control name
- - const std::string &value - dimension name
+ - std::string_view control - control name
+ - std::string_view value - dimension name
 #### Return value
  - int32_t - requested dimension
 
@@ -296,16 +296,16 @@ Returns the size for the ``value`` of the ``control`` control
 
 ### set_string
 #### Input parameters
- - const std::string &control - control name
- - const std::string &value - string name
- - const std::string &str - setted string
+ - std::string_view control - control name
+ - std::string_view value - string name
+ - std::string_view str - setted string
 
 Sets the string for the ``value`` of the ``control`` control
 
 ### get_string
 #### Input parameters
- - const std::string &control - control name
- - const std::string &value - string name
+ - std::string_view control - control name
+ - std::string_view value - string name
 #### Return value
  - const std::string & - link to the requested string
 
@@ -313,16 +313,16 @@ Returns a string for the ``value`` of the ``control`` control
 
 ### set_font
 #### Input parameters
- - const std::string &control - control name
- - const std::string &value - font name
+ - std::string_view control - control name
+ - std::string_view value - font name
  - const font &font_ - setted font
 
 Sets the font for the ``value`` of the ``control`` control
 
 ### get_font
 #### Input parameters
- - const std::string &control - control name
- - const std::string &value - font name
+ - std::string_view control - control name
+ - std::string_view value - font name
 #### Return value
  - font - requested font
 
@@ -330,14 +330,14 @@ Returns the font for the ``value`` of the ``control`` control
 
 ### set_image
 #### Input parameters
- - const std::string &name - image name
+ - std::string_view name - image name
  - const std::vector&lt;uint8_t&gt; &data - setted image
 
 Sets the image named ``name`` from the ``data`` byte array
 
 ### get_image
 #### Input parameters
- - const std::string &name - image name
+ - std::string_view name - image name
 #### Return value
  - const std::vector&lt;uint8_t&gt; & - requested image
 
@@ -346,19 +346,19 @@ Returns a link to a byte array containing the subject image for the ``value`` of
 ### load_resource (Windows only)
 #### Input parameters
  - int32_t resource_index - recource ID
- - const std::string &resource_section - resource section, e.g. "JSONS"
+ - std::string_view resource_section - resource section, e.g. "JSONS"
 
 Function loading a theme from a json file stored in the application resource
 
 ### load_json
 #### Input parameters
- - const std::string &json - json string
+ - std::string_view json - json string
 
 Function loading theme from json string
 
 ### load_file
 #### Input parameters
- - const std::string &file_name - json file path
+ - std::string_view file_name - json file path
 
 Function loading theme from json file
 
@@ -368,8 +368,7 @@ Function loading theme from json file
 
 Function loading a theme from another theme instance
 
-### is_ok
-#### Return value
- - true if the json was loaded successfully
+### get_error
+Returns an `error`; use `get_error().is_ok()` and `get_error().str()`.
 
-Returns whether the theme loaded normally from json
+After loading a default theme, call `window->update_theme()`. A control with an explicit custom theme retains it when updated without an argument. Pass another theme explicitly to replace it. Font values are JSON objects with `name`, `size` and optional `decorations`; they are not names of a separate font registry.

@@ -200,3 +200,5 @@ public:
 
 - [Locale](locale.md) — for multi-language support
 - [Config](config.md) — for application settings storage
+
+On WASM, INI files live in the in-memory filesystem and reset on reload. On macOS choose a writable location (for example Application Support); the application bundle is for resources, not settings.

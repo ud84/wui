@@ -9,7 +9,10 @@ The `tooltip` control provides popup hints for interface elements.
 
 auto tooltip = std::make_shared<wui::tooltip>("This is a helpful tooltip");
 
-auto button = std::make_shared<wui::button>("Hover me", []() {});
+window->add_control(tooltip, {0});
+tooltip->hide();
+
+auto button = std::make_shared<wui::button>("Show tooltip", []() {});
 window->add_control(button, {10, 10, 100, 30});
 
 button->set_callback([&tooltip, &button]() {

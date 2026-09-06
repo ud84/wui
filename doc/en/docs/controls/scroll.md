@@ -1,0 +1,37 @@
+# Scrollbar
+
+A standalone scrollbar reports an offset; the application draws or moves content.
+Lists and multiline inputs already manage their own scrollbars.
+
+```cpp
+#include <wui/control/scroll.hpp>
+
+auto bar = std::make_shared<wui::scroll>(1000, 0,
+    wui::orientation::vertical,
+    [](wui::scroll_state state, int32_t offset) {
+        // Update the application's visible content for this offset.
+    });
+window->add_control(bar, {300, 50, 314, 350});
+```
+
+```cpp
+scroll(int32_t area, int32_t scroll_pos,
+       orientation orientation = orientation::vertical,
+       std::function<void(scroll_state, int32_t)> callback = nullptr,
+       std::string_view theme_control_name = tc,
+       std::shared_ptr<i_theme> theme = nullptr);
+```
+
+```cpp
+void set_area(int32_t area);
+    void set_scroll_pos(int32_t scroll_pos);
+    int32_t get_scroll_pos() const;
+
+    /// Good to call from mouse whell event
+    void scroll_up();
+    void scroll_down();
+```
+
+States: `activated`, `relaxed`, `up_end`, `down_end`, `moving`.
+`get_scroll_view()` reports `none`, `tiny` or `full`; visibility changes with
+interaction. Theme section `scroll` uses `background`, `slider`, `slider_active`.

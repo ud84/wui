@@ -71,3 +71,7 @@ Structure, to transfer coordinates and simplify work with them
 - ```move(int32_t x, int32_t y)``` - shifts coordinates by x and y
 - ```put(int32_t x, int32_t y)``` - sets left and top to x and y
 
+
+## Rectangle coordinates
+
+Control rectangles are `{left, top, right, bottom}`. A control at `(10, 50)` with width 200 and height 30 uses `{10, 50, 210, 80}`. `window::init({-1, -1, width, height})` (as its position argument) centers a top-level window. `graphic::draw_graphic()` has a documented x/y/width/height exception.
