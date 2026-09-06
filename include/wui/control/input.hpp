@@ -154,7 +154,17 @@ private:
     bool showed_, enabled_, topmost_;
     bool active, focused_;
     bool cursor_visible;
-    bool selecting;
+    bool selecting; // Mouse drag only; keyboard selection is stored in the endpoints.
+    bool opening_menu_ = false;
+    int drag_x_ = 0;
+    size_t preferred_col_ = 0;
+    bool preferred_col_valid_ = false;
+    bool prev_vert_hover = false, prev_hor_hover = false;
+    void move_cursor(uint8_t key, bool shift);
+    bool has_selection() const;
+    void insert_text(std::string_view value);
+    void finish_edit();
+    void drag_selection(int x, int y);
 
     std::unique_ptr<graphic> mem_gr;
 

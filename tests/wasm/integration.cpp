@@ -10,6 +10,7 @@
 #include <emscripten.h>
 #include <memory>
 #include <cassert>
+#include "../common/input_selection.hpp"
 namespace {
 std::shared_ptr<wui::window> root;
 std::shared_ptr<wui::input> first, second;
@@ -37,6 +38,12 @@ EMSCRIPTEN_KEEPALIVE void test_action(int action) {
         case 6:
             dialog=std::make_shared<wui::message>(root,true);
             dialog->show("Modal keyboard routing", "Dialog",wui::message_icon::information,wui::message_button::ok,[](auto){++result;});break;
+        case 9:
+            second->set_text("a\n\nb");root->set_focused(second);break;
+        case 8:
+            first->set_text("я");
+            second->set_text("a" + std::string(30, '\n') + "z");
+            root->set_focused(second);break;
         case 7:
             dialog=std::make_shared<wui::message>(root,false);
             dialog->show("Separate browser window", "Dialog",wui::message_icon::information,wui::message_button::ok,[](auto){++result;});break;
@@ -62,6 +69,7 @@ int main()
     wui::framework::init();
     assert(wui::set_default_theme_from_file("dark","res/dark.json"));
     assert(wui::set_locale_from_file(wui::locale_type::eng,"English","res/en_locale.json"));
+    assert(run_input_selection_tests());
     root=std::make_shared<wui::window>();
     first=std::make_shared<wui::input>();second=std::make_shared<wui::input>("",wui::input_view::multiline);
     // Stack-owned callback data verifies framework::run() preserves main's stack.

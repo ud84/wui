@@ -95,6 +95,35 @@ try {
         await page.keyboard.press('Enter');await page.waitForFunction(()=>Module._test_value(6)===1);
         await action(7);await page.waitForFunction(()=>Module.wui.windows.size===2);
         await page.keyboard.press('Enter');await page.waitForFunction(()=>Module.wui.windows.size===1 && Module._test_value(6)===2);
+        // Hold a drag outside the input while its selection timer runs.
+        await action(8);
+        const selection=()=>page.evaluate(()=>{
+            const e=new ClipboardEvent('copy',{bubbles:true,cancelable:true,clipboardData:new DataTransfer()});
+            document.activeElement.dispatchEvent(e);return e.clipboardData.getData('text/plain');
+        });
+        await page.mouse.move(bounds.x+25,bounds.y+126);await page.mouse.down();
+        await page.mouse.move(bounds.x+270,bounds.y+190);
+        await page.waitForFunction(()=>{
+            const e=new ClipboardEvent('copy',{bubbles:true,cancelable:true,clipboardData:new DataTransfer()});
+            document.activeElement.dispatchEvent(e);return e.clipboardData.getData('text/plain').endsWith('z');
+        });
+        await page.mouse.up();
+        assert.equal(await selection(),'a'+'\n'.repeat(30)+'z','Drag autoscroll reaches final line');
+        await page.mouse.move(bounds.x+25,bounds.y+126);
+        assert.equal(await selection(),'a'+'\n'.repeat(30)+'z','Released drag keeps its selection');
+        await page.mouse.move(bounds.x+25,bounds.y+80);await page.mouse.down();
+        await page.mouse.move(bounds.x+325,bounds.y+80);
+        await page.waitForTimeout(350);
+        assert.equal(await selection(),'я','Autoscroll stops at final Unicode character');
+        await page.mouse.up();
+        await action(9);
+        await page.keyboard.press('End');
+        await page.keyboard.press('Shift+ArrowRight');await page.keyboard.press('Shift+ArrowRight');
+        assert.equal(await selection(),'\n\n','Empty line and adjacent newline can be selected');
+        await page.waitForFunction(()=>{
+            const c=document.querySelector('.wui-canvas'),scale=c.width/c.getBoundingClientRect().width;
+            return Array.from(c.getContext('2d').getImageData(27*scale,150*scale,1,1).data).join(',')==='38,79,120,255';
+        });
         await action(1);await page.waitForFunction(()=>[...Module.wui.windows.values()][0].width===1280);
         await page.setViewportSize({width:1100,height:800});await page.waitForFunction(()=>[...Module.wui.windows.values()][0].width===1100);
         await action(2);await page.waitForFunction(()=>[...Module.wui.windows.values()][0].width===500);
