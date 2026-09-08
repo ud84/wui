@@ -33,5 +33,6 @@ void set_area(int32_t area);
 ```
 
 States: `activated`, `relaxed`, `up_end`, `down_end`, `moving`.
-`get_scroll_view()` reports `none`, `tiny` or `full`; visibility changes with
-interaction. Theme section `scroll` uses `background`, `slider`, `slider_active`.
+`get_scroll_view()` reports `full`: the scrollbar keeps its full width and visible
+thumb without requiring hover. Theme section `scroll` uses `background`, `slider`,
+`slider_active`.

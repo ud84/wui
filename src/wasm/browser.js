@@ -87,6 +87,7 @@ Module.wui = {
         }
         var self=this, id=this.next++, root=document.createElement('div'), canvas=document.createElement('canvas'), editor=document.createElement('textarea');
         root.className='wui-window'; canvas.className='wui-canvas'; editor.className='wui-input';
+        root.tabIndex=0; root.style.outline='none'; editor.readOnly=true;
         canvas.setAttribute('role','application'); editor.setAttribute('aria-label','WUI text input');
         editor.setAttribute('autocomplete','off');editor.setAttribute('autocapitalize','off');editor.spellcheck=false;
         root.append(canvas,editor); this.host().appendChild(root);
@@ -97,13 +98,17 @@ Module.wui = {
         canvas.addEventListener('contextmenu',function(e){ e.preventDefault(); });
         canvas.addEventListener('pointerdown',function(e) {
             var p=coords(e), flags=Module._wui_flags(id,p[0],p[1]); if(!(flags&1)) return;
-            e.preventDefault();root.style.zIndex=++self.z; editor.focus({preventScroll:true});canvas.setPointerCapture(e.pointerId);
+            e.preventDefault();root.style.zIndex=++self.z;
+            if(!root.contains(document.activeElement)) root.focus({preventScroll:true});
+            canvas.setPointerCapture(e.pointerId);
             var edges=0;
             if(e.button===0 && (flags&2)) { if(p[0]<5) edges|=1;if(p[0]>w.width-5) edges|=2;if(p[1]<5) edges|=4;if(p[1]>w.height-5) edges|=8; }
             if(e.button===0 && (edges || (p[1]<30 && (flags&4) && !(flags&8)))) {
+                root.focus({preventScroll:true});
                 w.drag={x:e.clientX,y:e.clientY,left:w.x,top:w.y,width:w.width,height:w.height,edges:edges};return;
             }
             mouse(e,e.button===2?3:e.button===1?5:7);
+            self.focusInput(w);
         });
         canvas.addEventListener('pointermove',function(e) {
             if(w.drag) {
@@ -123,21 +128,22 @@ Module.wui = {
         canvas.addEventListener('pointerleave',function(e) { if(!canvas.hasPointerCapture(e.pointerId)) mouse(e,2); });
         canvas.addEventListener('dblclick',function(e) { mouse(e,9); });
         canvas.addEventListener('wheel',function(e) { if(!(Module._wui_flags(id,0,0)&1)) return;e.preventDefault();mouse(e,10,Math.round(-e.deltaY*(e.deltaMode===1?40:e.deltaMode===2?w.height:4))); },{passive:false});
-        editor.addEventListener('focus',function() { Module._wui_focus(id,1); });
-        editor.addEventListener('blur',function() { Module._wui_focus(id,0); });
+        root.addEventListener('focusin',function(e) { if(!root.contains(e.relatedTarget)) Module._wui_focus(id,1); });
+        root.addEventListener('focusout',function(e) { if(!root.contains(e.relatedTarget)) Module._wui_focus(id,0); });
         var codes={Tab:9,Enter:13,Escape:27,Backspace:8,Delete:46,End:35,Home:36,PageUp:33,PageDown:34,ArrowUp:38,ArrowDown:40,ArrowLeft:37,ArrowRight:39,Shift:16};
-        editor.addEventListener('keydown',function(e) {
+        root.addEventListener('keydown',function(e) {
             if(e.isComposing || w.composing || e.keyCode===229) return;
             var key=e.key.toLowerCase();
             if((e.ctrlKey || e.metaKey) && !e.altKey) {
-                if(key==='a') { e.preventDefault();Module._wui_key(id,2,1,162); }
+                if(e.code==='KeyA' || key==='a') { e.preventDefault();Module._wui_key(id,2,1,162); }
                 // Native clipboard events carry the actual clipboard contents.
                 return;
             }
+            if(e.key===' ' && w.input!==2) { e.preventDefault();Module._wui_key(id,2,32,0);return; }
             var code=codes[e.key];
-            if(code) { e.preventDefault();Module._wui_key(id,0,code,e.shiftKey?16:e.altKey?18:0); }
+            if(code) { e.preventDefault();Module._wui_key(id,0,code,e.shiftKey?16:e.altKey?18:0);self.focusInput(w); }
         });
-        editor.addEventListener('keyup',function(e) { if(!w.composing) Module._wui_key(id,1,codes[e.key]||0,e.shiftKey?16:0); });
+        root.addEventListener('keyup',function(e) { if(!w.composing) Module._wui_key(id,1,codes[e.key]||0,e.shiftKey?16:0); });
         var text=function(value) { if(value) Module.ccall('wui_text',null,['number','string'],[id,value]); };
         editor.addEventListener('beforeinput',function(e) {
             if(w.composing || e.isComposing) return;
@@ -158,10 +164,10 @@ Module.wui = {
             w.composing=false;w.committed=e.data || '';text(w.committed);editor.value='';editor.classList.remove('wui-composing');
             setTimeout(function(){w.committed='';},0);
         });
-        editor.addEventListener('paste',function(e) {
+        root.addEventListener('paste',function(e) {
             e.preventDefault();Module.ccall('wui_clipboard',null,['string'],[e.clipboardData.getData('text/plain')]);Module._wui_key(id,2,22,162);editor.value='';
         });
-        ['copy','cut'].forEach(function(kind) { editor.addEventListener(kind,function(e) {
+        ['copy','cut'].forEach(function(kind) { root.addEventListener(kind,function(e) {
             e.preventDefault();self.clipboard='';self.clipboardEvent=true;
             try { Module._wui_key(id,2,kind==='copy'?3:24,162);e.clipboardData.setData('text/plain',self.clipboard); }
             finally { self.clipboardEvent=false; }
@@ -172,6 +178,12 @@ Module.wui = {
             if(nw>0 && nh>0) { w.width=nw;w.height=nh;self.resizeCanvas(w);Module._wui_resize(id,nw,nh,Math.max(1,devicePixelRatio||1)); }
         });w.observer.observe(root);
         return id;
+    },
+    focusInput: function(w) {
+        // Focus an editable element only after WUI has selected an editable input.
+        // Buttons/read-only text still receive hardware keys through the window.
+        var target=w.input===2 ? w.editor : w.root;
+        if(document.activeElement!==target) target.focus({preventScroll:true});
     },
     resizeCanvas: function(w) {
         var scale=Math.max(1,devicePixelRatio||1),width=Math.ceil(w.width*scale),height=Math.ceil(w.height*scale);
@@ -185,7 +197,7 @@ Module.wui = {
     show: function(id,visible) {
         var w=this.windows.get(id);if(!w) return;
         w.root.hidden=!visible;
-        if(visible) { if(w.restore) {w.restore.remove();w.restore=null;}w.root.style.zIndex=++this.z;w.editor.focus({preventScroll:true});this.invalidate(id); }
+        if(visible) { if(w.restore) {w.restore.remove();w.restore=null;}w.root.style.zIndex=++this.z;w.root.focus({preventScroll:true});this.invalidate(id); }
     },
     minimize: function(id) {
         var w=this.windows.get(id);if(!w) return;w.root.hidden=true;

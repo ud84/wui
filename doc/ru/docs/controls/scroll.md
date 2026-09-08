@@ -33,5 +33,6 @@ void set_area(int32_t area);
 ```
 
 Состояния: `activated`, `relaxed`, `up_end`, `down_end`, `moving`.
-`get_scroll_view()` возвращает `none`, `tiny` или `full`; видимость меняется при
-взаимодействии. Цвета раздела `scroll`: `background`, `slider`, `slider_active`.
+`get_scroll_view()` возвращает `full`: скроллбар сохраняет полную ширину и видимый
+ползунок без наведения мыши. Цвета раздела `scroll`: `background`, `slider`,
+`slider_active`.

@@ -232,7 +232,7 @@ void input::draw(graphic &gr, rect)
             }
 
             // Cursor
-            if (cursor_visible && i == cursor_row)
+            if (cursor_visible && focused_ && input_view_ != input_view::readonly && i == cursor_row)
             {
                 size_t max_col = utf8::distance(lines_[i].begin(), lines_[i].end());
                 size_t safe_cursor_col = std::min(cursor_col, max_col);
@@ -434,6 +434,7 @@ void input::receive_control_events(const event &ev)
                 select_current_word(ev.mouse_event_.x, ev.mouse_event_.y);
             break;
             case mouse_event_type::wheel:
+                if (input_view_ != input_view::multiline || !vert_scroll->showed()) break;
                 if (ev.mouse_event_.wheel_delta > 0) {
                     vert_scroll->scroll_up();
                 } else {
@@ -471,7 +472,7 @@ void input::receive_control_events(const event &ev)
                 default: break;
             }
         }
-        else if (key.type == keyboard_event_type::up) timer_.start(500);
+        else if (key.type == keyboard_event_type::up && input_view_ != input_view::readonly) timer_.start(500);
         else if (key.type == keyboard_event_type::key)
         {
             switch (static_cast<unsigned char>(key.key[0]))
@@ -495,7 +496,7 @@ void input::receive_control_events(const event &ev)
 
                 redraw();
 
-                timer_.start(500);
+                if (input_view_ != input_view::readonly) timer_.start(500);
             break;
             case internal_event_type::remove_focus:
                 focused_ = false;
@@ -542,9 +543,9 @@ void input::set_position(rect position__)
             position_.bottom - 14 - border_width,
             position_.right - border_width,
             position_.bottom - border_width });
-        update_scroll_areas();
-        scroll_to_cursor();
     }
+    update_scroll_areas();
+    scroll_to_cursor();
 }
 
 rect input::position() const
@@ -714,6 +715,9 @@ void input::set_input_view(input_view input_view__)
         }
     }
     input_view_ = input_view__;
+    cursor_visible = false;
+    timer_.stop();
+    if (focused_ && input_view_ != input_view::readonly) timer_.start(500);
     update_lines(value);
     set_position(position_);
     redraw();
@@ -765,6 +769,7 @@ void input::redraw()
 
 void input::redraw_cursor()
 {
+    if (!focused_ || input_view_ == input_view::readonly) return;
     cursor_visible = !cursor_visible;
     redraw();
 }
@@ -1079,7 +1084,7 @@ void input::update_scroll_areas()
 
     // Count the vertical scrollbar
     int total_height = static_cast<int>(lines_.size()) * line_height;
-    int vert_area = std::max(0, total_height - content_height);
+    int vert_area = input_view_ == input_view::multiline ? std::max(0, total_height - content_height) : 0;
     vert_scroll->set_area(vert_area);
 
     // Count the horizontal scrollbar

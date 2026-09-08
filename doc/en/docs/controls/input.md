@@ -2,6 +2,8 @@
 
 The `input` control provides a text input field with support for various modes.
 
+Numeric modes filter allowed characters; they do not provide a spinner or change numbers with the wheel. Single-line fields do not scroll vertically. Read-only fields support selection and copying without a blinking insertion caret.
+
 ## Quick Start
 
 ```cpp
