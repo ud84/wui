@@ -3,6 +3,7 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import {exerciseFeedback, exerciseTouchFocus} from './feedback.mjs';
 import {installShowcaseProbe, exerciseShowcase} from './showcase.mjs';
 const { chromium, firefox, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(process.argv[2] || 'build-wasm');
@@ -36,10 +37,16 @@ try {
             return false;
         }));
         await page.screenshot({path:path.join(root,`${example}-${engine}.png`)});
-        if(example==='demo') await exerciseShowcase(page,root,engine);
+        if(example==='demo') { await exerciseFeedback(page); await exerciseShowcase(page,root,engine); }
         const windows=await page.evaluate(() => [...Module.wui.windows.values()].map(w=>({id:w.id,width:w.width,height:w.height,title:w.title})));
         assert.deepEqual(errors,[],`${example}: browser errors`);
         console.log(JSON.stringify({example,engine,windows,errors}));
+        await page.close();
+    }
+    if(engine!=='firefox') {
+        const page=await browser.newPage({viewport:{width:820,height:900},hasTouch:true,isMobile:true});
+        await page.goto(`${url}/examples/demo/demo.html`);
+        await exerciseTouchFocus(page);
         await page.close();
     }
     if (await fs.stat(path.join(root,'tests/wasm/wui_wasm_test.html')).catch(()=>null)) {

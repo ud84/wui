@@ -40,7 +40,7 @@ scroll::scroll(int32_t area_, int32_t scroll_pos_,
     worker(),
     worker_started(false),
     progress(0),
-    scroll_view_(scroll_view::tiny),
+    scroll_view_(scroll_view::full),
     slider_scrolling(false),
     slider_click_pos(0),
     title_height(0)
@@ -265,19 +265,15 @@ void scroll::receive_control_events(const event& ev)
         switch (ev.mouse_event_.type)
         {
             case mouse_event_type::enter:
-            {
-                if (scroll_view_ != scroll_view::full)
-                {
-                    scroll_view_ = scroll_view::full;
-                    progress = 0;
-                    start_work(worker_action::scrollbar_show);
-                }
-            }
+                // Preserve deferred activation callbacks even though the bar is
+                // already visible: callbacks may remove the control/window.
+                progress = 0;
+                start_work(worker_action::scrollbar_show);
             break;
             case mouse_event_type::leave:
                 if (!slider_scrolling)
                 {
-                    scroll_view_ = scroll_view::tiny;
+                    scroll_view_ = scroll_view::full;
                 }
             break;
             case mouse_event_type::left_down:
@@ -378,7 +374,7 @@ void scroll::receive_plain_events(const event& ev)
 
                 slider_scrolling = false;
 
-                scroll_view_ = scroll_view::tiny;
+                scroll_view_ = scroll_view::full;
                 if (callback) callback(scroll_state::relaxed, static_cast<int32_t>(0));
             break;
         }

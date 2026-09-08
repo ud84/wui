@@ -20,7 +20,7 @@ EM_JS(void, browser_show, (int id,int visible), { Module.wui.show(id,visible); }
 EM_JS(void, browser_minimize, (int id), { Module.wui.minimize(id); });
 EM_JS(void, browser_input_position, (int id,int x,int y,int width,int height,int input), {
     var w=Module.wui.windows.get(id); if(!w) return;
-    w.input=input; w.editor.style.left=x+'px'; w.editor.style.top=y+'px';
+    w.input=input; w.editor.readOnly=input!=2; w.editor.style.left=x+'px'; w.editor.style.top=y+'px';
     w.editor.style.width=Math.max(1,width)+'px'; w.editor.style.height=Math.max(20,height)+'px';
 });
 EM_JS(double, browser_scale, (), { return Math.max(1,devicePixelRatio || 1); });
@@ -58,11 +58,11 @@ void wasm_window_backend::close(window& w,bool notify)
     if(notify && w.close_callback) { auto callback=w.close_callback; callback(); }
 }
 void wasm_window_backend::invalidate(window& w,rect) { if(w.context_.valid()) browser_invalidate(w.context_.canvas); }
-void wasm_window_backend::position(window& w,rect p)
+void wasm_window_backend::position(window& w,rect p,bool center)
 {
     if(!w.context_.valid()) return;
-    if(p.left==-1) center_horizontally(p,w.context_);
-    if(p.top==-1) center_vertically(p,w.context_);
+    if(center && p.left==-1) center_horizontally(p,w.context_);
+    if(center && p.top==-1) center_vertically(p,w.context_);
     if(p.width()<=0 || p.height()<=0) return;
     bool moved=w.position_.left!=p.left || w.position_.top!=p.top;
     browser_position(w.context_.canvas,p.left,p.top,p.width(),p.height());
@@ -123,8 +123,9 @@ void wasm_window_backend::input_position(window& w)
     auto control=w.get_focused();
     while(auto child=std::dynamic_pointer_cast<window>(control)) control=child->get_focused();
     rect p=control ? control->position() : rect{0,0,1,20};
+    auto field=std::dynamic_pointer_cast<input>(control);
     browser_input_position(w.context_.canvas,p.left+3,p.top+3,p.width()-6,24,
-        std::dynamic_pointer_cast<input>(control) ? 1 : 0);
+        field && field->enabled() ? (field->get_input_view()==input_view::readonly ? 1 : 2) : 0);
 }
 void wasm_window_backend::mouse(window& w,mouse_event e)
 {
@@ -196,7 +197,7 @@ EMSCRIPTEN_KEEPALIVE void wui_viewport(int id) {
 }
 EMSCRIPTEN_KEEPALIVE void wui_paint(int id) { if(auto w=lookup(id)) wui::wasm_window_backend::paint(*w); }
 EMSCRIPTEN_KEEPALIVE void wui_resize(int id,int width,int height,double scale) { if(auto w=lookup(id)) wui::wasm_window_backend::resized(*w,width,height,scale); }
-EMSCRIPTEN_KEEPALIVE void wui_position(int id,int x,int y,int width,int height) { if(auto w=lookup(id)) wui::wasm_window_backend::position(*w,{x,y,x+width,y+height}); }
+EMSCRIPTEN_KEEPALIVE void wui_position(int id,int x,int y,int width,int height) { if(auto w=lookup(id)) wui::wasm_window_backend::position(*w,{x,y,x+width,y+height},false); }
 EMSCRIPTEN_KEEPALIVE int wui_flags(int id,int x,int y) { if(auto w=lookup(id)) return wui::wasm_window_backend::flags(*w,x,y); return 0; }
 EMSCRIPTEN_KEEPALIVE void wui_focus(int id,int focused) { if(auto w=lookup(id)) wui::wasm_window_backend::focus(*w,focused); }
 EMSCRIPTEN_KEEPALIVE void wui_restore(int id) { if(auto w=lookup(id)) w->normal(); }

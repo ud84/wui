@@ -10,7 +10,7 @@ struct wasm_window_backend
     static bool create(window&);
     static void close(window&, bool notify);
     static void invalidate(window&, rect);
-    static void position(window&, rect);
+    static void position(window&, rect, bool center = true);
     static void style(window&);
     static void show(window&, bool);
     static void minimize(window&);

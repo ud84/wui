@@ -1,12 +1,35 @@
-# Unreleased
-1. Add experimental macOS backend (AppKit, Core Graphics, ImageIO), Retina buffers,
-   UTF-8/IME input, clipboard, main-thread timers, embedded/modal windows and status items.
+# 1.4.260907
+1. Add experimental macOS backend (AppKit, Core Graphics, Core Text, ImageIO),
+   Retina buffers, UTF-8/IME input, clipboard, main-thread timers,
+   embedded/modal windows and status items.
 2. Build macOS application bundles for all examples and add platform integration tests.
-3. Keep the active framework implementation alive until its event loop returns.
-4. Add experimental WebAssembly backend (Emscripten, Canvas 2D), browser windows,
+3. Add experimental WebAssembly backend (Emscripten, Canvas 2D), browser windows,
    Unicode/composition input, clipboard events and single-threaded timers.
-5. Build all three examples for static web hosting; add browser integration tests.
-6. Fix hello_world image resource paths and missing heading styles.
+   Preserve the desktop event-loop contract using Asyncify.
+4. Build all three examples for static web hosting and add integration tests
+   for Chromium, Firefox and WebKit, including touch-focus scenarios.
+5. Keep the active framework implementation alive until its event loop returns.
+6. Replace the main demo with an interactive seven-page Showcase covering controls,
+   dialogs, text editing, filtered lists, menus, custom drawing and split layouts.
+   Preserve page state and support switching between light and dark themes.
+7. Draw toggle and radio indicators with primitives instead of PNG resources;
+   add the classic button_view::checkbox, keyboard activation and theme sizing.
+8. Improve single-line and multiline input selection, Unicode editing, newline
+   handling, clipboard operations and drag autoscrolling; add regression tests.
+9. Fix text disappearing when scrolling single-line and read-only inputs.
+   Remove the blinking insertion caret in read-only fields while preserving
+   selection and copying.
+10. Keep scrollbars visible at full width and fix their rendering on macOS and WASM.
+11. Make Ctrl/Cmd+A independent of the keyboard layout in the browser backend.
+12. Focus browser text entry only for editable inputs, avoiding unconditional
+    software-keyboard activation when tapping the window or read-only text.
+13. Fix browser-window jumps when dragging across coordinate -1, which was
+    incorrectly interpreted as a request to center the window.
+14. Fix hello_world image resource paths and missing heading styles.
+15. Fix propagation of size_changed events to plain subscribers for docked windows;
+    add missing <cstdint> includes in locale_selector.hpp and theme_selector.hpp.
+16. Update English and Russian documentation, API examples, platform build guides
+    and documentation deployment; add dedicated text and scroll control guides.
 
 # 1.3.260902
 1. Add graphic::draw_image: draw a PNG scaled into position with a per-path surface cache (Linux only)
